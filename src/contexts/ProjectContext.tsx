@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,9 +27,36 @@ interface ProjectContextType {
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
-  const [currentProject, setCurrentProject] = useState<Project | null>(null);
+  const [currentProject, setCurrentProjectState] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Carregar projeto do localStorage ao inicializar
+  useEffect(() => {
+    const savedProject = localStorage.getItem('currentProject');
+    if (savedProject) {
+      try {
+        const project = JSON.parse(savedProject);
+        setCurrentProjectState(project);
+        console.log('Projeto carregado do localStorage:', project);
+      } catch (error) {
+        console.error('Erro ao carregar projeto do localStorage:', error);
+        localStorage.removeItem('currentProject');
+      }
+    }
+  }, []);
+
+  // Função para atualizar o projeto atual com persistência
+  const setCurrentProject = useCallback((project: Project | null) => {
+    setCurrentProjectState(project);
+    if (project) {
+      localStorage.setItem('currentProject', JSON.stringify(project));
+      console.log('Projeto salvo no localStorage:', project);
+    } else {
+      localStorage.removeItem('currentProject');
+      console.log('Projeto removido do localStorage');
+    }
+  }, []);
 
   const uploadProject = useCallback(async (file: File): Promise<boolean> => {
     setIsLoading(true);
@@ -58,33 +85,48 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload project');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upload project');
       }
 
       const result = await response.json();
       
       if (result.success) {
+        // Atualizar o projeto atual imediatamente
         setCurrentProject(result.project);
+        
         toast({
           title: "🎉 Projeto analisado!",
           description: result.message,
         });
+        
+        console.log('Upload bem-sucedido, projeto definido:', result.project);
         return true;
       } else {
         throw new Error(result.error || 'Upload failed');
       }
     } catch (error) {
       console.error('Upload error:', error);
-      toast({
-        title: "❌ Erro no upload",
-        description: "Não foi possível processar o projeto.",
-        variant: "destructive",
-      });
+      
+      // Verificar se é erro de validação de PDF
+      if (error instanceof Error && error.message.includes('Não identificamos elementos de projeto')) {
+        toast({
+          title: "📄 PDF não é um projeto técnico",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "❌ Erro no upload",
+          description: "Não foi possível processar o projeto.",
+          variant: "destructive",
+        });
+      }
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, setCurrentProject]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     try {
@@ -94,12 +136,19 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      // Se não tiver projeto atual mas tiver projetos, pegar o mais recente
+      if (!currentProject && data && data.length > 0) {
+        setCurrentProject(data[0]);
+        console.log('Projeto mais recente definido como atual:', data[0]);
+      }
+      
       return data || [];
     } catch (error) {
       console.error('Error loading projects:', error);
       return [];
     }
-  }, []);
+  }, [currentProject, setCurrentProject]);
 
   return (
     <ProjectContext.Provider value={{

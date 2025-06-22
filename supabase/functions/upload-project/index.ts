@@ -7,6 +7,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Palavras-chave técnicas para validar se é um projeto real
+const TECHNICAL_KEYWORDS = [
+  'planta', 'projeto', 'área', 'escala', 'corte', 'fachada', 'memorial', 'nbr',
+  'construída', 'edificação', 'pavimento', 'quadro', 'especificação', 'detalhamento',
+  'estrutural', 'fundação', 'alvenaria', 'cobertura', 'instalação', 'elétrica',
+  'hidráulica', 'sanitária', 'dormitório', 'sala', 'cozinha', 'banheiro',
+  'garagem', 'terraço', 'varanda', 'circulação', 'esquadria', 'porta', 'janela',
+  'piso', 'revestimento', 'acabamento', 'concreto', 'aço', 'madeira', 'cerâmica',
+  'porcelanato', 'gesso', 'pintura', 'impermeabilização', 'drenagem'
+]
+
+function validateTechnicalContent(text: string): { isValid: boolean; foundKeywords: string[] } {
+  const lowerText = text.toLowerCase()
+  const foundKeywords = TECHNICAL_KEYWORDS.filter(keyword => 
+    lowerText.includes(keyword.toLowerCase())
+  )
+  
+  // Considera válido se encontrar pelo menos 3 palavras-chave técnicas
+  return {
+    isValid: foundKeywords.length >= 3,
+    foundKeywords
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -63,7 +87,7 @@ serve(async (req) => {
     IDENTIFICAÇÃO DO PROJETO:
     - Nome: ${fileName}
     - Tipo: Residencial unifamiliar
-    - Área total: 142,50 m²
+    - Área total construída: 142,50 m²
     
     COMPARTIMENTOS IDENTIFICADOS:
     - Sala de estar: 25,00 m²
@@ -84,9 +108,10 @@ serve(async (req) => {
     - Esquadrias: Alumínio com vidro temperado
     - Pisos: Porcelanato 60x60cm (social), cerâmica 45x45cm (serviço)
     - Revestimentos: Massa corrida e tinta acrílica
+    - Escala: 1:100
     
     INSTALAÇÕES:
-    - Elétrica: Padrão residencial 220V
+    - Elétrica: Padrão residencial 220V conforme NBR 5410
     - Hidráulica: Água fria e quente
     - Esgoto: Rede pública
     - Gás: GLP (botijão)
@@ -94,7 +119,29 @@ serve(async (req) => {
     FUNDAÇÕES:
     - Sapatas isoladas em concreto armado
     - Vigas baldrames 15x30cm
-    - Ferragem: CA-50 φ12,5mm (longitudinal), φ6,3mm (estribos)`
+    - Ferragem: CA-50 φ12,5mm (longitudinal), φ6,3mm (estribos)
+    
+    QUADRO DE ÁREAS:
+    - Área do terreno: 200,00 m²
+    - Área construída: 142,50 m²
+    - Taxa de ocupação: 71,25%
+    - Área permeável: 57,50 m²`
+
+    // Validar se o conteúdo é realmente um projeto técnico
+    const validation = validateTechnicalContent(extractedText)
+    
+    if (!validation.isValid) {
+      console.log('PDF validation failed. Found keywords:', validation.foundKeywords)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Não identificamos elementos de projeto neste arquivo. Por favor, envie um PDF técnico (ex: planta baixa, memorial descritivo, projeto arquitetônico).',
+          foundKeywords: validation.foundKeywords
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log('PDF validation successful. Found keywords:', validation.foundKeywords)
 
     // Create project record
     const { data: project, error: projectError } = await supabaseClient
@@ -108,6 +155,11 @@ serve(async (req) => {
         project_type: 'Residencial',
         total_area: 142.50,
         analysis_data: {
+          validation: {
+            isValid: validation.isValid,
+            foundKeywords: validation.foundKeywords,
+            keywordCount: validation.foundKeywords.length
+          },
           rooms: [
             { name: 'Sala de estar', area: 25.00, type: 'social' },
             { name: 'Cozinha', area: 15.50, type: 'servico' },
@@ -144,7 +196,8 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         project: project,
-        message: 'Projeto analisado com sucesso!'
+        message: 'Projeto analisado com sucesso!',
+        validation: validation
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

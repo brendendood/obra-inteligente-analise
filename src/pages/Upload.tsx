@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Upload, Check, Brain, FileSearch, Sparkles, Bot, Calculator, Calendar, FileCheck } from 'lucide-react';
@@ -14,7 +15,7 @@ const UploadPage = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { uploadProject, isLoading, currentProject } = useProject();
+  const { uploadProject, isLoading, currentProject, loadUserProjects } = useProject();
   const { 
     steps, 
     currentStep, 
@@ -23,6 +24,11 @@ const UploadPage = () => {
     startProcessing, 
     stopProcessing 
   } = useProcessingSteps();
+
+  // Carregar projetos do usuário ao inicializar
+  useEffect(() => {
+    loadUserProjects();
+  }, [loadUserProjects]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -60,27 +66,27 @@ const UploadPage = () => {
   const processProject = async () => {
     if (!uploadedFile) return;
     
-    // Start visual processing feedback
+    // Iniciar feedback visual de processamento
     startProcessing();
     
     try {
       const success = await uploadProject(uploadedFile);
       
       if (success) {
-        // Wait for processing animation to complete
+        // Aguardar animação de processamento completar
         setTimeout(() => {
           stopProcessing();
           setUploadedFile(null);
           
-          // Show success message and redirect
+          // Mostrar mensagem de sucesso e redirecionar
           toast({
             title: "🎉 Análise concluída!",
-            description: "Redirecionando para o assistente...",
+            description: "A IA está pronta para ajudar. Redirecionando...",
           });
           
           setTimeout(() => {
             navigate('/assistant');
-          }, 2000);
+          }, 1500);
         }, 1000);
       } else {
         stopProcessing();
@@ -92,10 +98,30 @@ const UploadPage = () => {
   };
 
   const navigationItems = [
-    { icon: <Bot className="h-6 w-6 text-purple-600" />, label: "Assistente IA", path: "/assistant" },
-    { icon: <Calculator className="h-6 w-6 text-orange-600" />, label: "Orçamento", path: "/budget" },
-    { icon: <Calendar className="h-6 w-6 text-blue-600" />, label: "Cronograma", path: "/schedule" },
-    { icon: <FileCheck className="h-6 w-6 text-red-600" />, label: "Documentos", path: "/documents" }
+    { 
+      icon: <Bot className="h-6 w-6 text-purple-600" />, 
+      label: "Assistente IA", 
+      path: "/assistant",
+      requiresProject: false // Assistente sempre disponível
+    },
+    { 
+      icon: <Calculator className="h-6 w-6 text-orange-600" />, 
+      label: "Orçamento", 
+      path: "/budget",
+      requiresProject: true
+    },
+    { 
+      icon: <Calendar className="h-6 w-6 text-blue-600" />, 
+      label: "Cronograma", 
+      path: "/schedule",
+      requiresProject: true
+    },
+    { 
+      icon: <FileCheck className="h-6 w-6 text-red-600" />, 
+      label: "Documentos", 
+      path: "/documents",
+      requiresProject: true
+    }
   ];
 
   return (
@@ -166,7 +192,7 @@ const UploadPage = () => {
               Enviar Novo Projeto
             </CardTitle>
             <CardDescription className="text-base sm:text-lg text-slate-600">
-              Plantas, memoriais, projetos arquitetônicos e estruturais em PDF
+              Plantas baixas, memoriais descritivos, projetos arquitetônicos e estruturais em PDF
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -178,27 +204,7 @@ const UploadPage = () => {
                   ? 'border-emerald-400 bg-emerald-50'
                   : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
               }`}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDragOver(false);
-                
-                const files = Array.from(e.dataTransfer.files);
-                const pdfFile = files.find(file => file.type === 'application/pdf');
-                
-                if (pdfFile) {
-                  setUploadedFile(pdfFile);
-                  toast({
-                    title: "✅ Arquivo carregado!",
-                    description: `${pdfFile.name} pronto para análise.`,
-                  });
-                } else {
-                  toast({
-                    title: "❌ Formato inválido",
-                    description: "Envie apenas arquivos PDF.",
-                    variant: "destructive",
-                  });
-                }
-              }}
+              onDrop={handleDrop}
               onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragOver(true);
@@ -221,7 +227,7 @@ const UploadPage = () => {
                     </p>
                     <div className="flex items-center justify-center space-x-2 mt-4 text-sm text-emerald-700">
                       <FileSearch className="h-4 w-4" />
-                      <span>Pronto para análise</span>
+                      <span>Pronto para análise com IA</span>
                     </div>
                   </div>
                 </div>
@@ -234,15 +240,15 @@ const UploadPage = () => {
                   </div>
                   <div>
                     <p className="text-lg sm:text-xl font-bold text-slate-800 mb-2">
-                      Arraste seu PDF aqui
+                      Arraste seu PDF técnico aqui
                     </p>
                     <p className="text-slate-600 mb-4">
                       ou clique para selecionar
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-500">
-                      <span>• Plantas</span>
+                      <span>• Plantas baixas</span>
                       <span>• Memoriais</span>
-                      <span>• Projetos</span>
+                      <span>• Projetos técnicos</span>
                     </div>
                   </div>
                 </div>
@@ -251,16 +257,7 @@ const UploadPage = () => {
               <input
                 type="file"
                 accept=".pdf"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file && file.type === 'application/pdf') {
-                    setUploadedFile(file);
-                    toast({
-                      title: "✅ Arquivo carregado!",
-                      description: `${file.name} pronto para análise.`,
-                    });
-                  }
-                }}
+                onChange={handleFileInput}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 disabled={isLoading || isProcessing}
               />
@@ -276,7 +273,7 @@ const UploadPage = () => {
                   className="w-full"
                   icon={!isProcessing ? <Sparkles className="h-5 w-5" /> : undefined}
                 >
-                  {isProcessing ? "Analisando com IA..." : "Analisar com IA Especializada"}
+                  {isProcessing ? "IA Analisando Projeto..." : "🤖 Analisar com IA Especializada"}
                 </ActionButton>
 
                 <ProcessingProgress
@@ -292,21 +289,35 @@ const UploadPage = () => {
 
         {/* Navigation Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {navigationItems.map((item, index) => (
-            <ActionButton
-              key={index}
-              variant="outline"
-              onClick={() => navigate(item.path)}
-              className="h-20 sm:h-24 flex flex-col space-y-2 sm:space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300"
-              disabled={!currentProject && item.path !== '/assistant'}
-            >
-              {item.icon}
-              <span className="font-semibold text-xs sm:text-sm">{item.label}</span>
-              {!currentProject && item.path !== '/assistant' && (
-                <span className="text-xs text-slate-400">Requer projeto</span>
-              )}
-            </ActionButton>
-          ))}
+          {navigationItems.map((item, index) => {
+            const isDisabled = item.requiresProject && !currentProject;
+            
+            return (
+              <ActionButton
+                key={index}
+                variant="outline"
+                onClick={() => navigate(item.path)}
+                className={`h-20 sm:h-24 flex flex-col space-y-2 sm:space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300 ${
+                  isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                disabled={isDisabled}
+              >
+                {item.icon}
+                <span className="font-semibold text-xs sm:text-sm">{item.label}</span>
+                {isDisabled && (
+                  <span className="text-xs text-slate-400">Requer projeto</span>
+                )}
+              </ActionButton>
+            );
+          })}
+        </div>
+
+        {/* Informational Note */}
+        <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800 text-center">
+            💡 <strong>Dica:</strong> A IA só aceita PDFs com conteúdo técnico (plantas, memoriais, projetos). 
+            Após análise bem-sucedida, todas as funcionalidades serão desbloqueadas automaticamente.
+          </p>
         </div>
       </div>
     </div>
