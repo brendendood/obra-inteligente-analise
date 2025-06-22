@@ -1,12 +1,13 @@
-
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Upload, Check, Brain, FileSearch, Sparkles, Bot, Calculator, Calendar, FileCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/contexts/ProjectContext';
+import { useProcessingSteps } from '@/hooks/useProcessingSteps';
 import PremiumHeader from '@/components/common/PremiumHeader';
 import ActionButton from '@/components/common/ActionButton';
+import ProcessingProgress from '@/components/common/ProcessingProgress';
 
 const UploadPage = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -14,6 +15,14 @@ const UploadPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { uploadProject, isLoading, currentProject } = useProject();
+  const { 
+    steps, 
+    currentStep, 
+    progress, 
+    isProcessing, 
+    startProcessing, 
+    stopProcessing 
+  } = useProcessingSteps();
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -51,10 +60,34 @@ const UploadPage = () => {
   const processProject = async () => {
     if (!uploadedFile) return;
     
-    const success = await uploadProject(uploadedFile);
-    if (success) {
-      // Clear uploaded file after successful processing
-      setUploadedFile(null);
+    // Start visual processing feedback
+    startProcessing();
+    
+    try {
+      const success = await uploadProject(uploadedFile);
+      
+      if (success) {
+        // Wait for processing animation to complete
+        setTimeout(() => {
+          stopProcessing();
+          setUploadedFile(null);
+          
+          // Show success message and redirect
+          toast({
+            title: "🎉 Análise concluída!",
+            description: "Redirecionando para o assistente...",
+          });
+          
+          setTimeout(() => {
+            navigate('/assistant');
+          }, 2000);
+        }, 1000);
+      } else {
+        stopProcessing();
+      }
+    } catch (error) {
+      stopProcessing();
+      console.error('Processing error:', error);
     }
   };
 
@@ -145,7 +178,27 @@ const UploadPage = () => {
                   ? 'border-emerald-400 bg-emerald-50'
                   : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
               }`}
-              onDrop={handleDrop}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                
+                const files = Array.from(e.dataTransfer.files);
+                const pdfFile = files.find(file => file.type === 'application/pdf');
+                
+                if (pdfFile) {
+                  setUploadedFile(pdfFile);
+                  toast({
+                    title: "✅ Arquivo carregado!",
+                    description: `${pdfFile.name} pronto para análise.`,
+                  });
+                } else {
+                  toast({
+                    title: "❌ Formato inválido",
+                    description: "Envie apenas arquivos PDF.",
+                    variant: "destructive",
+                  });
+                }
+              }}
               onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragOver(true);
@@ -198,9 +251,18 @@ const UploadPage = () => {
               <input
                 type="file"
                 accept=".pdf"
-                onChange={handleFileInput}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file && file.type === 'application/pdf') {
+                    setUploadedFile(file);
+                    toast({
+                      title: "✅ Arquivo carregado!",
+                      description: `${file.name} pronto para análise.`,
+                    });
+                  }
+                }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                disabled={isLoading}
+                disabled={isLoading || isProcessing}
               />
             </div>
 
@@ -209,31 +271,20 @@ const UploadPage = () => {
                 <ActionButton
                   size="lg"
                   onClick={processProject}
-                  isLoading={isLoading}
-                  disabled={isLoading}
+                  isLoading={isProcessing}
+                  disabled={isProcessing}
                   className="w-full"
-                  icon={!isLoading ? <Sparkles className="h-5 w-5" /> : undefined}
+                  icon={!isProcessing ? <Sparkles className="h-5 w-5" /> : undefined}
                 >
-                  {isLoading ? "Processando com IA Real..." : "Analisar com IA Especializada"}
+                  {isProcessing ? "Analisando com IA..." : "Analisar com IA Especializada"}
                 </ActionButton>
 
-                {isLoading && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mt-1"></div>
-                      <div className="flex-1">
-                        <p className="font-bold text-blue-900 mb-2">IA processando projeto real...</p>
-                        <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-blue-700">
-                          <p>📤 Enviando arquivo para servidor</p>
-                          <p>🔍 Extraindo texto do PDF</p>
-                          <p>📐 Identificando elementos técnicos</p>
-                          <p>📊 Calculando quantitativos</p>
-                          <p>🎯 Contextualizando IA especializada</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <ProcessingProgress
+                  steps={steps}
+                  currentStep={currentStep}
+                  progress={progress}
+                  isProcessing={isProcessing}
+                />
               </div>
             )}
           </CardContent>
