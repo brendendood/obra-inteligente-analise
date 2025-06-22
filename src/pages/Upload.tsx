@@ -1,9 +1,8 @@
-
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Upload, ArrowLeft, Check, Zap, Brain, FileSearch, Sparkles } from 'lucide-react';
+import { FileText, Upload, ArrowLeft, Check, Zap, Brain, FileSearch, Sparkles, Bot, Calculator } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const UploadPage = () => {
