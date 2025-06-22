@@ -69,6 +69,17 @@ const Assistant = () => {
     }, 2500);
   };
 
+  const handleSendClick = () => {
+    // Create a synthetic form event
+    const syntheticEvent = {
+      preventDefault: () => {},
+      target: {},
+      currentTarget: {}
+    } as React.FormEvent;
+    
+    handleSubmit(syntheticEvent);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <PremiumHeader
@@ -181,7 +192,7 @@ const Assistant = () => {
                     />
                     <ActionButton 
                       size="md"
-                      onClick={handleSubmit}
+                      onClick={handleSendClick}
                       disabled={isLoading || !question.trim()}
                       className="h-10 sm:h-12 px-4 sm:px-6"
                       icon={<Send className="h-3 w-3 sm:h-4 sm:w-4" />}
