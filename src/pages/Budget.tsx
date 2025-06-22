@@ -1,12 +1,12 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText, ArrowLeft, Calculator, Plus, Trash2, Download } from 'lucide-react';
+import { FileText, ArrowLeft, Calculator, Plus, Trash2, Download, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useProject } from '@/contexts/ProjectContext';
 
 interface BudgetItem {
   id: string;
@@ -21,35 +21,9 @@ interface BudgetItem {
 const Budget = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([
-    {
-      id: '1',
-      environment: 'Sala',
-      material: 'Piso cerâmico 60x60cm',
-      quantity: 25,
-      unit: 'm²',
-      unitPrice: 45.80,
-      total: 1145.00
-    },
-    {
-      id: '2',
-      environment: 'Cozinha',
-      material: 'Revestimento cerâmico 30x60cm',
-      quantity: 15,
-      unit: 'm²',
-      unitPrice: 32.50,
-      total: 487.50
-    },
-    {
-      id: '3',
-      environment: 'Fundação',
-      material: 'Concreto fck=20MPa',
-      quantity: 8.5,
-      unit: 'm³',
-      unitPrice: 340.00,
-      total: 2890.00
-    }
-  ]);
+  const { currentProject } = useProject();
+  const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([]);
+  const [isGeneratingBudget, setIsGeneratingBudget] = useState(false);
 
   const [newItem, setNewItem] = useState({
     environment: '',
@@ -58,6 +32,149 @@ const Budget = () => {
     unit: 'm²',
     unitPrice: 0
   });
+
+  useEffect(() => {
+    if (!currentProject) {
+      // Redirecionar para upload se não houver projeto
+      toast({
+        title: "⚠️ Projeto necessário",
+        description: "Envie um projeto primeiro para gerar orçamento.",
+        variant: "destructive",
+      });
+      navigate('/upload');
+      return;
+    }
+
+    // Gerar orçamento baseado no projeto
+    generateProjectBudget();
+  }, [currentProject, navigate, toast]);
+
+  const generateProjectBudget = async () => {
+    if (!currentProject) return;
+
+    setIsGeneratingBudget(true);
+    
+    try {
+      // Gerar itens baseados no tipo de projeto e área
+      const projectBasedItems = generateItemsFromProject();
+      setBudgetItems(projectBasedItems);
+      
+      toast({
+        title: "✅ Orçamento gerado!",
+        description: `Orçamento baseado no projeto ${currentProject.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "❌ Erro",
+        description: "Erro ao gerar orçamento do projeto",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingBudget(false);
+    }
+  };
+
+  const generateItemsFromProject = (): BudgetItem[] => {
+    if (!currentProject) return [];
+
+    const items: BudgetItem[] = [];
+    const area = currentProject.total_area || 100;
+    const projectType = currentProject.project_type || 'residencial';
+
+    // Fundação (estimativa baseada na área)
+    items.push({
+      id: '1',
+      environment: 'Fundação',
+      material: 'Concreto fck=20MPa para sapatas',
+      quantity: Math.round(area * 0.08 * 100) / 100,
+      unit: 'm³',
+      unitPrice: 340.00,
+      total: 0
+    });
+
+    // Estrutura
+    if (projectType.toLowerCase().includes('residencial') || projectType.toLowerCase().includes('casa')) {
+      items.push({
+        id: '2',
+        environment: 'Estrutura',
+        material: 'Concreto fck=25MPa para pilares e vigas',
+        quantity: Math.round(area * 0.12 * 100) / 100,
+        unit: 'm³',
+        unitPrice: 380.00,
+        total: 0
+      });
+
+      items.push({
+        id: '3',
+        environment: 'Laje',
+        material: 'Concreto fck=25MPa para laje',
+        quantity: Math.round(area * 0.10 * 100) / 100,
+        unit: 'm³',
+        unitPrice: 420.00,
+        total: 0
+      });
+    }
+
+    // Alvenaria (baseada na área)
+    items.push({
+      id: '4',
+      environment: 'Alvenaria',
+      material: 'Bloco cerâmico 14x19x39cm',
+      quantity: Math.round(area * 1.2 * 100) / 100,
+      unit: 'm²',
+      unitPrice: 45.80,
+      total: 0
+    });
+
+    // Revestimentos
+    items.push({
+      id: '5',
+      environment: 'Revestimentos',
+      material: 'Revestimento cerâmico interno',
+      quantity: Math.round(area * 0.7 * 100) / 100,
+      unit: 'm²',
+      unitPrice: 52.30,
+      total: 0
+    });
+
+    // Pisos
+    items.push({
+      id: '6',
+      environment: 'Pisos',
+      material: 'Piso cerâmico 60x60cm',
+      quantity: Math.round(area * 0.85 * 100) / 100,
+      unit: 'm²',
+      unitPrice: 48.90,
+      total: 0
+    });
+
+    // Instalações
+    items.push({
+      id: '7',
+      environment: 'Instalações',
+      material: 'Instalações elétricas completas',
+      quantity: 1,
+      unit: 'un',
+      unitPrice: area * 85.00,
+      total: 0
+    });
+
+    items.push({
+      id: '8',
+      environment: 'Instalações',
+      material: 'Instalações hidrossanitárias',
+      quantity: 1,
+      unit: 'un',
+      unitPrice: area * 65.00,
+      total: 0
+    });
+
+    // Calcular totais
+    return items.map(item => ({
+      ...item,
+      total: item.quantity * item.unitPrice
+    }));
+  };
 
   const addItem = () => {
     if (!newItem.environment || !newItem.material || newItem.quantity <= 0 || newItem.unitPrice <= 0) {
@@ -105,6 +222,29 @@ const Budget = () => {
     });
   };
 
+  // Verificar se há projeto carregado
+  if (!currentProject) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center text-orange-600">
+              <Upload className="h-6 w-6 mr-2" />
+              Projeto Necessário
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p>Para gerar um orçamento, primeiro envie um projeto.</p>
+            <Button onClick={() => navigate('/upload')} className="w-full">
+              <Upload className="h-4 w-4 mr-2" />
+              Enviar Projeto
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -119,12 +259,28 @@ const Budget = () => {
               <div className="bg-orange-600 p-2 rounded-lg">
                 <Calculator className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Quantitativos e Orçamento</h1>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Orçamento</h1>
+                <p className="text-sm text-gray-600">
+                  Projeto: <strong>{currentProject.name}</strong> ({currentProject.total_area}m²)
+                </p>
+              </div>
             </div>
-            <Button onClick={generateBudgetSheet} className="bg-green-600 hover:bg-green-700">
-              <Download className="h-4 w-4 mr-2" />
-              Gerar Planilha
-            </Button>
+            <div className="flex space-x-2">
+              {isGeneratingBudget && (
+                <div className="flex items-center text-blue-600 mr-4">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  <span className="text-sm">Gerando...</span>
+                </div>
+              )}
+              <Button onClick={generateProjectBudget} variant="outline">
+                Atualizar Orçamento
+              </Button>
+              <Button onClick={generateBudgetSheet} className="bg-green-600 hover:bg-green-700">
+                <Download className="h-4 w-4 mr-2" />
+                Gerar Planilha
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -136,7 +292,7 @@ const Budget = () => {
             <CardHeader>
               <CardTitle>Adicionar Item ao Orçamento</CardTitle>
               <CardDescription>
-                Preencha os dados do material ou serviço
+                Personalize o orçamento adicionando itens específicos
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -214,7 +370,7 @@ const Budget = () => {
             <CardHeader>
               <CardTitle>Resumo do Orçamento</CardTitle>
               <CardDescription>
-                Valores baseados em preços SINAPI e mercado
+                Baseado no projeto: {currentProject.name}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -238,9 +394,10 @@ const Budget = () => {
                 </div>
 
                 <div className="text-sm text-gray-600 space-y-1">
+                  <p>• Área: {currentProject.total_area}m²</p>
+                  <p>• Tipo: {currentProject.project_type}</p>
                   <p>• Preços baseados na tabela SINAPI</p>
                   <p>• BDI inclui impostos e lucro</p>
-                  <p>• Valores podem variar por região</p>
                 </div>
               </div>
             </CardContent>
@@ -252,7 +409,7 @@ const Budget = () => {
           <CardHeader>
             <CardTitle>Itens do Orçamento</CardTitle>
             <CardDescription>
-              Lista detalhada de todos os materiais e serviços
+              Gerado automaticamente baseado no projeto enviado
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -297,6 +454,13 @@ const Budget = () => {
                 </tbody>
               </table>
             </div>
+            
+            {budgetItems.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <Calculator className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Carregando orçamento do projeto...</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

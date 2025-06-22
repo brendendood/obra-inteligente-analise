@@ -1,122 +1,193 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText, ArrowLeft, Download, Edit, Save, Camera, Calendar } from 'lucide-react';
+import { FileText, ArrowLeft, Download, Edit, Save, Camera, Calendar, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useProject } from '@/contexts/ProjectContext';
 
 const Documents = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentProject } = useProject();
 
   const [documents, setDocuments] = useState({
     memorial: {
       title: 'Memorial Descritivo',
-      content: `MEMORIAL DESCRITIVO - RESIDÊNCIA UNIFAMILIAR
-
-1. CARACTERÍSTICAS GERAIS
-- Área construída: 142,5 m²
-- Padrão construtivo: Médio
-- Número de pavimentos: 1 (térreo)
-
-2. FUNDAÇÃO
-- Sapatas isoladas em concreto armado
-- Concreto fck = 20 MPa
-- Aço CA-50 φ12,5mm
-
-3. ESTRUTURA
-- Pilares em concreto armado 15x25cm
-- Vigas em concreto armado 15x40cm
-- Laje maciça h=12cm
-
-4. VEDAÇÕES
-- Alvenaria em blocos cerâmicos 14x19x39cm
-- Argamassa de assentamento traço 1:2:8
-
-5. INSTALAÇÕES
-- Instalações elétricas: padrão residencial
-- Instalações hidráulicas: água fria
-- Instalações sanitárias: esgoto e águas pluviais
-
-6. ACABAMENTOS
-- Pisos: cerâmico 60x60cm nas áreas sociais
-- Revestimentos: cerâmico 30x60cm em cozinha e banheiros
-- Pintura: acrílica nas paredes internas`,
+      content: '',
       isEditing: false
     },
     workPlan: {
       title: 'Planejamento Semanal',
-      content: `PLANEJAMENTO SEMANAL - SEMANA 15/01 a 21/01/2024
-
-ATIVIDADES PREVISTAS:
-□ Limpeza e preparação do terreno
-□ Marcação das fundações
-□ Escavação das sapatas (8 unidades)
-□ Conferência das cotas e níveis
-
-RECURSOS NECESSÁRIOS:
-- Equipe: 1 pedreiro + 2 serventes
-- Equipamentos: teodolito, nível, pá, picareta
-- Materiais: cal para marcação, estacas de madeira
-
-METAS DA SEMANA:
-- Concluir escavação de 6 sapatas
-- Preparar armação de 4 sapatas
-- Solicitar concreto para próxima semana
-
-OBSERVAÇÕES:
-- Verificar condições climáticas
-- Conferir disponibilidade de materiais
-- Coordenar entrega de ferragens`,
+      content: '',
       isEditing: false
     },
     workDiary: {
       title: 'Diário de Obra',
-      content: `DIÁRIO DE OBRA - ${new Date().toLocaleDateString('pt-BR')}
-
-CONDIÇÕES CLIMÁTICAS: Ensolarado, sem chuva
-
-ATIVIDADES EXECUTADAS:
-- Escavação de 3 sapatas (S1, S2, S3)
-- Conferência de cotas e dimensões
-- Limpeza das cavas
-- Início da armação da sapata S1
-
-RECURSOS UTILIZADOS:
-- Pedreiro: João Silva (8h)
-- Servente: Maria Santos (8h)
-- Servente: Carlos Oliveira (8h)
-
-MATERIAIS CONSUMIDOS:
-- Ferro CA-50 φ12,5mm: 45 kg
-- Arame recozido: 2 rolos
-- Cal hidratada: 2 sacos
-
-OBSERVAÇÕES:
-- Solo encontrado conforme sondagem
-- Nível freático não atingido
-- Necessário solicitar mais arame para amanhã
-
-PRÓXIMAS ATIVIDADES:
-- Completar armação das sapatas
-- Preparar formas de madeira
-- Solicitar concreto para concretagem`,
+      content: '',
       isEditing: false
     }
   });
 
   const [taskList, setTaskList] = useState([
-    { id: 1, task: 'Conferir armação das sapatas', status: 'completed', date: '2024-01-15' },
-    { id: 2, task: 'Solicitar concreto fck=20MPa', status: 'in-progress', date: '2024-01-16' },
-    { id: 3, task: 'Preparar formas de madeira', status: 'pending', date: '2024-01-17' },
-    { id: 4, task: 'Realizar teste de slump', status: 'pending', date: '2024-01-18' }
+    { id: 1, task: 'Verificar dados do projeto enviado', status: 'completed', date: new Date().toISOString().split('T')[0] },
+    { id: 2, task: 'Gerar documentação técnica', status: 'in-progress', date: new Date().toISOString().split('T')[0] },
+    { id: 3, task: 'Revisar quantitativos', status: 'pending', date: new Date().toISOString().split('T')[0] }
   ]);
 
   const [newTask, setNewTask] = useState('');
+
+  useEffect(() => {
+    if (!currentProject) {
+      toast({
+        title: "⚠️ Projeto necessário",
+        description: "Envie um projeto primeiro para gerar documentos.",
+        variant: "destructive",
+      });
+      navigate('/upload');
+      return;
+    }
+
+    generateProjectDocuments();
+  }, [currentProject, navigate, toast]);
+
+  const generateProjectDocuments = () => {
+    if (!currentProject) return;
+
+    const projectType = currentProject.project_type || 'residencial';
+    const area = currentProject.total_area || 0;
+    const projectName = currentProject.name;
+
+    // Memorial Descritivo baseado no projeto
+    const memorialContent = `MEMORIAL DESCRITIVO - ${projectName.toUpperCase()}
+
+1. CARACTERÍSTICAS GERAIS
+- Projeto: ${projectName}
+- Área construída: ${area} m²
+- Tipo: ${projectType}
+- Padrão construtivo: Médio a Alto
+
+2. FUNDAÇÃO
+- Sistema de fundação adequado ao tipo de solo
+- Concreto fck = 20 MPa
+- Aço CA-50 conforme dimensionamento
+
+3. ESTRUTURA
+${area > 80 ? '- Estrutura em concreto armado' : '- Estrutura convencional'}
+- Pilares e vigas dimensionados para as cargas
+- Laje conforme projeto estrutural
+
+4. VEDAÇÕES
+- Alvenaria em blocos cerâmicos ou concreto
+- Argamassa de assentamento adequada
+- Vergas e contravergas em todas as aberturas
+
+5. INSTALAÇÕES
+- Instalações elétricas: padrão ${projectType.includes('comercial') ? 'comercial' : 'residencial'}
+- Instalações hidrossanitárias completas
+- Previsão para sistemas complementares
+
+6. ACABAMENTOS
+- Revestimentos adequados ao padrão da obra
+- Pisos conforme especificação do projeto
+- Pintura em todas as superfícies internas e externas
+
+OBSERVAÇÕES:
+- Projeto baseado em análise automatizada
+- Especificações podem ser ajustadas conforme necessidade
+- Consultar normas técnicas aplicáveis`;
+
+    // Planejamento Semanal
+    const currentDate = new Date();
+    const nextWeek = new Date(currentDate);
+    nextWeek.setDate(currentDate.getDate() + 7);
+    
+    const workPlanContent = `PLANEJAMENTO SEMANAL - ${currentDate.toLocaleDateString('pt-BR')} a ${nextWeek.toLocaleDateString('pt-BR')}
+PROJETO: ${projectName}
+
+ATIVIDADES PREVISTAS:
+□ Análise detalhada do projeto enviado
+□ Verificação de quantitativos e especificações
+□ Planejamento das próximas etapas
+□ Definição de cronograma detalhado
+
+RECURSOS NECESSÁRIOS:
+- Equipe técnica adequada ao projeto
+- Equipamentos conforme especificação
+- Materiais de primeira linha
+
+METAS DA SEMANA:
+- Validar todos os dados do projeto
+- Definir especificações técnicas
+- Elaborar orçamento detalhado
+- Programar início das atividades
+
+OBSERVAÇÕES ESPECÍFICAS:
+- Área total: ${area}m²
+- Tipo de projeto: ${projectType}
+- Complexidade: ${area > 200 ? 'Alta' : area > 100 ? 'Média' : 'Baixa'}`;
+
+    // Diário de Obra
+    const workDiaryContent = `DIÁRIO DE OBRA - ${currentDate.toLocaleDateString('pt-BR')}
+PROJETO: ${projectName} (${area}m²)
+
+CONDIÇÕES CLIMÁTICAS: A verificar no local da obra
+
+SITUAÇÃO ATUAL:
+- Projeto analisado e validado
+- Documentação técnica gerada
+- Quantitativos calculados
+- Cronograma estabelecido
+
+ATIVIDADES DO DIA:
+- Análise completa do projeto ${projectName}
+- Geração de documentação técnica
+- Cálculo de quantitativos baseado em ${area}m²
+- Preparação de orçamento e cronograma
+
+OBSERVAÇÕES TÉCNICAS:
+- Tipo de projeto: ${projectType}
+- Área de construção: ${area}m²
+- Análise realizada via IA especializada
+- Documentos gerados automaticamente
+
+PRÓXIMAS ATIVIDADES:
+- Revisão da documentação gerada
+- Ajustes conforme necessidade
+- Validação com equipe técnica
+- Preparação para início da obra
+
+RECURSOS UTILIZADOS:
+- Sistema de análise automatizada
+- Base de dados técnicos SINAPI
+- Especificações técnicas atualizadas`;
+
+    setDocuments({
+      memorial: {
+        title: 'Memorial Descritivo',
+        content: memorialContent,
+        isEditing: false
+      },
+      workPlan: {
+        title: 'Planejamento Semanal',
+        content: workPlanContent,
+        isEditing: false
+      },
+      workDiary: {
+        title: 'Diário de Obra',
+        content: workDiaryContent,
+        isEditing: false
+      }
+    });
+
+    toast({
+      title: "✅ Documentos gerados!",
+      description: `Documentação baseada no projeto ${projectName}`,
+    });
+  };
 
   const toggleEdit = (docType: keyof typeof documents) => {
     setDocuments(prev => ({
@@ -198,6 +269,29 @@ PRÓXIMAS ATIVIDADES:
     }
   };
 
+  // Verificar se há projeto carregado
+  if (!currentProject) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center text-red-600">
+              <Upload className="h-6 w-6 mr-2" />
+              Projeto Necessário
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p>Para gerar documentos técnicos, primeiro envie um projeto.</p>
+            <Button onClick={() => navigate('/upload')} className="w-full">
+              <Upload className="h-4 w-4 mr-2" />
+              Enviar Projeto
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -212,8 +306,16 @@ PRÓXIMAS ATIVIDADES:
               <div className="bg-red-600 p-2 rounded-lg">
                 <FileText className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Documentos Técnicos</h1>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Documentos Técnicos</h1>
+                <p className="text-sm text-gray-600">
+                  Baseados no projeto: <strong>{currentProject.name}</strong>
+                </p>
+              </div>
             </div>
+            <Button onClick={generateProjectDocuments} variant="outline">
+              Atualizar Documentos
+            </Button>
           </div>
         </div>
       </header>
@@ -268,6 +370,38 @@ PRÓXIMAS ATIVIDADES:
 
           {/* Tasks and Quick Actions Column */}
           <div className="space-y-6">
+            {/* Project Info Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FileText className="h-5 w-5 mr-2" />
+                  Informações do Projeto
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Nome:</span>
+                    <span className="font-medium">{currentProject.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Área:</span>
+                    <span className="font-medium">{currentProject.total_area}m²</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Tipo:</span>
+                    <span className="font-medium">{currentProject.project_type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Analisado:</span>
+                    <span className="font-medium">
+                      {new Date(currentProject.created_at).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Task Management */}
             <Card>
               <CardHeader>
@@ -276,7 +410,7 @@ PRÓXIMAS ATIVIDADES:
                   Registro de Tarefas
                 </CardTitle>
                 <CardDescription>
-                  Acompanhe o status das atividades da obra
+                  Acompanhe o progresso da documentação
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -319,10 +453,10 @@ PRÓXIMAS ATIVIDADES:
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Camera className="h-5 w-5 mr-2" />
-                  Fotos e Ocorrências
+                  Registros Visuais
                 </CardTitle>
                 <CardDescription>
-                  Registre o progresso visual da obra
+                  Documente o progresso do projeto
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -331,20 +465,20 @@ PRÓXIMAS ATIVIDADES:
                     variant="outline" 
                     className="w-full h-20 border-dashed"
                     onClick={() => toast({
-                      title: "Foto adicionada",
-                      description: "Funcionalidade de foto será implementada em breve"
+                      title: "Em desenvolvimento",
+                      description: "Funcionalidade de fotos será implementada em breve"
                     })}
                   >
                     <Camera className="h-6 w-6 mr-2" />
-                    Adicionar Foto
+                    Adicionar Foto do Progresso
                   </Button>
                   
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-gray-200 rounded-lg h-20 flex items-center justify-center text-gray-500 text-sm">
-                      Foto 1
+                      Progresso 1
                     </div>
                     <div className="bg-gray-200 rounded-lg h-20 flex items-center justify-center text-gray-500 text-sm">
-                      Foto 2
+                      Progresso 2
                     </div>
                   </div>
                 </div>
@@ -356,7 +490,7 @@ PRÓXIMAS ATIVIDADES:
               <CardHeader>
                 <CardTitle>Exportação Rápida</CardTitle>
                 <CardDescription>
-                  Exporte todos os documentos de uma vez
+                  Exporte toda a documentação do projeto
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -365,11 +499,11 @@ PRÓXIMAS ATIVIDADES:
                     className="w-full bg-green-600 hover:bg-green-700"
                     onClick={() => toast({
                       title: "Relatório completo gerado!",
-                      description: "Todos os documentos foram exportados em PDF"
+                      description: `Documentação completa do projeto ${currentProject.name}`
                     })}
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Exportar Relatório Completo
+                    Exportar Documentação Completa
                   </Button>
                   <Button 
                     variant="outline" 

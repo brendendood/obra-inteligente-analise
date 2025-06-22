@@ -1,12 +1,12 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText, ArrowLeft, Calendar, Download, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { FileText, ArrowLeft, Calendar, Download, CheckCircle, Clock, AlertCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useProject } from '@/contexts/ProjectContext';
 
 interface ScheduleItem {
   id: string;
@@ -22,58 +22,163 @@ interface ScheduleItem {
 const Schedule = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { currentProject } = useProject();
+  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([]);
+  const [isGeneratingSchedule, setIsGeneratingSchedule] = useState(false);
 
-  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([
-    {
+  useEffect(() => {
+    if (!currentProject) {
+      toast({
+        title: "⚠️ Projeto necessário",
+        description: "Envie um projeto primeiro para gerar cronograma.",
+        variant: "destructive",
+      });
+      navigate('/upload');
+      return;
+    }
+
+    generateProjectSchedule();
+  }, [currentProject, navigate, toast]);
+
+  const generateProjectSchedule = () => {
+    if (!currentProject) return;
+
+    setIsGeneratingSchedule(true);
+    
+    try {
+      const projectBasedSchedule = generateScheduleFromProject();
+      setScheduleItems(projectBasedSchedule);
+      
+      toast({
+        title: "✅ Cronograma gerado!",
+        description: `Cronograma baseado no projeto ${currentProject.name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "❌ Erro",
+        description: "Erro ao gerar cronograma do projeto",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingSchedule(false);
+    }
+  };
+
+  const generateScheduleFromProject = (): ScheduleItem[] => {
+    if (!currentProject) return [];
+
+    const items: ScheduleItem[] = [];
+    const area = currentProject.total_area || 100;
+    const projectType = currentProject.project_type || 'residencial';
+    
+    // Calcular durações baseadas na área e tipo
+    const isCommercial = projectType.toLowerCase().includes('comercial') || projectType.toLowerCase().includes('industrial');
+    const complexity = isCommercial ? 1.3 : 1.0;
+    const areaFactor = Math.sqrt(area / 100); // Fator baseado na área
+
+    // Data de início
+    const startDate = new Date();
+    let currentDate = new Date(startDate);
+
+    // 1. Fundação
+    const foundationDuration = Math.ceil(10 * areaFactor * complexity);
+    items.push({
       id: '1',
       phase: 'Fundação',
-      description: 'Escavação, armação e concretagem das sapatas e baldrames',
-      duration: 15,
-      startDate: '2024-01-15',
-      endDate: '2024-01-30',
-      status: 'completed'
-    },
-    {
-      id: '2',
-      phase: 'Estrutura',
-      description: 'Pilares, vigas e laje do pavimento térreo',
-      duration: 20,
-      startDate: '2024-01-31',
-      endDate: '2024-02-20',
-      status: 'in-progress',
-      dependencies: ['1']
-    },
-    {
+      description: `Escavação, armação e concretagem das fundações - Área: ${area}m²`,
+      duration: foundationDuration,
+      startDate: currentDate.toISOString().split('T')[0],
+      endDate: '',
+      status: 'pending'
+    });
+    
+    // Calcular data final
+    currentDate.setDate(currentDate.getDate() + foundationDuration);
+    items[0].endDate = currentDate.toISOString().split('T')[0];
+
+    // 2. Estrutura (só se não for térrea simples)
+    if (area > 80 || isCommercial) {
+      const structureDuration = Math.ceil(15 * areaFactor * complexity);
+      const nextDate = new Date(currentDate);
+      nextDate.setDate(nextDate.getDate() + 1);
+      
+      items.push({
+        id: '2',
+        phase: 'Estrutura',
+        description: `Pilares, vigas e lajes - Tipo: ${projectType}`,
+        duration: structureDuration,
+        startDate: nextDate.toISOString().split('T')[0],
+        endDate: '',
+        status: 'pending',
+        dependencies: ['1']
+      });
+      
+      nextDate.setDate(nextDate.getDate() + structureDuration);
+      items[1].endDate = nextDate.toISOString().split('T')[0];
+      currentDate = new Date(nextDate);
+    }
+
+    // 3. Alvenaria
+    const masonryDuration = Math.ceil(12 * areaFactor * complexity);
+    const masonryStart = new Date(currentDate);
+    masonryStart.setDate(masonryStart.getDate() + 1);
+    
+    items.push({
       id: '3',
       phase: 'Alvenaria',
-      description: 'Execução das paredes de vedação em blocos cerâmicos',
-      duration: 18,
-      startDate: '2024-02-21',
-      endDate: '2024-03-12',
+      description: `Vedações em alvenaria - Estimativa baseada em ${area}m²`,
+      duration: masonryDuration,
+      startDate: masonryStart.toISOString().split('T')[0],
+      endDate: '',
       status: 'pending',
-      dependencies: ['2']
-    },
-    {
+      dependencies: items.length > 1 ? ['2'] : ['1']
+    });
+    
+    masonryStart.setDate(masonryStart.getDate() + masonryDuration);
+    items[items.length - 1].endDate = masonryStart.toISOString().split('T')[0];
+    currentDate = new Date(masonryStart);
+
+    // 4. Instalações
+    const installationsDuration = Math.ceil(18 * areaFactor * complexity);
+    const installationsStart = new Date(currentDate);
+    installationsStart.setDate(installationsStart.getDate() + 1);
+    
+    items.push({
       id: '4',
       phase: 'Instalações',
-      description: 'Instalações elétricas, hidráulicas e sanitárias',
-      duration: 25,
-      startDate: '2024-03-13',
-      endDate: '2024-04-08',
+      description: `Elétricas, hidráulicas e complementares - ${projectType}`,
+      duration: installationsDuration,
+      startDate: installationsStart.toISOString().split('T')[0],
+      endDate: '',
       status: 'pending',
       dependencies: ['3']
-    },
-    {
+    });
+    
+    installationsStart.setDate(installationsStart.getDate() + installationsDuration);
+    items[items.length - 1].endDate = installationsStart.toISOString().split('T')[0];
+    currentDate = new Date(installationsStart);
+
+    // 5. Acabamentos
+    const finishingDuration = Math.ceil(20 * areaFactor * complexity);
+    const finishingStart = new Date(currentDate);
+    finishingStart.setDate(finishingStart.getDate() + 1);
+    
+    items.push({
       id: '5',
-      phase: 'Acabamento',
-      description: 'Revestimentos, pintura, pisos e acabamentos finais',
-      duration: 30,
-      startDate: '2024-04-09',
-      endDate: '2024-05-15',
+      phase: 'Acabamentos',
+      description: `Revestimentos, pisos, pintura e acabamentos finais`,
+      duration: finishingDuration,
+      startDate: finishingStart.toISOString().split('T')[0],
+      endDate: '',
       status: 'pending',
       dependencies: ['4']
-    }
-  ]);
+    });
+    
+    finishingStart.setDate(finishingStart.getDate() + finishingDuration);
+    items[items.length - 1].endDate = finishingStart.toISOString().split('T')[0];
+
+    return items;
+  };
 
   const updateItemStatus = (id: string, newStatus: ScheduleItem['status']) => {
     setScheduleItems(items =>
@@ -151,6 +256,29 @@ const Schedule = () => {
     }
   };
 
+  // Verificar se há projeto carregado
+  if (!currentProject) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center text-blue-600">
+              <Upload className="h-6 w-6 mr-2" />
+              Projeto Necessário
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p>Para gerar um cronograma, primeiro envie um projeto.</p>
+            <Button onClick={() => navigate('/upload')} className="w-full">
+              <Upload className="h-4 w-4 mr-2" />
+              Enviar Projeto
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
@@ -165,12 +293,28 @@ const Schedule = () => {
               <div className="bg-blue-600 p-2 rounded-lg">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">Cronograma da Obra</h1>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Cronograma</h1>
+                <p className="text-sm text-gray-600">
+                  Projeto: <strong>{currentProject.name}</strong> ({currentProject.total_area}m²)
+                </p>
+              </div>
             </div>
-            <Button onClick={exportToPDF} className="bg-green-600 hover:bg-green-700">
-              <Download className="h-4 w-4 mr-2" />
-              Exportar PDF
-            </Button>
+            <div className="flex space-x-2">
+              {isGeneratingSchedule && (
+                <div className="flex items-center text-blue-600 mr-4">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                  <span className="text-sm">Gerando...</span>
+                </div>
+              )}
+              <Button onClick={generateProjectSchedule} variant="outline">
+                Atualizar Cronograma
+              </Button>
+              <Button onClick={exportToPDF} className="bg-green-600 hover:bg-green-700">
+                <Download className="h-4 w-4 mr-2" />
+                Exportar PDF
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -238,7 +382,7 @@ const Schedule = () => {
           <CardHeader>
             <CardTitle>Cronograma Gantt Simplificado</CardTitle>
             <CardDescription>
-              Visualização temporal das etapas da obra
+              Gerado automaticamente baseado no projeto: {currentProject.name}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -274,7 +418,7 @@ const Schedule = () => {
           <CardHeader>
             <CardTitle>Etapas Detalhadas</CardTitle>
             <CardDescription>
-              Gerencie prazos e status de cada etapa da obra
+              Cronograma personalizado para {currentProject.project_type} de {currentProject.total_area}m²
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -333,6 +477,13 @@ const Schedule = () => {
                 </div>
               ))}
             </div>
+            
+            {scheduleItems.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Carregando cronograma do projeto...</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
