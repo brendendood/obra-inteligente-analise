@@ -1,9 +1,11 @@
+
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Upload, ArrowLeft, Check, Zap, Brain, FileSearch, Sparkles, Bot, Calculator } from 'lucide-react';
+import { FileText, Upload, Check, Brain, FileSearch, Sparkles, Bot, Calculator, Calendar, FileCheck, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import PremiumHeader from '@/components/common/PremiumHeader';
+import ActionButton from '@/components/common/ActionButton';
 
 const UploadPage = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -22,13 +24,13 @@ const UploadPage = () => {
     if (pdfFile) {
       setUploadedFile(pdfFile);
       toast({
-        title: "✅ Arquivo carregado com sucesso!",
-        description: `${pdfFile.name} está pronto para análise inteligente.`,
+        title: "✅ Arquivo carregado!",
+        description: `${pdfFile.name} pronto para análise.`,
       });
     } else {
       toast({
-        title: "❌ Erro no upload",
-        description: "Por favor, envie apenas arquivos PDF (plantas, memoriais, projetos).",
+        title: "❌ Formato inválido",
+        description: "Envie apenas arquivos PDF.",
         variant: "destructive",
       });
     }
@@ -39,8 +41,8 @@ const UploadPage = () => {
     if (file && file.type === 'application/pdf') {
       setUploadedFile(file);
       toast({
-        title: "✅ Arquivo carregado com sucesso!",
-        description: `${file.name} está pronto para análise inteligente.`,
+        title: "✅ Arquivo carregado!",
+        description: `${file.name} pronto para análise.`,
       });
     }
   };
@@ -50,14 +52,12 @@ const UploadPage = () => {
     
     setIsProcessing(true);
     
-    // Simular processamento do PDF com etapas
     setTimeout(() => {
       setIsProcessing(false);
       toast({
-        title: "🎉 Projeto analisado com sucesso!",
-        description: "IA extraiu todos os dados técnicos. Explore as funcionalidades disponíveis.",
+        title: "🎉 Projeto analisado!",
+        description: "IA extraiu todos os dados técnicos.",
       });
-      // Salvar dados do projeto no localStorage
       localStorage.setItem('currentProject', JSON.stringify({
         name: uploadedFile.name,
         uploadDate: new Date().toISOString(),
@@ -66,65 +66,51 @@ const UploadPage = () => {
     }, 4000);
   };
 
+  const navigationItems = [
+    { icon: <Bot className="h-6 w-6 text-purple-600" />, label: "Assistente IA", path: "/assistant" },
+    { icon: <Calculator className="h-6 w-6 text-orange-600" />, label: "Orçamento", path: "/budget" },
+    { icon: <Calendar className="h-6 w-6 text-blue-600" />, label: "Cronograma", path: "/schedule" },
+    { icon: <FileCheck className="h-6 w-6 text-red-600" />, label: "Documentos", path: "/documents" }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Modern Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-blue-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/')}
-                className="hover:bg-blue-50 transition-colors duration-200"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-xl shadow-lg">
-                <FileText className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-900 to-indigo-800 bg-clip-text text-transparent">
-                  ArqFlow.IA
-                </h1>
-                <p className="text-sm text-slate-600 font-medium">Upload Inteligente</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PremiumHeader
+        title="ArqFlow.IA"
+        subtitle="Upload Inteligente"
+        icon={<FileText className="h-6 w-6 text-white" />}
+      />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Hero Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium mb-6">
             <Brain className="h-4 w-4" />
             <span>IA Especializada em Engenharia</span>
           </div>
           
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Upload e Leitura Inteligente
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+            Upload e Análise Inteligente
           </h2>
-          <p className="text-lg text-slate-600 max-w-3xl mx-auto">
-            Envie seu projeto em PDF. A IA vai ler e te ajudar com orçamento, cronograma e dúvidas técnicas.
+          <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            Envie seu projeto PDF. A IA lerá e ajudará com orçamentos, cronogramas e questões técnicas.
           </p>
         </div>
 
-        {/* Enhanced Upload Card */}
-        <Card className="mb-12 shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+        {/* Upload Card */}
+        <Card className="mb-8 sm:mb-12 shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-slate-900 flex items-center">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center">
               <Upload className="h-6 w-6 mr-3 text-blue-600" />
               Enviar Projeto
             </CardTitle>
-            <CardDescription className="text-lg text-slate-600">
-              Aceita plantas baixas, memoriais descritivos, projetos arquitetônicos e estruturais em PDF
+            <CardDescription className="text-base sm:text-lg text-slate-600">
+              Plantas, memoriais, projetos arquitetônicos e estruturais em PDF
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div
-              className={`border-2 border-dashed rounded-2xl p-16 text-center transition-all duration-300 ${
+              className={`border-2 border-dashed rounded-2xl p-8 sm:p-16 text-center transition-all duration-300 ${
                 isDragOver
                   ? 'border-blue-400 bg-blue-50 scale-105'
                   : uploadedFile
@@ -139,43 +125,43 @@ const UploadPage = () => {
               onDragLeave={() => setIsDragOver(false)}
             >
               {uploadedFile ? (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-center justify-center">
                     <div className="bg-emerald-100 p-4 rounded-full">
-                      <Check className="h-12 w-12 text-emerald-600" />
+                      <Check className="h-8 sm:h-12 w-8 sm:w-12 text-emerald-600" />
                     </div>
                   </div>
                   <div>
-                    <p className="text-xl font-bold text-emerald-800 mb-2">
+                    <p className="text-lg sm:text-xl font-bold text-emerald-800 mb-2 break-words">
                       {uploadedFile.name}
                     </p>
                     <p className="text-emerald-600 font-medium">
-                      Arquivo carregado - {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                     <div className="flex items-center justify-center space-x-2 mt-4 text-sm text-emerald-700">
                       <FileSearch className="h-4 w-4" />
-                      <span>Pronto para análise inteligente</span>
+                      <span>Pronto para análise</span>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-center justify-center">
                     <div className="bg-blue-100 p-4 rounded-full">
-                      <Upload className="h-12 w-12 text-blue-600" />
+                      <Upload className="h-8 sm:h-12 w-8 sm:w-12 text-blue-600" />
                     </div>
                   </div>
                   <div>
-                    <p className="text-xl font-bold text-slate-800 mb-2">
-                      Arraste seu arquivo PDF aqui
+                    <p className="text-lg sm:text-xl font-bold text-slate-800 mb-2">
+                      Arraste seu PDF aqui
                     </p>
                     <p className="text-slate-600 mb-4">
-                      ou clique para selecionar do seu computador
+                      ou clique para selecionar
                     </p>
-                    <div className="flex items-center justify-center space-x-4 text-sm text-slate-500">
-                      <span>• Plantas baixas</span>
+                    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-500">
+                      <span>• Plantas</span>
                       <span>• Memoriais</span>
-                      <span>• Projetos técnicos</span>
+                      <span>• Projetos</span>
                     </div>
                   </div>
                 </div>
@@ -190,37 +176,29 @@ const UploadPage = () => {
             </div>
 
             {uploadedFile && (
-              <div className="mt-8 space-y-6">
-                <Button
-                  onClick={processProject}
-                  disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
+              <div className="mt-6 sm:mt-8 space-y-6">
+                <ActionButton
                   size="lg"
+                  onClick={processProject}
+                  isLoading={isProcessing}
+                  disabled={isProcessing}
+                  className="w-full"
+                  icon={!isProcessing ? <Sparkles className="h-5 w-5" /> : undefined}
                 >
-                  {isProcessing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                      Analisando com IA...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-5 w-5 mr-3" />
-                      Processar e Analisar Projeto
-                    </>
-                  )}
-                </Button>
+                  {isProcessing ? "Analisando com IA..." : "Processar e Analisar"}
+                </ActionButton>
 
                 {isProcessing && (
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6">
                     <div className="flex items-start space-x-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mt-1"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mt-1"></div>
                       <div className="flex-1">
-                        <p className="font-bold text-blue-900 mb-2">IA processando seu projeto...</p>
-                        <div className="space-y-2 text-sm text-blue-700">
+                        <p className="font-bold text-blue-900 mb-2">IA processando...</p>
+                        <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-blue-700">
                           <p>🔍 Extraindo dados técnicos</p>
-                          <p>📐 Identificando elementos construtivos</p>
+                          <p>📐 Identificando elementos</p>
                           <p>📊 Calculando quantitativos</p>
-                          <p>💰 Preparando análises de custos</p>
+                          <p>💰 Preparando análises</p>
                         </div>
                       </div>
                     </div>
@@ -231,40 +209,19 @@ const UploadPage = () => {
           </CardContent>
         </Card>
 
-        {/* Enhanced Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Button
-            variant="outline"
-            className="h-24 flex flex-col space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300 border-2 bg-white/80 backdrop-blur-sm"
-            onClick={() => navigate('/assistant')}
-          >
-            <Bot className="h-8 w-8 text-purple-600" />
-            <span className="font-semibold">Assistente IA</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-24 flex flex-col space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300 border-2 bg-white/80 backdrop-blur-sm"
-            onClick={() => navigate('/budget')}
-          >
-            <Calculator className="h-8 w-8 text-orange-600" />
-            <span className="font-semibold">Orçamento</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-24 flex flex-col space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300 border-2 bg-white/80 backdrop-blur-sm"
-            onClick={() => navigate('/schedule')}
-          >
-            <Zap className="h-8 w-8 text-blue-600" />
-            <span className="font-semibold">Cronograma</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-24 flex flex-col space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300 border-2 bg-white/80 backdrop-blur-sm"
-            onClick={() => navigate('/documents')}
-          >
-            <FileText className="h-8 w-8 text-red-600" />
-            <span className="font-semibold">Documentos</span>
-          </Button>
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {navigationItems.map((item, index) => (
+            <ActionButton
+              key={index}
+              variant="outline"
+              onClick={() => navigate(item.path)}
+              className="h-20 sm:h-24 flex flex-col space-y-2 sm:space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300"
+            >
+              {item.icon}
+              <span className="font-semibold text-xs sm:text-sm">{item.label}</span>
+            </ActionButton>
+          ))}
         </div>
       </div>
     </div>
