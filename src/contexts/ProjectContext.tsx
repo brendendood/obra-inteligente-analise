@@ -49,7 +49,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/upload-project`, {
+      const response = await fetch(`https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/upload-project`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session.access_token}`,

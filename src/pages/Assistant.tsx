@@ -99,7 +99,7 @@ const Assistant = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/chat-assistant`, {
+      const response = await fetch(`https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/chat-assistant`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
