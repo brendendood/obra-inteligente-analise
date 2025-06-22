@@ -2,17 +2,18 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Upload, Check, Brain, FileSearch, Sparkles, Bot, Calculator, Calendar, FileCheck, Zap } from 'lucide-react';
+import { FileText, Upload, Check, Brain, FileSearch, Sparkles, Bot, Calculator, Calendar, FileCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useProject } from '@/contexts/ProjectContext';
 import PremiumHeader from '@/components/common/PremiumHeader';
 import ActionButton from '@/components/common/ActionButton';
 
 const UploadPage = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { uploadProject, isLoading, currentProject } = useProject();
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -50,20 +51,11 @@ const UploadPage = () => {
   const processProject = async () => {
     if (!uploadedFile) return;
     
-    setIsProcessing(true);
-    
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast({
-        title: "🎉 Projeto analisado!",
-        description: "IA extraiu todos os dados técnicos.",
-      });
-      localStorage.setItem('currentProject', JSON.stringify({
-        name: uploadedFile.name,
-        uploadDate: new Date().toISOString(),
-        processed: true
-      }));
-    }, 4000);
+    const success = await uploadProject(uploadedFile);
+    if (success) {
+      // Clear uploaded file after successful processing
+      setUploadedFile(null);
+    }
   };
 
   const navigationItems = [
@@ -97,12 +89,48 @@ const UploadPage = () => {
           </p>
         </div>
 
+        {/* Current Project Status */}
+        {currentProject && (
+          <Card className="mb-8 sm:mb-12 shadow-2xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-green-800 flex items-center">
+                <Check className="h-6 w-6 mr-3 text-green-600" />
+                Projeto Ativo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-lg font-bold text-green-900">{currentProject.name}</p>
+                  <p className="text-green-700">
+                    Área: {currentProject.total_area}m² • Tipo: {currentProject.project_type}
+                  </p>
+                  <p className="text-sm text-green-600">
+                    Analisado em {new Date(currentProject.created_at).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                    ✅ Texto extraído
+                  </span>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                    📊 Análise completa
+                  </span>
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                    🤖 IA contextualizada
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Upload Card */}
         <Card className="mb-8 sm:mb-12 shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center">
               <Upload className="h-6 w-6 mr-3 text-blue-600" />
-              Enviar Projeto
+              Enviar Novo Projeto
             </CardTitle>
             <CardDescription className="text-base sm:text-lg text-slate-600">
               Plantas, memoriais, projetos arquitetônicos e estruturais em PDF
@@ -172,6 +200,7 @@ const UploadPage = () => {
                 accept=".pdf"
                 onChange={handleFileInput}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={isLoading}
               />
             </div>
 
@@ -180,25 +209,26 @@ const UploadPage = () => {
                 <ActionButton
                   size="lg"
                   onClick={processProject}
-                  isLoading={isProcessing}
-                  disabled={isProcessing}
+                  isLoading={isLoading}
+                  disabled={isLoading}
                   className="w-full"
-                  icon={!isProcessing ? <Sparkles className="h-5 w-5" /> : undefined}
+                  icon={!isLoading ? <Sparkles className="h-5 w-5" /> : undefined}
                 >
-                  {isProcessing ? "Analisando com IA..." : "Processar e Analisar"}
+                  {isLoading ? "Processando com IA Real..." : "Analisar com IA Especializada"}
                 </ActionButton>
 
-                {isProcessing && (
+                {isLoading && (
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6">
                     <div className="flex items-start space-x-4">
                       <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mt-1"></div>
                       <div className="flex-1">
-                        <p className="font-bold text-blue-900 mb-2">IA processando...</p>
+                        <p className="font-bold text-blue-900 mb-2">IA processando projeto real...</p>
                         <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-blue-700">
-                          <p>🔍 Extraindo dados técnicos</p>
-                          <p>📐 Identificando elementos</p>
+                          <p>📤 Enviando arquivo para servidor</p>
+                          <p>🔍 Extraindo texto do PDF</p>
+                          <p>📐 Identificando elementos técnicos</p>
                           <p>📊 Calculando quantitativos</p>
-                          <p>💰 Preparando análises</p>
+                          <p>🎯 Contextualizando IA especializada</p>
                         </div>
                       </div>
                     </div>
@@ -217,9 +247,13 @@ const UploadPage = () => {
               variant="outline"
               onClick={() => navigate(item.path)}
               className="h-20 sm:h-24 flex flex-col space-y-2 sm:space-y-3 hover:shadow-lg hover:scale-105 transition-all duration-300"
+              disabled={!currentProject && item.path !== '/assistant'}
             >
               {item.icon}
               <span className="font-semibold text-xs sm:text-sm">{item.label}</span>
+              {!currentProject && item.path !== '/assistant' && (
+                <span className="text-xs text-slate-400">Requer projeto</span>
+              )}
             </ActionButton>
           ))}
         </div>

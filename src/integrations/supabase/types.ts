@@ -9,7 +9,112 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      project_analyses: {
+        Row: {
+          analysis_type: string
+          created_at: string
+          id: string
+          project_id: string
+          results: Json
+        }
+        Insert: {
+          analysis_type: string
+          created_at?: string
+          id?: string
+          project_id: string
+          results: Json
+        }
+        Update: {
+          analysis_type?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          results?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_analyses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_conversations: {
+        Row: {
+          id: string
+          message: string
+          project_id: string
+          sender: string
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          message: string
+          project_id: string
+          sender: string
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          message?: string
+          project_id?: string
+          sender?: string
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_conversations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          analysis_data: Json | null
+          created_at: string
+          extracted_text: string | null
+          file_path: string
+          file_size: number | null
+          id: string
+          name: string
+          project_type: string | null
+          total_area: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_data?: Json | null
+          created_at?: string
+          extracted_text?: string | null
+          file_path: string
+          file_size?: number | null
+          id?: string
+          name: string
+          project_type?: string | null
+          total_area?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_data?: Json | null
+          created_at?: string
+          extracted_text?: string | null
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          name?: string
+          project_type?: string | null
+          total_area?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
