@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogIn, UserPlus, Mail, Lock, User } from 'lucide-react';
+import { LogIn, UserPlus, Mail, Lock, UserIcon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 interface AuthComponentProps {
@@ -117,7 +117,7 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
       <Card className="w-full max-w-md mx-auto bg-green-50 border-green-200">
         <CardHeader>
           <CardTitle className="flex items-center text-green-800">
-            <User className="h-5 w-5 mr-2" />
+            <UserIcon className="h-5 w-5 mr-2" />
             Usuário Conectado
           </CardTitle>
         </CardHeader>
