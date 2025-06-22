@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { FileText, Calculator, Calendar, Bot, Upload, DocumentCheck } from "lucide-react";
+import { FileText, Calculator, Calendar, Bot, Upload, FileCheck } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/documents')}>
             <CardHeader>
               <div className="bg-red-100 p-3 rounded-full w-fit">
-                <DocumentCheck className="h-6 w-6 text-red-600" />
+                <FileCheck className="h-6 w-6 text-red-600" />
               </div>
               <CardTitle>Documentos Técnicos</CardTitle>
               <CardDescription>
