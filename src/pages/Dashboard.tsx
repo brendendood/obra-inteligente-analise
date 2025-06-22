@@ -221,9 +221,7 @@ const Dashboard = () => {
                       )}
                     </CardDescription>
                   </CardHeader>
-                </Car
-
->
+                </Card>
               );
             })}
           </div>
