@@ -6,33 +6,47 @@ import { FileText, Upload, Check, Brain, FileSearch, Sparkles, Bot, Calculator, 
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/contexts/ProjectContext';
 import { useProcessingSteps } from '@/hooks/useProcessingSteps';
+import { useAuth } from '@/hooks/useAuth';
 import PremiumHeader from '@/components/common/PremiumHeader';
 import ActionButton from '@/components/common/ActionButton';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
+import AuthComponent from '@/components/auth/AuthComponent';
 
 const UploadPage = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { uploadProject, isLoading, currentProject, loadUserProjects } = useProject();
+  const { uploadProject, isLoading, currentProject, loadUserProjects, requiresAuth } = useProject();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { 
     steps, 
     currentStep, 
     progress, 
     isProcessing, 
-    startProcessing, 
+    startProcess, 
     stopProcessing 
   } = useProcessingSteps();
 
-  // Carregar projetos do usuário ao inicializar
+  // Carregar projetos do usuário quando autenticado
   useEffect(() => {
-    loadUserProjects();
-  }, [loadUserProjects]);
+    if (isAuthenticated) {
+      loadUserProjects();
+    }
+  }, [isAuthenticated, loadUserProjects]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
+    
+    if (!isAuthenticated) {
+      toast({
+        title: "🔐 Login necessário",
+        description: "Faça login para enviar arquivos.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const files = Array.from(e.dataTransfer.files);
     const pdfFile = files.find(file => file.type === 'application/pdf');
@@ -50,9 +64,18 @@ const UploadPage = () => {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [toast, isAuthenticated]);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "🔐 Login necessário",
+        description: "Faça login para enviar arquivos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (file && file.type === 'application/pdf') {
       setUploadedFile(file);
@@ -64,7 +87,7 @@ const UploadPage = () => {
   };
 
   const processProject = async () => {
-    if (!uploadedFile) return;
+    if (!uploadedFile || !isAuthenticated) return;
     
     // Iniciar feedback visual de processamento
     startProcessing();
@@ -102,7 +125,7 @@ const UploadPage = () => {
       icon: <Bot className="h-6 w-6 text-purple-600" />, 
       label: "Assistente IA", 
       path: "/assistant",
-      requiresProject: false // Assistente sempre disponível
+      requiresProject: false
     },
     { 
       icon: <Calculator className="h-6 w-6 text-orange-600" />, 
@@ -124,6 +147,17 @@ const UploadPage = () => {
     }
   ];
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <PremiumHeader
@@ -144,12 +178,24 @@ const UploadPage = () => {
             Upload e Análise Inteligente
           </h2>
           <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            Envie seu projeto PDF. A IA lerá e ajudará com orçamentos, cronogramas e questões técnicas.
+            Envie qualquer PDF. A IA analisará e ajudará com questões técnicas, orçamentos e cronogramas.
           </p>
         </div>
 
+        {/* Authentication Section */}
+        {!isAuthenticated && (
+          <div className="mb-8 sm:mb-12">
+            <AuthComponent onAuthSuccess={() => {
+              toast({
+                title: "🎉 Login realizado!",
+                description: "Agora você pode enviar seus projetos.",
+              });
+            }} />
+          </div>
+        )}
+
         {/* Current Project Status */}
-        {currentProject && (
+        {currentProject && isAuthenticated && (
           <Card className="mb-8 sm:mb-12 shadow-2xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-green-800 flex items-center">
@@ -162,7 +208,8 @@ const UploadPage = () => {
                 <div>
                   <p className="text-lg font-bold text-green-900">{currentProject.name}</p>
                   <p className="text-green-700">
-                    Área: {currentProject.total_area}m² • Tipo: {currentProject.project_type}
+                    {currentProject.total_area ? `Área: ${currentProject.total_area}m² • ` : ''}
+                    Tipo: {currentProject.project_type}
                   </p>
                   <p className="text-sm text-green-600">
                     Analisado em {new Date(currentProject.created_at).toLocaleDateString('pt-BR')}
@@ -170,10 +217,10 @@ const UploadPage = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                    ✅ Texto extraído
+                    ✅ Processado
                   </span>
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                    📊 Análise completa
+                    📊 Analisado
                   </span>
                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
                     🤖 IA contextualizada
@@ -185,112 +232,114 @@ const UploadPage = () => {
         )}
 
         {/* Upload Card */}
-        <Card className="mb-8 sm:mb-12 shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center">
-              <Upload className="h-6 w-6 mr-3 text-blue-600" />
-              Enviar Novo Projeto
-            </CardTitle>
-            <CardDescription className="text-base sm:text-lg text-slate-600">
-              Plantas baixas, memoriais descritivos, projetos arquitetônicos e estruturais em PDF
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div
-              className={`border-2 border-dashed rounded-2xl p-8 sm:p-16 text-center transition-all duration-300 ${
-                isDragOver
-                  ? 'border-blue-400 bg-blue-50 scale-105'
-                  : uploadedFile
-                  ? 'border-emerald-400 bg-emerald-50'
-                  : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
-              }`}
-              onDrop={handleDrop}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDragOver(true);
-              }}
-              onDragLeave={() => setIsDragOver(false)}
-            >
-              {uploadedFile ? (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center justify-center">
-                    <div className="bg-emerald-100 p-4 rounded-full">
-                      <Check className="h-8 sm:h-12 w-8 sm:w-12 text-emerald-600" />
+        {isAuthenticated && (
+          <Card className="mb-8 sm:mb-12 shadow-2xl border-0 bg-white/90 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center">
+                <Upload className="h-6 w-6 mr-3 text-blue-600" />
+                Enviar Novo Projeto
+              </CardTitle>
+              <CardDescription className="text-base sm:text-lg text-slate-600">
+                Qualquer PDF é aceito - projetos técnicos terão análise detalhada
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div
+                className={`border-2 border-dashed rounded-2xl p-8 sm:p-16 text-center transition-all duration-300 ${
+                  isDragOver
+                    ? 'border-blue-400 bg-blue-50 scale-105'
+                    : uploadedFile
+                    ? 'border-emerald-400 bg-emerald-50'
+                    : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+                onDrop={handleDrop}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(true);
+                }}
+                onDragLeave={() => setIsDragOver(false)}
+              >
+                {uploadedFile ? (
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex items-center justify-center">
+                      <div className="bg-emerald-100 p-4 rounded-full">
+                        <Check className="h-8 sm:h-12 w-8 sm:w-12 text-emerald-600" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-lg sm:text-xl font-bold text-emerald-800 mb-2 break-words">
+                        {uploadedFile.name}
+                      </p>
+                      <p className="text-emerald-600 font-medium">
+                        {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                      <div className="flex items-center justify-center space-x-2 mt-4 text-sm text-emerald-700">
+                        <FileSearch className="h-4 w-4" />
+                        <span>Pronto para análise com IA</span>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-lg sm:text-xl font-bold text-emerald-800 mb-2 break-words">
-                      {uploadedFile.name}
-                    </p>
-                    <p className="text-emerald-600 font-medium">
-                      {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                    <div className="flex items-center justify-center space-x-2 mt-4 text-sm text-emerald-700">
-                      <FileSearch className="h-4 w-4" />
-                      <span>Pronto para análise com IA</span>
+                ) : (
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="flex items-center justify-center">
+                      <div className="bg-blue-100 p-4 rounded-full">
+                        <Upload className="h-8 sm:h-12 w-8 sm:w-12 text-blue-600" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-lg sm:text-xl font-bold text-slate-800 mb-2">
+                        Arraste seu PDF aqui
+                      </p>
+                      <p className="text-slate-600 mb-4">
+                        ou clique para selecionar
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-500">
+                        <span>• Aceita qualquer PDF</span>
+                        <span>• Projetos técnicos têm análise completa</span>
+                        <span>• IA sempre disponível</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center justify-center">
-                    <div className="bg-blue-100 p-4 rounded-full">
-                      <Upload className="h-8 sm:h-12 w-8 sm:w-12 text-blue-600" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-lg sm:text-xl font-bold text-slate-800 mb-2">
-                      Arraste seu PDF técnico aqui
-                    </p>
-                    <p className="text-slate-600 mb-4">
-                      ou clique para selecionar
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-slate-500">
-                      <span>• Plantas baixas</span>
-                      <span>• Memoriais</span>
-                      <span>• Projetos técnicos</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileInput}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                disabled={isLoading || isProcessing}
-              />
-            </div>
-
-            {uploadedFile && (
-              <div className="mt-6 sm:mt-8 space-y-6">
-                <ActionButton
-                  size="lg"
-                  onClick={processProject}
-                  isLoading={isProcessing}
-                  disabled={isProcessing}
-                  className="w-full"
-                  icon={!isProcessing ? <Sparkles className="h-5 w-5" /> : undefined}
-                >
-                  {isProcessing ? "IA Analisando Projeto..." : "🤖 Analisar com IA Especializada"}
-                </ActionButton>
-
-                <ProcessingProgress
-                  steps={steps}
-                  currentStep={currentStep}
-                  progress={progress}
-                  isProcessing={isProcessing}
+                )}
+                
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileInput}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={isLoading || isProcessing}
                 />
               </div>
-            )}
-          </CardContent>
-        </Card>
+
+              {uploadedFile && (
+                <div className="mt-6 sm:mt-8 space-y-6">
+                  <ActionButton
+                    size="lg"
+                    onClick={processProject}
+                    isLoading={isProcessing}
+                    disabled={isProcessing}
+                    className="w-full"
+                    icon={!isProcessing ? <Sparkles className="h-5 w-5" /> : undefined}
+                  >
+                    {isProcessing ? "IA Analisando..." : "🤖 Analisar com IA Especializada"}
+                  </ActionButton>
+
+                  <ProcessingProgress
+                    steps={steps}
+                    currentStep={currentStep}
+                    progress={progress}
+                    isProcessing={isProcessing}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Navigation Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {navigationItems.map((item, index) => {
-            const isDisabled = item.requiresProject && !currentProject;
+            const isDisabled = !isAuthenticated || (item.requiresProject && !currentProject);
             
             return (
               <ActionButton
@@ -304,7 +353,10 @@ const UploadPage = () => {
               >
                 {item.icon}
                 <span className="font-semibold text-xs sm:text-sm">{item.label}</span>
-                {isDisabled && (
+                {!isAuthenticated && (
+                  <span className="text-xs text-slate-400">Requer login</span>
+                )}
+                {isAuthenticated && item.requiresProject && !currentProject && (
                   <span className="text-xs text-slate-400">Requer projeto</span>
                 )}
               </ActionButton>
@@ -315,8 +367,9 @@ const UploadPage = () => {
         {/* Informational Note */}
         <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800 text-center">
-            💡 <strong>Dica:</strong> A IA só aceita PDFs com conteúdo técnico (plantas, memoriais, projetos). 
-            Após análise bem-sucedida, todas as funcionalidades serão desbloqueadas automaticamente.
+            💡 <strong>Nova funcionalidade:</strong> Agora aceitamos qualquer PDF! 
+            Projetos técnicos terão análise detalhada, mas a IA sempre pode ajudar com questões gerais.
+            {!isAuthenticated && " Faça login para começar."}
           </p>
         </div>
       </div>

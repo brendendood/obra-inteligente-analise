@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Project {
   id: string;
@@ -22,6 +23,7 @@ interface ProjectContextType {
   uploadProject: (file: File) => Promise<boolean>;
   setCurrentProject: (project: Project | null) => void;
   loadUserProjects: () => Promise<Project[]>;
+  requiresAuth: boolean;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -30,35 +32,51 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProjectState] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
 
   // Carregar projeto do localStorage ao inicializar
   useEffect(() => {
-    const savedProject = localStorage.getItem('currentProject');
-    if (savedProject) {
-      try {
-        const project = JSON.parse(savedProject);
-        setCurrentProjectState(project);
-        console.log('Projeto carregado do localStorage:', project);
-      } catch (error) {
-        console.error('Erro ao carregar projeto do localStorage:', error);
-        localStorage.removeItem('currentProject');
+    if (isAuthenticated) {
+      const savedProject = localStorage.getItem('currentProject');
+      if (savedProject) {
+        try {
+          const project = JSON.parse(savedProject);
+          setCurrentProjectState(project);
+          console.log('Projeto carregado do localStorage:', project);
+        } catch (error) {
+          console.error('Erro ao carregar projeto do localStorage:', error);
+          localStorage.removeItem('currentProject');
+        }
       }
+    } else {
+      // Limpar projeto se não estiver autenticado
+      setCurrentProjectState(null);
+      localStorage.removeItem('currentProject');
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // Função para atualizar o projeto atual com persistência
   const setCurrentProject = useCallback((project: Project | null) => {
     setCurrentProjectState(project);
-    if (project) {
+    if (project && isAuthenticated) {
       localStorage.setItem('currentProject', JSON.stringify(project));
       console.log('Projeto salvo no localStorage:', project);
     } else {
       localStorage.removeItem('currentProject');
       console.log('Projeto removido do localStorage');
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const uploadProject = useCallback(async (file: File): Promise<boolean> => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "❌ Acesso necessário",
+        description: "Faça login para enviar projetos.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     setIsLoading(true);
     
     try {
@@ -68,13 +86,10 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        toast({
-          title: "❌ Erro de autenticação",
-          description: "Faça login para enviar projetos.",
-          variant: "destructive",
-        });
-        return false;
+        throw new Error('Sessão não encontrada. Faça login novamente.');
       }
+
+      console.log('Enviando arquivo:', file.name, 'Usuário:', user.email);
 
       const response = await fetch(`https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/upload-project`, {
         method: 'POST',
@@ -96,7 +111,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setCurrentProject(result.project);
         
         toast({
-          title: "🎉 Projeto analisado!",
+          title: result.analysis?.isRealProject ? "🎉 Projeto técnico analisado!" : "📄 PDF processado!",
           description: result.message,
         });
         
@@ -108,17 +123,16 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Upload error:', error);
       
-      // Verificar se é erro de validação de PDF
-      if (error instanceof Error && error.message.includes('Não identificamos elementos de projeto')) {
+      if (error instanceof Error && error.message.includes('Unauthorized')) {
         toast({
-          title: "📄 PDF não é um projeto técnico",
-          description: error.message,
+          title: "🔐 Acesso necessário",
+          description: "Faça login para enviar projetos.",
           variant: "destructive",
         });
       } else {
         toast({
           title: "❌ Erro no upload",
-          description: "Não foi possível processar o projeto.",
+          description: "Não foi possível processar o arquivo.",
           variant: "destructive",
         });
       }
@@ -126,9 +140,14 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, setCurrentProject]);
+  }, [toast, setCurrentProject, isAuthenticated, user]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
+    if (!isAuthenticated) {
+      console.log('Usuário não autenticado, não carregando projetos');
+      return [];
+    }
+
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -148,7 +167,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       console.error('Error loading projects:', error);
       return [];
     }
-  }, [currentProject, setCurrentProject]);
+  }, [currentProject, setCurrentProject, isAuthenticated]);
 
   return (
     <ProjectContext.Provider value={{
@@ -157,6 +176,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       uploadProject,
       setCurrentProject,
       loadUserProjects,
+      requiresAuth: !isAuthenticated,
     }}>
       {children}
     </ProjectContext.Provider>
