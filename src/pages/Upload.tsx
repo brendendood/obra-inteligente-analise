@@ -95,25 +95,38 @@ const Upload = () => {
     try {
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
       
-      // Simular progresso
+      // Simular progresso de upload
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev >= 90) {
+          if (prev >= 80) {
             clearInterval(progressInterval);
-            return 90;
+            return 80;
           }
           return prev + 10;
         });
       }, 200);
 
-      // Upload do arquivo
+      console.log('Uploading file to storage:', fileName);
+
+      // Upload do arquivo para o storage
       const { error: uploadError } = await supabase.storage
         .from('project-files')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
 
-      // Chamar edge function para processar
+      console.log('File uploaded successfully, calling edge function');
+      setProgress(90);
+
+      // Chamar edge function para processar metadados
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Sessão não encontrada. Faça login novamente.');
+      }
+
       const { data, error: processError } = await supabase.functions
         .invoke('upload-project', {
           body: {
@@ -123,16 +136,25 @@ const Upload = () => {
           }
         });
 
-      if (processError) throw processError;
+      if (processError) {
+        console.error('Edge function error:', processError);
+        throw new Error(`Erro no processamento: ${processError.message}`);
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Erro no processamento');
+      }
 
       clearInterval(progressInterval);
       setProgress(100);
       setUploadComplete(true);
       stopProcessing(); // Stop the processing animation
       
+      console.log('Upload completed successfully:', data);
+      
       toast({
         title: "🎉 Upload concluído!",
-        description: "Seu projeto foi analisado com sucesso.",
+        description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
       // Recarregar projetos
@@ -144,9 +166,19 @@ const Upload = () => {
     } catch (error) {
       console.error('Upload error:', error);
       stopProcessing(); // Stop processing on error
+      
+      // Melhor tratamento de erro com mensagens específicas
+      let errorMessage = "Erro desconhecido";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
       toast({
         title: "❌ Erro no upload",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
