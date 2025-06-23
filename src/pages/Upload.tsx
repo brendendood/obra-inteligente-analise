@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
+import { useProcessingSteps } from '@/hooks/useProcessingSteps';
 
 const Upload = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
@@ -35,6 +36,16 @@ const Upload = () => {
   const [uploadComplete, setUploadComplete] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // Use the processing steps hook
+  const { 
+    steps, 
+    currentStep, 
+    isProcessing, 
+    progress: processingProgress, 
+    startProcessing, 
+    stopProcessing 
+  } = useProcessingSteps();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -79,6 +90,7 @@ const Upload = () => {
 
     setUploading(true);
     setProgress(0);
+    startProcessing(); // Start the processing steps animation
 
     try {
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
@@ -116,6 +128,7 @@ const Upload = () => {
       clearInterval(progressInterval);
       setProgress(100);
       setUploadComplete(true);
+      stopProcessing(); // Stop the processing animation
       
       toast({
         title: "🎉 Upload concluído!",
@@ -130,6 +143,7 @@ const Upload = () => {
 
     } catch (error) {
       console.error('Upload error:', error);
+      stopProcessing(); // Stop processing on error
       toast({
         title: "❌ Erro no upload",
         description: error instanceof Error ? error.message : "Erro desconhecido",
@@ -312,7 +326,12 @@ const Upload = () => {
             {/* Upload Progress */}
             {uploading && (
               <div className="space-y-6">
-                <ProcessingProgress />
+                <ProcessingProgress 
+                  steps={steps}
+                  currentStep={currentStep}
+                  progress={processingProgress}
+                  isProcessing={isProcessing}
+                />
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-slate-700 font-medium">Progresso do upload</span>
