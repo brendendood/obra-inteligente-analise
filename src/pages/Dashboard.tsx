@@ -12,15 +12,18 @@ import {
   BarChart3,
   Clock,
   CheckCircle,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { useProject } from '@/contexts/ProjectContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading } = useAuth();
+  const { isAdmin } = useAdmin();
   const { currentProject, loadUserProjects } = useProject();
   const navigate = useNavigate();
 
@@ -91,12 +94,27 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
-            Bem-vindo, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}!
-          </h1>
-          <p className="text-slate-600">
-            Gerencie seus projetos com inteligência artificial
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                Bem-vindo, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}!
+              </h1>
+              <p className="text-slate-600">
+                Gerencie seus projetos com inteligência artificial
+              </p>
+            </div>
+            
+            {/* Admin Access Button */}
+            {isAdmin && (
+              <Button 
+                onClick={() => navigate('/admin')}
+                className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 flex items-center space-x-2"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Painel Admin</span>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Stats Cards */}
