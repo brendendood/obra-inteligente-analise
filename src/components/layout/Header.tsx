@@ -42,7 +42,7 @@ const Header = () => {
   const showBackButton = location.pathname !== '/' && location.pathname !== '/painel';
 
   return (
-    <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+    <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-600 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Back Button */}
@@ -52,7 +52,7 @@ const Header = () => {
                 variant="ghost"
                 size="sm"
                 onClick={goBack}
-                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                className="text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
@@ -60,14 +60,14 @@ const Header = () => {
             )}
             
             <div className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-2 rounded-lg shadow-lg">
                 <FolderOpen className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-slate-900 dark:text-white">
                   ArchiAI
                 </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-300">
                   Análise Inteligente de Projetos
                 </p>
               </div>
@@ -81,7 +81,7 @@ const Header = () => {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              className="text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
             >
               {theme === 'light' ? (
                 <Moon className="h-4 w-4" />
@@ -98,11 +98,11 @@ const Header = () => {
                     <p className="text-sm font-medium text-slate-900 dark:text-white">
                       {user.email}
                     </p>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs border-slate-300 dark:border-slate-500 text-slate-600 dark:text-slate-300">
                       Usuário
                     </Badge>
                   </div>
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-full">
+                  <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-2 rounded-full shadow-lg">
                     <User className="h-4 w-4 text-white" />
                   </div>
                 </div>
@@ -113,7 +113,7 @@ const Header = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/painel')}
-                    className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                    className="text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     Painel
                   </Button>
@@ -121,7 +121,7 @@ const Header = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/obras')}
-                    className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                    className="text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
                   >
                     Obras
                   </Button>
@@ -132,7 +132,7 @@ const Header = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
