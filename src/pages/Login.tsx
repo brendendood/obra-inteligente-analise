@@ -49,70 +49,70 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:bg-gradient-to-br dark:from-[#0d0d0d] dark:via-[#1a1a1a] dark:to-[#232323]">
       <Header />
       
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="text-center mb-8">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-xl w-fit mx-auto mb-4">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 p-3 rounded-xl w-fit mx-auto mb-4">
               <FileText className="h-8 w-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-slate-900">Entrar na sua conta</h2>
-            <p className="text-slate-600 mt-2">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-[#f2f2f2]">Entrar na sua conta</h2>
+            <p className="text-slate-600 dark:text-[#bbbbbb] mt-2">
               Acesse seu painel e continue seus projetos
             </p>
           </div>
 
-          <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+          <Card className="shadow-xl border-0 bg-white/90 dark:bg-[#1a1a1a]/95 dark:border-[#333] backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-xl text-center">Login</CardTitle>
-              <CardDescription className="text-center">
+              <CardTitle className="text-xl text-center text-foreground dark:text-[#f2f2f2]">Login</CardTitle>
+              <CardDescription className="text-center text-muted-foreground dark:text-[#bbbbbb]">
                 Entre com suas credenciais para acessar o sistema
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSignIn} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-foreground dark:text-[#f2f2f2]">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-[#bbbbbb]" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="seu@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 bg-background dark:bg-[#232323] border-border dark:border-[#333] text-foreground dark:text-[#f2f2f2] placeholder:text-muted-foreground dark:placeholder:text-[#bbbbbb]"
                       required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
+                  <Label htmlFor="password" className="text-foreground dark:text-[#f2f2f2]">Senha</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-[#bbbbbb]" />
                     <Input
                       id="password"
                       type="password"
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 bg-background dark:bg-[#232323] border-border dark:border-[#333] text-foreground dark:text-[#f2f2f2] placeholder:text-muted-foreground dark:placeholder:text-[#bbbbbb]"
                       required
                     />
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <Link to="#" className="text-sm text-blue-600 hover:text-blue-700">
+                  <Link to="#" className="text-sm text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300">
                     Esqueci minha senha
                   </Link>
                 </div>
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 dark:hover:from-green-700 dark:hover:to-green-600 text-white" 
                   disabled={loading}
                 >
                   <LogIn className="h-4 w-4 mr-2" />
@@ -121,9 +121,9 @@ const Login = () => {
               </form>
 
               <div className="mt-6 text-center">
-                <p className="text-slate-600">
+                <p className="text-slate-600 dark:text-[#bbbbbb]">
                   Não tem uma conta?{' '}
-                  <Link to="/cadastro" className="text-blue-600 hover:text-blue-700 font-medium">
+                  <Link to="/cadastro" className="text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300 font-medium">
                     Criar conta grátis
                   </Link>
                 </p>
