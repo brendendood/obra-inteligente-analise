@@ -38,13 +38,13 @@ const ProjectCard = ({
 
   const getStatusBadge = (project: Project) => {
     if (project.analysis_data) {
-      return <Badge className="bg-green-100 text-green-800"><CheckCircle className="h-3 w-3 mr-1" />Concluído</Badge>;
+      return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"><CheckCircle className="h-3 w-3 mr-1" />Concluído</Badge>;
     }
-    return <Badge className="bg-orange-100 text-orange-800"><Clock className="h-3 w-3 mr-1" />Em análise</Badge>;
+    return <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"><Clock className="h-3 w-3 mr-1" />Em análise</Badge>;
   };
 
   return (
-    <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+    <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300 dark:bg-slate-800 dark:border-slate-700 glass-card animate-slide-in">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -62,12 +62,13 @@ const ProjectCard = ({
                     }
                   }}
                   autoFocus
-                  className="text-lg font-bold"
+                  className="text-lg font-bold dark:bg-slate-700 dark:border-slate-600"
                 />
                 <div className="flex space-x-2">
                   <Button
                     size="sm"
                     onClick={() => onSaveEdit(project.id, editName)}
+                    className="btn-primary-gradient"
                   >
                     Salvar
                   </Button>
@@ -75,6 +76,7 @@ const ProjectCard = ({
                     size="sm"
                     variant="outline"
                     onClick={onCancelEdit}
+                    className="dark:border-slate-600 dark:text-slate-300"
                   >
                     Cancelar
                   </Button>
@@ -82,12 +84,12 @@ const ProjectCard = ({
               </div>
             ) : (
               <div className="group">
-                <CardTitle className="text-lg mb-2 line-clamp-2 cursor-pointer flex items-center">
+                <CardTitle className="text-lg mb-2 line-clamp-2 cursor-pointer flex items-center dark:text-white">
                   {project.name}
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                    className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 dark:hover:bg-slate-700"
                     onClick={() => onStartEdit(project.id, project.name)}
                   >
                     <Edit className="h-3 w-3" />
@@ -99,7 +101,7 @@ const ProjectCard = ({
             <div className="space-y-2">
               {getStatusBadge(project)}
               {project.project_type && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="outline" className="text-xs dark:border-slate-600 dark:text-slate-300">
                   {project.project_type}
                 </Badge>
               )}
@@ -111,19 +113,19 @@ const ProjectCard = ({
       <CardContent>
         <div className="space-y-3">
           {project.total_area && (
-            <div className="flex items-center text-sm text-slate-600">
+            <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
               <span className="font-medium">Área: {project.total_area}m²</span>
             </div>
           )}
           
-          <div className="flex items-center text-sm text-slate-500">
+          <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
             <Calendar className="h-4 w-4 mr-2" />
             {new Date(project.created_at).toLocaleDateString('pt-BR')}
           </div>
           
           <Button 
             onClick={() => navigate(`/obra/${project.id}`)}
-            className="w-full bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800"
+            className="w-full btn-secondary-gradient"
           >
             <Eye className="h-4 w-4 mr-2" />
             Ver Obra

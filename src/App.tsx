@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -25,31 +26,33 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ProjectProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Signup />} />
-            <Route path="/painel" element={<Dashboard />} />
-            <Route path="/obras" element={<Projects />} />
-            <Route path="/obra/:projectId" element={<ProjectDetail />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/assistant" element={<Assistant />} />
-            <Route path="/budget" element={<Budget />} />
-            <Route path="/schedule" element={<Schedule />} />
-            <Route path="/documents" element={<Documents />} />
-            <Route path="/termos" element={<Terms />} />
-            <Route path="/politica" element={<Privacy />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ProjectProvider>
+    <ThemeProvider>
+      <ProjectProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
+              <Route path="/painel" element={<Dashboard />} />
+              <Route path="/obras" element={<Projects />} />
+              <Route path="/obra/:projectId" element={<ProjectDetail />} />
+              <Route path="/upload" element={<Upload />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="/budget" element={<Budget />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/documents" element={<Documents />} />
+              <Route path="/termos" element={<Terms />} />
+              <Route path="/politica" element={<Privacy />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ProjectProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
