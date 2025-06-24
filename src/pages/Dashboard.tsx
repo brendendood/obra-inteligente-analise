@@ -13,7 +13,8 @@ import {
   Clock,
   CheckCircle,
   Plus,
-  Settings
+  Settings,
+  FolderOpen
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -56,6 +57,13 @@ const Dashboard = () => {
 
   const quickActions = [
     {
+      icon: <FolderOpen className="h-6 w-6 text-indigo-600" />,
+      title: "Minhas Obras",
+      description: "Gerenciar todos os projetos",
+      path: "/obras",
+      color: "from-indigo-100 to-indigo-200"
+    },
+    {
       icon: <Upload className="h-6 w-6 text-blue-600" />,
       title: "Novo Projeto",
       description: "Enviar e analisar projeto PDF",
@@ -75,14 +83,6 @@ const Dashboard = () => {
       description: "Gerar orçamento SINAPI",
       path: "/budget",
       color: "from-orange-100 to-orange-200",
-      requiresProject: true
-    },
-    {
-      icon: <Calendar className="h-6 w-6 text-green-600" />,
-      title: "Cronograma",
-      description: "Planejar cronograma",
-      path: "/schedule",
-      color: "from-green-100 to-green-200",
       requiresProject: true
     }
   ];
@@ -203,6 +203,12 @@ const Dashboard = () => {
                     🤖 IA contextualizada
                   </span>
                 </div>
+                <Button 
+                  onClick={() => navigate(`/obra/${currentProject.id}`)}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Ver Detalhes da Obra
+                </Button>
               </div>
             </CardContent>
           </Card>

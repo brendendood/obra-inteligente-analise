@@ -9,6 +9,8 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
 import Upload from "./pages/Upload";
 import Assistant from "./pages/Assistant";
 import Budget from "./pages/Budget";
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Signup />} />
             <Route path="/painel" element={<Dashboard />} />
+            <Route path="/obras" element={<Projects />} />
+            <Route path="/obra/:projectId" element={<ProjectDetail />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/assistant" element={<Assistant />} />
             <Route path="/budget" element={<Budget />} />
