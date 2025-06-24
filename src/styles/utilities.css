@@ -1,0 +1,9 @@
+
+/* Smooth transitions for all interactive elements */
+* {
+  @apply transition-colors duration-200;
+}
+
+button, a, [role="button"] {
+  @apply transition-all duration-200;
+}
