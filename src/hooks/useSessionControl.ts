@@ -9,24 +9,22 @@ export function useSessionControl() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Force logout when page is loaded/refreshed
+    // Força logout quando a página é carregada/recarregada
     const handlePageLoad = () => {
-      // Check if user was previously authenticated
       const wasLoggedIn = sessionStorage.getItem('was_logged_in');
       
       if (wasLoggedIn) {
-        // Clear the flag and force logout
         sessionStorage.removeItem('was_logged_in');
         supabase.auth.signOut();
         toast({
-          title: "🔒 Sessão expirada",
+          title: "🔒 Nova sessão iniciada",
           description: "Por segurança, você foi desconectado automaticamente.",
         });
         navigate('/');
       }
     };
 
-    // Set flag when user logs in
+    // Define flag quando usuário faz login
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         sessionStorage.setItem('was_logged_in', 'true');
@@ -35,20 +33,19 @@ export function useSessionControl() {
       }
     });
 
-    // Handle page visibility change (when user returns to tab)
+    // Força logout ao carregar página
+    handlePageLoad();
+
+    // Escuta mudanças de visibilidade (quando usuário volta para a aba)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         handlePageLoad();
       }
     };
 
-    // Force logout on page load
-    handlePageLoad();
-
-    // Listen for visibility changes
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Session timeout (30 minutes of inactivity)
+    // Timeout de sessão (30 minutos de inatividade)
     let inactivityTimer: NodeJS.Timeout;
     
     const resetTimer = () => {
@@ -59,14 +56,14 @@ export function useSessionControl() {
           await supabase.auth.signOut();
           toast({
             title: "⏰ Sessão expirada",
-            description: "Sua sessão expirou por inatividade.",
+            description: "Sua sessão expirou por inatividade (30 minutos).",
           });
           navigate('/');
         }
-      }, 30 * 60 * 1000); // 30 minutes
+      }, 30 * 60 * 1000); // 30 minutos
     };
 
-    // Reset timer on user activity
+    // Eventos que resetam o timer
     const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
     
     const handleActivity = () => {

@@ -2,20 +2,17 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useAdmin } from '@/hooks/useAdmin';
 import { useProject } from '@/contexts/ProjectContext';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 import DashboardWelcome from '@/components/dashboard/DashboardWelcome';
 import DashboardStats from '@/components/dashboard/DashboardStats';
-import CurrentProjectCard from '@/components/dashboard/CurrentProjectCard';
+import ProjectsGrid from '@/components/dashboard/ProjectsGrid';
 import QuickActionsGrid from '@/components/dashboard/QuickActionsGrid';
 import GettingStartedCard from '@/components/dashboard/GettingStartedCard';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading } = useAuth();
-  const { isAdmin } = useAdmin();
-  const { currentProject, loadUserProjects } = useProject();
+  const { projects, loadUserProjects } = useProject();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,12 +29,14 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background dark:bg-[#0d0d0d] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Carregando...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -46,25 +45,21 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-[#0d0d0d]">
-      <Header />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardWelcome user={user!} isAdmin={isAdmin} />
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        <DashboardWelcome user={user!} />
         
-        <DashboardStats currentProject={currentProject} />
+        <DashboardStats projects={projects} />
 
-        {currentProject && (
-          <CurrentProjectCard currentProject={currentProject} />
+        {projects.length > 0 ? (
+          <ProjectsGrid projects={projects} />
+        ) : (
+          <GettingStartedCard />
         )}
 
-        <QuickActionsGrid currentProject={currentProject} />
-
-        {!currentProject && <GettingStartedCard />}
+        <QuickActionsGrid />
       </div>
-
-      <Footer />
-    </div>
+    </DashboardLayout>
   );
 };
 

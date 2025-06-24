@@ -27,7 +27,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
     },
   },
@@ -35,21 +35,21 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
+    <ThemeProvider defaultTheme="dark">
       <ProjectProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
             <Routes>
-              {/* Public routes */}
+              {/* Rotas públicas */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Signup />} />
               <Route path="/termos" element={<Terms />} />
               <Route path="/politica" element={<Privacy />} />
               
-              {/* Protected routes */}
+              {/* Rotas protegidas com layout */}
               <Route path="/painel" element={
                 <ProtectedRoute>
                   <Dashboard />
@@ -96,7 +96,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               
-              {/* 404 route */}
+              {/* Rota 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

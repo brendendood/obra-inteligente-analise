@@ -1,37 +1,67 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload } from 'lucide-react';
+import { Upload, FileText, Rocket } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const GettingStartedCard = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="glass-card dark:bg-[#1a1a1a] dark:border-[#333] bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-900 dark:to-indigo-900 text-white">
+    <Card className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] border-[#333] text-center py-12">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold flex items-center text-white">
-          <Plus className="h-6 w-6 mr-3" />
-          Começar Primeiro Projeto
-        </CardTitle>
-        <CardDescription className="text-blue-100 dark:text-blue-200">
-          Envie seu primeiro projeto e veja a IA em ação
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <p className="text-blue-50 dark:text-blue-100">
-            Você ainda não tem projetos. Comece enviando um arquivo PDF para análise 
-            automática com nossa IA especializada.
-          </p>
-          <Button 
-            onClick={() => navigate('/upload')}
-            className="bg-white text-blue-600 hover:bg-blue-50 font-semibold dark:bg-white dark:text-blue-600 dark:hover:bg-gray-100"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Enviar Primeiro Projeto
-          </Button>
+        <div className="mx-auto mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-full w-fit">
+          <Rocket className="h-8 w-8 text-white" />
         </div>
+        <CardTitle className="text-2xl font-bold text-white mb-2">
+          Bem-vindo ao ArchiAI!
+        </CardTitle>
+        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          Comece enviando seu primeiro projeto e descubra como a inteligência artificial pode revolucionar sua análise de obras.
+        </p>
+      </CardHeader>
+      
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          <div className="space-y-2">
+            <div className="bg-blue-500/20 p-3 rounded-lg w-fit">
+              <Upload className="h-6 w-6 text-blue-400" />
+            </div>
+            <h3 className="font-semibold text-white">1. Envie seu PDF</h3>
+            <p className="text-sm text-gray-400">
+              Faça upload do seu projeto arquitetônico em formato PDF
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="bg-green-500/20 p-3 rounded-lg w-fit">
+              <FileText className="h-6 w-6 text-green-400" />
+            </div>
+            <h3 className="font-semibold text-white">2. IA Analisa</h3>
+            <p className="text-sm text-gray-400">
+              Nossa IA extrai informações e analisa automaticamente
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="bg-purple-500/20 p-3 rounded-lg w-fit">
+              <Rocket className="h-6 w-6 text-purple-400" />
+            </div>
+            <h3 className="font-semibold text-white">3. Trabalhe</h3>
+            <p className="text-sm text-gray-400">
+              Gere orçamentos, cronogramas e converse com a IA
+            </p>
+          </div>
+        </div>
+        
+        <Button
+          onClick={() => navigate('/upload')}
+          size="lg"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-3"
+        >
+          <Upload className="h-5 w-5 mr-2" />
+          Enviar Primeiro Projeto
+        </Button>
       </CardContent>
     </Card>
   );

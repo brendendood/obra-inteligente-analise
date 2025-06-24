@@ -1,26 +1,20 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProject } from '@/contexts/ProjectContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import ProjectsHeader from '@/components/projects/ProjectsHeader';
-import ProjectsStats from '@/components/projects/ProjectsStats';
-import ProjectsGrid from '@/components/projects/ProjectsGrid';
+import { useNavigate } from 'react-router-dom';
+import DashboardLayout from '@/components/layout/DashboardLayout';
+import ProjectsGrid from '@/components/dashboard/ProjectsGrid';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, Filter, Upload } from 'lucide-react';
 
 const Projects = () => {
-  const { isAuthenticated, user, loading } = useAuth();
-  const { loadUserProjects } = useProject();
-  const [projects, setProjects] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [editingProject, setEditingProject] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-  const { toast } = useToast();
+  const { isAuthenticated, loading } = useAuth();
+  const { projects, loadUserProjects } = useProject();
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -30,87 +24,28 @@ const Projects = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      loadProjects();
+      loadUserProjects();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, loadUserProjects]);
 
-  const loadProjects = async () => {
-    setIsLoading(true);
-    try {
-      const userProjects = await loadUserProjects();
-      setProjects(userProjects);
-    } catch (error) {
-      console.error('Erro ao carregar projetos:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterType === 'all' || project.project_type === filterType;
+    return matchesSearch && matchesFilter;
+  });
 
-  const handleEditProject = async (projectId: string, newName: string) => {
-    if (!newName.trim()) {
-      toast({
-        title: "❌ Nome inválido",
-        description: "O nome do projeto não pode estar vazio.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const projectTypes = [...new Set(projects.map(p => p.project_type).filter(Boolean))];
 
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .update({ name: newName.trim() })
-        .eq('id', projectId);
-
-      if (error) throw error;
-
-      setProjects(projects.map(p => 
-        p.id === projectId ? { ...p, name: newName.trim() } : p
-      ));
-
-      setEditingProject(null);
-      setEditName('');
-
-      toast({
-        title: "✅ Nome atualizado!",
-        description: "O nome do projeto foi alterado com sucesso.",
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar projeto:', error);
-      toast({
-        title: "❌ Erro ao atualizar",
-        description: "Não foi possível alterar o nome do projeto.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleStartEdit = (projectId: string, currentName: string) => {
-    setEditingProject(projectId);
-    setEditName(currentName);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingProject(null);
-    setEditName('');
-  };
-
-  const filteredProjects = projects.filter(project =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (project.project_type && project.project_type.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
-  const completedProjects = projects.filter(p => p.analysis_data).length;
-  const analysisProjects = projects.filter(p => !p.analysis_data).length;
-
-  if (loading || isLoading) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Carregando obras...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Carregando projetos...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -119,36 +54,74 @@ const Projects = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <Header />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ProjectsHeader
-          projectsCount={projects.length}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-        />
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Todos os Projetos</h1>
+            <p className="text-gray-400">
+              Gerencie e organize todos os seus projetos arquitetônicos
+            </p>
+          </div>
+          
+          <Button
+            onClick={() => navigate('/upload')}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Novo Projeto
+          </Button>
+        </div>
 
-        <ProjectsStats
-          totalProjects={projects.length}
-          completedProjects={completedProjects}
-          analysisProjects={analysisProjects}
-        />
+        {/* Filtros e Busca */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Buscar projetos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-[#1a1a1a] border-[#333] text-white placeholder-gray-400"
+            />
+          </div>
+          
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="px-4 py-2 bg-[#1a1a1a] border border-[#333] rounded-md text-white"
+          >
+            <option value="all">Todos os tipos</option>
+            {projectTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+        </div>
 
-        <ProjectsGrid
-          projects={projects}
-          filteredProjects={filteredProjects}
-          editingProject={editingProject}
-          editName={editName}
-          onStartEdit={handleStartEdit}
-          onSaveEdit={handleEditProject}
-          onCancelEdit={handleCancelEdit}
-          onEditNameChange={setEditName}
-        />
+        {/* Grid de Projetos */}
+        <ProjectsGrid projects={filteredProjects} />
+
+        {/* Estatísticas */}
+        <div className="bg-[#1a1a1a] rounded-lg border border-[#333] p-6">
+          <h3 className="text-lg font-semibold text-white mb-4">Estatísticas dos Projetos</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-blue-400">{projects.length}</div>
+              <div className="text-sm text-gray-400">Total de Projetos</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-400">
+                {projects.reduce((sum, p) => sum + (p.total_area || 0), 0).toLocaleString()}m²
+              </div>
+              <div className="text-sm text-gray-400">Área Total</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-400">{projectTypes.length}</div>
+              <div className="text-sm text-gray-400">Tipos Diferentes</div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <Footer />
-    </div>
+    </DashboardLayout>
   );
 };
 
