@@ -12,13 +12,11 @@ import {
   Upload as UploadIcon, 
   FileText, 
   CheckCircle, 
-  AlertCircle,
   Bot,
-  Zap,
   Clock,
   BarChart3,
   X,
-  RefreshCw
+  Zap
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProject } from '@/contexts/ProjectContext';
@@ -27,16 +25,19 @@ import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
+import AIButton from '@/components/common/AIButton';
+import ProjectSelector from '@/components/common/ProjectSelector';
 import { useProcessingSteps } from '@/hooks/useProcessingSteps';
 
 const Upload = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
-  const { currentProject, loadUserProjects } = useProject();
+  const { currentProject, loadUserProjects, projects, setCurrentProject } = useProject();
   const [file, setFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const [uploadedProject, setUploadedProject] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -147,7 +148,7 @@ const Upload = () => {
           body: {
             fileName,
             originalName: file.name,
-            projectName: projectName.trim(), // Send custom project name
+            projectName: projectName.trim(),
             fileSize: file.size
           }
         });
@@ -164,6 +165,7 @@ const Upload = () => {
       clearInterval(progressInterval);
       setProgress(100);
       setUploadComplete(true);
+      setUploadedProject(data.project);
       stopProcessing();
       
       console.log('Upload completed successfully:', data);
@@ -174,10 +176,7 @@ const Upload = () => {
       });
 
       // Recarregar projetos
-      setTimeout(() => {
-        loadUserProjects();
-        navigate('/painel');
-      }, 2000);
+      loadUserProjects();
 
     } catch (error) {
       console.error('Upload error:', error);
@@ -201,15 +200,10 @@ const Upload = () => {
     }
   };
 
-  const handleAnalyzeExisting = () => {
-    if (currentProject) {
-      navigate('/assistant');
-    } else {
-      toast({
-        title: "ℹ️ Nenhum projeto encontrado",
-        description: "Faça upload de um projeto primeiro.",
-        variant: "default",
-      });
+  const handleProjectChange = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      setCurrentProject(project);
     }
   };
 
@@ -219,14 +213,23 @@ const Upload = () => {
     setUploading(false);
     setProgress(0);
     setUploadComplete(false);
+    setUploadedProject(null);
+  };
+
+  const handleAIAnalysisComplete = (result: any) => {
+    console.log('Análise de IA concluída:', result);
+    // Aqui você pode redirecionar ou mostrar os resultados
+    setTimeout(() => {
+      navigate('/painel');
+    }, 2000);
   };
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Carregando...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
@@ -237,66 +240,76 @@ const Upload = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-2xl w-fit mx-auto mb-6 shadow-lg">
-            <UploadIcon className="h-10 w-10 text-white" />
+          <div className="bg-primary p-4 rounded-2xl w-fit mx-auto mb-6 shadow-lg">
+            <UploadIcon className="h-10 w-10 text-primary-foreground" />
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             Análise de Projetos
           </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Faça upload do seu projeto arquitetônico e deixe nossa IA analisar cada detalhe
           </p>
         </div>
 
+        {/* Project Selector */}
+        {projects && projects.length > 0 && (
+          <div className="mb-8">
+            <ProjectSelector
+              projects={projects}
+              currentProject={currentProject}
+              onProjectChange={handleProjectChange}
+            />
+          </div>
+        )}
+
         {/* Quick Action - Existing Project */}
         {currentProject && (
-          <Card className="mb-8 shadow-xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+          <Card className="mb-8 glass-card border-green-500/20 bg-green-50/50 dark:bg-green-900/10">
             <CardHeader>
-              <CardTitle className="text-xl font-bold text-green-800 flex items-center">
-                <CheckCircle className="h-6 w-6 mr-3 text-green-600" />
-                Projeto Ativo Encontrado
+              <CardTitle className="text-xl font-bold text-green-800 dark:text-green-400 flex items-center">
+                <CheckCircle className="h-6 w-6 mr-3" />
+                Projeto Ativo
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-bold text-green-900 mb-1">{currentProject.name}</p>
-                  <p className="text-green-700 mb-2">
+                  <p className="text-lg font-bold text-foreground mb-1">{currentProject.name}</p>
+                  <p className="text-muted-foreground mb-2">
                     {currentProject.total_area ? `${currentProject.total_area}m² • ` : ''}
                     {currentProject.project_type}
                   </p>
                   <div className="flex items-center space-x-2">
-                    <Badge className="bg-green-100 text-green-800">✅ Processado</Badge>
-                    <Badge className="bg-green-100 text-green-800">🤖 IA Pronta</Badge>
+                    <Badge className="status-completed border">✅ Processado</Badge>
+                    <Badge className="status-in-progress border">🤖 IA Pronta</Badge>
                   </div>
                 </div>
-                <Button 
-                  onClick={handleAnalyzeExisting}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 text-lg"
-                >
-                  <Bot className="h-5 w-5 mr-2" />
-                  Analisar com IA
-                </Button>
+                <AIButton 
+                  projectData={currentProject}
+                  onAnalysisComplete={handleAIAnalysisComplete}
+                />
               </div>
             </CardContent>
           </Card>
         )}
 
         {/* Main Upload Area */}
-        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="text-2xl text-center">
-              {uploading ? 'Processando Projeto' : 'Novo Projeto'}
+              {uploading ? 'Processando Projeto' : uploadComplete ? 'Projeto Processado' : 'Novo Projeto'}
             </CardTitle>
             <CardDescription className="text-center text-lg">
               {uploading 
                 ? 'Nossa IA está analisando seu projeto...' 
+                : uploadComplete
+                ? 'Upload concluído com sucesso!'
                 : 'Arraste um arquivo PDF ou clique para selecionar'
               }
             </CardDescription>
@@ -306,7 +319,7 @@ const Upload = () => {
               <>
                 {/* Project Name Field */}
                 <div className="mb-6">
-                  <Label htmlFor="projectName" className="text-lg font-semibold text-slate-700 mb-2 block">
+                  <Label htmlFor="projectName" className="text-lg font-semibold text-foreground mb-2 block">
                     Nome do Projeto *
                   </Label>
                   <Input
@@ -315,10 +328,10 @@ const Upload = () => {
                     placeholder="Ex: Residência Silva, Apartamento Copacabana..."
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
-                    className="text-lg p-4 border-2 border-slate-300 focus:border-blue-500"
+                    className="text-lg p-4 border-2 focus:border-primary"
                     disabled={uploading}
                   />
-                  <p className="text-sm text-slate-500 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Defina um nome personalizado para identificar seu projeto
                   </p>
                 </div>
@@ -328,10 +341,10 @@ const Upload = () => {
                   {...getRootProps()}
                   className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 mb-6 ${
                     isDragActive 
-                      ? 'border-blue-500 bg-blue-50' 
+                      ? 'border-primary bg-primary/5' 
                       : file 
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-border hover:border-primary hover:bg-accent'
                   }`}
                 >
                   <input {...getInputProps()} />
@@ -340,9 +353,9 @@ const Upload = () => {
                     <div className="space-y-4">
                       <CheckCircle className="h-16 w-16 text-green-600 mx-auto" />
                       <div>
-                        <p className="text-xl font-bold text-green-800 mb-2">Arquivo selecionado!</p>
-                        <p className="text-green-700 text-lg">{file.name}</p>
-                        <p className="text-green-600 text-sm">
+                        <p className="text-xl font-bold text-green-800 dark:text-green-400 mb-2">Arquivo selecionado!</p>
+                        <p className="text-green-700 dark:text-green-500 text-lg">{file.name}</p>
+                        <p className="text-green-600 dark:text-green-400 text-sm">
                           {(file.size / (1024 * 1024)).toFixed(1)} MB
                         </p>
                       </div>
@@ -360,15 +373,15 @@ const Upload = () => {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <FileText className="h-16 w-16 text-slate-400 mx-auto" />
+                      <FileText className="h-16 w-16 text-muted-foreground mx-auto" />
                       <div>
-                        <p className="text-xl font-bold text-slate-700 mb-2">
+                        <p className="text-xl font-bold text-foreground mb-2">
                           {isDragActive 
                             ? 'Solte o arquivo aqui...' 
                             : 'Selecione seu projeto PDF'
                           }
                         </p>
-                        <p className="text-slate-500">
+                        <p className="text-muted-foreground">
                           Máximo 50MB • Apenas arquivos PDF
                         </p>
                       </div>
@@ -376,15 +389,15 @@ const Upload = () => {
                   )}
                 </div>
 
-                {/* Action Button */}
+                {/* Upload Button */}
                 {file && projectName.trim() && (
                   <Button 
                     onClick={handleUpload}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold"
+                    className="w-full btn-primary-gradient py-4 text-lg font-semibold"
                     size="lg"
                   >
                     <Zap className="h-5 w-5 mr-2" />
-                    Analisar com IA
+                    Fazer Upload do Projeto
                   </Button>
                 )}
               </>
@@ -401,16 +414,16 @@ const Upload = () => {
                 />
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-700 font-medium">Progresso do upload</span>
-                    <span className="text-blue-600 font-bold">{progress}%</span>
+                    <span className="text-foreground font-medium">Progresso do upload</span>
+                    <span className="text-primary font-bold">{progress}%</span>
                   </div>
                   <Progress value={progress} className="h-3" />
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-4">
                   <div className="flex items-center space-x-3">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-                    <span className="text-blue-800 font-medium">
-                      Processando projeto "{projectName}" com IA...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                    <span className="text-foreground font-medium">
+                      Processando projeto "{projectName}"...
                     </span>
                   </div>
                 </div>
@@ -418,16 +431,29 @@ const Upload = () => {
             )}
 
             {/* Success State */}
-            {uploadComplete && (
+            {uploadComplete && uploadedProject && (
               <div className="text-center space-y-6">
                 <CheckCircle className="h-20 w-20 text-green-600 mx-auto" />
                 <div>
-                  <h3 className="text-2xl font-bold text-green-800 mb-2">
-                    Projeto "{projectName}" Analisado com Sucesso!
+                  <h3 className="text-2xl font-bold text-green-800 dark:text-green-400 mb-2">
+                    Projeto "{projectName}" Processado!
                   </h3>
-                  <p className="text-green-700 text-lg">
-                    Redirecionando para o painel...
+                  <p className="text-green-700 dark:text-green-500 text-lg mb-4">
+                    Agora você pode analisar com IA para obter insights detalhados.
                   </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <AIButton 
+                      projectData={uploadedProject}
+                      onAnalysisComplete={handleAIAnalysisComplete}
+                    />
+                    <Button 
+                      onClick={() => navigate('/painel')}
+                      variant="outline"
+                      className="btn-secondary-gradient"
+                    >
+                      Ir para Painel
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -436,43 +462,43 @@ const Upload = () => {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+          <Card className="feature-card card-hover">
             <CardHeader>
-              <div className="bg-gradient-to-br from-blue-100 to-blue-200 p-3 rounded-2xl w-fit">
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 p-3 rounded-2xl w-fit">
                 <Bot className="h-6 w-6 text-blue-600" />
               </div>
               <CardTitle className="text-lg">Análise Inteligente</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-600">
+              <p className="text-muted-foreground">
                 IA especializada extrai informações técnicas e identifica padrões arquitetônicos
               </p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+          <Card className="feature-card card-hover">
             <CardHeader>
-              <div className="bg-gradient-to-br from-green-100 to-green-200 p-3 rounded-2xl w-fit">
+              <div className="bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 p-3 rounded-2xl w-fit">
                 <Clock className="h-6 w-6 text-green-600" />
               </div>
               <CardTitle className="text-lg">Processamento Rápido</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-600">
+              <p className="text-muted-foreground">
                 Análise completa em segundos, economizando horas de trabalho manual
               </p>
             </CardContent>
           </Card>
 
-          <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+          <Card className="feature-card card-hover">
             <CardHeader>
-              <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-3 rounded-2xl w-fit">
+              <div className="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 p-3 rounded-2xl w-fit">
                 <BarChart3 className="h-6 w-6 text-purple-600" />
               </div>
               <CardTitle className="text-lg">Relatórios Detalhados</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-slate-600">
+              <p className="text-muted-foreground">
                 Orçamentos automáticos, cronogramas e análises técnicas precisas
               </p>
             </CardContent>

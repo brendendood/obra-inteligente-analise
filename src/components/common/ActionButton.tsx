@@ -53,7 +53,7 @@ const ActionButton = ({
     <Button
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={`${getVariantClasses()} ${getSizeClasses()} font-semibold rounded-xl transition-all duration-300 ${className}`}
+      className={`${getVariantClasses()} ${getSizeClasses()} font-semibold transition-all duration-300 ${className}`}
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />

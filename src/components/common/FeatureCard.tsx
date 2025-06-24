@@ -1,6 +1,5 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -21,7 +20,7 @@ const FeatureCard = ({
 }: FeatureCardProps) => {
   return (
     <Card 
-      className={`hover:shadow-xl transition-all duration-300 cursor-pointer group border-0 shadow-lg glass-card h-full ${
+      className={`feature-card card-hover cursor-pointer group h-full ${
         disabled ? 'opacity-60 cursor-not-allowed' : ''
       }`}
       onClick={!disabled ? onClick : undefined}

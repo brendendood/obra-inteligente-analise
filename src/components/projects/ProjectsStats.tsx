@@ -10,7 +10,7 @@ interface ProjectsStatsProps {
 const ProjectsStats = ({ totalProjects, completedProjects, analysisProjects }: ProjectsStatsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <Card className="shadow-lg border-0 glass-card hover:shadow-xl transition-all duration-300">
+      <Card className="glass-card card-hover">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm text-muted-foreground font-medium">Total de Obras</CardTitle>
         </CardHeader>
@@ -19,7 +19,7 @@ const ProjectsStats = ({ totalProjects, completedProjects, analysisProjects }: P
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg border-0 glass-card hover:shadow-xl transition-all duration-300">
+      <Card className="glass-card card-hover">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm text-muted-foreground font-medium">Concluídas</CardTitle>
         </CardHeader>
@@ -28,7 +28,7 @@ const ProjectsStats = ({ totalProjects, completedProjects, analysisProjects }: P
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg border-0 glass-card hover:shadow-xl transition-all duration-300">
+      <Card className="glass-card card-hover">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm text-muted-foreground font-medium">Em Análise</CardTitle>
         </CardHeader>

@@ -7,20 +7,29 @@ export function useNavigationHistory() {
   const location = useLocation();
 
   const goBack = useCallback(() => {
-    // Check if there's history to go back to
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      // Fallback navigation based on current route
-      const path = location.pathname;
+    // Check if we can go back in history
+    if (window.history.length > 1 && document.referrer) {
+      // Check if the referrer is from the same domain
+      const referrerUrl = new URL(document.referrer);
+      const currentUrl = new URL(window.location.href);
       
-      if (path.startsWith('/obra/')) {
-        navigate('/obras');
-      } else if (path === '/obras' || path === '/upload' || path === '/assistant') {
-        navigate('/painel');
-      } else {
-        navigate('/');
+      if (referrerUrl.origin === currentUrl.origin) {
+        window.history.back();
+        return;
       }
+    }
+
+    // Fallback navigation based on current route
+    const path = location.pathname;
+    
+    if (path.startsWith('/obra/')) {
+      navigate('/obras');
+    } else if (path === '/obras' || path === '/upload' || path === '/assistant') {
+      navigate('/painel');
+    } else if (path === '/painel') {
+      navigate('/');
+    } else {
+      navigate('/painel');
     }
   }, [navigate, location.pathname]);
 
