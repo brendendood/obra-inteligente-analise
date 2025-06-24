@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
@@ -31,6 +33,7 @@ const Upload = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { currentProject, loadUserProjects } = useProject();
   const [file, setFile] = useState<File | null>(null);
+  const [projectName, setProjectName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -73,8 +76,13 @@ const Upload = () => {
         return;
       }
       setFile(uploadedFile);
+      // Auto-fill project name with file name (without extension) if empty
+      if (!projectName) {
+        const nameWithoutExtension = uploadedFile.name.replace(/\.[^/.]+$/, "");
+        setProjectName(nameWithoutExtension);
+      }
     }
-  }, [toast]);
+  }, [toast, projectName]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -86,11 +94,18 @@ const Upload = () => {
   });
 
   const handleUpload = async () => {
-    if (!file || !user) return;
+    if (!file || !user || !projectName.trim()) {
+      toast({
+        title: "❌ Campos obrigatórios",
+        description: "Por favor, selecione um arquivo e informe o nome do projeto.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploading(true);
     setProgress(0);
-    startProcessing(); // Start the processing steps animation
+    startProcessing();
 
     try {
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
@@ -132,6 +147,7 @@ const Upload = () => {
           body: {
             fileName,
             originalName: file.name,
+            projectName: projectName.trim(), // Send custom project name
             fileSize: file.size
           }
         });
@@ -148,7 +164,7 @@ const Upload = () => {
       clearInterval(progressInterval);
       setProgress(100);
       setUploadComplete(true);
-      stopProcessing(); // Stop the processing animation
+      stopProcessing();
       
       console.log('Upload completed successfully:', data);
       
@@ -165,9 +181,8 @@ const Upload = () => {
 
     } catch (error) {
       console.error('Upload error:', error);
-      stopProcessing(); // Stop processing on error
+      stopProcessing();
       
-      // Melhor tratamento de erro com mensagens específicas
       let errorMessage = "Erro desconhecido";
       
       if (error instanceof Error) {
@@ -200,6 +215,7 @@ const Upload = () => {
 
   const resetUpload = () => {
     setFile(null);
+    setProjectName('');
     setUploading(false);
     setProgress(0);
     setUploadComplete(false);
@@ -288,6 +304,25 @@ const Upload = () => {
           <CardContent>
             {!uploading && !uploadComplete && (
               <>
+                {/* Project Name Field */}
+                <div className="mb-6">
+                  <Label htmlFor="projectName" className="text-lg font-semibold text-slate-700 mb-2 block">
+                    Nome do Projeto *
+                  </Label>
+                  <Input
+                    id="projectName"
+                    type="text"
+                    placeholder="Ex: Residência Silva, Apartamento Copacabana..."
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    className="text-lg p-4 border-2 border-slate-300 focus:border-blue-500"
+                    disabled={uploading}
+                  />
+                  <p className="text-sm text-slate-500 mt-1">
+                    Defina um nome personalizado para identificar seu projeto
+                  </p>
+                </div>
+
                 {/* Upload Zone */}
                 <div
                   {...getRootProps()}
@@ -342,7 +377,7 @@ const Upload = () => {
                 </div>
 
                 {/* Action Button */}
-                {file && (
+                {file && projectName.trim() && (
                   <Button 
                     onClick={handleUpload}
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold"
@@ -375,7 +410,7 @@ const Upload = () => {
                   <div className="flex items-center space-x-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
                     <span className="text-blue-800 font-medium">
-                      Processando projeto com IA...
+                      Processando projeto "{projectName}" com IA...
                     </span>
                   </div>
                 </div>
@@ -388,7 +423,7 @@ const Upload = () => {
                 <CheckCircle className="h-20 w-20 text-green-600 mx-auto" />
                 <div>
                   <h3 className="text-2xl font-bold text-green-800 mb-2">
-                    Projeto Analisado com Sucesso!
+                    Projeto "{projectName}" Analisado com Sucesso!
                   </h3>
                   <p className="text-green-700 text-lg">
                     Redirecionando para o painel...

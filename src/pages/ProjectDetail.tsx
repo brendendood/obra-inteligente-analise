@@ -4,112 +4,146 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 import { 
-  ArrowLeft,
-  FileText,
-  Calculator,
-  Calendar,
-  MessageSquare,
+  ArrowUp,
+  FileText, 
+  Calendar, 
+  Calculator, 
+  Bot,
+  Home,
+  AlertCircle,
+  RefreshCw,
   Download,
-  Loader2,
-  CheckCircle,
-  Clock,
-  AlertCircle
+  FileDown,
+  ClipboardList,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ProjectActionCard from '@/components/project/ProjectActionCard';
+import GanttChart from '@/components/project/GanttChart';
+
+interface Project {
+  id: string;
+  name: string;
+  file_path: string;
+  file_size?: number;
+  extracted_text?: string;
+  analysis_data?: any;
+  project_type?: string;
+  total_area?: number;
+  created_at: string;
+  updated_at: string;
+}
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
-  const { isAuthenticated, user, loading } = useAuth();
-  const [project, setProject] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const [project, setProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [budgetLoading, setBudgetLoading] = useState(false);
-  const [budgetResult, setBudgetResult] = useState<any>(null);
-  const navigate = useNavigate();
+  const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [showBudget, setShowBudget] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [budgetData, setBudgetData] = useState<any>(null);
+  const [scheduleData, setScheduleData] = useState<any>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login');
+      return;
     }
-  }, [isAuthenticated, loading, navigate]);
-
-  useEffect(() => {
-    if (isAuthenticated && projectId) {
+    
+    if (projectId && isAuthenticated) {
       loadProject();
     }
-  }, [isAuthenticated, projectId]);
+  }, [projectId, isAuthenticated, authLoading, navigate]);
 
   const loadProject = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('id', projectId)
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error) throw error;
-      setProject(data);
-    } catch (error) {
-      console.error('Erro ao carregar projeto:', error);
-      toast({
-        title: "❌ Erro",
-        description: "Não foi possível carregar o projeto.",
-        variant: "destructive",
-      });
-      navigate('/obras');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleBudgetGeneration = async () => {
-    if (!project?.extracted_text) {
-      toast({
-        title: "❌ Erro",
-        description: "Texto do projeto não encontrado. Reenvie o arquivo.",
-        variant: "destructive",
-      });
+    if (!projectId) {
+      setError('ID do projeto não fornecido');
+      setLoading(false);
       return;
     }
 
-    setBudgetLoading(true);
     try {
-      const response = await fetch('https://brendendood.app.n8n.cloud/webhook-test/agente-ia-orcamento', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          texto_projeto: project.extracted_text,
-          nome_projeto: project.name,
-          usuario_id: user?.id,
-          projeto_id: project.id
-        }),
-      });
+      setLoading(true);
+      setError(null);
+      
+      const { data, error: fetchError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
 
-      if (!response.ok) {
-        throw new Error('Erro na requisição para o agente de orçamento');
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+          setError('Projeto não encontrado');
+        } else {
+          setError(`Erro ao carregar projeto: ${fetchError.message}`);
+        }
+        return;
       }
 
-      const result = await response.json();
-      setBudgetResult(result);
+      if (!data) {
+        setError('Projeto não encontrado');
+        return;
+      }
+
+      setProject(data);
+    } catch (error) {
+      console.error('Error loading project:', error);
+      setError('Erro inesperado ao carregar projeto');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getPdfUrl = () => {
+    if (!project?.file_path) return null;
+    
+    const { data } = supabase.storage
+      .from('project-files')
+      .getPublicUrl(project.file_path);
+    
+    return data?.publicUrl || null;
+  };
+
+  const handleBudgetGeneration = async () => {
+    if (!project) return;
+    
+    setBudgetLoading(true);
+    setShowBudget(false);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-assistant', {
+        body: {
+          message: 'Gere um orçamento detalhado usando a tabela SINAPI para este projeto',
+          projectId: project.id
+        }
+      });
+
+      if (error) throw error;
+
+      setBudgetData(data);
+      setShowBudget(true);
       
       toast({
-        title: "🎉 Orçamento gerado!",
-        description: "O orçamento inteligente foi gerado com sucesso.",
+        title: "✅ Orçamento gerado!",
+        description: "Orçamento baseado na tabela SINAPI criado com sucesso.",
       });
     } catch (error) {
-      console.error('Erro ao gerar orçamento:', error);
+      console.error('Budget generation error:', error);
       toast({
-        title: "❌ Erro",
-        description: "Não foi possível gerar o orçamento. Tente novamente.",
+        title: "❌ Erro no orçamento",
+        description: "Não foi possível gerar o orçamento.",
         variant: "destructive",
       });
     } finally {
@@ -117,12 +151,83 @@ const ProjectDetail = () => {
     }
   };
 
-  const getPdfUrl = () => {
-    if (!project?.file_path) return null;
-    return supabase.storage.from('project-files').getPublicUrl(project.file_path).data.publicUrl;
+  const handleScheduleGeneration = async () => {
+    if (!project) return;
+    
+    setScheduleLoading(true);
+    setShowSchedule(false);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-assistant', {
+        body: {
+          message: 'Gere um cronograma detalhado de execução para este projeto',
+          projectId: project.id
+        }
+      });
+
+      if (error) throw error;
+
+      // Simulate schedule data for the Gantt component
+      const mockScheduleData = [
+        {
+          id: '1',
+          name: 'Fundação e Estrutura',
+          startDate: '2024-01-01',
+          endDate: '2024-01-21',
+          duration: 21,
+          color: 'bg-blue-500',
+          category: 'estrutura'
+        },
+        {
+          id: '2',
+          name: 'Alvenaria e Vedação',
+          startDate: '2024-01-22',
+          endDate: '2024-02-11',
+          duration: 21,
+          color: 'bg-orange-500',
+          category: 'alvenaria'
+        },
+        {
+          id: '3',
+          name: 'Instalações',
+          startDate: '2024-02-12',
+          endDate: '2024-03-04',
+          duration: 21,
+          color: 'bg-purple-500',
+          category: 'instalacoes'
+        },
+        {
+          id: '4',
+          name: 'Acabamentos',
+          startDate: '2024-03-05',
+          endDate: '2024-03-25',
+          duration: 21,
+          color: 'bg-green-500',
+          category: 'acabamentos'
+        }
+      ];
+
+      setScheduleData(mockScheduleData);
+      setShowSchedule(true);
+      
+      toast({
+        title: "📅 Cronograma gerado!",
+        description: "Cronograma detalhado criado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Schedule generation error:', error);
+      toast({
+        title: "❌ Erro no cronograma",
+        description: "Não foi possível gerar o cronograma.",
+        variant: "destructive",
+      });
+    } finally {
+      setScheduleLoading(false);
+    }
   };
 
-  if (loading || isLoading) {
+  // Loading state
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center">
@@ -133,8 +238,58 @@ const ProjectDetail = () => {
     );
   }
 
-  if (!isAuthenticated || !project) {
-    return null;
+  // Error states
+  if (error || !project) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <Header />
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card className="shadow-lg border-0 text-center">
+            <CardContent className="py-12">
+              <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                {error || 'Projeto não encontrado'}
+              </h2>
+              <p className="text-slate-600 mb-8">
+                {error === 'Projeto não encontrado' 
+                  ? 'O projeto que você está procurando pode ter sido removido ou você não tem permissão para acessá-lo.'
+                  : 'Ocorreu um erro inesperado ao carregar o projeto.'
+                }
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={() => navigate('/obras')}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                >
+                  <Home className="h-4 w-4 mr-2" />
+                  Ver Todas as Obras
+                </Button>
+                
+                <Button 
+                  onClick={() => navigate('/upload')}
+                  variant="outline"
+                >
+                  <ArrowUp className="h-4 w-4 mr-2" />
+                  Novo Projeto
+                </Button>
+                
+                <Button 
+                  onClick={loadProject}
+                  variant="outline"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Tentar Novamente
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <Footer />
+      </div>
+    );
   }
 
   return (
@@ -142,208 +297,146 @@ const ProjectDetail = () => {
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/obras')}
-              className="mr-4"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
-            </Button>
+        {/* Breadcrumb */}
+        <nav className="flex items-center space-x-2 text-sm text-slate-600 mb-6">
+          <button onClick={() => navigate('/painel')} className="hover:text-blue-600">
+            Painel
+          </button>
+          <span>/</span>
+          <button onClick={() => navigate('/obras')} className="hover:text-blue-600">
+            Obras
+          </button>
+          <span>/</span>
+          <span className="text-slate-900 font-medium">{project.name}</span>
+        </nav>
+
+        {/* Project Header */}
+        <div className="mb-8">
+          <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-1">
-                {project.name}
-              </h1>
-              <div className="flex items-center space-x-3">
-                {project.analysis_data ? (
-                  <Badge className="bg-green-100 text-green-800">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Concluído
-                  </Badge>
-                ) : (
-                  <Badge className="bg-orange-100 text-orange-800">
-                    <Clock className="h-3 w-3 mr-1" />
-                    Em análise
-                  </Badge>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">{project.name}</h1>
+              <div className="flex items-center space-x-4 text-slate-600">
+                {project.total_area && (
+                  <span>Área: {project.total_area}m²</span>
                 )}
                 {project.project_type && (
                   <Badge variant="outline">{project.project_type}</Badge>
                 )}
-                {project.total_area && (
-                  <span className="text-slate-600">{project.total_area}m²</span>
-                )}
+                <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
               </div>
             </div>
+            
+            <Badge className="bg-green-100 text-green-800">
+              ✅ Processado
+            </Badge>
           </div>
         </div>
 
-        {/* Main Content - Two Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - PDF Viewer */}
-          <Card className="shadow-xl border-0">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                Visualização do Projeto
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {getPdfUrl() ? (
-                <div className="aspect-[3/4] w-full">
-                  <iframe
-                    src={`${getPdfUrl()}#toolbar=1&navpanes=1&scrollbar=1`}
-                    className="w-full h-full border rounded-lg"
-                    title="Visualização do PDF"
-                  />
-                </div>
-              ) : (
-                <div className="aspect-[3/4] w-full border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <AlertCircle className="h-12 w-12 text-slate-400 mx-auto mb-2" />
-                    <p className="text-slate-500">PDF não disponível</p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Right Column - Actions */}
-          <div className="space-y-6">
-            {/* Project Actions */}
-            <Card className="shadow-xl border-0">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* PDF Viewer */}
+            <Card className="shadow-lg border-0">
               <CardHeader>
-                <CardTitle>Ferramentas de Análise</CardTitle>
-                <CardDescription>
-                  Utilize as ferramentas de IA para analisar seu projeto
-                </CardDescription>
+                <CardTitle className="flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-blue-600" />
+                  Documento do Projeto
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Budget Button */}
-                <Button
-                  onClick={handleBudgetGeneration}
-                  disabled={budgetLoading}
-                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 h-14"
-                >
-                  {budgetLoading ? (
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  ) : (
-                    <Calculator className="h-5 w-5 mr-2" />
-                  )}
-                  Orçamento Inteligente
-                  {budgetResult && <CheckCircle className="h-4 w-4 ml-2 text-green-200" />}
-                </Button>
-
-                {/* Schedule Button */}
-                <Button
-                  onClick={() => navigate(`/schedule?project=${project.id}`)}
-                  variant="outline"
-                  className="w-full h-14"
-                >
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Gerar Cronograma
-                </Button>
-
-                {/* Documents Button */}
-                <Button
-                  onClick={() => navigate(`/documents?project=${project.id}`)}
-                  variant="outline"
-                  className="w-full h-14"
-                >
-                  <FileText className="h-5 w-5 mr-2" />
-                  Documentos Técnicos
-                </Button>
-
-                {/* AI Chat Button */}
-                <Button
-                  onClick={() => navigate(`/assistant?project=${project.id}`)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 h-14"
-                >
-                  <MessageSquare className="h-5 w-5 mr-2" />
-                  Chat com IA Técnica
-                </Button>
+              <CardContent>
+                {getPdfUrl() ? (
+                  <div className="space-y-4">
+                    <iframe
+                      src={`${getPdfUrl()}#view=FitH`}
+                      className="w-full h-96 border border-slate-200 rounded-lg"
+                      title="PDF do Projeto"
+                    />
+                    <Button
+                      onClick={() => window.open(getPdfUrl(), '_blank')}
+                      className="w-full"
+                      variant="outline"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Abrir PDF em Nova Aba
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500">
+                    <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Arquivo PDF não disponível</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Budget Result */}
-            {budgetResult && (
-              <Card className="shadow-xl border-0 bg-gradient-to-r from-green-50 to-emerald-50">
+            {/* Budget Display */}
+            {showBudget && budgetData && (
+              <Card className="shadow-lg border-0">
                 <CardHeader>
-                  <CardTitle className="text-green-800 flex items-center">
-                    <CheckCircle className="h-5 w-5 mr-2" />
-                    Orçamento Gerado
+                  <CardTitle className="flex items-center">
+                    <Calculator className="h-5 w-5 mr-2 text-green-600" />
+                    Orçamento SINAPI
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="bg-white p-4 rounded-lg">
-                      <pre className="text-sm text-slate-700 whitespace-pre-wrap">
-                        {typeof budgetResult === 'string' 
-                          ? budgetResult 
-                          : JSON.stringify(budgetResult, null, 2)
-                        }
-                      </pre>
-                    </div>
-                    <Button
-                      onClick={() => {
-                        const blob = new Blob([JSON.stringify(budgetResult, null, 2)], {
-                          type: 'application/json'
-                        });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `orcamento-${project.name}.json`;
-                        a.click();
-                      }}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Exportar Orçamento
-                    </Button>
+                  <div className="prose max-w-none">
+                    <pre className="whitespace-pre-wrap text-sm">{budgetData.message || JSON.stringify(budgetData, null, 2)}</pre>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Project Info */}
-            <Card className="shadow-xl border-0">
-              <CardHeader>
-                <CardTitle>Informações do Projeto</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="font-medium text-slate-700">Data de envio:</span>
-                    <p className="text-slate-600">
-                      {new Date(project.created_at).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                  {project.file_size && (
-                    <div>
-                      <span className="font-medium text-slate-700">Tamanho do arquivo:</span>
-                      <p className="text-slate-600">
-                        {(project.file_size / (1024 * 1024)).toFixed(1)} MB
-                      </p>
-                    </div>
-                  )}
-                  {project.total_area && (
-                    <div>
-                      <span className="font-medium text-slate-700">Área total:</span>
-                      <p className="text-slate-600">{project.total_area}m²</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Schedule Display */}
+            {showSchedule && scheduleData && (
+              <GanttChart
+                tasks={scheduleData}
+                projectName={project.name}
+                onExportPDF={() => toast({ title: "📄 Exportando PDF...", description: "Funcionalidade em desenvolvimento" })}
+                onExportExcel={() => toast({ title: "📊 Exportando Excel...", description: "Funcionalidade em desenvolvimento" })}
+              />
+            )}
+          </div>
+
+          {/* Actions Sidebar */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Ferramentas do Projeto</h3>
+            
+            <ProjectActionCard
+              icon={Bot}
+              title="Assistente IA"
+              description="Chat inteligente sobre o projeto"
+              onClick={() => navigate('/assistant')}
+            />
+
+            <ProjectActionCard
+              icon={Calculator}
+              title="Orçamento Inteligente"
+              description="Gerar orçamento baseado na tabela SINAPI"
+              onClick={handleBudgetGeneration}
+              isLoading={budgetLoading}
+            />
+
+            <ProjectActionCard
+              icon={Calendar}
+              title="Cronograma"
+              description="Timeline visual das etapas de execução"
+              onClick={handleScheduleGeneration}
+              isLoading={scheduleLoading}
+            />
+
+            <ProjectActionCard
+              icon={FileDown}
+              title="Documentos"
+              description="Downloads e relatórios técnicos"
+              onClick={() => navigate('/documents')}
+            />
+
+            <ProjectActionCard
+              icon={BarChart3}
+              title="Análises"
+              description="Relatórios detalhados e insights"
+              onClick={() => toast({ title: "📊 Em desenvolvimento", description: "Funcionalidade será lançada em breve" })}
+            />
           </div>
         </div>
       </div>

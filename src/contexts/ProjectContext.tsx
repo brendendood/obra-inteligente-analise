@@ -20,7 +20,7 @@ interface Project {
 interface ProjectContextType {
   currentProject: Project | null;
   isLoading: boolean;
-  uploadProject: (file: File) => Promise<boolean>;
+  uploadProject: (file: File, projectName: string) => Promise<boolean>;
   setCurrentProject: (project: Project | null) => void;
   loadUserProjects: () => Promise<Project[]>;
   requiresAuth: boolean;
@@ -67,7 +67,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated]);
 
-  const uploadProject = useCallback(async (file: File): Promise<boolean> => {
+  const uploadProject = useCallback(async (file: File, projectName: string): Promise<boolean> => {
     if (!isAuthenticated || !user) {
       toast({
         title: "❌ Acesso necessário",
@@ -77,49 +77,69 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
+    if (!projectName.trim()) {
+      toast({
+        title: "❌ Nome obrigatório",
+        description: "Informe um nome para o projeto.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     setIsLoading(true);
     
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileName', file.name);
+      const fileName = `${user.id}/${Date.now()}-${file.name}`;
 
+      console.log('Enviando arquivo:', file.name, 'Como projeto:', projectName, 'Usuário:', user.email);
+
+      // Upload do arquivo para o storage
+      const { error: uploadError } = await supabase.storage
+        .from('project-files')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      // Chamar edge function para processar metadados
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Sessão não encontrada. Faça login novamente.');
       }
 
-      console.log('Enviando arquivo:', file.name, 'Usuário:', user.email);
-
-      const response = await fetch(`https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/upload-project`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload project');
-      }
-
-      const result = await response.json();
-      
-      if (result.success) {
-        // Atualizar o projeto atual imediatamente
-        setCurrentProject(result.project);
-        
-        toast({
-          title: result.analysis?.isRealProject ? "🎉 Projeto técnico analisado!" : "📄 PDF processado!",
-          description: result.message,
+      const { data, error: processError } = await supabase.functions
+        .invoke('upload-project', {
+          body: {
+            fileName,
+            originalName: file.name,
+            projectName: projectName.trim(),
+            fileSize: file.size
+          }
         });
-        
-        console.log('Upload bem-sucedido, projeto definido:', result.project);
-        return true;
-      } else {
-        throw new Error(result.error || 'Upload failed');
+
+      if (processError) {
+        console.error('Edge function error:', processError);
+        throw new Error(`Erro no processamento: ${processError.message}`);
       }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Erro no processamento');
+      }
+      
+      // Atualizar o projeto atual imediatamente
+      if (data.project) {
+        setCurrentProject(data.project);
+      }
+      
+      toast({
+        title: data.analysis?.isRealProject ? "🎉 Projeto técnico analisado!" : "📄 PDF processado!",
+        description: data.message,
+      });
+      
+      console.log('Upload bem-sucedido, projeto definido:', data.project);
+      return true;
     } catch (error) {
       console.error('Upload error:', error);
       
@@ -132,7 +152,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       } else {
         toast({
           title: "❌ Erro no upload",
-          description: "Não foi possível processar o arquivo.",
+          description: error instanceof Error ? error.message : "Não foi possível processar o arquivo.",
           variant: "destructive",
         });
       }
