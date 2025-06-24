@@ -19,6 +19,7 @@ interface Project {
 
 interface ProjectContextType {
   currentProject: Project | null;
+  projects: Project[];
   isLoading: boolean;
   uploadProject: (file: File, projectName: string) => Promise<boolean>;
   setCurrentProject: (project: Project | null) => void;
@@ -30,6 +31,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [currentProject, setCurrentProjectState] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
@@ -48,9 +50,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
           localStorage.removeItem('currentProject');
         }
       }
+      // Load user projects when authenticated
+      loadUserProjects();
     } else {
       // Limpar projeto se não estiver autenticado
       setCurrentProjectState(null);
+      setProjects([]);
       localStorage.removeItem('currentProject');
     }
   }, [isAuthenticated]);
@@ -131,6 +136,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       // Atualizar o projeto atual imediatamente
       if (data.project) {
         setCurrentProject(data.project);
+        // Add to projects list
+        setProjects(prev => [data.project, ...prev.filter(p => p.id !== data.project.id)]);
       }
       
       toast({
@@ -176,13 +183,16 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
       
+      const projectsData = data || [];
+      setProjects(projectsData);
+      
       // Se não tiver projeto atual mas tiver projetos, pegar o mais recente
-      if (!currentProject && data && data.length > 0) {
-        setCurrentProject(data[0]);
-        console.log('Projeto mais recente definido como atual:', data[0]);
+      if (!currentProject && projectsData && projectsData.length > 0) {
+        setCurrentProject(projectsData[0]);
+        console.log('Projeto mais recente definido como atual:', projectsData[0]);
       }
       
-      return data || [];
+      return projectsData;
     } catch (error) {
       console.error('Error loading projects:', error);
       return [];
@@ -192,6 +202,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   return (
     <ProjectContext.Provider value={{
       currentProject,
+      projects,
       isLoading,
       uploadProject,
       setCurrentProject,
