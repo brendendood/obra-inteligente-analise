@@ -26,11 +26,11 @@ const ActionButton = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg hover:shadow-xl';
+        return 'bg-black hover:bg-gray-900 text-white shadow-lg hover:shadow-xl border border-gray-700';
       case 'secondary':
-        return 'bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-600 shadow-sm hover:shadow-md';
+        return 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 shadow-sm hover:shadow-md';
       case 'outline':
-        return 'border-2 border-slate-300 dark:border-slate-500 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm';
+        return 'border-2 border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50 bg-white/80 backdrop-blur-sm';
       default:
         return '';
     }
