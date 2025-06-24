@@ -42,7 +42,7 @@ const Header = () => {
   const showBackButton = location.pathname !== '/' && location.pathname !== '/painel';
 
   return (
-    <header className="bg-background border-b border-border shadow-sm">
+    <header className="bg-background dark:bg-[#1a1a1a] border-b border-border dark:border-[#333] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Back Button */}
@@ -52,7 +52,7 @@ const Header = () => {
                 variant="ghost"
                 size="sm"
                 onClick={goBack}
-                className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
@@ -64,10 +64,10 @@ const Header = () => {
                 <FolderOpen className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">
+                <h1 className="text-xl font-bold text-foreground dark:text-[#f2f2f2]">
                   ArchiAI
                 </h1>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground dark:text-[#bbbbbb]">
                   Análise Inteligente de Projetos
                 </p>
               </div>
@@ -81,7 +81,7 @@ const Header = () => {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="text-muted-foreground hover:text-foreground hover:bg-accent"
+              className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
             >
               {theme === 'light' ? (
                 <Moon className="h-4 w-4" />
@@ -95,10 +95,10 @@ const Header = () => {
                 {/* User Info */}
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
-                    <p className="text-sm font-medium text-foreground">
+                    <p className="text-sm font-medium text-foreground dark:text-[#f2f2f2]">
                       {user.email}
                     </p>
-                    <Badge variant="outline" className="text-xs border-border text-muted-foreground">
+                    <Badge variant="outline" className="text-xs border-border dark:border-[#333] text-muted-foreground dark:text-[#bbbbbb]">
                       Usuário
                     </Badge>
                   </div>
@@ -113,7 +113,7 @@ const Header = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/painel')}
-                    className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                    className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
                   >
                     Painel
                   </Button>
@@ -121,7 +121,7 @@ const Header = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => navigate('/obras')}
-                    className="text-muted-foreground hover:text-foreground hover:bg-accent"
+                    className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
                   >
                     Obras
                   </Button>
@@ -132,7 +132,7 @@ const Header = () => {
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="text-destructive dark:text-red-400 hover:text-destructive hover:bg-destructive/10 dark:hover:bg-red-900/20"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair

@@ -30,7 +30,7 @@ const ActionButton = ({
       case 'secondary':
         return 'btn-secondary-gradient';
       case 'outline':
-        return 'border-2 border-border text-foreground hover:border-primary hover:bg-accent bg-background/80 backdrop-blur-sm';
+        return 'border-2 border-border dark:border-[#333] text-foreground dark:text-[#f2f2f2] hover:border-primary hover:bg-accent dark:hover:bg-[#232323] bg-background/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm';
       default:
         return '';
     }
