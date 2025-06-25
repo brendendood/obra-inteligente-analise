@@ -1,65 +1,40 @@
 
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 
 interface PremiumHeaderProps {
   title: string;
-  subtitle: string;
-  icon: React.ReactNode;
-  showBackButton?: boolean;
-  actions?: React.ReactNode;
-  onBack?: () => void;
+  description?: string;
 }
 
-const PremiumHeader = ({ title, subtitle, icon, showBackButton = true, actions, onBack }: PremiumHeaderProps) => {
-  const navigate = useNavigate();
-
-  const handleBackClick = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate('/');
-    }
-  };
+export const PremiumHeader = ({ title, description }: PremiumHeaderProps) => {
+  const { goBack } = useContextualNavigation();
 
   return (
-    <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            {showBackButton && (
-              <Button 
-                variant="ghost" 
-                onClick={handleBackClick}
-                className="hover:bg-slate-100 transition-colors duration-200"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-            )}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-xl shadow-lg">
-              {icon}
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                {title}
-              </h1>
-              <p className="text-sm text-slate-600 font-medium hidden sm:block">{subtitle}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {actions}
-            <div className="hidden md:flex items-center space-x-2 text-sm text-slate-600">
-              <Shield className="h-4 w-4 text-blue-600" />
-              <span>Seguro</span>
-            </div>
-          </div>
+    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-xl p-6 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => goBack()}
+          className="flex items-center space-x-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100 transition-all duration-200"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Voltar</span>
+        </Button>
+        
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+          Premium
         </div>
       </div>
-    </header>
+      
+      <div>
+        <h1 className="text-2xl font-bold text-purple-900 mb-2">{title}</h1>
+        {description && (
+          <p className="text-purple-700">{description}</p>
+        )}
+      </div>
+    </div>
   );
 };
-
-export default PremiumHeader;

@@ -7,6 +7,7 @@ interface NavigationHistory {
   projectId?: string;
   previousPath: string;
   timestamp: number;
+  title?: string;
 }
 
 export const useContextualNavigation = () => {
@@ -23,27 +24,28 @@ export const useContextualNavigation = () => {
     }
   };
 
-  const saveToHistory = useCallback((path: string, projectId?: string) => {
+  const saveToHistory = useCallback((path: string, projectId?: string, title?: string) => {
     try {
       const history = getNavigationHistory();
       const newEntry: NavigationHistory = {
         projectId,
         previousPath: path,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        title
       };
       
-      // Manter apenas os últimos 10 registros e remover duplicatas
+      // Manter apenas os últimos 15 registros e remover duplicatas
       const filteredHistory = history.filter(h => h.previousPath !== path);
-      const updatedHistory = [newEntry, ...filteredHistory].slice(0, 10);
+      const updatedHistory = [newEntry, ...filteredHistory].slice(0, 15);
       localStorage.setItem('navigationHistory', JSON.stringify(updatedHistory));
     } catch (error) {
       console.warn('Erro ao salvar histórico de navegação:', error);
     }
   }, []);
 
-  const navigateContextual = useCallback((path: string, projectId?: string) => {
+  const navigateContextual = useCallback((path: string, projectId?: string, title?: string) => {
     // Salvar caminho atual no histórico antes de navegar
-    saveToHistory(location.pathname, projectId);
+    saveToHistory(location.pathname, projectId, title);
     
     // Se usuário autenticado tentar ir para landing page, redirecionar para painel
     if (isAuthenticated && path === '/') {
@@ -109,6 +111,16 @@ export const useContextualNavigation = () => {
     navigate(targetPath);
   }, [navigate, location.pathname, isAuthenticated]);
 
+  const getHistoryForDisplay = () => {
+    return getNavigationHistory()
+      .filter(h => h.previousPath !== location.pathname)
+      .slice(0, 5);
+  };
+
+  const navigateToHistoryItem = useCallback((historyItem: NavigationHistory) => {
+    navigate(historyItem.previousPath);
+  }, [navigate]);
+
   const clearHistory = useCallback(() => {
     try {
       localStorage.removeItem('navigationHistory');
@@ -118,10 +130,18 @@ export const useContextualNavigation = () => {
     }
   }, []);
 
+  const canGoBack = () => {
+    const history = getNavigationHistory();
+    return history.length > 0 || location.pathname !== '/painel';
+  };
+
   return {
     navigateContextual,
     goBack,
     clearHistory,
-    saveToHistory
+    saveToHistory,
+    getHistoryForDisplay,
+    navigateToHistoryItem,
+    canGoBack
   };
 };
