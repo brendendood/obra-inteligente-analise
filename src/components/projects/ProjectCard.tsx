@@ -17,7 +17,9 @@ import {
   CheckCircle,
   Clock,
   GripVertical,
-  Trash2
+  Trash2,
+  Edit,
+  BarChart3
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,6 +30,7 @@ interface ProjectCardProps {
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, project: any) => void;
   onDelete: (project: any) => void;
+  onEdit?: (project: any) => void;
 }
 
 const ProjectCard = ({ 
@@ -36,7 +39,8 @@ const ProjectCard = ({
   onDragEnd, 
   onDragOver, 
   onDrop, 
-  onDelete 
+  onDelete,
+  onEdit 
 }: ProjectCardProps) => {
   const navigate = useNavigate();
 
@@ -64,14 +68,14 @@ const ProjectCard = ({
       onDragEnd={onDragEnd}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, project)}
-      className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-grab active:cursor-grabbing group"
+      className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-grab active:cursor-grabbing group hover:scale-[1.02] animate-fade-in"
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-2 flex-1 min-w-0">
-            <GripVertical className="h-5 w-5 text-gray-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <GripVertical className="h-5 w-5 text-gray-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-base sm:text-lg text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              <CardTitle className="text-base sm:text-lg text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
                 {project.name}
               </CardTitle>
               <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -90,24 +94,33 @@ const ProjectCard = ({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                className="opacity-0 group-hover:opacity-100 transition-all duration-200 h-8 w-8 p-0 hover:bg-gray-100"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-white border border-gray-200 shadow-lg">
               <DropdownMenuItem 
                 onClick={() => navigate(`/projeto/${project.id}`)}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
               >
                 <Eye className="h-4 w-4" />
                 <span>Abrir Projeto</span>
               </DropdownMenuItem>
+              {onEdit && (
+                <DropdownMenuItem 
+                  onClick={() => onEdit(project)}
+                  className="flex items-center space-x-2 hover:bg-green-50 cursor-pointer transition-colors duration-200"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>Editar</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={() => onDelete(project)}
-                className="flex items-center space-x-2 text-red-600"
+                className="flex items-center space-x-2 text-red-600 hover:bg-red-50 cursor-pointer transition-colors duration-200"
               >
                 <Trash2 className="h-4 w-4" />
                 <span>Excluir</span>
@@ -120,7 +133,8 @@ const ProjectCard = ({
       <CardContent>
         <div className="space-y-3">
           {project.total_area && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 flex items-center space-x-1">
+              <BarChart3 className="h-4 w-4" />
               <span className="font-medium">Área: {project.total_area}m²</span>
             </div>
           )}
@@ -134,7 +148,7 @@ const ProjectCard = ({
             <TooltipTrigger asChild>
               <Button 
                 onClick={() => navigate(`/projeto/${project.id}`)}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
                 size="sm"
               >
                 <Eye className="h-4 w-4 mr-2" />

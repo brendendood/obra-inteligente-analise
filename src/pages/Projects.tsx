@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +8,7 @@ import { ErrorFallback } from '@/components/error/ErrorFallback';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import { AnimatedProjectCard } from '@/components/ui/animated-card';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
+import { ProjectEditDialog } from '@/components/projects/ProjectEditDialog';
 import { useNavigate } from 'react-router-dom';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { 
@@ -14,7 +16,8 @@ import {
   Search, 
   Filter, 
   Building2,
-  BarChart3
+  BarChart3,
+  Zap
 } from 'lucide-react';
 import {
   Select,
@@ -37,6 +40,7 @@ import {
 const Projects = () => {
   const navigate = useNavigate();
   const { preferences, addRecentProject } = useUserPreferences();
+  const [editingProject, setEditingProject] = useState<any>(null);
   const {
     projects,
     filteredProjects,
@@ -50,11 +54,21 @@ const Projects = () => {
     deleteProject,
     setDeleteProject,
     handleDeleteProject,
+    updateProject,
   } = useProjectsLogic();
 
   const handleProjectClick = (projectId: string) => {
     addRecentProject(projectId);
     navigate(`/projeto/${projectId}`);
+  };
+
+  const handleEditProject = (project: any) => {
+    setEditingProject(project);
+  };
+
+  const handleSaveProject = (updatedProject: any) => {
+    updateProject(updatedProject);
+    setEditingProject(null);
   };
 
   if (loading || isLoading) {
@@ -83,14 +97,19 @@ const Projects = () => {
       <div className="space-y-6 animate-fade-in">
         <EnhancedBreadcrumb />
         
-        {/* Header da página com gradiente */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+        {/* Header da página com MadenAI */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 p-6 shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Meus Projetos</h1>
-              <p className="text-gray-600">
-                Gerencie e acesse todos os seus projetos de construção
-              </p>
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Meus Projetos</h1>
+                <p className="text-gray-600">
+                  Gerencie e analise seus projetos com inteligência artificial MadenAI
+                </p>
+              </div>
             </div>
             
             <Button 
@@ -105,7 +124,7 @@ const Projects = () => {
         </div>
 
         {/* Filtros e busca melhorados */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 gap-4">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
@@ -114,12 +133,12 @@ const Projects = () => {
                   placeholder="Buscar projetos..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 transition-colors"
+                  className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 transition-all duration-200"
                 />
               </div>
               
               <Select value={sortBy} onValueChange={(value: 'name' | 'date' | 'area') => setSortBy(value)}>
-                <SelectTrigger className="w-full sm:w-48 bg-gray-50 border-gray-200 hover:bg-white transition-colors">
+                <SelectTrigger className="w-full sm:w-48 bg-gray-50 border-gray-200 hover:bg-white transition-all duration-200">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Ordenar por" />
                 </SelectTrigger>
@@ -144,18 +163,19 @@ const Projects = () => {
           </div>
         </div>
 
-        {/* Grade de projetos com animações */}
+        {/* Grade de projetos com animações e edição */}
         {filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProjects.map((project, index) => (
               <div
                 key={project.id}
-                className="animate-fade-in"
+                className="animate-fade-in hover:scale-[1.02] transition-transform duration-200"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <AnimatedProjectCard
                   project={project}
                   onClick={() => handleProjectClick(project.id)}
+                  onEdit={() => handleEditProject(project)}
                 />
               </div>
             ))}
@@ -171,7 +191,7 @@ const Projects = () => {
               </h3>
               <p className="text-gray-600 mb-6">
                 {projects.length === 0 
-                  ? 'Comece enviando seu primeiro projeto PDF para análise com IA.'
+                  ? 'Comece enviando seu primeiro projeto PDF para análise com IA MadenAI.'
                   : 'Tente ajustar os filtros de busca ou criar um novo projeto.'
                 }
               </p>
@@ -187,7 +207,15 @@ const Projects = () => {
           </div>
         )}
 
-        {/* Dialog de confirmação de exclusão melhorado */}
+        {/* Dialog de edição */}
+        <ProjectEditDialog
+          project={editingProject}
+          isOpen={!!editingProject}
+          onClose={() => setEditingProject(null)}
+          onSave={handleSaveProject}
+        />
+
+        {/* Dialog de confirmação de exclusão */}
         <AlertDialog open={!!deleteProject} onOpenChange={() => setDeleteProject(null)}>
           <AlertDialogContent className="bg-white border border-gray-200 shadow-xl">
             <AlertDialogHeader>
@@ -199,12 +227,12 @@ const Projects = () => {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="border-gray-200 text-gray-700 hover:bg-gray-50">
+              <AlertDialogCancel className="border-gray-200 text-gray-700 hover:bg-gray-50 transition-all duration-200">
                 Cancelar
               </AlertDialogCancel>
               <AlertDialogAction 
                 onClick={() => deleteProject && handleDeleteProject(deleteProject.id)}
-                className="bg-red-600 text-white hover:bg-red-700 shadow-lg"
+                className="bg-red-600 text-white hover:bg-red-700 shadow-lg transition-all duration-200"
               >
                 Excluir Projeto
               </AlertDialogAction>

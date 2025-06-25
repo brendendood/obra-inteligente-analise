@@ -10,7 +10,8 @@ import {
   MessageSquare, 
   LogOut, 
   User,
-  FolderOpen
+  FolderOpen,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,7 +47,7 @@ const Header = () => {
 
   const navigationItems = [
     { name: 'Dashboard', path: '/painel', icon: Home },
-    { name: 'Minhas Obras', path: '/obras', icon: FolderOpen },
+    { name: 'Projetos', path: '/projetos', icon: FolderOpen },
     { name: 'Upload', path: '/upload', icon: Upload },
     { name: 'Assistente', path: '/assistant', icon: MessageSquare },
   ];
@@ -56,18 +57,20 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200 sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
+          {/* Logo MadenAI */}
           <div 
-            className="flex items-center cursor-pointer" 
+            className="flex items-center cursor-pointer group transition-all duration-200 hover:scale-105" 
             onClick={() => navigate(isAuthenticated ? '/painel' : '/')}
           >
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl mr-3">
-              <div className="w-6 h-6 bg-white rounded-sm"></div>
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 rounded-xl mr-3 shadow-lg group-hover:shadow-xl transition-all duration-200">
+              <Zap className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">ConstructIA</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              MadenAI
+            </span>
           </div>
 
           {/* Desktop Navigation */}
@@ -80,10 +83,10 @@ const Header = () => {
                     key={item.name}
                     variant={isActivePath(item.path) ? "default" : "ghost"}
                     onClick={() => navigate(item.path)}
-                    className={`flex items-center space-x-2 ${
+                    className={`flex items-center space-x-2 transition-all duration-200 ${
                       isActivePath(item.path) 
-                        ? 'bg-blue-600 text-white' 
-                        : 'text-slate-600 hover:text-slate-900'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg' 
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -98,7 +101,7 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <div className="flex items-center space-x-2 text-sm text-slate-600">
+                <div className="flex items-center space-x-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg">
                   <User className="h-4 w-4" />
                   <span className="max-w-32 truncate">
                     {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
@@ -107,7 +110,7 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   onClick={handleLogout}
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-200"
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Sair</span>
@@ -118,12 +121,13 @@ const Header = () => {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/login')}
+                  className="transition-all duration-200 hover:bg-slate-50"
                 >
                   Entrar
                 </Button>
                 <Button 
                   onClick={() => navigate('/cadastro')}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   Cadastrar
                 </Button>
@@ -137,15 +141,16 @@ const Header = () => {
               variant="ghost"
               size="sm"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="transition-all duration-200 hover:bg-slate-50"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu com animação */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 py-4">
+          <div className="md:hidden border-t border-slate-200 py-4 animate-fade-in">
             <div className="space-y-2">
               {isAuthenticated && navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -157,10 +162,10 @@ const Header = () => {
                       navigate(item.path);
                       setIsMenuOpen(false);
                     }}
-                    className={`w-full justify-start flex items-center space-x-2 ${
+                    className={`w-full justify-start flex items-center space-x-2 transition-all duration-200 ${
                       isActivePath(item.path) 
-                        ? 'bg-blue-600 text-white' 
-                        : 'text-slate-600'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white' 
+                        : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -171,7 +176,7 @@ const Header = () => {
               
               {isAuthenticated ? (
                 <>
-                  <div className="px-3 py-2 text-sm text-slate-600 border-t border-slate-200 mt-2 pt-4">
+                  <div className="px-3 py-2 text-sm text-slate-600 border-t border-slate-200 mt-2 pt-4 bg-slate-50 rounded-lg">
                     {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
                   </div>
                   <Button 
@@ -180,7 +185,7 @@ const Header = () => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full justify-start"
+                    className="w-full justify-start hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-200"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Sair
@@ -194,7 +199,7 @@ const Header = () => {
                       navigate('/login');
                       setIsMenuOpen(false);
                     }}
-                    className="w-full justify-start"
+                    className="w-full justify-start transition-all duration-200"
                   >
                     Entrar
                   </Button>
@@ -203,7 +208,7 @@ const Header = () => {
                       navigate('/cadastro');
                       setIsMenuOpen(false);
                     }}
-                    className="w-full justify-start bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                    className="w-full justify-start bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
                   >
                     Cadastrar
                   </Button>

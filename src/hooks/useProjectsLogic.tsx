@@ -72,6 +72,14 @@ export const useProjectsLogic = () => {
     }
   };
 
+  const updateProject = (updatedProject: any) => {
+    setProjects(prevProjects => 
+      prevProjects.map(project => 
+        project.id === updatedProject.id ? updatedProject : project
+      )
+    );
+  };
+
   const handleDeleteProject = async (projectId: string) => {
     try {
       console.log('Excluindo projeto:', projectId);
@@ -106,7 +114,6 @@ export const useProjectsLogic = () => {
   const handleDragStart = (e: React.DragEvent, project: any) => {
     setDraggedProject(project);
     e.dataTransfer.effectAllowed = 'move';
-    // Adiciona estilo visual durante o drag
     const target = e.currentTarget as HTMLElement;
     target.style.opacity = '0.5';
   };
@@ -136,7 +143,6 @@ export const useProjectsLogic = () => {
 
     setProjects(newProjects);
     
-    // Salvar ordem no localStorage para persistência
     const projectOrder = newProjects.map(p => p.id);
     localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
     
@@ -165,5 +171,6 @@ export const useProjectsLogic = () => {
     handleDragEnd,
     handleDragOver,
     handleDrop,
+    updateProject,
   };
 };

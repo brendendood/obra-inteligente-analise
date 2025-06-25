@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,7 +10,7 @@ import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickAction
 import { AnimatedProjectCard } from '@/components/ui/animated-card';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { Plus } from 'lucide-react';
+import { Plus, Zap, RefreshCw } from 'lucide-react';
 import { SmartLoading } from '@/components/ui/smart-loading';
 
 const Dashboard = () => {
@@ -80,25 +81,28 @@ const Dashboard = () => {
           />
         </div>
         
-        {/* Header com boas-vindas animado */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
+        {/* Header com boas-vindas MadenAI */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100 shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {greeting}, {userName}! 👋
-              </h1>
-              <p className="text-gray-600 text-lg">
-                Bem-vindo ao seu painel de controle. Gerencie seus projetos de forma inteligente.
-              </p>
+            <div className="flex items-center space-x-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {greeting}, {userName}! 👋
+                </h1>
+                <p className="text-gray-600 text-lg">
+                  Bem-vindo ao MadenAI. Gerencie seus projetos com inteligência artificial.
+                </p>
+              </div>
             </div>
             <button
               onClick={forceRefresh}
-              className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+              className="text-blue-600 hover:text-blue-700 p-3 rounded-lg hover:bg-blue-50 transition-all duration-200 group"
               title="Atualizar dados"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+              <RefreshCw className="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" />
             </button>
           </div>
         </div>
@@ -123,7 +127,7 @@ const Dashboard = () => {
                 </span>
                 <button 
                   onClick={() => navigate('/projetos')}
-                  className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  className="text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200 hover:underline"
                 >
                   Ver todos os {projects.length} projetos →
                 </button>
@@ -134,7 +138,7 @@ const Dashboard = () => {
               {projects.slice(0, 8).map((project, index) => (
                 <div
                   key={project.id}
-                  className="animate-fade-in"
+                  className="animate-fade-in hover:scale-[1.02] transition-all duration-200"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <AnimatedProjectCard
@@ -155,7 +159,7 @@ const Dashboard = () => {
                 Nenhum projeto ainda
               </h3>
               <p className="text-gray-600 mb-6">
-                Comece enviando seu primeiro projeto PDF para análise com IA.
+                Comece enviando seu primeiro projeto PDF para análise com IA MadenAI.
               </p>
               <button 
                 onClick={() => navigate('/upload')}
