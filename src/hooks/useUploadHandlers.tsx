@@ -50,7 +50,7 @@ export const useUploadHandlers = ({
     try {
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
       
-      // Simular progresso de upload - CORREÇÃO DO ERRO
+      // Progresso de upload
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += 10;
@@ -62,22 +62,22 @@ export const useUploadHandlers = ({
         }
       }, 200);
 
-      console.log('Uploading file to storage:', fileName);
+      console.log('📤 Iniciando upload:', fileName);
 
-      // Upload do arquivo para o storage
+      // Upload do arquivo
       const { error: uploadError } = await supabase.storage
         .from('project-files')
         .upload(fileName, file);
 
       if (uploadError) {
-        console.error('Storage upload error:', uploadError);
+        console.error('❌ Erro no storage:', uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
 
-      console.log('File uploaded successfully, calling edge function');
+      console.log('✅ Arquivo enviado, processando...');
       setProgress(90);
 
-      // Chamar edge function para processar metadados
+      // Processar projeto
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Sessão não encontrada. Faça login novamente.');
@@ -94,7 +94,7 @@ export const useUploadHandlers = ({
         });
 
       if (processError) {
-        console.error('Edge function error:', processError);
+        console.error('❌ Erro no processamento:', processError);
         throw new Error(`Erro no processamento: ${processError.message}`);
       }
 
@@ -107,22 +107,28 @@ export const useUploadHandlers = ({
       setUploadComplete(true);
       stopProcessing();
       
-      console.log('Upload completed successfully:', data);
+      console.log('🎉 Upload concluído:', data);
       
       toast({
         title: "🎉 Upload concluído!",
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // Recarregar projetos e navegar para o dashboard
-      setTimeout(() => {
-        setValidatedProject(null);
-        loadUserProjects();
-        navigate('/painel');
-      }, 2000);
+      // CORREÇÃO: Navegar diretamente para o projeto criado
+      if (data.project?.id) {
+        console.log('🔄 Redirecionando para projeto:', data.project.id);
+        setTimeout(() => {
+          navigate(`/projeto/${data.project.id}`);
+        }, 1500);
+      } else {
+        // Fallback para dashboard se não tiver ID do projeto
+        setTimeout(() => {
+          navigate('/painel');
+        }, 1500);
+      }
 
     } catch (error) {
-      console.error('Upload error:', error);
+      console.error('💥 Erro no upload:', error);
       stopProcessing();
       
       let errorMessage = "Erro desconhecido";
@@ -145,7 +151,7 @@ export const useUploadHandlers = ({
 
   const handleAnalyzeExisting = () => {
     if (validatedProject) {
-      navigate(`/projeto/${validatedProject.id}/assistente`);
+      navigate(`/projeto/${validatedProject.id}`);
     } else {
       toast({
         title: "ℹ️ Nenhum projeto encontrado",

@@ -9,6 +9,7 @@ import { useProject } from '@/contexts/ProjectContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   FileText, 
   Calculator, 
@@ -49,10 +50,11 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
     setActiveTab(getCurrentSection());
   }, [location.pathname]);
 
-  // Carregar e validar projeto
+  // Carregar projeto específico do banco
   useEffect(() => {
     const loadProject = async () => {
       if (!projectId || !isAuthenticated || !user) {
+        console.log('❌ Parâmetros inválidos para carregar projeto');
         navigate('/painel');
         return;
       }
@@ -61,19 +63,31 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
         setLoading(true);
         setError(null);
         
-        // Simular carregamento do projeto - você pode implementar a lógica real aqui
-        // Por enquanto, vou usar um mock para demonstrar
-        const mockProject = {
-          id: projectId,
-          name: 'Projeto de Exemplo',
-          file_path: 'path/to/file.pdf',
-          created_at: new Date().toISOString(),
-          analysis_data: { processed: true }
-        };
+        console.log('🔍 Carregando projeto:', projectId);
         
-        setCurrentProject(mockProject as any);
+        // Buscar projeto específico do banco
+        const { data: project, error: projectError } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', projectId)
+          .eq('user_id', user.id)
+          .single();
+
+        if (projectError) {
+          console.error('❌ Erro ao buscar projeto:', projectError);
+          throw new Error('Projeto não encontrado ou acesso negado');
+        }
+
+        if (!project) {
+          console.error('❌ Projeto não encontrado');
+          throw new Error('Projeto não encontrado');
+        }
+
+        console.log('✅ Projeto carregado:', project.name);
+        setCurrentProject(project);
+        
       } catch (error) {
-        console.error('Erro ao carregar projeto:', error);
+        console.error('💥 Erro ao carregar projeto:', error);
         setError(error instanceof Error ? error : new Error('Erro desconhecido'));
       } finally {
         setLoading(false);
@@ -84,6 +98,8 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
   }, [projectId, isAuthenticated, user, setCurrentProject, navigate]);
 
   const handleTabChange = (value: string) => {
+    if (!currentProject) return;
+    
     setActiveTab(value);
     const newPath = value === 'visao-geral' 
       ? `/projeto/${projectId}` 
@@ -147,8 +163,7 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
             <Alert className="mb-6 border-blue-200 bg-blue-50">
               <Info className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-blue-700">
-                <strong>Funcionalidades disponíveis:</strong> Use as abas acima para acessar o orçamento detalhado, 
-                cronograma de execução, assistente IA para perguntas sobre o projeto, e documentos gerados.
+                <strong>Projeto:</strong> {currentProject.name} - Use as abas acima para acessar diferentes funcionalidades deste projeto específico.
               </AlertDescription>
             </Alert>
           )}
