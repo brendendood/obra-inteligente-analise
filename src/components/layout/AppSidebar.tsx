@@ -153,7 +153,7 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
               <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
-            <span className="text-xl font-bold text-gray-800">ConstructIA</span>
+            <span className="text-xl font-bold text-gray-800">MadenAI</span>
           </div>
           
           <Button

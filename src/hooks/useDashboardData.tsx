@@ -29,13 +29,23 @@ export const useDashboardData = () => {
   const isLoadingRef = useRef(false);
   const mountedRef = useRef(true);
 
-  // Função estável de carregamento
+  // Função estável de carregamento com logs melhorados
   const loadProjects = useCallback(async () => {
+    console.log('🔄 loadProjects iniciado:', { 
+      isLoading: isLoadingRef.current, 
+      mounted: mountedRef.current,
+      loading,
+      isAuthenticated,
+      userId: user?.id 
+    });
+
     if (isLoadingRef.current || !mountedRef.current) {
+      console.log('⏹️ loadProjects abortado - já carregando ou desmontado');
       return;
     }
 
     if (loading || !isAuthenticated || !user) {
+      console.log('🚫 loadProjects abortado - auth não pronto:', { loading, isAuthenticated, hasUser: !!user });
       if (!loading && !isAuthenticated) {
         setProjects([]);
         setIsLoadingProjects(false);
@@ -48,10 +58,29 @@ export const useDashboardData = () => {
     setIsLoadingProjects(true);
     
     try {
-      const userProjects = await loadUserProjects();
+      console.log('📊 Carregando projetos para usuário:', user.id);
       
+      // Tentar carregar diretamente com consulta mais específica
+      const { data: directProjects, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ Erro na consulta direta:', error);
+        throw error;
+      }
+
+      console.log('✅ Consulta direta executada:', {
+        encontrados: directProjects?.length || 0,
+        userId: user.id,
+        dados: directProjects
+      });
+
       if (!mountedRef.current) return;
       
+      const userProjects = directProjects || [];
       setProjects(userProjects);
       
       // Calcular estatísticas
@@ -73,10 +102,11 @@ export const useDashboardData = () => {
         timeSaved: userProjects.length * 2
       };
 
+      console.log('📈 Stats calculadas:', newStats);
       setStats(newStats);
       
     } catch (error) {
-      console.error('Erro no Dashboard:', error);
+      console.error('💥 Erro no Dashboard:', error);
       if (mountedRef.current) {
         setProjects([]);
         toast({
@@ -92,25 +122,34 @@ export const useDashboardData = () => {
         initializedRef.current = true;
       }
     }
-  }, [loading, isAuthenticated, user?.id, loadUserProjects, toast]);
+  }, [user?.id, loading, isAuthenticated, toast]);
 
-  // Auto refresh MUITO conservador
+  // Auto refresh conservador
   const { forceRefresh } = useAutoRefresh({
     onRefresh: loadProjects,
     interval: 600000, // 10 minutos
     enabled: isAuthenticated && !loading && initializedRef.current
   });
 
-  // Carregar apenas UMA vez quando tudo estiver pronto
+  // Carregar apenas UMA vez quando auth estiver pronto
   useEffect(() => {
+    console.log('🔄 useEffect dashboard triggered:', { 
+      loading, 
+      initialized: initializedRef.current, 
+      isAuthenticated, 
+      hasUser: !!user 
+    });
+
     if (!loading && !initializedRef.current && isAuthenticated && user) {
+      console.log('✅ Condições atendidas, iniciando loadProjects');
       loadProjects();
     }
-  }, [loading, isAuthenticated, user?.id]); // Dependências mínimas e estáveis
+  }, [loading, isAuthenticated, user?.id, loadProjects]);
 
   // Cleanup na desmontagem
   useEffect(() => {
     return () => {
+      console.log('🧹 Dashboard cleanup executado');
       mountedRef.current = false;
     };
   }, []);
