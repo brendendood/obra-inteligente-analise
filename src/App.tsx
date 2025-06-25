@@ -5,8 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
-import { useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -26,21 +25,6 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Force logout on app start for security
-  useEffect(() => {
-    const handleLogout = async () => {
-      try {
-        await supabase.auth.signOut();
-        console.log('Session cleared on app start');
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
-    };
-    
-    // Always logout on app start for security
-    handleLogout();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -54,44 +38,60 @@ const App = () => {
             
             {/* Protected routes with ProjectProvider */}
             <Route path="/painel" element={
-              <ProjectProvider>
-                <Dashboard />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Dashboard />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/obras" element={
-              <ProjectProvider>
-                <Projects />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Projects />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/obra/:projectId" element={
-              <ProjectProvider>
-                <ProjectDetail />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <ProjectDetail />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/upload" element={
-              <ProjectProvider>
-                <Upload />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Upload />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/assistant" element={
-              <ProjectProvider>
-                <Assistant />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Assistant />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/budget" element={
-              <ProjectProvider>
-                <Budget />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Budget />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/schedule" element={
-              <ProjectProvider>
-                <Schedule />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Schedule />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             <Route path="/documents" element={
-              <ProjectProvider>
-                <Documents />
-              </ProjectProvider>
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Documents />
+                </ProjectProvider>
+              </ProtectedRoute>
             } />
             
             {/* Public routes */}

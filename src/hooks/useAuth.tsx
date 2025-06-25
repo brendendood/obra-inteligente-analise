@@ -9,16 +9,20 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Clear any existing session on component mount
-    const clearSession = async () => {
+    // Verificar sessão existente primeiro
+    const getInitialSession = async () => {
       try {
-        await supabase.auth.signOut();
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
       } catch (error) {
-        console.error('Error clearing session:', error);
+        console.error('Error getting initial session:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    clearSession();
+    getInitialSession();
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
