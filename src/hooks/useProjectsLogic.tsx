@@ -1,17 +1,19 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjectLoader } from '@/hooks/useProjectLoader';
+import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProjectsLogic = () => {
   const { isAuthenticated, loading, user } = useAuth();
-  const { loadUserProjects } = useProjectLoader();
-  const [projects, setProjects] = useState<any[]>([]);
+  const { 
+    projects, 
+    isLoading, 
+    forceRefresh: refreshProjects 
+  } = useProjectsConsistency();
+  
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteProject, setDeleteProject] = useState<any>(null);
   const [draggedProject, setDraggedProject] = useState<any>(null);
@@ -22,21 +24,15 @@ export const useProjectsLogic = () => {
   // Redirecionar se não autenticado
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      console.log('🚫 Projetos: redirecionando para login');
+      console.log('🚫 PROJETOS: Redirecionando para login');
       navigate('/login');
     }
   }, [isAuthenticated, loading, navigate]);
 
-  // Carregar projetos quando auth estiver pronto
-  useEffect(() => {
-    console.log('📋 Projetos useEffect:', { loading, isAuthenticated, userId: user?.id });
-    if (!loading && isAuthenticated) {
-      loadProjects();
-    }
-  }, [loading, isAuthenticated, user?.id]);
-
   // Filtrar e ordenar projetos
   useEffect(() => {
+    console.log('🔍 PROJETOS: Filtrando e ordenando', projects.length, 'projetos');
+    
     let filtered = projects.filter(project =>
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (project.project_type && project.project_type.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -54,35 +50,19 @@ export const useProjectsLogic = () => {
       }
     });
 
+    console.log('✅ PROJETOS: Filtrados e ordenados:', filtered.length, 'projetos');
     setFilteredProjects(filtered);
   }, [projects, searchTerm, sortBy]);
 
-  const loadProjects = async () => {
-    console.log('📂 Projetos page loadProjects');
-    setIsLoading(true);
-    try {
-      const userProjects = await loadUserProjects();
-      console.log('✅ Projetos page: carregados', userProjects.length);
-      setProjects(userProjects);
-    } catch (error) {
-      console.error('💥 Erro página projetos:', error);
-      setProjects([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const updateProject = (updatedProject: any) => {
-    setProjects(prevProjects => 
-      prevProjects.map(project => 
-        project.id === updatedProject.id ? updatedProject : project
-      )
-    );
+    console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
+    // Forçar refresh para garantir consistência
+    refreshProjects();
   };
 
   const handleDeleteProject = async (projectId: string) => {
     try {
-      console.log('Excluindo projeto:', projectId);
+      console.log('🗑️ PROJETOS: Excluindo projeto:', projectId);
       
       const { error } = await supabase
         .from('projects')
@@ -91,9 +71,8 @@ export const useProjectsLogic = () => {
 
       if (error) throw error;
 
-      // Atualizar estado local
-      const updatedProjects = projects.filter(p => p.id !== projectId);
-      setProjects(updatedProjects);
+      // Forçar refresh após exclusão
+      await refreshProjects();
       
       setDeleteProject(null);
 
@@ -102,7 +81,7 @@ export const useProjectsLogic = () => {
         description: "O projeto foi removido com sucesso.",
       });
     } catch (error) {
-      console.error('Erro ao excluir projeto:', error);
+      console.error('💥 PROJETOS: Erro ao excluir projeto:', error);
       toast({
         title: "❌ Erro ao excluir",
         description: "Não foi possível excluir o projeto.",
@@ -141,8 +120,6 @@ export const useProjectsLogic = () => {
     const [removed] = newProjects.splice(draggedIndex, 1);
     newProjects.splice(targetIndex, 0, removed);
 
-    setProjects(newProjects);
-    
     const projectOrder = newProjects.map(p => p.id);
     localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
     

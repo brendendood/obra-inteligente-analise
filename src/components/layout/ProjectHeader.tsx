@@ -2,7 +2,7 @@
 import { ArrowLeft, Building2, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { useContextualNavigation } from '@/hooks/useContextualNavigation';
+import { useNavigate } from 'react-router-dom';
 
 interface ProjectHeaderProps {
   projectName: string;
@@ -11,14 +11,16 @@ interface ProjectHeaderProps {
 }
 
 export const ProjectHeader = ({ projectName, projectId, currentSection }: ProjectHeaderProps) => {
-  const { goBack, navigateContextual } = useContextualNavigation();
+  const navigate = useNavigate();
 
   const handleGoBack = () => {
-    goBack();
+    console.log('🔙 HEADER: Voltando para projetos');
+    navigate('/projetos');
   };
 
   const handleGoToDashboard = () => {
-    navigateContextual('/painel');
+    console.log('🏠 HEADER: Indo para dashboard');
+    navigate('/painel');
   };
 
   return (
@@ -32,7 +34,7 @@ export const ProjectHeader = ({ projectName, projectId, currentSection }: Projec
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Voltar</span>
+            <span>Voltar para Projetos</span>
           </Button>
           
           <Separator orientation="vertical" className="h-6" />
