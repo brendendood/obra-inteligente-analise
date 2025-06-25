@@ -9,12 +9,13 @@ export const useProjectLoader = () => {
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     if (!isAuthenticated || !user) {
-      console.log('Usuário não autenticado');
+      console.log('Usuário não autenticado para carregar projetos');
       return [];
     }
 
     try {
-      console.log('Carregando projetos do usuário:', user.email);
+      console.log('Carregando projetos para usuário:', user.id);
+      
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -22,14 +23,25 @@ export const useProjectLoader = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erro ao carregar projetos:', error);
+        console.error('Erro ao carregar projetos:', error.message);
         throw error;
       }
       
-      console.log('Projetos carregados do DB:', data?.length || 0);
+      console.log('Projetos carregados com sucesso:', data?.length || 0, 'projetos encontrados');
+      
+      // Log detalhado para debug
+      if (data && data.length > 0) {
+        console.log('Primeiro projeto:', {
+          id: data[0].id,
+          name: data[0].name,
+          user_id: data[0].user_id,
+          created_at: data[0].created_at
+        });
+      }
+      
       return data || [];
     } catch (error) {
-      console.error('Error loading projects:', error);
+      console.error('Erro ao carregar projetos:', error);
       return [];
     }
   }, [isAuthenticated, user]);

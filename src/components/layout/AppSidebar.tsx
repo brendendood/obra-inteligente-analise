@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -199,11 +198,11 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
               <Tooltip key={item.path}>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={active ? "default" : "ghost"}
+                    variant="ghost"
                     className={`
                       w-full justify-start h-12 px-4 text-left font-medium transition-all duration-200
                       ${active 
-                        ? 'bg-blue-25 text-blue-600 border border-blue-100 shadow-sm' 
+                        ? 'bg-blue-50 text-blue-600 border border-blue-100 shadow-sm' 
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                       }
                     `}
@@ -244,7 +243,7 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start h-10 text-red-500 border-red-100 hover:bg-red-25"
+                className="w-full justify-start h-10 text-red-500 border-red-100 hover:bg-red-50"
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4 mr-3" />

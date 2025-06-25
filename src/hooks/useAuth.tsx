@@ -9,12 +9,27 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar sessão existente primeiro
-    const getInitialSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
+    // Configurar listener primeiro
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state change:', event, 'User ID:', session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // Verificar sessão existente
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting initial session:', error);
+        } else {
+          console.log('Initial session:', session?.user?.id ? 'Authenticated' : 'Not authenticated');
+          setSession(session);
+          setUser(session?.user ?? null);
+        }
       } catch (error) {
         console.error('Error getting initial session:', error);
       } finally {
@@ -24,16 +39,6 @@ export function useAuth() {
 
     getInitialSession();
 
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state change:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -41,6 +46,6 @@ export function useAuth() {
     user,
     session,
     loading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && !!session,
   };
 }
