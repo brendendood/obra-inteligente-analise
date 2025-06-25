@@ -64,7 +64,7 @@ export const EnhancedBreadcrumb = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigateContextual(item.path)}
+              onClick={() => !isLast && navigateContextual(item.path)}
               className={`h-auto p-1 hover:bg-blue-50 hover:text-blue-600 transition-colors ${
                 isLast 
                   ? 'text-blue-600 font-medium cursor-default' 

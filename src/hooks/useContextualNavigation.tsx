@@ -34,9 +34,9 @@ export const useContextualNavigation = () => {
         title
       };
       
-      // Manter apenas os últimos 15 registros e remover duplicatas
+      // Manter apenas os últimos 10 registros e remover duplicatas
       const filteredHistory = history.filter(h => h.previousPath !== path);
-      const updatedHistory = [newEntry, ...filteredHistory].slice(0, 15);
+      const updatedHistory = [newEntry, ...filteredHistory].slice(0, 10);
       localStorage.setItem('navigationHistory', JSON.stringify(updatedHistory));
     } catch (error) {
       console.warn('Erro ao salvar histórico de navegação:', error);
@@ -58,68 +58,56 @@ export const useContextualNavigation = () => {
     navigate(path);
   }, [navigate, location.pathname, isAuthenticated, saveToHistory]);
 
-  const goBack = useCallback((currentProjectId?: string) => {
-    const history = getNavigationHistory();
+  const goBack = useCallback(() => {
+    const currentPath = location.pathname;
+    console.log('🔙 Tentando voltar de:', currentPath);
     
-    if (history.length === 0) {
-      // Se não há histórico, determinar página apropriada baseada no contexto
-      if (currentProjectId) {
-        console.log('🔙 Sem histórico, voltando para lista de projetos');
-        navigate('/projetos');
-      } else {
-        console.log('🔙 Sem histórico, voltando para painel');
-        navigate('/painel');
-      }
+    // Se estamos em uma subseção de projeto (orçamento, cronograma, etc.)
+    if (currentPath.includes('/projeto/') && !currentPath.match(/^\/projeto\/[^\/]+\/?$/)) {
+      const projectId = currentPath.split('/')[2];
+      const projectMainPath = `/projeto/${projectId}`;
+      console.log('🔙 Voltando para página principal do projeto:', projectMainPath);
+      navigate(projectMainPath);
       return;
     }
-
-    // Encontrar a página apropriada no histórico
-    let targetPath = '/painel';
     
-    if (currentProjectId) {
-      // Se estamos em um projeto, tentar encontrar última página relevante
-      const relevantHistory = history.find(h => 
-        h.projectId === currentProjectId || 
-        (!h.projectId && !h.previousPath.includes('/projeto/'))
-      );
-      
-      if (relevantHistory) {
-        targetPath = relevantHistory.previousPath;
-      } else {
-        // Se não há histórico relevante, ir para lista de projetos
-        targetPath = '/projetos';
+    // Se estamos na página principal de um projeto específico
+    if (currentPath.match(/^\/projeto\/[^\/]+\/?$/)) {
+      console.log('🔙 Voltando para lista de projetos');
+      navigate('/projetos');
+      return;
+    }
+    
+    // Se estamos na página de projetos
+    if (currentPath === '/projetos') {
+      console.log('🔙 Voltando para painel');
+      navigate('/painel');
+      return;
+    }
+    
+    // Se estamos no upload
+    if (currentPath === '/upload') {
+      console.log('🔙 Voltando para painel');
+      navigate('/painel');
+      return;
+    }
+    
+    // Para outras páginas, tentar usar histórico
+    const history = getNavigationHistory();
+    if (history.length > 0) {
+      const lastEntry = history[0];
+      // Evitar loops - não voltar para a mesma página
+      if (lastEntry.previousPath !== currentPath) {
+        console.log('🔙 Voltando via histórico para:', lastEntry.previousPath);
+        navigate(lastEntry.previousPath);
+        return;
       }
-    } else {
-      // Se não estamos em projeto específico, pegar última página geral
-      const generalHistory = history.find(h => !h.projectId);
-      if (generalHistory) {
-        targetPath = generalHistory.previousPath;
-      }
     }
-
-    // Evitar loops (não voltar para a mesma página)
-    if (targetPath === location.pathname) {
-      targetPath = currentProjectId ? '/projetos' : '/painel';
-    }
-
-    // Nunca permitir voltar para landing page se autenticado
-    if (isAuthenticated && targetPath === '/') {
-      targetPath = '/painel';
-    }
-
-    console.log('🔙 Navegação de volta:', { from: location.pathname, to: targetPath, projectId: currentProjectId });
-    navigate(targetPath);
-  }, [navigate, location.pathname, isAuthenticated]);
-
-  const getHistoryForDisplay = () => {
-    return getNavigationHistory()
-      .filter(h => h.previousPath !== location.pathname)
-      .slice(0, 5);
-  };
-
-  const navigateToHistoryItem = useCallback((historyItem: NavigationHistory) => {
-    navigate(historyItem.previousPath);
-  }, [navigate]);
+    
+    // Fallback: voltar para painel
+    console.log('🔙 Fallback: voltando para painel');
+    navigate('/painel');
+  }, [navigate, location.pathname]);
 
   const clearHistory = useCallback(() => {
     try {
@@ -130,18 +118,10 @@ export const useContextualNavigation = () => {
     }
   }, []);
 
-  const canGoBack = () => {
-    const history = getNavigationHistory();
-    return history.length > 0 || location.pathname !== '/painel';
-  };
-
   return {
     navigateContextual,
     goBack,
     clearHistory,
-    saveToHistory,
-    getHistoryForDisplay,
-    navigateToHistoryItem,
-    canGoBack
+    saveToHistory
   };
 };

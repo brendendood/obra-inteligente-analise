@@ -11,11 +11,10 @@ interface ProjectHeaderProps {
 }
 
 export const ProjectHeader = ({ projectName, projectId, currentSection }: ProjectHeaderProps) => {
-  const { navigateContextual } = useContextualNavigation();
+  const { goBack, navigateContextual } = useContextualNavigation();
 
   const handleGoBack = () => {
-    // CORREÇÃO: Voltar sempre para a lista de projetos, não para dashboard
-    navigateContextual('/projetos');
+    goBack();
   };
 
   const handleGoToDashboard = () => {
@@ -33,7 +32,7 @@ export const ProjectHeader = ({ projectName, projectId, currentSection }: Projec
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Voltar para Projetos</span>
+            <span>Voltar</span>
           </Button>
           
           <Separator orientation="vertical" className="h-6" />

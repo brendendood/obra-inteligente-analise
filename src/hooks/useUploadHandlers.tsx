@@ -114,17 +114,17 @@ export const useUploadHandlers = ({
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // CORREÇÃO: Navegar diretamente para o projeto criado
+      // CORREÇÃO: Navegar diretamente para o projeto criado após 2 segundos
       if (data.project?.id) {
         console.log('🔄 Redirecionando para projeto:', data.project.id);
         setTimeout(() => {
-          navigate(`/projeto/${data.project.id}`);
-        }, 1500);
+          navigate(`/projeto/${data.project.id}`, { replace: true });
+        }, 2000);
       } else {
-        // Fallback para dashboard se não tiver ID do projeto
+        // Fallback para projetos se não tiver ID do projeto
         setTimeout(() => {
-          navigate('/painel');
-        }, 1500);
+          navigate('/projetos', { replace: true });
+        }, 2000);
       }
 
     } catch (error) {

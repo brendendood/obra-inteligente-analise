@@ -29,7 +29,7 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
   const location = useLocation();
   const { user, isAuthenticated } = useAuth();
   const { currentProject, setCurrentProject } = useProject();
-  const { navigateContextual } = useContextualNavigation();
+  const { navigateContextual, saveToHistory } = useContextualNavigation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -86,6 +86,9 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
         console.log('✅ Projeto carregado:', project.name);
         setCurrentProject(project);
         
+        // Salvar no histórico para navegação contextual
+        saveToHistory(location.pathname, projectId, project.name);
+        
       } catch (error) {
         console.error('💥 Erro ao carregar projeto:', error);
         setError(error instanceof Error ? error : new Error('Erro desconhecido'));
@@ -95,7 +98,7 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
     };
 
     loadProject();
-  }, [projectId, isAuthenticated, user, setCurrentProject, navigate]);
+  }, [projectId, isAuthenticated, user, setCurrentProject, navigate, saveToHistory, location.pathname]);
 
   const handleTabChange = (value: string) => {
     if (!currentProject) return;
@@ -104,7 +107,9 @@ export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
     const newPath = value === 'visao-geral' 
       ? `/projeto/${projectId}` 
       : `/projeto/${projectId}/${value}`;
-    navigateContextual(newPath, projectId);
+    
+    // Usar navigate diretamente para mudanças de tab (não salvar no histórico)
+    navigate(newPath);
   };
 
   const getSectionTitle = (section: string) => {
