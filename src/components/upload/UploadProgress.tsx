@@ -2,8 +2,15 @@
 import { Progress } from '@/components/ui/progress';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
 
+interface ProcessingStep {
+  id: number;
+  title: string;
+  description: string;
+  status: 'pending' | 'active' | 'completed';
+}
+
 interface UploadProgressProps {
-  steps: any[];
+  steps: ProcessingStep[];
   currentStep: number;
   processingProgress: number;
   isProcessing: boolean;
