@@ -204,7 +204,7 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
                       w-full justify-start h-12 px-4 text-left font-medium transition-all duration-200
                       ${active 
                         ? 'bg-blue-25 text-blue-600 border border-blue-100 shadow-sm' 
-                        : 'text-gray-600 hover:bg-gray-25 hover:text-gray-800'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                       }
                     `}
                     onClick={() => handleNavigation(item.path)}
@@ -224,7 +224,7 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
 
         {/* User Section */}
         <div className="border-t border-gray-100 p-4 space-y-3">
-          <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-25">
+          <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-blue-500 text-white">
                 {user?.email?.charAt(0).toUpperCase()}
