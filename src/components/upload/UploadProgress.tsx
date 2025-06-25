@@ -1,17 +1,11 @@
 
 import { Progress } from '@/components/ui/progress';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
-
-interface ProcessingStep {
-  id: number;
-  title: string;
-  description: string;
-  status: 'pending' | 'active' | 'completed';
-}
+import { ProcessingStep } from '@/hooks/useProcessingSteps';
 
 interface UploadProgressProps {
   steps: ProcessingStep[];
-  currentStep: number;
+  currentStep: ProcessingStep | null;
   processingProgress: number;
   isProcessing: boolean;
   uploadProgress: number;
