@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { useProject } from '@/contexts/ProjectContext';
@@ -25,8 +24,8 @@ const ProjectOverview = () => {
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Arquivo Original</p>
-            <p className="font-medium">{currentProject.original_filename}</p>
+            <p className="text-sm text-gray-500">Caminho do Arquivo</p>
+            <p className="font-medium">{currentProject.file_path}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Status</p>
