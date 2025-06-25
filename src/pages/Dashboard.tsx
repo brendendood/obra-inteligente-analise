@@ -11,17 +11,31 @@ import {
   Clock,
   BarChart3,
   Calculator,
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProject } from '@/contexts/ProjectContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading } = useAuth();
   const { loadUserProjects } = useProject();
   const [projects, setProjects] = useState<any[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [showDeleteAll, setShowDeleteAll] = useState(false);
   const [stats, setStats] = useState({
     totalProjects: 0,
     totalArea: 0,
@@ -29,6 +43,7 @@ const Dashboard = () => {
     timeSaved: 0
   });
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -43,8 +58,11 @@ const Dashboard = () => {
   }, [isAuthenticated]);
 
   const loadProjects = async () => {
+    setIsLoadingProjects(true);
     try {
+      console.log('Carregando projetos no Dashboard...');
       const userProjects = await loadUserProjects();
+      console.log('Projetos carregados no Dashboard:', userProjects);
       setProjects(userProjects);
       
       // Calcular estatísticas
@@ -65,12 +83,76 @@ const Dashboard = () => {
         recentProjects,
         timeSaved: userProjects.length * 2 // 2 horas por projeto
       });
+
+      console.log('Estatísticas calculadas:', {
+        totalProjects: userProjects.length,
+        totalArea,
+        recentProjects,
+        timeSaved: userProjects.length * 2
+      });
     } catch (error) {
-      console.error('Erro ao carregar projetos:', error);
+      console.error('Erro ao carregar projetos no Dashboard:', error);
+    } finally {
+      setIsLoadingProjects(false);
     }
   };
 
-  if (loading) {
+  const handleDeleteAllProjects = async () => {
+    try {
+      console.log('Excluindo todos os projetos...');
+      
+      // Buscar todos os projetos do usuário
+      const { data: userProjects, error: fetchError } = await supabase
+        .from('projects')
+        .select('id')
+        .eq('user_id', user?.id);
+
+      if (fetchError) throw fetchError;
+
+      if (userProjects && userProjects.length > 0) {
+        // Excluir todos os projetos
+        const { error: deleteError } = await supabase
+          .from('projects')
+          .delete()
+          .eq('user_id', user?.id);
+
+        if (deleteError) throw deleteError;
+
+        console.log(`${userProjects.length} projetos excluídos com sucesso`);
+        
+        // Recarregar dados
+        setProjects([]);
+        setStats({
+          totalProjects: 0,
+          totalArea: 0,
+          recentProjects: 0,
+          timeSaved: 0
+        });
+        
+        toast({
+          title: "✅ Projetos excluídos!",
+          description: `${userProjects.length} projeto(s) foram removidos com sucesso.`,
+        });
+      } else {
+        toast({
+          title: "ℹ️ Nenhum projeto encontrado",
+          description: "Não há projetos para excluir.",
+        });
+      }
+      
+      setShowDeleteAll(false);
+    } catch (error) {
+      console.error('Erro ao excluir projetos:', error);
+      toast({
+        title: "❌ Erro ao excluir",
+        description: "Não foi possível excluir os projetos.",
+        variant: "destructive",
+      });
+      setShowDeleteAll(false);
+    }
+  };
+
+  if (loading || isLoadingProjects) {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
@@ -118,13 +200,26 @@ const Dashboard = () => {
     <AppLayout>
       <div className="space-y-8">
         {/* Welcome Section */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Bem-vindo, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}!
-          </h1>
-          <p className="text-gray-600">
-            Gerencie seus projetos com inteligência artificial
-          </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Bem-vindo, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}!
+            </h1>
+            <p className="text-gray-600">
+              Gerencie seus projetos com inteligência artificial
+            </p>
+          </div>
+          
+          {projects.length > 0 && (
+            <Button 
+              variant="destructive"
+              onClick={() => setShowDeleteAll(true)}
+              className="flex items-center space-x-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span>Excluir Todos os Projetos</span>
+            </Button>
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -305,6 +400,28 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Delete All Projects Dialog */}
+        <AlertDialog open={showDeleteAll} onOpenChange={setShowDeleteAll}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar exclusão de todos os projetos</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem certeza que deseja excluir TODOS os seus projetos? 
+                Esta ação não pode ser desfeita e todos os dados relacionados serão perdidos permanentemente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteAllProjects}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Excluir Todos os Projetos
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );
