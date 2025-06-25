@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectLoader } from '@/hooks/useProjectLoader';
@@ -26,14 +25,15 @@ export const useDashboardData = () => {
   const { toast } = useToast();
 
   const loadProjects = async () => {
-    // Aguardar autenticação estar completa
+    console.log('📊 Dashboard loadProjects:', { loading, isAuthenticated, userId: user?.id });
+    
     if (loading) {
-      console.log('Aguardando autenticação completar...');
+      console.log('⏳ Dashboard aguardando auth...');
       return;
     }
 
-    if (!isAuthenticated) {
-      console.log('Usuário não autenticado, não carregando projetos');
+    if (!isAuthenticated || !user) {
+      console.log('🚫 Dashboard: usuário não autenticado');
       setProjects([]);
       setIsLoadingProjects(false);
       return;
@@ -41,12 +41,13 @@ export const useDashboardData = () => {
 
     setIsLoadingProjects(true);
     try {
-      console.log('Carregando projetos no Dashboard...');
+      console.log('🔄 Dashboard carregando projetos...');
       const userProjects = await loadUserProjects();
-      console.log('Projetos carregados no Dashboard:', userProjects);
+      console.log('📋 Dashboard projetos carregados:', userProjects.length);
+      
       setProjects(userProjects);
       
-      // Calcular estatísticas com dados reais
+      // Calcular estatísticas
       const totalArea = userProjects.reduce((sum: number, project: any) => {
         return sum + (project.total_area || 0);
       }, 0);
@@ -62,31 +63,27 @@ export const useDashboardData = () => {
         totalProjects: userProjects.length,
         totalArea,
         recentProjects,
-        timeSaved: userProjects.length * 2 // 2 horas por projeto
+        timeSaved: userProjects.length * 2
       };
 
       setStats(newStats);
-      console.log('Estatísticas calculadas:', newStats);
+      console.log('📈 Stats calculadas:', newStats);
+      
     } catch (error) {
-      console.error('Erro ao carregar projetos no Dashboard:', error);
+      console.error('💥 Erro no Dashboard:', error);
       setProjects([]);
-      setStats({
-        totalProjects: 0,
-        totalArea: 0,
-        recentProjects: 0,
-        timeSaved: 0
-      });
     } finally {
       setIsLoadingProjects(false);
     }
   };
 
-  // Aguardar a autenticação estar completa antes de carregar
+  // Carregar quando auth estiver pronto
   useEffect(() => {
+    console.log('🎯 Dashboard useEffect triggered:', { loading, isAuthenticated });
     if (!loading) {
       loadProjects();
     }
-  }, [loading, isAuthenticated]);
+  }, [loading, isAuthenticated, user?.id]);
 
   const handleDeleteAllProjects = async () => {
     try {

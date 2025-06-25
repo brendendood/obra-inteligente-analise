@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProjectsLogic = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const { loadUserProjects } = useProjectLoader();
   const [projects, setProjects] = useState<any[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
@@ -19,25 +19,29 @@ export const useProjectsLogic = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Redirecionar se não autenticado
   useEffect(() => {
     if (!loading && !isAuthenticated) {
+      console.log('🚫 Projetos: redirecionando para login');
       navigate('/login');
     }
   }, [isAuthenticated, loading, navigate]);
 
+  // Carregar projetos quando auth estiver pronto
   useEffect(() => {
-    if (isAuthenticated) {
+    console.log('📋 Projetos useEffect:', { loading, isAuthenticated, userId: user?.id });
+    if (!loading && isAuthenticated) {
       loadProjects();
     }
-  }, [isAuthenticated]);
+  }, [loading, isAuthenticated, user?.id]);
 
+  // Filtrar e ordenar projetos
   useEffect(() => {
     let filtered = projects.filter(project =>
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (project.project_type && project.project_type.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    // Aplicar ordenação
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
@@ -54,14 +58,14 @@ export const useProjectsLogic = () => {
   }, [projects, searchTerm, sortBy]);
 
   const loadProjects = async () => {
+    console.log('📂 Projetos page loadProjects');
     setIsLoading(true);
     try {
-      console.log('Carregando projetos na página de projetos...');
       const userProjects = await loadUserProjects();
-      console.log('Projetos carregados na página de projetos:', userProjects.length);
+      console.log('✅ Projetos page: carregados', userProjects.length);
       setProjects(userProjects);
     } catch (error) {
-      console.error('Erro ao carregar projetos:', error);
+      console.error('💥 Erro página projetos:', error);
       setProjects([]);
     } finally {
       setIsLoading(false);
