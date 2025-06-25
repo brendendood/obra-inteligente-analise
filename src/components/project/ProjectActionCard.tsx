@@ -25,29 +25,36 @@ const ProjectActionCard: React.FC<ProjectActionCardProps> = ({
   return (
     <Card 
       className={`
-        cursor-pointer transition-all duration-300 border-0 shadow-lg hover:shadow-xl
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}
+        cursor-pointer transition-all duration-300 
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-xl'}
         ${className}
       `}
       onClick={disabled ? undefined : onClick}
     >
-      <CardContent className="p-6">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-2xl">
-            <Icon className="h-8 w-8 text-blue-600" />
+      <CardContent className="p-8">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/50">
+              <Icon className="h-8 w-8 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                {title}
+              </h3>
+              {disabled && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  Aguardando processamento
+                </span>
+              )}
+            </div>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-lg font-bold text-slate-900">
-              {title}
-            </h3>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {description}
-            </p>
-          </div>
+          <p className="text-gray-600 leading-relaxed">
+            {description}
+          </p>
           
           {isLoading && (
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center pt-2">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
             </div>
           )}
