@@ -23,6 +23,7 @@ interface ProjectContextType {
   uploadProject: (file: File, projectName: string) => Promise<boolean>;
   setCurrentProject: (project: Project | null) => void;
   loadUserProjects: () => Promise<Project[]>;
+  clearAllProjects: () => void;
   requiresAuth: boolean;
 }
 
@@ -34,33 +35,66 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
 
-  // Carregar projeto do localStorage ao inicializar
-  useEffect(() => {
-    if (isAuthenticated) {
-      const savedProject = localStorage.getItem('currentProject');
-      if (savedProject) {
-        try {
-          const project = JSON.parse(savedProject);
-          setCurrentProjectState(project);
-          console.log('Projeto carregado do localStorage:', project);
-        } catch (error) {
-          console.error('Erro ao carregar projeto do localStorage:', error);
-          localStorage.removeItem('currentProject');
-        }
-      }
-    } else {
-      // Limpar projeto se não estiver autenticado
-      setCurrentProjectState(null);
-      localStorage.removeItem('currentProject');
-    }
-  }, [isAuthenticated]);
+  // Função para limpar todos os projetos do estado local
+  const clearAllProjects = useCallback(() => {
+    console.log('Limpando todos os projetos do estado local');
+    setCurrentProjectState(null);
+    localStorage.removeItem('currentProject');
+  }, []);
 
-  // Função para atualizar o projeto atual com persistência
+  // Carregar projeto do localStorage ao inicializar, mas validar se ainda existe no DB
+  useEffect(() => {
+    const validateAndLoadProject = async () => {
+      if (isAuthenticated) {
+        const savedProject = localStorage.getItem('currentProject');
+        if (savedProject) {
+          try {
+            const project = JSON.parse(savedProject);
+            console.log('Verificando se projeto do localStorage ainda existe no DB:', project.id);
+            
+            // Verificar se o projeto ainda existe no banco
+            const { data, error } = await supabase
+              .from('projects')
+              .select('*')
+              .eq('id', project.id)
+              .eq('user_id', user?.id)
+              .maybeSingle();
+            
+            if (error) {
+              console.error('Erro ao verificar projeto:', error);
+              clearAllProjects();
+              return;
+            }
+            
+            if (data) {
+              console.log('Projeto validado e carregado do localStorage:', data);
+              setCurrentProjectState(data);
+            } else {
+              console.log('Projeto do localStorage não existe mais no DB, limpando...');
+              clearAllProjects();
+            }
+          } catch (error) {
+            console.error('Erro ao validar projeto do localStorage:', error);
+            clearAllProjects();
+          }
+        }
+      } else {
+        clearAllProjects();
+      }
+    };
+
+    if (user) {
+      validateAndLoadProject();
+    }
+  }, [isAuthenticated, user, clearAllProjects]);
+
+  // Função para atualizar o projeto atual com validação
   const setCurrentProject = useCallback((project: Project | null) => {
+    console.log('Atualizando projeto atual:', project);
     setCurrentProjectState(project);
     if (project && isAuthenticated) {
       localStorage.setItem('currentProject', JSON.stringify(project));
-      console.log('Projeto salvo no localStorage:', project);
+      console.log('Projeto salvo no localStorage:', project.name);
     } else {
       localStorage.removeItem('currentProject');
       console.log('Projeto removido do localStorage');
@@ -128,8 +162,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         throw new Error(data?.error || 'Erro no processamento');
       }
       
-      // Atualizar o projeto atual imediatamente
+      // Atualizar o projeto atual com dados frescos do servidor
       if (data.project) {
+        console.log('Definindo novo projeto como atual:', data.project);
         setCurrentProject(data.project);
       }
       
@@ -138,7 +173,6 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         description: data.message,
       });
       
-      console.log('Upload bem-sucedido, projeto definido:', data.project);
       return true;
     } catch (error) {
       console.error('Upload error:', error);
@@ -163,31 +197,56 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, [toast, setCurrentProject, isAuthenticated, user]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
-    if (!isAuthenticated) {
-      console.log('Usuário não autenticado, não carregando projetos');
+    if (!isAuthenticated || !user) {
+      console.log('Usuário não autenticado, limpando projetos locais');
+      clearAllProjects();
       return [];
     }
 
     try {
+      console.log('Carregando projetos do usuário:', user.email);
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      // Se não tiver projeto atual mas tiver projetos, pegar o mais recente
-      if (!currentProject && data && data.length > 0) {
-        setCurrentProject(data[0]);
-        console.log('Projeto mais recente definido como atual:', data[0]);
+      if (error) {
+        console.error('Erro ao carregar projetos:', error);
+        throw error;
       }
       
-      return data || [];
+      console.log('Projetos carregados do DB:', data?.length || 0);
+      
+      // Se não há projetos no DB, limpar estado local
+      if (!data || data.length === 0) {
+        console.log('Nenhum projeto encontrado no DB, limpando estado local');
+        clearAllProjects();
+        return [];
+      }
+      
+      // Se há projetos, mas não temos projeto atual, definir o mais recente
+      if (!currentProject && data.length > 0) {
+        console.log('Definindo projeto mais recente como atual:', data[0].name);
+        setCurrentProject(data[0]);
+      }
+      
+      // Se temos projeto atual, verificar se ainda existe nos dados carregados
+      if (currentProject) {
+        const projectStillExists = data.find(p => p.id === currentProject.id);
+        if (!projectStillExists) {
+          console.log('Projeto atual não existe mais, limpando...');
+          clearAllProjects();
+        }
+      }
+      
+      return data;
     } catch (error) {
       console.error('Error loading projects:', error);
+      clearAllProjects();
       return [];
     }
-  }, [currentProject, setCurrentProject, isAuthenticated]);
+  }, [currentProject, setCurrentProject, isAuthenticated, user, clearAllProjects]);
 
   return (
     <ProjectContext.Provider value={{
@@ -196,6 +255,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       uploadProject,
       setCurrentProject,
       loadUserProjects,
+      clearAllProjects,
       requiresAuth: !isAuthenticated,
     }}>
       {children}

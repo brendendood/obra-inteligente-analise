@@ -44,7 +44,7 @@ import {
 
 const Projects = () => {
   const { isAuthenticated, loading } = useAuth();
-  const { loadUserProjects } = useProject();
+  const { loadUserProjects, clearAllProjects } = useProject();
   const [projects, setProjects] = useState<any[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,10 +92,15 @@ const Projects = () => {
   const loadProjects = async () => {
     setIsLoading(true);
     try {
+      console.log('Carregando projetos na página de obras...');
       const userProjects = await loadUserProjects();
+      console.log('Projetos carregados na página de obras:', userProjects.length);
       setProjects(userProjects);
     } catch (error) {
       console.error('Erro ao carregar projetos:', error);
+      // Em caso de erro, limpar estado
+      clearAllProjects();
+      setProjects([]);
     } finally {
       setIsLoading(false);
     }
@@ -103,6 +108,8 @@ const Projects = () => {
 
   const handleDeleteProject = async (projectId: string) => {
     try {
+      console.log('Excluindo projeto:', projectId);
+      
       const { error } = await supabase
         .from('projects')
         .delete()
@@ -110,7 +117,15 @@ const Projects = () => {
 
       if (error) throw error;
 
-      setProjects(projects.filter(p => p.id !== projectId));
+      // Atualizar estado local
+      const updatedProjects = projects.filter(p => p.id !== projectId);
+      setProjects(updatedProjects);
+      
+      // Se não há mais projetos, limpar estado completamente
+      if (updatedProjects.length === 0) {
+        clearAllProjects();
+      }
+      
       setDeleteProject(null);
 
       toast({

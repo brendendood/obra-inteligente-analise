@@ -32,7 +32,7 @@ import {
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading } = useAuth();
-  const { loadUserProjects } = useProject();
+  const { loadUserProjects, clearAllProjects } = useProject();
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [showDeleteAll, setShowDeleteAll] = useState(false);
@@ -65,7 +65,7 @@ const Dashboard = () => {
       console.log('Projetos carregados no Dashboard:', userProjects);
       setProjects(userProjects);
       
-      // Calcular estatísticas
+      // Calcular estatísticas com dados reais
       const totalArea = userProjects.reduce((sum: number, project: any) => {
         return sum + (project.total_area || 0);
       }, 0);
@@ -77,21 +77,27 @@ const Dashboard = () => {
         return createdAt >= weekAgo;
       }).length;
 
-      setStats({
+      const newStats = {
         totalProjects: userProjects.length,
         totalArea,
         recentProjects,
         timeSaved: userProjects.length * 2 // 2 horas por projeto
-      });
+      };
 
-      console.log('Estatísticas calculadas:', {
-        totalProjects: userProjects.length,
-        totalArea,
-        recentProjects,
-        timeSaved: userProjects.length * 2
-      });
+      setStats(newStats);
+
+      console.log('Estatísticas calculadas:', newStats);
     } catch (error) {
       console.error('Erro ao carregar projetos no Dashboard:', error);
+      // Em caso de erro, limpar estado local
+      clearAllProjects();
+      setProjects([]);
+      setStats({
+        totalProjects: 0,
+        totalArea: 0,
+        recentProjects: 0,
+        timeSaved: 0
+      });
     } finally {
       setIsLoadingProjects(false);
     }
@@ -120,7 +126,8 @@ const Dashboard = () => {
 
         console.log(`${userProjects.length} projetos excluídos com sucesso`);
         
-        // Recarregar dados
+        // Limpar estado local e dados
+        clearAllProjects();
         setProjects([]);
         setStats({
           totalProjects: 0,

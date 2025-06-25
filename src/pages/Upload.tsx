@@ -31,12 +31,13 @@ import { useProcessingSteps } from '@/hooks/useProcessingSteps';
 
 const Upload = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
-  const { currentProject, loadUserProjects } = useProject();
+  const { currentProject, loadUserProjects, clearAllProjects } = useProject();
   const [file, setFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadComplete, setUploadComplete] = useState(false);
+  const [validatedProject, setValidatedProject] = useState<any>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -55,6 +56,44 @@ const Upload = () => {
       navigate('/login');
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Validar projeto atual quando o componente carregar
+  useEffect(() => {
+    const validateCurrentProject = async () => {
+      if (currentProject && user) {
+        console.log('Validando projeto atual na página de upload:', currentProject.id);
+        
+        const { data, error } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('id', currentProject.id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (error) {
+          console.error('Erro ao validar projeto:', error);
+          clearAllProjects();
+          setValidatedProject(null);
+          return;
+        }
+        
+        if (data) {
+          console.log('Projeto validado com sucesso:', data.name);
+          setValidatedProject(data);
+        } else {
+          console.log('Projeto não existe mais no DB, limpando estado');
+          clearAllProjects();
+          setValidatedProject(null);
+        }
+      } else {
+        setValidatedProject(null);
+      }
+    };
+
+    if (user && currentProject) {
+      validateCurrentProject();
+    }
+  }, [currentProject, user, clearAllProjects]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
@@ -147,7 +186,7 @@ const Upload = () => {
           body: {
             fileName,
             originalName: file.name,
-            projectName: projectName.trim(), // Send custom project name
+            projectName: projectName.trim(),
             fileSize: file.size
           }
         });
@@ -173,8 +212,9 @@ const Upload = () => {
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // Recarregar projetos
+      // Recarregar projetos e limpar estado de projeto validado
       setTimeout(() => {
+        setValidatedProject(null);
         loadUserProjects();
         navigate('/painel');
       }, 2000);
@@ -202,7 +242,7 @@ const Upload = () => {
   };
 
   const handleAnalyzeExisting = () => {
-    if (currentProject) {
+    if (validatedProject) {
       navigate('/assistant');
     } else {
       toast({
@@ -254,8 +294,8 @@ const Upload = () => {
           </p>
         </div>
 
-        {/* Quick Action - Existing Project */}
-        {currentProject && (
+        {/* Quick Action - Existing Project - Apenas se validado */}
+        {validatedProject && (
           <Card className="mb-8 shadow-xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-green-800 flex items-center">
@@ -266,10 +306,10 @@ const Upload = () => {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-lg font-bold text-green-900 mb-1">{currentProject.name}</p>
+                  <p className="text-lg font-bold text-green-900 mb-1">{validatedProject.name}</p>
                   <p className="text-green-700 mb-2">
-                    {currentProject.total_area ? `${currentProject.total_area}m² • ` : ''}
-                    {currentProject.project_type}
+                    {validatedProject.total_area ? `${validatedProject.total_area}m² • ` : ''}
+                    {validatedProject.project_type}
                   </p>
                   <div className="flex items-center space-x-2">
                     <Badge className="bg-green-100 text-green-800">✅ Processado</Badge>
