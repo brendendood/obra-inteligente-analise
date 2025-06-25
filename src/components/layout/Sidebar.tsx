@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import ThemeToggle from './ThemeToggle';
 import { 
   FolderOpen, 
   LayoutDashboard, 
@@ -15,8 +14,7 @@ import {
   FileText, 
   LogOut,
   Menu,
-  X,
-  Settings
+  X
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -63,7 +61,7 @@ const Sidebar = () => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-card text-foreground rounded-md border border-border"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded-md border border-gray-700"
       >
         {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -79,17 +77,17 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside className={`
         fixed lg:relative inset-y-0 left-0 z-40
-        w-64 bg-card border-r border-border flex flex-col
+        w-64 bg-gray-800 border-r border-gray-700 flex flex-col
         transform transition-transform duration-200 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-border">
+        <div className="p-6 border-b border-gray-700">
           <div className="flex items-center space-x-2">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
               <FolderOpen className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-foreground">ArchiAI</span>
+            <span className="text-xl font-bold text-white">ArchiAI</span>
           </div>
         </div>
 
@@ -110,7 +108,7 @@ const Sidebar = () => {
                   w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors
                   ${isActive 
                     ? 'bg-blue-600 text-white' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                   }
                 `}
               >
@@ -121,23 +119,17 @@ const Sidebar = () => {
           })}
         </nav>
 
-        {/* Theme Toggle and User Section */}
-        <div className="border-t border-border p-4 space-y-4">
-          {/* Theme Toggle */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tema</span>
-            <ThemeToggle />
-          </div>
-
+        {/* User Section */}
+        <div className="border-t border-gray-700 p-4 space-y-4">
           {/* User Info */}
-          <div className="flex items-center space-x-3 p-2 rounded-lg bg-muted/50">
+          <div className="flex items-center space-x-3 p-2 rounded-lg bg-gray-700/50">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {user?.email?.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-foreground truncate">
+              <p className="text-sm text-white truncate">
                 {user?.email || 'Usuário'}
               </p>
             </div>
@@ -146,7 +138,7 @@ const Sidebar = () => {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-red-600/20 rounded-lg transition-colors"
+            className="w-full flex items-center space-x-3 px-3 py-2 text-gray-300 hover:text-white hover:bg-red-600/20 rounded-lg transition-colors"
           >
             <LogOut className="h-5 w-5" />
             <span>Sair</span>

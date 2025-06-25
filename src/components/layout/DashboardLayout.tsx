@@ -11,10 +11,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   useSessionControl();
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-gray-900 overflow-hidden">
       <Sidebar />
       <main className="flex-1 overflow-auto">
-        <div className="min-h-full bg-background">
+        <div className="min-h-full bg-gray-900">
           {children}
         </div>
       </main>

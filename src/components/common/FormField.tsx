@@ -33,13 +33,13 @@ const FormField = ({
 }: FormFieldProps) => {
   return (
     <div className={cn('space-y-2', className)}>
-      <Label htmlFor={id} className="text-foreground">
+      <Label htmlFor={id} className="text-white">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-400 ml-1">*</span>}
       </Label>
       <div className="relative">
         {Icon && (
-          <Icon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Icon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
         )}
         <Input
           id={id}
@@ -52,13 +52,13 @@ const FormField = ({
             Icon && 'pl-10',
             error && 'border-red-500 focus-visible:ring-red-500',
             disabled && 'opacity-50 cursor-not-allowed',
-            'bg-background border-border text-foreground placeholder:text-muted-foreground transition-all duration-200'
+            'bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 transition-all duration-200'
           )}
           required={required}
         />
       </div>
       {error && (
-        <p className="text-sm text-red-500 animate-fade-in">{error}</p>
+        <p className="text-sm text-red-400 animate-fade-in">{error}</p>
       )}
     </div>
   );

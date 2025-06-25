@@ -39,14 +39,14 @@ const ProjectCard = ({
   const getStatusBadge = (project: Project) => {
     if (project.analysis_data) {
       return (
-        <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+        <Badge className="bg-green-600 text-white">
           <CheckCircle className="h-3 w-3 mr-1" />
           Concluído
         </Badge>
       );
     }
     return (
-      <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
+      <Badge className="bg-orange-600 text-white">
         <Clock className="h-3 w-3 mr-1" />
         Em análise
       </Badge>
@@ -54,7 +54,7 @@ const ProjectCard = ({
   };
 
   return (
-    <Card className="shadow-lg border border-border hover:shadow-xl transition-all duration-300 bg-card glass-card animate-slide-in">
+    <Card className="shadow-lg border border-gray-700 hover:shadow-xl transition-all duration-300 bg-gray-800">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -72,13 +72,13 @@ const ProjectCard = ({
                     }
                   }}
                   autoFocus
-                  className="text-lg font-bold bg-background border-border"
+                  className="text-lg font-bold bg-gray-700 border-gray-600 text-white"
                 />
                 <div className="flex space-x-2">
                   <Button
                     size="sm"
                     onClick={() => onSaveEdit(project.id, editName)}
-                    className="btn-primary-gradient"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     Salvar
                   </Button>
@@ -86,7 +86,7 @@ const ProjectCard = ({
                     size="sm"
                     variant="outline"
                     onClick={onCancelEdit}
-                    className="border-border text-foreground"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
                   >
                     Cancelar
                   </Button>
@@ -94,12 +94,12 @@ const ProjectCard = ({
               </div>
             ) : (
               <div className="group">
-                <CardTitle className="text-lg mb-2 line-clamp-2 cursor-pointer flex items-center text-foreground">
+                <CardTitle className="text-lg mb-2 line-clamp-2 cursor-pointer flex items-center text-white">
                   {project.name}
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 hover:bg-muted"
+                    className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0 hover:bg-gray-700 text-gray-300"
                     onClick={() => onStartEdit(project.id, project.name)}
                   >
                     <Edit className="h-3 w-3" />
@@ -111,7 +111,7 @@ const ProjectCard = ({
             <div className="space-y-2">
               {getStatusBadge(project)}
               {project.project_type && (
-                <Badge variant="outline" className="text-xs border-border text-muted-foreground">
+                <Badge variant="outline" className="text-xs border-gray-600 text-gray-300">
                   {project.project_type}
                 </Badge>
               )}
@@ -123,19 +123,19 @@ const ProjectCard = ({
       <CardContent>
         <div className="space-y-3">
           {project.total_area && (
-            <div className="flex items-center text-sm text-muted-foreground">
+            <div className="flex items-center text-sm text-gray-300">
               <span className="font-medium">Área: {project.total_area}m²</span>
             </div>
           )}
           
-          <div className="flex items-center text-sm text-muted-foreground">
+          <div className="flex items-center text-sm text-gray-300">
             <Calendar className="h-4 w-4 mr-2" />
             {new Date(project.created_at).toLocaleDateString('pt-BR')}
           </div>
           
           <Button 
             onClick={() => navigate(`/obra/${project.id}`)}
-            className="w-full btn-secondary-gradient"
+            className="w-full bg-gray-700 hover:bg-gray-600 text-white border border-gray-600"
           >
             <Eye className="h-4 w-4 mr-2" />
             Ver Obra
