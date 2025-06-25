@@ -9,22 +9,7 @@ export function useSessionControl() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Força logout quando a página é carregada/recarregada
-    const handlePageLoad = () => {
-      const wasLoggedIn = sessionStorage.getItem('was_logged_in');
-      
-      if (wasLoggedIn) {
-        sessionStorage.removeItem('was_logged_in');
-        supabase.auth.signOut();
-        toast({
-          title: "🔒 Nova sessão iniciada",
-          description: "Por segurança, você foi desconectado automaticamente.",
-        });
-        navigate('/');
-      }
-    };
-
-    // Define flag quando usuário faz login
+    // Define flag quando usuário faz login/logout (apenas para controle interno)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         sessionStorage.setItem('was_logged_in', 'true');
@@ -33,19 +18,7 @@ export function useSessionControl() {
       }
     });
 
-    // Força logout ao carregar página
-    handlePageLoad();
-
-    // Escuta mudanças de visibilidade (quando usuário volta para a aba)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        handlePageLoad();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Timeout de sessão (30 minutos de inatividade)
+    // Timeout de sessão (40 minutos de inatividade)
     let inactivityTimer: NodeJS.Timeout;
     
     const resetTimer = () => {
@@ -56,11 +29,11 @@ export function useSessionControl() {
           await supabase.auth.signOut();
           toast({
             title: "⏰ Sessão expirada",
-            description: "Sua sessão expirou por inatividade (30 minutos).",
+            description: "Sua sessão expirou por inatividade (40 minutos).",
           });
           navigate('/');
         }
-      }, 30 * 60 * 1000); // 30 minutos
+      }, 40 * 60 * 1000); // 40 minutos
     };
 
     // Eventos que resetam o timer
@@ -78,7 +51,6 @@ export function useSessionControl() {
 
     return () => {
       subscription.unsubscribe();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       clearTimeout(inactivityTimer);
       activityEvents.forEach(event => {
         document.removeEventListener(event, handleActivity, true);
