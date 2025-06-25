@@ -18,7 +18,7 @@ export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContaine
   if (error) {
     return (
       <ErrorFallback 
-        error={error}
+        error={new Error(error)}
         title="Erro ao carregar projeto"
         message="Não foi possível carregar os detalhes do projeto. Verifique se o projeto existe e tente novamente."
       />

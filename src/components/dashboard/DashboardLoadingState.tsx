@@ -9,7 +9,10 @@ const DashboardLoadingState = () => {
     <AppLayout>
       <div className="space-y-8 animate-fade-in">
         <div className="flex items-center justify-between">
-          <EnhancedSkeleton variant="text" lines={2} className="h-20 w-1/2" />
+          <div className="space-y-2">
+            <EnhancedSkeleton variant="text" className="h-8 w-1/2" />
+            <EnhancedSkeleton variant="text" className="h-6 w-1/3" />
+          </div>
           <SmartLoading 
             isLoading={true} 
             hasData={false}
