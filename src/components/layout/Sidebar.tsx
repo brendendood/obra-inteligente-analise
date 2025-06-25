@@ -1,199 +1,159 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import ThemeToggle from './ThemeToggle';
 import { 
   FolderOpen, 
   LayoutDashboard, 
   Upload, 
-  Bot, 
+  MessageSquare, 
   Calculator, 
   Calendar, 
   FileText, 
-  Settings,
-  ChevronLeft,
-  ChevronRight,
   LogOut,
-  User
+  Menu,
+  X,
+  Settings
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate('/');
       toast({
-        title: "👋 Logout realizado",
+        title: "Logout realizado",
         description: "Você foi desconectado com sucesso.",
       });
+      navigate('/');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Erro ao fazer logout:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer logout. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
   const menuItems = [
-    {
-      title: 'Dashboard',
-      icon: LayoutDashboard,
-      path: '/painel',
-      description: 'Visão geral'
-    },
-    {
-      title: 'Obras',
-      icon: FolderOpen,
-      path: '/obras',
-      description: 'Todos os projetos'
-    },
-    {
-      title: 'Upload',
-      icon: Upload,
-      path: '/upload',
-      description: 'Enviar projeto'
-    },
-    {
-      title: 'Assistente IA',
-      icon: Bot,
-      path: '/assistant',
-      description: 'Chat inteligente'
-    },
-    {
-      title: 'Orçamento',
-      icon: Calculator,
-      path: '/budget',
-      description: 'Custos do projeto'
-    },
-    {
-      title: 'Cronograma',
-      icon: Calendar,
-      path: '/schedule',
-      description: 'Planejamento'
-    },
-    {
-      title: 'Documentos',
-      icon: FileText,
-      path: '/documents',
-      description: 'Arquivos e PDFs'
-    }
+    { icon: LayoutDashboard, label: 'Painel', path: '/painel' },
+    { icon: FolderOpen, label: 'Obras', path: '/obras' },
+    { icon: Upload, label: 'Nova Obra', path: '/upload' },
+    { icon: MessageSquare, label: 'Assistente IA', path: '/assistant' },
+    { icon: Calculator, label: 'Orçamento', path: '/budget' },
+    { icon: Calendar, label: 'Cronograma', path: '/schedule' },
+    { icon: FileText, label: 'Documentos', path: '/documents' },
   ];
 
+  const isActivePath = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
-    <div 
-      className={cn(
-        "h-screen bg-[#0d0d0d] border-r border-[#1a1a1a] flex flex-col transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-16" : "w-64"
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-md border border-[#333]"
+      >
+        {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
+
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
       )}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-[#1a1a1a]">
-        <div className="flex items-center justify-between">
-          {!isCollapsed && (
-            <div className="flex items-center space-x-2">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
-                <FolderOpen className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-white">ArchiAI</h1>
-                <p className="text-xs text-gray-400">Análise Inteligente</p>
-              </div>
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed lg:relative inset-y-0 left-0 z-40
+        w-64 bg-[#1a1a1a] border-r border-[#333] flex flex-col
+        transform transition-transform duration-200 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Logo */}
+        <div className="p-6 border-b border-[#333]">
+          <div className="flex items-center space-x-2">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
+              <FolderOpen className="h-6 w-6 text-white" />
             </div>
-          )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
-          >
-            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
+            <span className="text-xl font-bold text-white">ArchiAI</span>
+          </div>
         </div>
-      </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 p-2 space-y-1">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link key={item.path} to={item.path}>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start text-left h-12 transition-all duration-200",
-                  isActive 
-                    ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/20 text-blue-400 border-l-2 border-blue-500" 
-                    : "text-gray-400 hover:text-white hover:bg-[#1a1a1a]",
-                  isCollapsed && "justify-center px-2"
-                )}
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = isActivePath(item.path);
+            
+            return (
+              <button
+                key={item.path}
+                onClick={() => {
+                  navigate(item.path);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`
+                  w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors
+                  ${isActive 
+                    ? 'bg-blue-600 text-white' 
+                    : 'text-gray-400 hover:text-white hover:bg-[#333]'
+                  }
+                `}
               >
-                <item.icon className={cn("h-5 w-5 flex-shrink-0", !isCollapsed && "mr-3")} />
-                {!isCollapsed && (
-                  <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium">{item.title}</span>
-                    <span className="text-xs text-gray-500">{item.description}</span>
-                  </div>
-                )}
-              </Button>
-            </Link>
-          );
-        })}
-      </nav>
+                <Icon className="h-5 w-5" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
 
-      {/* User Section */}
-      <div className="p-4 border-t border-[#1a1a1a]">
-        {!isCollapsed ? (
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3 p-2 rounded-lg bg-[#1a1a1a]">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-full">
-                <User className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  {user?.email?.split('@')[0]}
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  {user?.email}
-                </p>
-              </div>
+        {/* Theme Toggle and User Section */}
+        <div className="border-t border-[#333] p-4 space-y-4">
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-gray-400">Tema</span>
+            <ThemeToggle />
+          </div>
+
+          {/* User Info */}
+          <div className="flex items-center space-x-3 p-2 rounded-lg bg-[#333]/50">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm font-medium">
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
+              </span>
             </div>
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-900/20"
-            >
-              <LogOut className="h-4 w-4 mr-3" />
-              Sair
-            </Button>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-white truncate">
+                {user?.email || 'Usuário'}
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="space-y-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full p-2 text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
-            >
-              <User className="h-4 w-4" />
-            </Button>
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              size="sm"
-              className="w-full p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center space-x-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-red-600/20 rounded-lg transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Sair</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 
