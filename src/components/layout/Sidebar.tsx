@@ -63,7 +63,7 @@ const Sidebar = () => {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-[#1a1a1a] text-white rounded-md border border-[#333]"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-card text-foreground rounded-md border border-border"
       >
         {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -79,17 +79,17 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside className={`
         fixed lg:relative inset-y-0 left-0 z-40
-        w-64 bg-[#1a1a1a] border-r border-[#333] flex flex-col
+        w-64 bg-card border-r border-border flex flex-col
         transform transition-transform duration-200 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Logo */}
-        <div className="p-6 border-b border-[#333]">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center space-x-2">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg">
               <FolderOpen className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">ArchiAI</span>
+            <span className="text-xl font-bold text-foreground">ArchiAI</span>
           </div>
         </div>
 
@@ -110,7 +110,7 @@ const Sidebar = () => {
                   w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors
                   ${isActive 
                     ? 'bg-blue-600 text-white' 
-                    : 'text-gray-400 hover:text-white hover:bg-[#333]'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }
                 `}
               >
@@ -122,22 +122,22 @@ const Sidebar = () => {
         </nav>
 
         {/* Theme Toggle and User Section */}
-        <div className="border-t border-[#333] p-4 space-y-4">
+        <div className="border-t border-border p-4 space-y-4">
           {/* Theme Toggle */}
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">Tema</span>
+            <span className="text-sm text-muted-foreground">Tema</span>
             <ThemeToggle />
           </div>
 
           {/* User Info */}
-          <div className="flex items-center space-x-3 p-2 rounded-lg bg-[#333]/50">
+          <div className="flex items-center space-x-3 p-2 rounded-lg bg-muted/50">
             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">
                 {user?.email?.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-white truncate">
+              <p className="text-sm text-foreground truncate">
                 {user?.email || 'Usuário'}
               </p>
             </div>
@@ -146,7 +146,7 @@ const Sidebar = () => {
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-gray-400 hover:text-white hover:bg-red-600/20 rounded-lg transition-colors"
+            className="w-full flex items-center space-x-3 px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-red-600/20 rounded-lg transition-colors"
           >
             <LogOut className="h-5 w-5" />
             <span>Sair</span>

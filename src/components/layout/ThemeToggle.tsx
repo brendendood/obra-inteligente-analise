@@ -11,7 +11,7 @@ const ThemeToggle = () => {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="h-9 w-9 p-0 text-gray-400 hover:text-white hover:bg-[#333]"
+      className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
       title={theme === 'dark' ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
     >
       {theme === 'dark' ? (
