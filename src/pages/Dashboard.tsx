@@ -14,7 +14,7 @@ import { Plus, Zap, RefreshCw } from 'lucide-react';
 import { SmartLoading } from '@/components/ui/smart-loading';
 
 const Dashboard = () => {
-  const { isAuthenticated, user, loading } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { preferences, addRecentProject } = useUserPreferences();
   
@@ -26,17 +26,20 @@ const Dashboard = () => {
   } = useDashboardData();
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login');
     }
-  }, [isAuthenticated, loading, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleProjectClick = (projectId: string) => {
     addRecentProject(projectId);
     navigate(`/projeto/${projectId}`);
   };
 
-  if (loading || isLoadingProjects) {
+  // Simplificar lógica de loading
+  const isLoading = authLoading || (isAuthenticated && isLoadingProjects);
+
+  if (isLoading) {
     return (
       <AppLayout>
         <div className="space-y-8 animate-fade-in">
@@ -47,7 +50,7 @@ const Dashboard = () => {
               hasData={false}
               loadingText="Carregando dashboard..."
               showProgress={true}
-              progress={isLoadingProjects ? 50 : 75}
+              progress={50}
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -74,9 +77,8 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <EnhancedBreadcrumb />
           <SmartLoading 
-            isLoading={isLoadingProjects} 
+            isLoading={false} 
             hasData={projects.length > 0}
-            loadingText="Sincronizando..."
             successText={`${projects.length} projetos carregados`}
           />
         </div>

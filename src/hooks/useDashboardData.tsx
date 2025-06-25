@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectLoader } from '@/hooks/useProjectLoader';
 import { useAutoRefresh } from '@/hooks/useAutoRefresh';
@@ -25,8 +25,16 @@ export const useDashboardData = () => {
     timeSaved: 0
   });
   const { toast } = useToast();
+  const initializedRef = useRef(false);
+  const isLoadingRef = useRef(false);
 
-  const loadProjects = async () => {
+  const loadProjects = useCallback(async () => {
+    // Prevenir múltiplas execuções simultâneas
+    if (isLoadingRef.current) {
+      console.log('⏳ Load projects já em andamento, ignorando...');
+      return;
+    }
+
     console.log('📊 Dashboard loadProjects:', { loading, isAuthenticated, userId: user?.id });
     
     if (loading) {
@@ -38,10 +46,13 @@ export const useDashboardData = () => {
       console.log('🚫 Dashboard: usuário não autenticado');
       setProjects([]);
       setIsLoadingProjects(false);
+      initializedRef.current = true;
       return;
     }
 
+    isLoadingRef.current = true;
     setIsLoadingProjects(true);
+    
     try {
       console.log('🔄 Dashboard carregando projetos...');
       const userProjects = await loadUserProjects();
@@ -81,24 +92,26 @@ export const useDashboardData = () => {
       });
     } finally {
       setIsLoadingProjects(false);
+      isLoadingRef.current = false;
+      initializedRef.current = true;
     }
-  };
+  }, [loading, isAuthenticated, user?.id, loadUserProjects, toast]);
 
-  // Auto refresh ativo
+  // Auto refresh com configurações mais conservadoras
   const { forceRefresh } = useAutoRefresh({
     onRefresh: loadProjects,
-    interval: 60000, // 1 minuto
-    enabled: isAuthenticated && !loading,
-    refreshOnRouteChange: true
+    interval: 120000, // 2 minutos em vez de 1
+    enabled: isAuthenticated && !loading && initializedRef.current,
+    refreshOnRouteChange: false // DESABILITADO para evitar loops
   });
 
-  // Carregar quando auth estiver pronto
+  // Carregar apenas uma vez quando auth estiver pronto
   useEffect(() => {
-    console.log('🎯 Dashboard useEffect triggered:', { loading, isAuthenticated });
-    if (!loading) {
+    if (!loading && !initializedRef.current) {
+      console.log('🎯 Dashboard inicializando...');
       loadProjects();
     }
-  }, [loading, isAuthenticated, user?.id]);
+  }, [loading, loadProjects]);
 
   const handleDeleteAllProjects = async () => {
     try {
