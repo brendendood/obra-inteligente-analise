@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { FileText, Bot, Send, User, Lightbulb, MessageSquare, Zap, Upload } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
 import { supabase } from '@/integrations/supabase/client';
-import PremiumHeader from '@/components/common/PremiumHeader';
+import { PremiumHeader } from '@/components/common/PremiumHeader';
 import ActionButton from '@/components/common/ActionButton';
 
 interface Conversation {

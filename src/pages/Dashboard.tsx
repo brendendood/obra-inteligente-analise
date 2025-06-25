@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +9,7 @@ import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickAction
 import { AnimatedProjectCard } from '@/components/ui/animated-card';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { Plus } from 'lucide-react';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading } = useAuth();
