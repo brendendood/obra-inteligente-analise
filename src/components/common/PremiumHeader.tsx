@@ -9,10 +9,19 @@ interface PremiumHeaderProps {
   icon: React.ReactNode;
   showBackButton?: boolean;
   actions?: React.ReactNode;
+  onBack?: () => void;
 }
 
-const PremiumHeader = ({ title, subtitle, icon, showBackButton = true, actions }: PremiumHeaderProps) => {
+const PremiumHeader = ({ title, subtitle, icon, showBackButton = true, actions, onBack }: PremiumHeaderProps) => {
   const navigate = useNavigate();
+
+  const handleBackClick = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <header className="bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
@@ -22,7 +31,7 @@ const PremiumHeader = ({ title, subtitle, icon, showBackButton = true, actions }
             {showBackButton && (
               <Button 
                 variant="ghost" 
-                onClick={() => navigate('/')}
+                onClick={handleBackClick}
                 className="hover:bg-slate-100 transition-colors duration-200"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />

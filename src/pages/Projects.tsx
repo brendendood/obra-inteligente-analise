@@ -131,11 +131,13 @@ const Projects = () => {
     setDraggedProject(project);
     e.dataTransfer.effectAllowed = 'move';
     // Adiciona estilo visual durante o drag
-    e.currentTarget.style.opacity = '0.5';
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '0.5';
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
-    e.currentTarget.style.opacity = '1';
+    const target = e.currentTarget as HTMLElement;
+    target.style.opacity = '1';
     setDraggedProject(null);
   };
 
