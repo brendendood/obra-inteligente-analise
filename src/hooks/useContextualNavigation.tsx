@@ -15,33 +15,44 @@ export const useContextualNavigation = () => {
   const { isAuthenticated } = useAuth();
 
   const getNavigationHistory = (): NavigationHistory[] => {
-    const history = localStorage.getItem('navigationHistory');
-    return history ? JSON.parse(history) : [];
+    try {
+      const history = localStorage.getItem('navigationHistory');
+      return history ? JSON.parse(history) : [];
+    } catch {
+      return [];
+    }
   };
 
   const saveToHistory = useCallback((path: string, projectId?: string) => {
-    const history = getNavigationHistory();
-    const newEntry: NavigationHistory = {
-      projectId,
-      previousPath: path,
-      timestamp: Date.now()
-    };
-    
-    // Manter apenas os últimos 10 registros
-    const updatedHistory = [newEntry, ...history].slice(0, 10);
-    localStorage.setItem('navigationHistory', JSON.stringify(updatedHistory));
+    try {
+      const history = getNavigationHistory();
+      const newEntry: NavigationHistory = {
+        projectId,
+        previousPath: path,
+        timestamp: Date.now()
+      };
+      
+      // Manter apenas os últimos 10 registros e remover duplicatas
+      const filteredHistory = history.filter(h => h.previousPath !== path);
+      const updatedHistory = [newEntry, ...filteredHistory].slice(0, 10);
+      localStorage.setItem('navigationHistory', JSON.stringify(updatedHistory));
+    } catch (error) {
+      console.warn('Erro ao salvar histórico de navegação:', error);
+    }
   }, []);
 
   const navigateContextual = useCallback((path: string, projectId?: string) => {
-    // Salvar caminho atual no histórico
+    // Salvar caminho atual no histórico antes de navegar
     saveToHistory(location.pathname, projectId);
     
     // Se usuário autenticado tentar ir para landing page, redirecionar para painel
     if (isAuthenticated && path === '/') {
+      console.log('🔄 Redirecionando usuário autenticado para painel');
       navigate('/painel');
       return;
     }
     
+    console.log('🧭 Navegação contextual:', { from: location.pathname, to: path, projectId });
     navigate(path);
   }, [navigate, location.pathname, isAuthenticated, saveToHistory]);
 
@@ -49,26 +60,32 @@ export const useContextualNavigation = () => {
     const history = getNavigationHistory();
     
     if (history.length === 0) {
-      // Se não há histórico, ir para página apropriada baseada no contexto
+      // Se não há histórico, determinar página apropriada baseada no contexto
       if (currentProjectId) {
-        navigate('/obras');
+        console.log('🔙 Sem histórico, voltando para lista de projetos');
+        navigate('/projetos');
       } else {
+        console.log('🔙 Sem histórico, voltando para painel');
         navigate('/painel');
       }
       return;
     }
 
-    // Encontrar a última página relevante no histórico
+    // Encontrar a página apropriada no histórico
     let targetPath = '/painel';
     
     if (currentProjectId) {
-      // Se estamos em um projeto, tentar encontrar última página do mesmo projeto
-      const projectHistory = history.find(h => h.projectId === currentProjectId);
-      if (projectHistory) {
-        targetPath = projectHistory.previousPath;
+      // Se estamos em um projeto, tentar encontrar última página relevante
+      const relevantHistory = history.find(h => 
+        h.projectId === currentProjectId || 
+        (!h.projectId && !h.previousPath.includes('/projeto/'))
+      );
+      
+      if (relevantHistory) {
+        targetPath = relevantHistory.previousPath;
       } else {
-        // Se não há histórico do projeto, ir para lista de obras
-        targetPath = '/obras';
+        // Se não há histórico relevante, ir para lista de projetos
+        targetPath = '/projetos';
       }
     } else {
       // Se não estamos em projeto específico, pegar última página geral
@@ -80,7 +97,7 @@ export const useContextualNavigation = () => {
 
     // Evitar loops (não voltar para a mesma página)
     if (targetPath === location.pathname) {
-      targetPath = currentProjectId ? '/obras' : '/painel';
+      targetPath = currentProjectId ? '/projetos' : '/painel';
     }
 
     // Nunca permitir voltar para landing page se autenticado
@@ -88,11 +105,17 @@ export const useContextualNavigation = () => {
       targetPath = '/painel';
     }
 
+    console.log('🔙 Navegação de volta:', { from: location.pathname, to: targetPath, projectId: currentProjectId });
     navigate(targetPath);
   }, [navigate, location.pathname, isAuthenticated]);
 
   const clearHistory = useCallback(() => {
-    localStorage.removeItem('navigationHistory');
+    try {
+      localStorage.removeItem('navigationHistory');
+      console.log('🧹 Histórico de navegação limpo');
+    } catch (error) {
+      console.warn('Erro ao limpar histórico:', error);
+    }
   }, []);
 
   return {

@@ -39,7 +39,7 @@ const Upload = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Carregando...</p>
+          <p className="text-slate-700 font-medium">Carregando...</p>
         </div>
       </div>
     );
@@ -62,19 +62,19 @@ const Upload = () => {
         />
 
         {/* Main Upload Area */}
-        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl text-center">
+        <Card className="shadow-xl border border-gray-200 bg-white">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+            <CardTitle className="text-2xl text-center text-gray-900 font-bold">
               {uploading ? 'Processando Projeto' : 'Novo Projeto'}
             </CardTitle>
-            <CardDescription className="text-center text-lg">
+            <CardDescription className="text-center text-lg text-gray-600">
               {uploading 
                 ? 'Nossa IA está analisando seu projeto...' 
                 : 'Arraste um arquivo PDF ou clique para selecionar'
               }
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8">
             {!uploading && !uploadComplete && (
               <>
                 <ProjectNameField
@@ -94,7 +94,7 @@ const Upload = () => {
                 {file && projectName.trim() && (
                   <Button 
                     onClick={handleUpload}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold"
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     size="lg"
                   >
                     <Zap className="h-5 w-5 mr-2" />
