@@ -11,13 +11,13 @@ const ThemeToggle = () => {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="h-9 w-9 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+      className="h-9 w-9 p-0 rounded-full hover:bg-accent transition-all duration-200"
       title={theme === 'dark' ? 'Alternar para tema claro' : 'Alternar para tema escuro'}
     >
       {theme === 'dark' ? (
-        <Sun className="h-4 w-4" />
+        <Sun className="h-4 w-4 text-yellow-500 transition-transform duration-200" />
       ) : (
-        <Moon className="h-4 w-4" />
+        <Moon className="h-4 w-4 text-slate-600 transition-transform duration-200" />
       )}
     </Button>
   );

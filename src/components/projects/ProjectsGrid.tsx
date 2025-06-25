@@ -39,13 +39,13 @@ const ProjectsGrid = ({
 
   if (filteredProjects.length === 0) {
     return (
-      <Card className="shadow-lg border-0 text-center py-12">
+      <Card className="shadow-sm border-border text-center py-12 bg-card">
         <CardContent>
-          <FileText className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-slate-700 mb-2">
+          <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-foreground mb-2">
             {projects.length === 0 ? 'Nenhuma obra encontrada' : 'Nenhum resultado encontrado'}
           </h3>
-          <p className="text-slate-500 mb-6">
+          <p className="text-muted-foreground mb-6">
             {projects.length === 0 
               ? 'Comece enviando seu primeiro projeto'
               : 'Tente ajustar os filtros de busca'
@@ -54,7 +54,7 @@ const ProjectsGrid = ({
           {projects.length === 0 && (
             <Button 
               onClick={() => navigate('/upload')}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               <Plus className="h-4 w-4 mr-2" />
               Enviar Primeiro Projeto

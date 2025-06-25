@@ -26,11 +26,11 @@ const ActionButton = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'btn-primary-gradient';
+        return 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-md';
       case 'secondary':
-        return 'btn-secondary-gradient';
+        return 'bg-secondary hover:bg-secondary/80 text-secondary-foreground';
       case 'outline':
-        return 'border border-border text-foreground hover:border-primary hover:bg-accent bg-background/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all';
+        return 'border border-border text-foreground hover:bg-accent bg-card shadow-sm';
       default:
         return '';
     }

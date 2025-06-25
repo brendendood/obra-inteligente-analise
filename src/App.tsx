@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,7 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,12 +32,11 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ProjectProvider>
-      <TooltipProvider>
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
         <Toaster />
-        <Sonner />
         <BrowserRouter>
           <Routes>
             {/* Rotas públicas */}
@@ -98,9 +97,9 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </TooltipProvider>
-    </ProjectProvider>
-  </QueryClientProvider>
-);
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
