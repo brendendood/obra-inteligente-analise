@@ -1,12 +1,6 @@
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { 
-  FileText, 
-  Calculator, 
-  Calendar, 
-  Bot, 
-  Download
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Calculator, Calendar, Bot, FileText, Eye } from 'lucide-react';
 
 interface ProjectWorkspaceTabsProps {
   activeTab: string;
@@ -19,47 +13,39 @@ export const ProjectWorkspaceTabs = ({
   onTabChange, 
   children 
 }: ProjectWorkspaceTabsProps) => {
+  const tabs = [
+    { value: 'visao-geral', label: 'Visão Geral', icon: Eye },
+    { value: 'orcamento', label: 'Orçamento', icon: Calculator },
+    { value: 'cronograma', label: 'Cronograma', icon: Calendar },
+    { value: 'assistente', label: 'Assistente IA', icon: Bot },
+    { value: 'documentos', label: 'Documentos', icon: FileText }
+  ];
+
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-      <TabsList className="grid w-full grid-cols-5 mb-6">
-        <TabsTrigger 
-          value="visao-geral"
-          className="flex items-center space-x-2"
-        >
-          <FileText className="h-4 w-4" />
-          <span className="hidden sm:inline">Visão Geral</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="orcamento"
-          className="flex items-center space-x-2"
-        >
-          <Calculator className="h-4 w-4" />
-          <span className="hidden sm:inline">Orçamento</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="cronograma"
-          className="flex items-center space-x-2"
-        >
-          <Calendar className="h-4 w-4" />
-          <span className="hidden sm:inline">Cronograma</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="assistente"
-          className="flex items-center space-x-2"
-        >
-          <Bot className="h-4 w-4" />
-          <span className="hidden sm:inline">Assistente</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="documentos"
-          className="flex items-center space-x-2"
-        >
-          <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">Documentos</span>
-        </TabsTrigger>
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
+      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1 bg-white/80 backdrop-blur-sm border border-gray-200/50">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <TabsTrigger 
+              key={tab.value}
+              value={tab.value} 
+              className="flex items-center space-x-2 py-3 px-4 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 transition-all duration-200"
+            >
+              <Icon className="h-4 w-4" />
+              <span className="hidden sm:inline font-medium">{tab.label}</span>
+              <span className="sm:hidden font-medium">
+                {tab.value === 'visao-geral' ? 'Geral' : 
+                 tab.value === 'orcamento' ? 'Orç.' : 
+                 tab.value === 'cronograma' ? 'Cron.' : 
+                 tab.value === 'assistente' ? 'IA' : 'Docs'}
+              </span>
+            </TabsTrigger>
+          );
+        })}
       </TabsList>
 
-      <TabsContent value={activeTab} className="flex-1">
+      <TabsContent value={activeTab} className="space-y-6 animate-fade-in">
         {children}
       </TabsContent>
     </Tabs>

@@ -1,100 +1,114 @@
 
-export const getIntelligentResponse = (question: string, projectData: any) => {
-  const lowerQuestion = question.toLowerCase();
-  const area = projectData.total_area || 100;
-  const analysisData = projectData.analysis_data;
+import { ChatMessage } from '@/types/chat';
+
+interface ProjectAnalysisData {
+  total_area?: number;
+  project_type?: string;
+  analysis_data?: any;
+}
+
+interface ResponseData {
+  message: string;
+  metadata: {
+    type: 'suggestion' | 'calculation' | 'timeline';
+    data?: any;
+  };
+}
+
+export const getIntelligentResponse = (userMessage: string, project: ProjectAnalysisData): ResponseData => {
+  const message = userMessage.toLowerCase();
+  const area = project.total_area || 150;
+  const projectType = project.project_type || 'residencial';
   
-  // Análise de custos
-  if (lowerQuestion.includes('custo') || lowerQuestion.includes('orçamento') || lowerQuestion.includes('preço')) {
-    const costPerM2 = area > 200 ? 1200 : area > 100 ? 1000 : 800;
-    const estimatedCost = area * costPerM2;
+  // Detectar intenções do usuário
+  if (message.includes('orçamento') || message.includes('custo') || message.includes('preço') || message.includes('valor')) {
+    const estimatedCost = area * 1200; // R$ 1.200/m² estimativa base
+    const costPerM2 = 1200;
     
     return {
-      message: `📊 **Análise de Custos para ${projectData.name}**\n\n` +
-              `Para uma área de ${area}m², com base nos padrões atuais:\n\n` +
-              `• **Custo estimado**: R$ ${estimatedCost.toLocaleString()}\n` +
-              `• **Custo por m²**: R$ ${costPerM2}\n` +
-              `• **Variação esperada**: ±15%\n\n` +
-              `💡 Gostaria que eu gere um orçamento detalhado baseado na tabela SINAPI?`,
-      metadata: { 
+      message: `Com base na análise do projeto, posso ajudar com o orçamento! Para um projeto ${projectType} de ${area}m², a estimativa inicial fica em torno de R$ ${estimatedCost.toLocaleString('pt-BR')} (R$ ${costPerM2}/m²).\n\nEsta estimativa considera:\n• Fundação e estrutura\n• Alvenaria e vedação\n• Instalações básicas\n• Acabamentos padrão\n\nGostaria que eu gere um orçamento detalhado baseado na tabela SINAPI?`,
+      metadata: {
         type: 'calculation' as const,
-        data: { estimatedCost, costPerM2, area }
+        data: {
+          estimatedCost,
+          costPerM2,
+          area
+        }
       }
     };
   }
   
-  // Análise de cronograma
-  if (lowerQuestion.includes('tempo') || lowerQuestion.includes('prazo') || lowerQuestion.includes('cronograma') || lowerQuestion.includes('duração')) {
-    const duration = area > 200 ? '8-10 meses' : area > 100 ? '5-7 meses' : '3-5 meses';
+  if (message.includes('cronograma') || message.includes('prazo') || message.includes('tempo') || message.includes('etapa')) {
+    const duration = area > 200 ? '8-12 meses' : area > 100 ? '6-8 meses' : '4-6 meses';
     const phases = [
       'Fundação e movimentação de terra',
       'Estrutura e lajes',
       'Alvenaria e vedação',
-      'Instalações (hidráulica/elétrica)',
-      'Acabamentos e pintura'
+      'Instalações hidráulicas e elétricas',
+      'Acabamentos finais'
     ];
     
     return {
-      message: `⏱️ **Análise de Cronograma para ${projectData.name}**\n\n` +
-              `Para ${area}m², o prazo estimado é de **${duration}**\n\n` +
-              `**Principais fases:**\n` +
-              phases.map((phase, i) => `${i + 1}. ${phase}`).join('\n') + '\n\n' +
-              `💡 Posso gerar um cronograma detalhado com datas específicas?`,
-      metadata: { 
+      message: `Para um projeto de ${area}m², estimo um prazo de execução de ${duration}.\n\nAs principais etapas seriam:\n${phases.map((phase, i) => `${i + 1}. ${phase}`).join('\n')}\n\nPosso gerar um cronograma detalhado com as datas e dependências entre as atividades?`,
+      metadata: {
         type: 'timeline' as const,
-        data: { duration, phases, area }
+        data: {
+          duration,
+          phases,
+          area,
+          complexity: area > 200 ? 'alta' : area > 100 ? 'média' : 'baixa'
+        }
       }
     };
   }
   
-  // Análise de materiais
-  if (lowerQuestion.includes('material') || lowerQuestion.includes('insumo') || lowerQuestion.includes('concreto') || lowerQuestion.includes('aço')) {
+  if (message.includes('material') || message.includes('especificação') || message.includes('técnico')) {
+    const materials = ['Concreto', 'Aço CA-50', 'Blocos cerâmicos', 'Argamassa', 'Revestimentos'];
+    
     return {
-      message: `🏗️ **Estimativa de Materiais para ${projectData.name}**\n\n` +
-              `Para ${area}m²:\n\n` +
-              `• **Concreto**: ~${(area * 0.15).toFixed(1)}m³\n` +
-              `• **Aço**: ~${(area * 8).toFixed(0)}kg\n` +
-              `• **Tijolos**: ~${(area * 45).toFixed(0)} unidades\n` +
-              `• **Cimento**: ~${(area * 7).toFixed(0)} sacos\n\n` +
-              `*Estimativas baseadas em padrões construtivos residenciais*\n\n` +
-              `📋 Sobre qual material específico gostaria de mais detalhes?`,
-      metadata: { 
-        type: 'calculation' as const,
-        data: { materials: true, area }
-      }
-    };
-  }
-  
-  // Análise técnica baseada nos dados do projeto
-  if (analysisData && (lowerQuestion.includes('análise') || lowerQuestion.includes('técnic'))) {
-    return {
-      message: `🔍 **Análise Técnica Detalhada**\n\n` +
-              `Com base no PDF analisado do projeto "${projectData.name}":\n\n` +
-              `• **Status**: ✅ Projeto processado com sucesso\n` +
-              `• **Área total**: ${area}m²\n` +
-              `• **Dados extraídos**: Plantas, especificações e detalhes técnicos\n\n` +
-              `📄 Os dados foram processados pela nossa IA e estão prontos para gerar:\n` +
-              `- Orçamento SINAPI detalhado\n` +
-              `- Cronograma de execução\n` +
-              `- Lista de materiais\n\n` +
-              `Qual análise específica você gostaria de ver primeiro?`,
-      metadata: { 
+      message: `Posso ajudar com especificações técnicas! Para seu projeto de ${area}m², alguns materiais principais seriam:\n\n${materials.map(mat => `• ${mat}`).join('\n')}\n\nPrecisa de especificações detalhadas de algum material específico? Posso consultar as normas técnicas e fornecer quantitativos.`,
+      metadata: {
         type: 'suggestion' as const,
-        data: { hasAnalysis: true }
+        data: {
+          materials,
+          area,
+          hasAnalysis: !!project.analysis_data
+        }
+      }
+    };
+  }
+  
+  if (message.includes('documento') || message.includes('relatório') || message.includes('pdf')) {
+    return {
+      message: `Posso ajudar você a acessar todos os documentos do projeto! Tenho acesso a:\n\n• Projeto original em PDF\n• Relatórios de análise\n• Planilhas de orçamento\n• Cronogramas exportáveis\n\nQue tipo de documento você precisa? Posso gerar relatórios customizados também.`,
+      metadata: {
+        type: 'suggestion' as const,
+        data: {
+          documentTypes: ['PDF original', 'Relatórios', 'Planilhas', 'Cronogramas'],
+          hasAnalysis: !!project.analysis_data
+        }
       }
     };
   }
   
   // Resposta genérica inteligente
+  const suggestions = [
+    'Gerar orçamento SINAPI detalhado',
+    'Criar cronograma de execução',
+    'Analisar especificações técnicas',
+    'Consultar documentos do projeto'
+  ];
+  
   return {
-    message: `🤖 Entendi sua pergunta sobre "${question}"\n\n` +
-            `Como especialista no projeto "${projectData.name}" (${area}m²), posso ajudar com:\n\n` +
-            `📊 **Orçamento e custos** - Estimativas baseadas em SINAPI\n` +
-            `⏱️ **Cronogramas** - Prazos realistas por etapa\n` +
-            `🏗️ **Materiais** - Quantitativos e especificações\n` +
-            `📋 **Normas técnicas** - NBRs aplicáveis\n` +
-            `🔍 **Análise técnica** - Insights do seu projeto\n\n` +
-            `Sobre qual aspecto específico você gostaria de conversar?`,
-    metadata: { type: 'suggestion' as const }
+    message: `Entendi sua pergunta sobre o projeto ${projectType} de ${area}m². Como especialista em construção civil, posso ajudar você com:\n\n${suggestions.map(sug => `• ${sug}`).join('\n')}\n\nSobre o que gostaria de saber mais? Tenho acesso completo aos dados técnicos deste projeto.`,
+    metadata: {
+      type: 'suggestion' as const,
+      data: {
+        suggestions,
+        projectArea: area,
+        projectType,
+        hasAnalysis: !!project.analysis_data
+      }
+    }
   };
 };

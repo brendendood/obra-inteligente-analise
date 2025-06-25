@@ -1,24 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
+
+<!doctype html>
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>obra-inteligente-analise</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
-
-    <meta property="og:title" content="obra-inteligente-analise" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <title>MadenAI - Gestão Inteligente de Projetos Arquitetônicos</title>
+    <meta name="description" content="Plataforma de gestão de projetos arquitetônicos com inteligência artificial para engenheiros, arquitetos e construtoras." />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="msapplication-TileColor" content="#2563eb" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="MadenAI - Gestão Inteligente de Projetos" />
+    <meta property="og:description" content="Plataforma de gestão de projetos arquitetônicos com IA" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <style>
+      /* Global styles for smooth loading */
+      * {
+        box-sizing: border-box;
+      }
+      
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Loading screen */
+      #initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease-out;
+      }
+      
+      #initial-loader.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      
+      .loader-logo {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        animation: pulse 2s infinite;
+      }
+      
+      .loader-logo::after {
+        content: '';
+        width: 32px;
+        height: 32px;
+        background: white;
+        border-radius: 8px;
+      }
+      
+      .loader-text {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+      }
+      
+      .loader-subtitle {
+        font-size: 14px;
+        color: #64748b;
+        margin-bottom: 32px;
+      }
+      
+      .loader-spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #e2e8f0;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
-
   <body>
+    <div id="initial-loader">
+      <div class="loader-logo"></div>
+      <div class="loader-text">MadenAI</div>
+      <div class="loader-subtitle">Carregando plataforma...</div>
+      <div class="loader-spinner"></div>
+    </div>
+    
     <div id="root"></div>
+    
+    <script>
+      // Hide loader when React app is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loader = document.getElementById('initial-loader');
+          if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(function() {
+              loader.style.display = 'none';
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

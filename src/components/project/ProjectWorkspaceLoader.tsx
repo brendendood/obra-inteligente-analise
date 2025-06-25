@@ -1,75 +1,75 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
-import { useAuth } from '@/hooks/useAuth';
 import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
-import { useContextualNavigation } from '@/hooks/useContextualNavigation';
+import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
+import { AppLayout } from '@/components/layout/AppLayout';
 
-interface UseProjectLoaderResult {
-  loading: boolean;
-  error: Error | null;
-  currentProject: any;
-}
-
-export const useProjectLoader = (): UseProjectLoaderResult => {
+export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user, isAuthenticated } = useAuth();
   const { currentProject, setCurrentProject } = useProject();
   const { getProject, projectExists } = useProjectsConsistency();
-  const { saveToHistory } = useContextualNavigation();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProject = async () => {
-      console.log('🏗️ WORKSPACE: Carregando projeto', { projectId, isAuthenticated, userId: user?.id });
-      
-      if (!projectId || !isAuthenticated || !user) {
-        console.log('❌ WORKSPACE: Parâmetros inválidos para carregar projeto');
-        navigate('/painel');
+      if (!projectId) {
+        setError('ID do projeto não fornecido');
+        setLoading(false);
         return;
       }
 
+      console.log('🔄 WORKSPACE LOADER: Carregando projeto:', projectId);
+
       try {
-        setLoading(true);
-        setError(null);
-        
-        // Verificar se o projeto existe usando o hook de consistência
         if (!projectExists(projectId)) {
-          console.error('❌ WORKSPACE: Projeto não encontrado na lista:', projectId);
-          throw new Error('Projeto não encontrado ou acesso negado');
+          setError('Projeto não encontrado');
+          setLoading(false);
+          return;
         }
 
         const project = getProject(projectId);
         if (!project) {
-          console.error('❌ WORKSPACE: Projeto não retornado pelo getProject:', projectId);
-          throw new Error('Projeto não encontrado');
+          setError('Projeto não encontrado');
+          setLoading(false);
+          return;
         }
 
-        console.log('✅ WORKSPACE: Projeto carregado:', {
-          id: project.id,
-          name: project.name,
-          userId: project.user_id
-        });
-        
+        console.log('✅ WORKSPACE LOADER: Projeto carregado:', project.name);
         setCurrentProject(project);
-        
-        // Salvar no histórico para navegação contextual
-        saveToHistory(location.pathname, projectId, project.name);
-        
-      } catch (error) {
-        console.error('💥 WORKSPACE: Erro ao carregar projeto:', error);
-        setError(error instanceof Error ? error : new Error('Erro desconhecido'));
+        setError(null);
+      } catch (err) {
+        console.error('❌ WORKSPACE LOADER: Erro ao carregar projeto:', err);
+        setError('Erro ao carregar projeto');
       } finally {
         setLoading(false);
       }
     };
 
     loadProject();
-  }, [projectId, isAuthenticated, user, setCurrentProject, navigate, saveToHistory, location.pathname, projectExists, getProject]);
+  }, [projectId, projectExists, getProject, setCurrentProject]);
 
-  return { loading, error, currentProject };
+  // Loading Component
+  const LoadingComponent = () => (
+    <AppLayout>
+      <div className="space-y-6 animate-fade-in">
+        <EnhancedSkeleton variant="card" className="h-20" />
+        <EnhancedSkeleton variant="card" className="h-16" />
+        <div className="space-y-4">
+          <EnhancedSkeleton variant="card" className="h-32" />
+          <EnhancedSkeleton variant="card" className="h-48" />
+          <EnhancedSkeleton variant="card" className="h-24" />
+        </div>
+      </div>
+    </AppLayout>
+  );
+
+  return {
+    loading,
+    error,
+    currentProject,
+    LoadingComponent
+  };
 };
