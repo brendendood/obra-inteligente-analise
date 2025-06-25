@@ -31,46 +31,77 @@ const App = () => {
     const handleLogout = async () => {
       try {
         await supabase.auth.signOut();
+        console.log('Session cleared on app start');
       } catch (error) {
         console.error('Error signing out:', error);
       }
     };
     
-    // Only logout if there's an existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        handleLogout();
-      }
-    });
+    // Always logout on app start for security
+    handleLogout();
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ProjectProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Signup />} />
-              <Route path="/painel" element={<Dashboard />} />
-              <Route path="/obras" element={<Projects />} />
-              <Route path="/obra/:projectId" element={<ProjectDetail />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/assistant" element={<Assistant />} />
-              <Route path="/budget" element={<Budget />} />
-              <Route path="/schedule" element={<Schedule />} />
-              <Route path="/documents" element={<Documents />} />
-              <Route path="/termos" element={<Terms />} />
-              <Route path="/politica" element={<Privacy />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ProjectProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Signup />} />
+            
+            {/* Protected routes with ProjectProvider */}
+            <Route path="/painel" element={
+              <ProjectProvider>
+                <Dashboard />
+              </ProjectProvider>
+            } />
+            <Route path="/obras" element={
+              <ProjectProvider>
+                <Projects />
+              </ProjectProvider>
+            } />
+            <Route path="/obra/:projectId" element={
+              <ProjectProvider>
+                <ProjectDetail />
+              </ProjectProvider>
+            } />
+            <Route path="/upload" element={
+              <ProjectProvider>
+                <Upload />
+              </ProjectProvider>
+            } />
+            <Route path="/assistant" element={
+              <ProjectProvider>
+                <Assistant />
+              </ProjectProvider>
+            } />
+            <Route path="/budget" element={
+              <ProjectProvider>
+                <Budget />
+              </ProjectProvider>
+            } />
+            <Route path="/schedule" element={
+              <ProjectProvider>
+                <Schedule />
+              </ProjectProvider>
+            } />
+            <Route path="/documents" element={
+              <ProjectProvider>
+                <Documents />
+              </ProjectProvider>
+            } />
+            
+            {/* Public routes */}
+            <Route path="/termos" element={<Terms />} />
+            <Route path="/politica" element={<Privacy />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };

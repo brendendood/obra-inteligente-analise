@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   ArrowLeft,
   FileText, 
@@ -15,12 +17,17 @@ import {
   Download,
   ExternalLink,
   ClipboardList,
-  BarChart3
+  BarChart3,
+  Eye,
+  MessageSquare,
+  Building,
+  Ruler
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { NavigationBreadcrumb } from '@/components/layout/NavigationBreadcrumb';
 import GanttChart from '@/components/schedule/GanttChart';
 
 interface Project {
@@ -44,8 +51,7 @@ const ProjectDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [budgetLoading, setBudgetLoading] = useState(false);
   const [scheduleLoading, setScheduleLoading] = useState(false);
-  const [showBudget, setShowBudget] = useState(false);
-  const [showSchedule, setShowSchedule] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const [budgetData, setBudgetData] = useState<any>(null);
   const [scheduleData, setScheduleData] = useState<any>(null);
   const { toast } = useToast();
@@ -94,12 +100,104 @@ const ProjectDetail = () => {
       }
 
       setProject(data);
+      
+      // Gerar dados específicos deste projeto baseados no analysis_data
+      if (data.analysis_data) {
+        generateProjectSpecificData(data);
+      }
     } catch (error) {
       console.error('Error loading project:', error);
       setError('Erro inesperado ao carregar projeto');
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateProjectSpecificData = (projectData: Project) => {
+    // Gerar cronograma específico baseado na área e tipo do projeto
+    const baseSchedule = generateScheduleFromProject(projectData);
+    setScheduleData(baseSchedule);
+  };
+
+  const generateScheduleFromProject = (project: Project) => {
+    const area = project.total_area || 100;
+    const complexity = area > 200 ? 'alta' : area > 100 ? 'média' : 'baixa';
+    
+    const baseDurations = {
+      baixa: { fundacao: 14, estrutura: 21, alvenaria: 18, instalacoes: 15, acabamento: 20 },
+      média: { fundacao: 18, estrutura: 28, alvenaria: 24, instalacoes: 21, acabamento: 28 },
+      alta: { fundacao: 25, estrutura: 35, alvenaria: 30, instalacoes: 28, acabamento: 35 }
+    };
+    
+    const durations = baseDurations[complexity];
+    let currentDate = new Date();
+    
+    const schedule = [
+      {
+        id: '1',
+        name: 'Fundação e Movimentação de Terra',
+        startDate: currentDate.toISOString().split('T')[0],
+        endDate: new Date(currentDate.getTime() + durations.fundacao * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        duration: durations.fundacao,
+        color: 'bg-blue-500',
+        category: 'estrutura',
+        progress: 0
+      }
+    ];
+    
+    currentDate = new Date(currentDate.getTime() + durations.fundacao * 24 * 60 * 60 * 1000);
+    
+    schedule.push({
+      id: '2',
+      name: 'Estrutura e Lajes',
+      startDate: currentDate.toISOString().split('T')[0],
+      endDate: new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      duration: durations.estrutura,
+      color: 'bg-orange-500',
+      category: 'estrutura',
+      progress: 0
+    });
+    
+    currentDate = new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000);
+    
+    schedule.push({
+      id: '3',
+      name: 'Alvenaria e Vedação',
+      startDate: currentDate.toISOString().split('T')[0],
+      endDate: new Date(currentDate.getTime() + durations.alvenaria * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      duration: durations.alvenaria,
+      color: 'bg-red-500',
+      category: 'alvenaria',
+      progress: 0
+    });
+    
+    currentDate = new Date(currentDate.getTime() + durations.alvenaria * 24 * 60 * 60 * 1000);
+    
+    schedule.push({
+      id: '4',
+      name: 'Instalações Hidráulicas e Elétricas',
+      startDate: currentDate.toISOString().split('T')[0],
+      endDate: new Date(currentDate.getTime() + durations.instalacoes * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      duration: durations.instalacoes,
+      color: 'bg-purple-500',
+      category: 'instalacoes',
+      progress: 0
+    });
+    
+    currentDate = new Date(currentDate.getTime() + durations.instalacoes * 24 * 60 * 60 * 1000);
+    
+    schedule.push({
+      id: '5',
+      name: 'Acabamentos e Pintura',
+      startDate: currentDate.toISOString().split('T')[0],
+      endDate: new Date(currentDate.getTime() + durations.acabamento * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      duration: durations.acabamento,
+      color: 'bg-green-500',
+      category: 'acabamento',
+      progress: 0
+    });
+    
+    return schedule;
   };
 
   const getPdfUrl = () => {
@@ -116,7 +214,6 @@ const ProjectDetail = () => {
     if (!project) return;
     
     setBudgetLoading(true);
-    setShowBudget(false);
     
     try {
       // Integração com N8N
@@ -129,6 +226,7 @@ const ProjectDetail = () => {
           projectId: project.id,
           projectName: project.name,
           projectData: project.analysis_data,
+          totalArea: project.total_area,
           userId: user?.id
         })
       });
@@ -139,7 +237,7 @@ const ProjectDetail = () => {
 
       const data = await response.json();
       setBudgetData(data);
-      setShowBudget(true);
+      setActiveTab('budget');
       
       toast({
         title: "✅ Orçamento gerado!",
@@ -149,7 +247,7 @@ const ProjectDetail = () => {
       console.error('Budget generation error:', error);
       toast({
         title: "❌ Erro no orçamento",
-        description: "Não foi possível gerar o orçamento.",
+        description: "Não foi possível gerar o orçamento. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -161,54 +259,16 @@ const ProjectDetail = () => {
     if (!project) return;
     
     setScheduleLoading(true);
-    setShowSchedule(false);
     
     try {
-      const mockScheduleData = [
-        {
-          id: '1',
-          name: 'Fundação e Estrutura',
-          startDate: '2024-01-01',
-          endDate: '2024-01-21',
-          duration: 21,
-          color: 'bg-blue-500',
-          category: 'estrutura'
-        },
-        {
-          id: '2',
-          name: 'Alvenaria e Vedação',
-          startDate: '2024-01-22',
-          endDate: '2024-02-11',
-          duration: 21,
-          color: 'bg-orange-500',
-          category: 'alvenaria'
-        },
-        {
-          id: '3',
-          name: 'Instalações',
-          startDate: '2024-02-12',
-          endDate: '2024-03-04',
-          duration: 21,
-          color: 'bg-purple-500',
-          category: 'instalacoes'
-        },
-        {
-          id: '4',
-          name: 'Acabamentos',
-          startDate: '2024-03-05',
-          endDate: '2024-03-25',
-          duration: 21,
-          color: 'bg-green-500',
-          category: 'acabamentos'
-        }
-      ];
-
-      setScheduleData(mockScheduleData);
-      setShowSchedule(true);
+      // Usar dados específicos do projeto
+      const projectSchedule = generateScheduleFromProject(project);
+      setScheduleData(projectSchedule);
+      setActiveTab('schedule');
       
       toast({
-        title: "📅 Cronograma gerado!",
-        description: "Cronograma detalhado criado com sucesso.",
+        title: "📅 Cronograma atualizado!",
+        description: `Cronograma específico para ${project.name} (${project.total_area}m²) criado.`,
       });
     } catch (error) {
       console.error('Schedule generation error:', error);
@@ -240,6 +300,7 @@ const ProjectDetail = () => {
   if (error || !project) {
     return (
       <AppLayout>
+        <NavigationBreadcrumb />
         <Card className="border-0 shadow-lg text-center">
           <CardContent className="py-12">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
@@ -282,218 +343,471 @@ const ProjectDetail = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
+      <div className="space-y-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-gray-600">
-          <button onClick={() => navigate('/painel')} className="hover:text-blue-600">
-            Painel
-          </button>
-          <span>/</span>
-          <button onClick={() => navigate('/obras')} className="hover:text-blue-600">
-            Obras
-          </button>
-          <span>/</span>
-          <span className="text-gray-900 font-medium">{project.name}</span>
-        </nav>
+        <NavigationBreadcrumb projectName={project.name} />
 
         {/* Project Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
-            <div className="flex items-center space-x-4 text-gray-600">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between space-y-4 lg:space-y-0">
+          <div className="flex-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm sm:text-base text-gray-600">
               {project.total_area && (
-                <span>Área: {project.total_area}m²</span>
+                <div className="flex items-center space-x-1">
+                  <Ruler className="h-4 w-4" />
+                  <span>Área: {project.total_area}m²</span>
+                </div>
               )}
               {project.project_type && (
-                <Badge variant="outline">{project.project_type}</Badge>
+                <Badge variant="outline" className="flex items-center space-x-1">
+                  <Building className="h-3 w-3" />
+                  <span>{project.project_type}</span>
+                </Badge>
               )}
-              <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+              <div className="flex items-center space-x-1">
+                <Calendar className="h-4 w-4" />
+                <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
             <Badge className="bg-green-100 text-green-800 border-green-200">
-              ✅ Processado
+              ✅ Projeto Processado
             </Badge>
-            <Button 
-              onClick={() => navigate('/obras')}
-              variant="outline"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => navigate('/obras')}
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Voltar às Obras
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Retornar à lista de projetos</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* PDF Viewer */}
+        {/* Project Navigation Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1">
+            <TabsTrigger value="overview" className="flex items-center space-x-2 py-2">
+              <Eye className="h-4 w-4" />
+              <span className="hidden sm:inline">Visão Geral</span>
+              <span className="sm:hidden">Geral</span>
+            </TabsTrigger>
+            <TabsTrigger value="assistant" className="flex items-center space-x-2 py-2">
+              <Bot className="h-4 w-4" />
+              <span className="hidden sm:inline">Assistente IA</span>
+              <span className="sm:hidden">IA</span>
+            </TabsTrigger>
+            <TabsTrigger value="budget" className="flex items-center space-x-2 py-2">
+              <Calculator className="h-4 w-4" />
+              <span className="hidden sm:inline">Orçamento</span>
+              <span className="sm:hidden">Orç.</span>
+            </TabsTrigger>
+            <TabsTrigger value="schedule" className="flex items-center space-x-2 py-2">
+              <Calendar className="h-4 w-4" />
+              <span className="hidden sm:inline">Cronograma</span>
+              <span className="sm:hidden">Cron.</span>
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="flex items-center space-x-2 py-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Documentos</span>
+              <span className="sm:hidden">Docs</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* PDF Viewer */}
+              <div className="lg:col-span-2">
+                <Card className="border-0 shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <FileText className="h-5 w-5 mr-2 text-blue-600" />
+                      Documento do Projeto
+                    </CardTitle>
+                    <CardDescription>
+                      Visualização do arquivo PDF enviado
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {getPdfUrl() ? (
+                      <div className="space-y-4">
+                        <div className="border border-gray-200 rounded-lg overflow-hidden">
+                          <iframe
+                            src={`${getPdfUrl()}#view=FitH`}
+                            className="w-full h-64 sm:h-96"
+                            title="PDF do Projeto"
+                          />
+                        </div>
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                          <Button
+                            onClick={() => window.open(getPdfUrl(), '_blank')}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Abrir em Nova Aba
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = getPdfUrl() || '';
+                              link.download = `${project.name}.pdf`;
+                              link.click();
+                            }}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download PDF
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>Arquivo PDF não disponível</p>
+                        <p className="text-sm mt-1">Verifique se o arquivo foi enviado corretamente</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-gray-900">Ferramentas do Projeto</h3>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setActiveTab('assistant')}>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-3 bg-purple-100 rounded-lg">
+                            <Bot className="h-6 w-6 text-purple-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900">Assistente IA</h4>
+                            <p className="text-sm text-gray-600">Chat especializado neste projeto</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Conversar com IA sobre este projeto específico</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={handleBudgetGeneration}>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-3 bg-green-100 rounded-lg">
+                            <Calculator className="h-6 w-6 text-green-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">Orçamento SINAPI</h4>
+                            <p className="text-sm text-gray-600">Gerar orçamento específico</p>
+                            {budgetLoading && (
+                              <div className="mt-2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Gerar orçamento baseado na tabela SINAPI</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={handleScheduleGeneration}>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-3 bg-blue-100 rounded-lg">
+                            <Calendar className="h-6 w-6 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">Cronograma</h4>
+                            <p className="text-sm text-gray-600">Timeline das etapas</p>
+                            {scheduleLoading && (
+                              <div className="mt-2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Visualizar cronograma específico do projeto</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => setActiveTab('documents')}>
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-3 bg-orange-100 rounded-lg">
+                            <FileText className="h-6 w-6 text-orange-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900">Documentos</h4>
+                            <p className="text-sm text-gray-600">Downloads e relatórios</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Acessar documentos e relatórios</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="assistant">
             <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                  Documento do Projeto
+                  <MessageSquare className="h-5 w-5 mr-2 text-purple-600" />
+                  Assistente IA - {project.name}
                 </CardTitle>
+                <CardDescription>
+                  Chat especializado baseado nos dados específicos deste projeto
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                {getPdfUrl() ? (
-                  <div className="space-y-4">
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                      <iframe
-                        src={`${getPdfUrl()}#view=FitH`}
-                        className="w-full h-96"
-                        title="PDF do Projeto"
-                      />
-                    </div>
-                    <div className="flex space-x-3">
-                      <Button
-                        onClick={() => window.open(getPdfUrl(), '_blank')}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Abrir em Nova Aba
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = getPdfUrl() || '';
-                          link.download = `${project.name}.pdf`;
-                          link.click();
-                        }}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>Arquivo PDF não disponível</p>
-                  </div>
-                )}
+              <CardContent className="text-center py-8">
+                <Bot className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-gray-700 mb-2">
+                  Assistente IA Especializado
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Converse com a IA sobre este projeto específico: {project.name}
+                </p>
+                <Button 
+                  onClick={() => navigate('/assistant')}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Abrir Chat Especializado
+                </Button>
               </CardContent>
             </Card>
+          </TabsContent>
 
-            {/* Budget Display */}
-            {showBudget && budgetData && (
-              <Card className="border-0 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calculator className="h-5 w-5 mr-2 text-green-600" />
-                    Orçamento SINAPI
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+          <TabsContent value="budget">
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calculator className="h-5 w-5 mr-2 text-green-600" />
+                  Orçamento - {project.name}
+                </CardTitle>
+                <CardDescription>
+                  Orçamento específico baseado na tabela SINAPI para este projeto
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {budgetData ? (
                   <div className="prose max-w-none">
                     <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg">
                       {budgetData.message || JSON.stringify(budgetData, null, 2)}
                     </pre>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                ) : (
+                  <div className="text-center py-8">
+                    <Calculator className="h-16 w-16 text-green-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-gray-700 mb-2">
+                      Gerar Orçamento SINAPI
+                    </h3>
+                    <p className="text-gray-500 mb-6">
+                      Clique no botão para gerar um orçamento específico para {project.name}
+                    </p>
+                    <Button 
+                      onClick={handleBudgetGeneration}
+                      disabled={budgetLoading}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      {budgetLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Gerando Orçamento...
+                        </>
+                      ) : (
+                        <>
+                          <Calculator className="h-4 w-4 mr-2" />
+                          Gerar Orçamento
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {/* Schedule Display */}
-            {showSchedule && scheduleData && (
+          <TabsContent value="schedule">
+            {scheduleData ? (
               <GanttChart
                 tasks={scheduleData}
                 projectName={project.name}
                 onExportPDF={() => toast({ title: "📄 Exportando PDF...", description: "Funcionalidade em desenvolvimento" })}
                 onExportExcel={() => toast({ title: "📊 Exportando Excel...", description: "Funcionalidade em desenvolvimento" })}
               />
+            ) : (
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                    Cronograma - {project.name}
+                  </CardTitle>
+                  <CardDescription>
+                    Timeline específica das etapas para este projeto
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="text-center py-8">
+                  <Calendar className="h-16 w-16 text-blue-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-bold text-gray-700 mb-2">
+                    Gerar Cronograma
+                  </h3>
+                  <p className="text-gray-500 mb-6">
+                    Clique para gerar cronograma específico para {project.name} ({project.total_area}m²)
+                  </p>
+                  <Button 
+                    onClick={handleScheduleGeneration}
+                    disabled={scheduleLoading}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {scheduleLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Gerando Cronograma...
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Gerar Cronograma
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
             )}
-          </div>
+          </TabsContent>
 
-          {/* Actions Sidebar */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Ferramentas do Projeto</h3>
-            
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/assistant')}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-purple-100 rounded-lg">
-                    <Bot className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Assistente IA</h4>
-                    <p className="text-sm text-gray-600">Chat inteligente sobre o projeto</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={handleBudgetGeneration}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-green-100 rounded-lg">
-                    <Calculator className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">Orçamento Inteligente</h4>
-                    <p className="text-sm text-gray-600">Gerar orçamento baseado na tabela SINAPI</p>
-                    {budgetLoading && (
-                      <div className="mt-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+          <TabsContent value="documents">
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FileText className="h-5 w-5 mr-2 text-orange-600" />
+                  Documentos - {project.name}
+                </CardTitle>
+                <CardDescription>
+                  Downloads e relatórios específicos deste projeto
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <FileText className="h-8 w-8 text-red-500" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Projeto Original</h4>
+                          <p className="text-sm text-gray-500">{project.name}.pdf</p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={handleScheduleGeneration}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <Calendar className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">Cronograma</h4>
-                    <p className="text-sm text-gray-600">Timeline visual das etapas</p>
-                    {scheduleLoading && (
-                      <div className="mt-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <div className="flex space-x-2">
+                        <Button 
+                          onClick={() => window.open(getPdfUrl(), '_blank')}
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            const link = document.createElement('a');
+                            link.href = getPdfUrl() || '';
+                            link.download = `${project.name}.pdf`;
+                            link.click();
+                          }}
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
+                        </Button>
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/documents')}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-orange-100 rounded-lg">
-                    <FileText className="h-6 w-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Documentos</h4>
-                    <p className="text-sm text-gray-600">Downloads e relatórios</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  {budgetData && (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Calculator className="h-8 w-8 text-green-500" />
+                          <div>
+                            <h4 className="font-medium text-gray-900">Orçamento SINAPI</h4>
+                            <p className="text-sm text-gray-500">Orçamento gerado para {project.name}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => toast({ title: "📄 Em desenvolvimento", description: "Export de orçamento será implementado" })}
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
-            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => toast({ title: "📊 Em desenvolvimento", description: "Funcionalidade será lançada em breve" })}>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-indigo-100 rounded-lg">
-                    <BarChart3 className="h-6 w-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Análises</h4>
-                    <p className="text-sm text-gray-600">Relatórios detalhados</p>
-                  </div>
+                  {scheduleData && (
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Calendar className="h-8 w-8 text-blue-500" />
+                          <div>
+                            <h4 className="font-medium text-gray-900">Cronograma</h4>
+                            <p className="text-sm text-gray-500">Timeline para {project.name}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => toast({ title: "📄 Em desenvolvimento", description: "Export de cronograma será implementado" })}
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          Download
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );

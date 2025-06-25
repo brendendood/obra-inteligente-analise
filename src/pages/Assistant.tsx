@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +20,15 @@ const Assistant = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { currentProject } = useProject();
+
+  // Função para voltar contextualmente
+  const handleBackNavigation = () => {
+    if (currentProject) {
+      navigate(`/obra/${currentProject.id}`);
+    } else {
+      navigate('/painel');
+    }
+  };
 
   useEffect(() => {
     if (currentProject) {
@@ -153,6 +161,7 @@ const Assistant = () => {
         title="Assistente Técnico IA"
         subtitle={currentProject ? `Analisando: ${currentProject.name}` : "Envie um projeto primeiro"}
         icon={<Bot className="h-6 w-6 text-white" />}
+        onBack={handleBackNavigation}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">

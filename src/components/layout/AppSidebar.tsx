@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   LayoutDashboard, 
   FolderOpen, 
@@ -12,8 +13,8 @@ import {
   Calendar, 
   FileText, 
   LogOut,
-  Menu,
-  X
+  X,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,43 +49,50 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
       icon: LayoutDashboard, 
       label: 'Painel', 
       path: '/painel',
-      color: 'text-blue-600'
+      color: 'text-blue-600',
+      tooltip: 'Visão geral dos seus projetos'
     },
     { 
       icon: FolderOpen, 
       label: 'Obras', 
       path: '/obras',
-      color: 'text-green-600'
+      color: 'text-green-600',
+      tooltip: 'Gerenciar todos os projetos'
     },
     { 
       icon: Plus, 
       label: 'Nova Obra', 
       path: '/upload',
-      color: 'text-purple-600'
+      color: 'text-purple-600',
+      tooltip: 'Enviar novo projeto PDF'
     },
     { 
       icon: Bot, 
       label: 'Assistente IA', 
       path: '/assistant',
-      color: 'text-orange-600'
+      color: 'text-orange-600',
+      tooltip: 'Chat inteligente sobre projetos'
     },
     { 
       icon: Calculator, 
       label: 'Orçamento', 
       path: '/budget',
-      color: 'text-red-600'
+      color: 'text-red-600',
+      tooltip: 'Gerar orçamentos SINAPI'
     },
     { 
       icon: Calendar, 
       label: 'Cronograma', 
       path: '/schedule',
-      color: 'text-indigo-600'
+      color: 'text-indigo-600',
+      tooltip: 'Timeline das etapas'
     },
     { 
       icon: FileText, 
       label: 'Documentos', 
       path: '/documents',
-      color: 'text-teal-600'
+      color: 'text-teal-600',
+      tooltip: 'Downloads e relatórios'
     }
   ];
 
@@ -132,24 +140,31 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
             const active = isActive(item.path);
             
             return (
-              <Button
-                key={item.path}
-                variant={active ? "default" : "ghost"}
-                className={`
-                  w-full justify-start h-12 px-4 text-left font-medium transition-all duration-200
-                  ${active 
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm' 
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                  }
-                `}
-                onClick={() => {
-                  navigate(item.path);
-                  if (window.innerWidth < 1024) onToggle();
-                }}
-              >
-                <Icon className={`h-5 w-5 mr-3 ${active ? 'text-blue-600' : item.color}`} />
-                {item.label}
-              </Button>
+              <Tooltip key={item.path}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant={active ? "default" : "ghost"}
+                    className={`
+                      w-full justify-start h-12 px-4 text-left font-medium transition-all duration-200
+                      ${active 
+                        ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm' 
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      }
+                    `}
+                    onClick={() => {
+                      navigate(item.path);
+                      if (window.innerWidth < 1024) onToggle();
+                    }}
+                  >
+                    <Icon className={`h-5 w-5 mr-3 ${active ? 'text-blue-600' : item.color}`} />
+                    <span className="flex-1">{item.label}</span>
+                    <HelpCircle className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="ml-2">
+                  <p>{item.tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
             );
           })}
         </nav>
@@ -172,14 +187,21 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
             </div>
           </div>
           
-          <Button
-            variant="outline"
-            className="w-full justify-start h-10 text-red-600 border-red-200 hover:bg-red-50"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4 mr-3" />
-            Sair
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start h-10 text-red-600 border-red-200 hover:bg-red-50"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4 mr-3" />
+                Sair
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Desconectar da plataforma</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </>
