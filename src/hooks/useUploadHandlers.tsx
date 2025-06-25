@@ -50,15 +50,16 @@ export const useUploadHandlers = ({
     try {
       const fileName = `${user.id}/${Date.now()}-${file.name}`;
       
-      // Simular progresso de upload
+      // Simular progresso de upload - CORREÇÃO DO ERRO
+      let currentProgress = 0;
       const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 80) {
-            clearInterval(progressInterval);
-            return 80;
-          }
-          return prev + 10;
-        });
+        currentProgress += 10;
+        if (currentProgress >= 80) {
+          clearInterval(progressInterval);
+          setProgress(80);
+        } else {
+          setProgress(currentProgress);
+        }
       }, 200);
 
       console.log('Uploading file to storage:', fileName);
@@ -113,7 +114,7 @@ export const useUploadHandlers = ({
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // Recarregar projetos e limpar estado de projeto validado
+      // Recarregar projetos e navegar para o dashboard
       setTimeout(() => {
         setValidatedProject(null);
         loadUserProjects();
@@ -144,7 +145,7 @@ export const useUploadHandlers = ({
 
   const handleAnalyzeExisting = () => {
     if (validatedProject) {
-      navigate('/assistant');
+      navigate(`/projeto/${validatedProject.id}/assistente`);
     } else {
       toast({
         title: "ℹ️ Nenhum projeto encontrado",

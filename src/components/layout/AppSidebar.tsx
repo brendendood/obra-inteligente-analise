@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,11 +14,15 @@ import {
   FileText, 
   LogOut,
   X,
-  HelpCircle
+  HelpCircle,
+  ArrowLeft,
+  Building2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useProject } from '@/contexts/ProjectContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 
 interface AppSidebarProps {
   isOpen: boolean;
@@ -28,23 +32,41 @@ interface AppSidebarProps {
 export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { projectId } = useParams<{ projectId: string }>();
   const { user } = useAuth();
+  const { currentProject } = useProject();
   const { toast } = useToast();
+  const { navigateContextual, goBack, clearHistory } = useContextualNavigation();
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
+      clearHistory(); // Limpar histórico de navegação
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso.",
       });
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Erro no logout:', error);
     }
   };
 
-  const menuItems = [
+  const handleNavigation = (path: string) => {
+    navigateContextual(path, projectId);
+    if (window.innerWidth < 1024) onToggle();
+  };
+
+  const handleBackToProjects = () => {
+    goBack(projectId);
+    if (window.innerWidth < 1024) onToggle();
+  };
+
+  // Determinar se estamos numa área de projeto
+  const isInProject = projectId && currentProject;
+
+  // Menu items para navegação geral (sem projeto específico)
+  const generalMenuItems = [
     { 
       icon: LayoutDashboard, 
       label: 'Painel', 
@@ -65,38 +87,51 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
       path: '/upload',
       color: 'text-purple-600',
       tooltip: 'Enviar novo projeto PDF'
-    },
+    }
+  ];
+
+  // Menu items para área do projeto
+  const projectMenuItems = [
     { 
-      icon: Bot, 
-      label: 'Assistente IA', 
-      path: '/assistant',
-      color: 'text-orange-600',
-      tooltip: 'Chat inteligente sobre projetos'
+      icon: FileText, 
+      label: 'Visão Geral', 
+      path: `/projeto/${projectId}`,
+      color: 'text-blue-600',
+      tooltip: 'Informações gerais do projeto'
     },
     { 
       icon: Calculator, 
       label: 'Orçamento', 
-      path: '/budget',
+      path: `/projeto/${projectId}/orcamento`,
       color: 'text-red-600',
       tooltip: 'Gerar orçamentos SINAPI'
     },
     { 
       icon: Calendar, 
       label: 'Cronograma', 
-      path: '/schedule',
+      path: `/projeto/${projectId}/cronograma`,
       color: 'text-indigo-600',
       tooltip: 'Timeline das etapas'
     },
     { 
+      icon: Bot, 
+      label: 'Assistente IA', 
+      path: `/projeto/${projectId}/assistente`,
+      color: 'text-orange-600',
+      tooltip: 'Chat inteligente sobre projetos'
+    },
+    { 
       icon: FileText, 
       label: 'Documentos', 
-      path: '/documents',
+      path: `/projeto/${projectId}/documentos`,
       color: 'text-teal-600',
       tooltip: 'Downloads e relatórios'
     }
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const menuItems = isInProject ? projectMenuItems : generalMenuItems;
 
   return (
     <>
@@ -133,6 +168,27 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
           </Button>
         </div>
 
+        {/* Project Context Header */}
+        {isInProject && currentProject && (
+          <div className="p-4 bg-blue-50 border-b border-blue-100">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToProjects}
+              className="w-full justify-start mb-2 text-blue-700 hover:bg-blue-100"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar para Obras
+            </Button>
+            <div className="flex items-center space-x-2 px-2">
+              <Building2 className="h-4 w-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-900 truncate">
+                {currentProject.name}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-2">
           {menuItems.map((item) => {
@@ -151,10 +207,7 @@ export const AppSidebar = ({ isOpen, onToggle }: AppSidebarProps) => {
                         : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                       }
                     `}
-                    onClick={() => {
-                      navigate(item.path);
-                      if (window.innerWidth < 1024) onToggle();
-                    }}
+                    onClick={() => handleNavigation(item.path)}
                   >
                     <Icon className={`h-5 w-5 mr-3 ${active ? 'text-blue-600' : item.color}`} />
                     <span className="flex-1">{item.label}</span>

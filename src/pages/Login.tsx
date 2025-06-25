@@ -20,7 +20,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
-  // Redirecionar se já estiver autenticado
+  // Redirecionar se já estiver autenticado - SEMPRE para /painel
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       navigate('/painel');
@@ -44,7 +44,8 @@ const Login = () => {
         description: "Bem-vindo de volta!",
       });
 
-      // O redirecionamento será feito pelo useEffect quando isAuthenticated mudar
+      // Sempre redirecionar para o painel após login bem-sucedido
+      navigate('/painel');
     } catch (error) {
       console.error('Signin error:', error);
       toast({
