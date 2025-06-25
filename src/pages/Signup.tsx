@@ -116,30 +116,30 @@ const Signup = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:bg-gradient-to-br dark:from-[#0d0d0d] dark:via-[#1a1a1a] dark:to-[#232323]">
+      <div className="min-h-screen bg-background">
         <Header />
         
         <div className="flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md w-full">
-            <Card className="shadow-xl border-0 bg-white/90 dark:bg-[#1a1a1a]/95 dark:border-[#333] backdrop-blur-sm">
+            <Card className="shadow-xl border border-border bg-card backdrop-blur-sm">
               <CardHeader className="text-center">
                 <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full w-fit mx-auto mb-4">
                   <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
                 </div>
                 <CardTitle className="text-xl text-green-800 dark:text-green-400">Cadastro Realizado!</CardTitle>
-                <CardDescription className="text-muted-foreground dark:text-[#bbbbbb]">
+                <CardDescription className="text-muted-foreground">
                   Enviamos um email de confirmação para <strong>{fields.email.value}</strong>
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-4">
-                <p className="text-slate-600 dark:text-[#bbbbbb] text-sm sm:text-base">
+                <p className="text-muted-foreground text-sm sm:text-base">
                   Verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.
                 </p>
-                <p className="text-sm text-slate-500 dark:text-[#999]">
+                <p className="text-sm text-muted-foreground">
                   Não recebeu? Verifique a pasta de spam ou lixo eletrônico.
                 </p>
                 <Link to="/login">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 text-white hover:from-blue-700 hover:to-indigo-700 dark:hover:from-green-700 dark:hover:to-green-600 transition-all duration-200">
+                  <Button className="w-full btn-primary-gradient">
                     Ir para Login
                   </Button>
                 </Link>
@@ -154,25 +154,25 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:bg-gradient-to-br dark:from-[#0d0d0d] dark:via-[#1a1a1a] dark:to-[#232323]">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="text-center mb-6 sm:mb-8">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 p-3 rounded-xl w-fit mx-auto mb-4">
-              <FileText className="h-6 sm:h-8 w-6 sm:w-8 text-white" />
+            <div className="bg-primary p-3 rounded-xl w-fit mx-auto mb-4">
+              <FileText className="h-6 sm:h-8 w-6 sm:w-8 text-primary-foreground" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-[#f2f2f2] leading-tight">Criar sua conta</h2>
-            <p className="text-slate-600 dark:text-[#bbbbbb] mt-2 text-sm sm:text-base px-2">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">Criar sua conta</h2>
+            <p className="text-muted-foreground mt-2 text-sm sm:text-base px-2">
               Comece gratuitamente e acelere seus projetos
             </p>
           </div>
 
-          <Card className="shadow-xl border-0 bg-white/90 dark:bg-[#1a1a1a]/95 dark:border-[#333] backdrop-blur-sm">
+          <Card className="shadow-xl border border-border bg-card backdrop-blur-sm">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg sm:text-xl text-center text-foreground dark:text-[#f2f2f2]">Cadastro Gratuito</CardTitle>
-              <CardDescription className="text-center text-muted-foreground dark:text-[#bbbbbb] text-sm">
+              <CardTitle className="text-lg sm:text-xl text-center text-foreground">Cadastro Gratuito</CardTitle>
+              <CardDescription className="text-center text-muted-foreground text-sm">
                 Preencha os dados abaixo para começar
               </CardDescription>
             </CardHeader>
@@ -237,13 +237,13 @@ const Signup = () => {
                     className="mt-1"
                     disabled={loading}
                   />
-                  <label htmlFor="terms" className="text-sm text-slate-600 dark:text-[#bbbbbb] leading-relaxed cursor-pointer">
+                  <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
                     Li e aceito os{' '}
-                    <Link to="/termos" className="text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300 underline transition-colors">
+                    <Link to="/termos" className="text-primary hover:text-primary/80 underline transition-colors">
                       Termos de Uso
                     </Link>
                     {' '}e a{' '}
-                    <Link to="/politica" className="text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300 underline transition-colors">
+                    <Link to="/politica" className="text-primary hover:text-primary/80 underline transition-colors">
                       Política de Privacidade
                     </Link>
                     .
@@ -252,7 +252,7 @@ const Signup = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 dark:hover:from-green-700 dark:hover:to-green-600 text-white transition-all duration-200 min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed" 
+                  className="w-full btn-primary-gradient min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed" 
                   disabled={loading || !acceptTerms}
                 >
                   {loading ? (
@@ -270,9 +270,9 @@ const Signup = () => {
               </form>
 
               <div className="mt-6 text-center">
-                <p className="text-slate-600 dark:text-[#bbbbbb] text-sm">
+                <p className="text-muted-foreground text-sm">
                   Já tem uma conta?{' '}
-                  <Link to="/login" className="text-blue-600 dark:text-green-400 hover:text-blue-700 dark:hover:text-green-300 font-medium transition-colors">
+                  <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
                     Fazer login
                   </Link>
                 </p>
