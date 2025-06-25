@@ -30,7 +30,7 @@ const ActionButton = ({
       case 'secondary':
         return 'btn-secondary-gradient';
       case 'outline':
-        return 'border-2 border-border dark:border-[#333] text-foreground dark:text-[#f2f2f2] hover:border-primary hover:bg-accent dark:hover:bg-[#232323] bg-background/80 dark:bg-[#1a1a1a]/80 backdrop-blur-sm';
+        return 'border border-border text-foreground hover:border-primary hover:bg-accent bg-background/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all';
       default:
         return '';
     }
@@ -53,7 +53,7 @@ const ActionButton = ({
     <Button
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={`${getVariantClasses()} ${getSizeClasses()} font-semibold transition-all duration-300 ${className}`}
+      className={`${getVariantClasses()} ${getSizeClasses()} font-medium transition-all duration-200 ${className}`}
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />

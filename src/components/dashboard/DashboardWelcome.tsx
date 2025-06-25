@@ -15,15 +15,15 @@ const DashboardWelcome = ({ user }: DashboardWelcomeProps) => {
 
   return (
     <div className="space-y-2">
-      <h1 className="text-3xl font-bold text-white">
+      <h1 className="text-3xl font-bold text-foreground">
         {getCurrentTime()}, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}!
       </h1>
-      <p className="text-gray-400 text-lg">
+      <p className="text-muted-foreground text-lg">
         Gerencie seus projetos com inteligência artificial
       </p>
-      <div className="mt-4 p-3 bg-[#1a1a1a] rounded-lg border border-[#333]">
-        <p className="text-sm text-gray-300">
-          📧 Logado como: <span className="text-blue-400">{user?.email}</span>
+      <div className="mt-4 p-3 bg-accent rounded-lg border border-border">
+        <p className="text-sm text-foreground">
+          📧 Logado como: <span className="text-primary font-medium">{user?.email}</span>
         </p>
       </div>
     </div>

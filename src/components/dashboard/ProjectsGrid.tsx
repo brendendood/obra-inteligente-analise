@@ -49,10 +49,10 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Seus Projetos</h2>
+        <h2 className="text-xl font-semibold text-foreground">Seus Projetos</h2>
         <Button
           onClick={() => navigate('/upload')}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg transition-all"
         >
           <FileText className="h-4 w-4 mr-2" />
           Novo Projeto
@@ -63,7 +63,7 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
         {sortedProjects.map((project) => (
           <Card 
             key={project.id} 
-            className="bg-[#1a1a1a] border-[#333] hover:bg-[#222] hover:border-[#555] transition-all duration-300 group cursor-pointer relative overflow-hidden"
+            className="bg-card border-border hover:shadow-md hover:border-primary/20 transition-all duration-200 group cursor-pointer relative overflow-hidden"
           >
             {pinnedProjects.includes(project.id) && (
               <div className="absolute top-2 right-2 z-10">
@@ -72,10 +72,10 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
             )}
             
             <CardHeader className="pb-3">
-              <CardTitle className="text-white text-lg group-hover:text-blue-400 transition-colors break-words">
+              <CardTitle className="text-foreground text-lg group-hover:text-primary transition-colors break-words">
                 {project.name}
               </CardTitle>
-              <div className="flex items-center justify-between text-sm text-gray-400">
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>{project.project_type || 'Projeto'}</span>
                 {project.total_area && (
                   <span>{project.total_area}m²</span>
@@ -84,16 +84,16 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
             </CardHeader>
             
             <CardContent className="space-y-4">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3 inline mr-1" />
                 Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}
               </div>
               
               <div className="flex flex-wrap gap-2">
-                <span className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs">
+                <span className="bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs border border-green-200">
                   ✅ Processado
                 </span>
-                <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full text-xs">
+                <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs border border-blue-200">
                   🤖 IA Ready
                 </span>
               </div>
@@ -107,7 +107,7 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
                       e.stopPropagation();
                       handlePinProject(project.id);
                     }}
-                    className={`text-gray-400 hover:text-yellow-500 ${
+                    className={`text-muted-foreground hover:text-yellow-500 ${
                       pinnedProjects.includes(project.id) ? 'text-yellow-500' : ''
                     }`}
                   >
@@ -120,7 +120,7 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
                       e.stopPropagation();
                       handleDeleteProject(project.id, project.name);
                     }}
-                    className="text-gray-400 hover:text-red-500"
+                    className="text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -129,7 +129,7 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
                 <Button
                   onClick={() => navigate(`/obra/${project.id}`)}
                   size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-sm hover:shadow-md transition-all"
                 >
                   <ExternalLink className="h-4 w-4 mr-1" />
                   Abrir

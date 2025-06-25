@@ -8,15 +8,15 @@ const GettingStartedCard = () => {
   const navigate = useNavigate();
 
   return (
-    <Card className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] border-[#333] text-center py-12">
+    <Card className="bg-gradient-to-br from-card to-accent border-border text-center py-12 shadow-sm">
       <CardHeader>
-        <div className="mx-auto mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-full w-fit">
+        <div className="mx-auto mb-4 bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-full w-fit shadow-lg">
           <Rocket className="h-8 w-8 text-white" />
         </div>
-        <CardTitle className="text-2xl font-bold text-white mb-2">
+        <CardTitle className="text-2xl font-bold text-foreground mb-2">
           Bem-vindo ao ArchiAI!
         </CardTitle>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           Comece enviando seu primeiro projeto e descubra como a inteligência artificial pode revolucionar sua análise de obras.
         </p>
       </CardHeader>
@@ -24,31 +24,31 @@ const GettingStartedCard = () => {
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
           <div className="space-y-2">
-            <div className="bg-blue-500/20 p-3 rounded-lg w-fit">
-              <Upload className="h-6 w-6 text-blue-400" />
+            <div className="bg-blue-50 p-3 rounded-lg w-fit">
+              <Upload className="h-6 w-6 text-blue-600" />
             </div>
-            <h3 className="font-semibold text-white">1. Envie seu PDF</h3>
-            <p className="text-sm text-gray-400">
+            <h3 className="font-semibold text-foreground">1. Envie seu PDF</h3>
+            <p className="text-sm text-muted-foreground">
               Faça upload do seu projeto arquitetônico em formato PDF
             </p>
           </div>
           
           <div className="space-y-2">
-            <div className="bg-green-500/20 p-3 rounded-lg w-fit">
-              <FileText className="h-6 w-6 text-green-400" />
+            <div className="bg-green-50 p-3 rounded-lg w-fit">
+              <FileText className="h-6 w-6 text-green-600" />
             </div>
-            <h3 className="font-semibold text-white">2. IA Analisa</h3>
-            <p className="text-sm text-gray-400">
+            <h3 className="font-semibold text-foreground">2. IA Analisa</h3>
+            <p className="text-sm text-muted-foreground">
               Nossa IA extrai informações e analisa automaticamente
             </p>
           </div>
           
           <div className="space-y-2">
-            <div className="bg-purple-500/20 p-3 rounded-lg w-fit">
-              <Rocket className="h-6 w-6 text-purple-400" />
+            <div className="bg-purple-50 p-3 rounded-lg w-fit">
+              <Rocket className="h-6 w-6 text-purple-600" />
             </div>
-            <h3 className="font-semibold text-white">3. Trabalhe</h3>
-            <p className="text-sm text-gray-400">
+            <h3 className="font-semibold text-foreground">3. Trabalhe</h3>
+            <p className="text-sm text-muted-foreground">
               Gere orçamentos, cronogramas e converse com a IA
             </p>
           </div>
@@ -57,7 +57,7 @@ const GettingStartedCard = () => {
         <Button
           onClick={() => navigate('/upload')}
           size="lg"
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-8 py-3"
+          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-8 py-3 shadow-md hover:shadow-lg transition-all"
         >
           <Upload className="h-5 w-5 mr-2" />
           Enviar Primeiro Projeto
