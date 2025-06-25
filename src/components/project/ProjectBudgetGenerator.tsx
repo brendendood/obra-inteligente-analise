@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { RefreshCw, Calculator } from 'lucide-react';
@@ -8,6 +7,8 @@ import { BudgetHeader } from './budget/BudgetHeader';
 import { BudgetSummary } from './budget/BudgetSummary';
 import { EditableBudgetItem } from './budget/EditableBudgetItem';
 import { AddItemDialog } from './budget/AddItemDialog';
+import { BudgetExportDialog } from './budget/BudgetExportDialog';
+import { BudgetHistoryDialog } from './budget/BudgetHistoryDialog';
 
 interface BudgetItem {
   id: string;
@@ -44,7 +45,17 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
   const [budgetData, setBudgetData] = useState<BudgetData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showHistoryDialog, setShowHistoryDialog] = useState(false);
   const { toast } = useToast();
+
+  // Auto-generate budget when project loads
+  useEffect(() => {
+    if (project && !budgetData) {
+      console.log('🤖 Auto-gerando orçamento para projeto:', project.name);
+      generateBudget();
+    }
+  }, [project]);
 
   const generateBudget = async () => {
     if (!project) return;
@@ -72,7 +83,6 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       }
       
       const area = project.total_area || 100;
-      const environments = ['Sala', 'Cozinha', 'Banheiro', 'Suíte', 'Área Externa'];
       
       const items: BudgetItem[] = [
         {
@@ -264,18 +274,12 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
     });
   };
 
-  const exportBudget = () => {
-    toast({
-      title: "📄 Preparando exportação...",
-      description: "Funcionalidade de exportação será implementada em breve.",
-    });
+  const handleExport = () => {
+    setShowExportDialog(true);
   };
 
-  const viewHistory = () => {
-    toast({
-      title: "📚 Histórico de versões",
-      description: "Funcionalidade de histórico será implementada em breve.",
-    });
+  const handleViewHistory = () => {
+    setShowHistoryDialog(true);
   };
 
   if (!project) {
@@ -304,8 +308,8 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         generationDate={budgetData?.data_referencia || new Date().toLocaleDateString('pt-BR')}
         isGenerating={isGenerating}
         onGenerateBudget={generateBudget}
-        onExport={exportBudget}
-        onViewHistory={viewHistory}
+        onExport={handleExport}
+        onViewHistory={handleViewHistory}
       />
 
       {isGenerating && (
@@ -393,6 +397,18 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
           </CardContent>
         </Card>
       )}
+
+      <BudgetExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        budgetData={budgetData}
+      />
+
+      <BudgetHistoryDialog
+        open={showHistoryDialog}
+        onOpenChange={setShowHistoryDialog}
+        projectId={project?.id}
+      />
     </div>
   );
 };

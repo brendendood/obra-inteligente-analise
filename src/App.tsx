@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -17,6 +16,7 @@ import Projects from "./pages/Projects";
 import Upload from "./pages/Upload";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
 import ProjectSpecificBudget from "./pages/ProjectSpecificBudget";
+import ProjectSpecificSchedule from "./pages/ProjectSpecificSchedule";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
@@ -140,7 +140,7 @@ const App = () => {
               <Route path="/projeto/:projectId/cronograma" element={
                 <ProtectedRoute>
                   <ProjectProvider>
-                    <ProjectWorkspacePage />
+                    <ProjectSpecificSchedule />
                   </ProjectProvider>
                 </ProtectedRoute>
               } />

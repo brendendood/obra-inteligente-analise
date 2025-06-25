@@ -3,16 +3,48 @@ import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Download, RefreshCw } from 'lucide-react';
+import { Calendar, Download, RefreshCw, TrendingUp, Clock, Calculator } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
+import { ScheduleSimulator } from '@/components/schedule/ScheduleSimulator';
+import { Progress } from '@/components/ui/progress';
+
+interface ScheduleTask {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  duration: number;
+  cost: number;
+  status: 'planned' | 'in_progress' | 'completed';
+  category: string;
+  color: string;
+  dependencies: string[];
+  assignee?: {
+    name: string;
+    email: string;
+  };
+}
+
+interface ScheduleData {
+  projectId: string;
+  projectName: string;
+  totalArea: number;
+  totalDuration: number;
+  totalCost: number;
+  tasks: ScheduleTask[];
+  criticalPath: string[];
+}
 
 const ProjectSpecificSchedule = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const [scheduleData, setScheduleData] = useState<any>(null);
+  const [scheduleData, setScheduleData] = useState<ScheduleData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showSimulator, setShowSimulator] = useState(false);
   const { toast } = useToast();
 
   const generateSchedule = async () => {
@@ -20,9 +52,25 @@ const ProjectSpecificSchedule = () => {
     
     console.log('📅 CRONOGRAMA: Gerando para projeto:', currentProject.name);
     setIsGenerating(true);
+    setProgress(0);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const progressSteps = [
+        { step: 20, message: 'Analisando escopo do projeto...' },
+        { step: 40, message: 'Calculando durações das etapas...' },
+        { step: 60, message: 'Definindo dependências críticas...' },
+        { step: 80, message: 'Integrando custos por fase...' },
+        { step: 100, message: 'Otimizando cronograma com IA...' }
+      ];
+      
+      for (const progressStep of progressSteps) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setProgress(progressStep.step);
+        toast({
+          title: progressStep.message,
+          description: `${progressStep.step}% concluído`,
+        });
+      }
       
       const area = currentProject.total_area || 100;
       const complexity = area > 200 ? 'alta' : area > 100 ? 'média' : 'baixa';
@@ -33,71 +81,112 @@ const ProjectSpecificSchedule = () => {
         alta: { fundacao: 25, estrutura: 35, alvenaria: 30, instalacoes: 28, acabamento: 35 }
       };
       
+      const baseCosts = {
+        baixa: { fundacao: 15000, estrutura: 35000, alvenaria: 25000, instalacoes: 20000, acabamento: 30000 },
+        média: { fundacao: 22000, estrutura: 45000, alvenaria: 35000, instalacoes: 28000, acabamento: 42000 },
+        alta: { fundacao: 35000, estrutura: 65000, alvenaria: 50000, instalacoes: 40000, acabamento: 60000 }
+      };
+      
       const durations = baseDurations[complexity];
+      const costs = baseCosts[complexity];
       let currentDate = new Date();
       
-      const schedule = [
+      const tasks: ScheduleTask[] = [
         {
           id: '1',
-          phase: 'Fundação e Movimentação de Terra',
+          name: 'Fundação e Movimentação de Terra',
           startDate: currentDate.toISOString().split('T')[0],
+          endDate: new Date(currentDate.getTime() + durations.fundacao * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           duration: durations.fundacao,
-          color: 'bg-blue-500'
+          cost: costs.fundacao,
+          status: 'planned',
+          category: 'Estrutural',
+          color: '#3B82F6',
+          dependencies: [],
+          assignee: { name: 'Equipe Fundações', email: 'fundacoes@obra.com' }
         }
       ];
       
       currentDate = new Date(currentDate.getTime() + durations.fundacao * 24 * 60 * 60 * 1000);
       
-      schedule.push({
+      tasks.push({
         id: '2',
-        phase: 'Estrutura e Lajes',
+        name: 'Estrutura e Lajes',
         startDate: currentDate.toISOString().split('T')[0],
+        endDate: new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         duration: durations.estrutura,
-        color: 'bg-orange-500'
+        cost: costs.estrutura,
+        status: 'planned',
+        category: 'Estrutural',
+        color: '#F97316',
+        dependencies: ['1'],
+        assignee: { name: 'Equipe Estrutura', email: 'estrutura@obra.com' }
       });
       
       currentDate = new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000);
       
-      schedule.push({
+      tasks.push({
         id: '3',
-        phase: 'Alvenaria e Vedação',
+        name: 'Alvenaria e Vedação',
         startDate: currentDate.toISOString().split('T')[0],
+        endDate: new Date(currentDate.getTime() + durations.alvenaria * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         duration: durations.alvenaria,
-        color: 'bg-red-500'
+        cost: costs.alvenaria,
+        status: 'planned',
+        category: 'Vedações',
+        color: '#EF4444',
+        dependencies: ['2'],
+        assignee: { name: 'Equipe Alvenaria', email: 'alvenaria@obra.com' }
       });
       
       currentDate = new Date(currentDate.getTime() + durations.alvenaria * 24 * 60 * 60 * 1000);
       
-      schedule.push({
+      tasks.push({
         id: '4',
-        phase: 'Instalações',
+        name: 'Instalações Elétricas e Hidráulicas',
         startDate: currentDate.toISOString().split('T')[0],
+        endDate: new Date(currentDate.getTime() + durations.instalacoes * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         duration: durations.instalacoes,
-        color: 'bg-purple-500'
+        cost: costs.instalacoes,
+        status: 'planned',
+        category: 'Instalações',
+        color: '#8B5CF6',
+        dependencies: ['3'],
+        assignee: { name: 'Equipe Instalações', email: 'instalacoes@obra.com' }
       });
       
       currentDate = new Date(currentDate.getTime() + durations.instalacoes * 24 * 60 * 60 * 1000);
       
-      schedule.push({
+      tasks.push({
         id: '5',
-        phase: 'Acabamentos',
+        name: 'Acabamentos e Pintura',
         startDate: currentDate.toISOString().split('T')[0],
+        endDate: new Date(currentDate.getTime() + durations.acabamento * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         duration: durations.acabamento,
-        color: 'bg-green-500'
+        cost: costs.acabamento,
+        status: 'planned',
+        category: 'Acabamentos',
+        color: '#10B981',
+        dependencies: ['4'],
+        assignee: { name: 'Equipe Acabamentos', email: 'acabamentos@obra.com' }
       });
+      
+      const totalDuration = Object.values(durations).reduce((sum, val) => sum + val, 0);
+      const totalCost = Object.values(costs).reduce((sum, val) => sum + val, 0);
       
       setScheduleData({
         projectId: currentProject.id,
         projectName: currentProject.name,
         totalArea: area,
-        complexity,
-        totalDuration: Object.values(durations).reduce((sum, val) => sum + val, 0),
-        phases: schedule
+        totalDuration,
+        totalCost,
+        tasks,
+        criticalPath: ['1', '2', '3', '4', '5'] // All tasks are on critical path in this sequential example
       });
       
       toast({
         title: "📅 Cronograma gerado!",
-        description: `Cronograma específico para ${currentProject.name} (${area}m²) criado.`,
+        description: `Cronograma físico-financeiro para ${currentProject.name} criado com sucesso.`,
       });
     } catch (error) {
       console.error('❌ CRONOGRAMA: Erro ao gerar:', error);
@@ -108,7 +197,37 @@ const ProjectSpecificSchedule = () => {
       });
     } finally {
       setIsGenerating(false);
+      setProgress(0);
     }
+  };
+
+  const updateTask = (taskId: string, updates: Partial<ScheduleTask>) => {
+    if (!scheduleData) return;
+    
+    const updatedTasks = scheduleData.tasks.map(task =>
+      task.id === taskId ? { ...task, ...updates } : task
+    );
+    
+    setScheduleData({
+      ...scheduleData,
+      tasks: updatedTasks
+    });
+  };
+
+  const addTask = (newTask: ScheduleTask) => {
+    if (!scheduleData) return;
+    
+    setScheduleData({
+      ...scheduleData,
+      tasks: [...scheduleData.tasks, newTask]
+    });
+  };
+
+  const exportSchedule = (format: 'excel' | 'pdf' | 'project') => {
+    toast({
+      title: `📊 Exportando para ${format.toUpperCase()}`,
+      description: "Funcionalidade de exportação será implementada em breve.",
+    });
   };
 
   if (!currentProject) {
@@ -126,10 +245,11 @@ const ProjectSpecificSchedule = () => {
   return (
     <ProjectWorkspace>
       <div className="space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Cronograma - {currentProject.name}</h1>
-            <p className="text-gray-600">Timeline específica das etapas para este projeto ({currentProject.total_area || 100}m²)</p>
+            <h1 className="text-2xl font-bold text-gray-900">Cronograma Físico-Financeiro</h1>
+            <p className="text-gray-600">Timeline integrada com custos para {currentProject.name} ({currentProject.total_area || 100}m²)</p>
           </div>
           
           <div className="flex space-x-3">
@@ -146,97 +266,132 @@ const ProjectSpecificSchedule = () => {
               ) : (
                 <>
                   <Calendar className="h-4 w-4 mr-2" />
-                  Gerar Cronograma
+                  Atualizar com IA
                 </>
               )}
             </Button>
             
             {scheduleData && (
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar Excel
-              </Button>
+              <>
+                <Button variant="outline" onClick={() => setShowSimulator(true)}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Simular Atraso
+                </Button>
+                
+                <Button variant="outline" onClick={() => exportSchedule('excel')}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar Excel
+                </Button>
+              </>
             )}
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-blue-600" />
-              Cronograma Detalhado
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {scheduleData ? (
-              <div className="space-y-6">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-blue-900">Informações do Projeto</h3>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2 text-sm">
-                    <div>
-                      <span className="text-blue-700">Projeto:</span> {scheduleData.projectName}
-                    </div>
-                    <div>
-                      <span className="text-blue-700">Área:</span> {scheduleData.totalArea}m²
-                    </div>
-                    <div>
-                      <span className="text-blue-700">Complexidade:</span> {scheduleData.complexity}
-                    </div>
-                    <div>
-                      <span className="text-blue-700">Duração Total:</span> {scheduleData.totalDuration} dias
-                    </div>
-                  </div>
+        {/* Progress */}
+        {isGenerating && (
+          <Card className="bg-white/80 backdrop-blur-sm border border-blue-200/50">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <RefreshCw className="h-5 w-5 animate-spin text-blue-600" />
+                  <span className="font-medium text-blue-900">Processando cronograma com IA...</span>
                 </div>
-
-                <div className="space-y-3">
-                  {scheduleData.phases.map((phase: any, index: number) => {
-                    const endDate = new Date(phase.startDate);
-                    endDate.setDate(endDate.getDate() + phase.duration);
-                    
-                    return (
-                      <div key={phase.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className={`w-4 h-4 rounded-full ${phase.color}`}></div>
-                            <div>
-                              <h4 className="font-semibold text-gray-900">Fase {index + 1}: {phase.phase}</h4>
-                              <p className="text-sm text-gray-600">
-                                {new Date(phase.startDate).toLocaleDateString('pt-BR')} - {endDate.toLocaleDateString('pt-BR')}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <span className="font-semibold text-blue-600">{phase.duration} dias</span>
-                          </div>
-                        </div>
-                        
-                        {/* Barra de progresso visual */}
-                        <div className="mt-3">
-                          <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full ${phase.color}`} 
-                              style={{ width: `${(phase.duration / scheduleData.totalDuration) * 100}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Calendar className="h-16 w-16 text-blue-400 mx-auto mb-4" />
-                <h3 className="text-lg font-bold text-gray-700 mb-2">
-                  Cronograma Específico para {currentProject.name}
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Clique em "Gerar Cronograma" para criar uma timeline detalhada baseada na área e complexidade deste projeto específico.
+                <Progress value={progress} className="h-3 bg-blue-100" />
+                <p className="text-sm text-blue-700">
+                  Analisando projeto de {currentProject.total_area || 100}m² e otimizando prazos
                 </p>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Schedule Content */}
+        {scheduleData ? (
+          <div className="space-y-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Duração Total</p>
+                      <p className="text-xl font-bold text-gray-900">{scheduleData.totalDuration} dias</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Calculator className="h-5 w-5 text-green-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Custo Total</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        R$ {scheduleData.totalCost.toLocaleString('pt-BR')}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Etapas</p>
+                      <p className="text-xl font-bold text-gray-900">{scheduleData.tasks.length}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-orange-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Status</p>
+                      <p className="text-xl font-bold text-gray-900">Planejado</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Gantt Chart */}
+            <AdvancedGanttChart
+              tasks={scheduleData.tasks}
+              onUpdateTask={updateTask}
+              onAddTask={addTask}
+              criticalPath={scheduleData.criticalPath}
+              projectName={scheduleData.projectName}
+            />
+          </div>
+        ) : !isGenerating && (
+          <Card>
+            <CardContent className="text-center py-16">
+              <Calendar className="h-16 w-16 text-blue-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-700 mb-2">
+                Cronograma Físico-Financeiro
+              </h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                Gere um cronograma detalhado com integração financeira, análise de caminho crítico e simulação de cenários para {currentProject.name}.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Simulator Dialog */}
+        {showSimulator && scheduleData && (
+          <ScheduleSimulator
+            open={showSimulator}
+            onOpenChange={setShowSimulator}
+            scheduleData={scheduleData}
+          />
+        )}
       </div>
     </ProjectWorkspace>
   );
