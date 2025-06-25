@@ -1,6 +1,7 @@
 
 export interface Project {
   id: string;
+  user_id: string; // Adicionando user_id que estava faltando
   name: string;
   file_path: string;
   file_size?: number;
