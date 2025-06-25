@@ -13,7 +13,7 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const { loadUserProjects } = useProjectLoader();
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
@@ -26,6 +26,19 @@ export const useDashboardData = () => {
   const { toast } = useToast();
 
   const loadProjects = async () => {
+    // Aguardar autenticação estar completa
+    if (loading) {
+      console.log('Aguardando autenticação completar...');
+      return;
+    }
+
+    if (!isAuthenticated) {
+      console.log('Usuário não autenticado, não carregando projetos');
+      setProjects([]);
+      setIsLoadingProjects(false);
+      return;
+    }
+
     setIsLoadingProjects(true);
     try {
       console.log('Carregando projetos no Dashboard...');
@@ -67,6 +80,13 @@ export const useDashboardData = () => {
       setIsLoadingProjects(false);
     }
   };
+
+  // Aguardar a autenticação estar completa antes de carregar
+  useEffect(() => {
+    if (!loading) {
+      loadProjects();
+    }
+  }, [loading, isAuthenticated]);
 
   const handleDeleteAllProjects = async () => {
     try {

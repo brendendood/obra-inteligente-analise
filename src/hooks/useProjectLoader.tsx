@@ -5,9 +5,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/project';
 
 export const useProjectLoader = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
+    // Se ainda está carregando auth, aguardar
+    if (loading) {
+      console.log('Auth ainda carregando, aguardando...');
+      return [];
+    }
+
+    // Se não está autenticado após carregamento, retornar vazio
     if (!isAuthenticated || !user) {
       console.log('Usuário não autenticado para carregar projetos');
       return [];
@@ -44,7 +51,7 @@ export const useProjectLoader = () => {
       console.error('Erro ao carregar projetos:', error);
       return [];
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, loading]);
 
   return { loadUserProjects };
 };
