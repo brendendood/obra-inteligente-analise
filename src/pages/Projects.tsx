@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useProjectsLogic } from '@/hooks/useProjectsLogic';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
-import { AnimatedProjectCard } from '@/components/ui/animated-card';
+import { ProjectCardEnhanced } from '@/components/ui/project-card-enhanced';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { ProjectEditDialog } from '@/components/projects/ProjectEditDialog';
 import { useNavigate } from 'react-router-dom';
@@ -56,11 +56,6 @@ const Projects = () => {
     handleDeleteProject,
     updateProject,
   } = useProjectsLogic();
-
-  const handleProjectClick = (projectId: string) => {
-    addRecentProject(projectId);
-    navigate(`/projeto/${projectId}`);
-  };
 
   const handleEditProject = (project: any) => {
     setEditingProject(project);
@@ -163,19 +158,18 @@ const Projects = () => {
           </div>
         </div>
 
-        {/* Grade de projetos com animações e edição */}
+        {/* Grade de projetos melhorada */}
         {filteredProjects.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProjects.map((project, index) => (
               <div
                 key={project.id}
-                className="animate-fade-in hover:scale-[1.02] transition-transform duration-200"
+                className="animate-fade-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <AnimatedProjectCard
+                <ProjectCardEnhanced
                   project={project}
-                  onClick={() => handleProjectClick(project.id)}
-                  onEdit={() => handleEditProject(project)}
+                  showQuickActions={true}
                 />
               </div>
             ))}

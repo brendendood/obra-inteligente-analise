@@ -7,7 +7,7 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickActions';
-import { AnimatedProjectCard } from '@/components/ui/animated-card';
+import { ProjectCardEnhanced } from '@/components/ui/project-card-enhanced';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { Plus, Zap, RefreshCw } from 'lucide-react';
@@ -41,11 +41,6 @@ const Dashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [isAuthenticated, authLoading, navigate]);
-
-  const handleProjectClick = (projectId: string) => {
-    addRecentProject(projectId);
-    navigate(`/projeto/${projectId}`);
-  };
 
   // Estados de loading mais estáveis
   const isInitialLoading = authLoading || !showContent;
@@ -166,12 +161,12 @@ const Dashboard = () => {
               {projects.slice(0, 8).map((project, index) => (
                 <div
                   key={project.id}
-                  className="animate-fade-in hover:scale-[1.02] transition-all duration-200"
+                  className="animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <AnimatedProjectCard
+                  <ProjectCardEnhanced
                     project={project}
-                    onClick={() => handleProjectClick(project.id)}
+                    showQuickActions={true}
                   />
                 </div>
               ))}
