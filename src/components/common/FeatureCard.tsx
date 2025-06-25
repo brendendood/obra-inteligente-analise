@@ -1,5 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
@@ -15,12 +16,12 @@ const FeatureCard = ({
   title, 
   description, 
   onClick, 
-  gradient = "from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30",
+  gradient = "from-blue-100 to-blue-200",
   disabled = false 
 }: FeatureCardProps) => {
   return (
     <Card 
-      className={`feature-card card-hover cursor-pointer group h-full dark:bg-[#1a1a1a] dark:border-[#333] ${
+      className={`hover:shadow-xl transition-all duration-300 cursor-pointer group border-0 shadow-lg bg-white/90 backdrop-blur-sm h-full ${
         disabled ? 'opacity-60 cursor-not-allowed' : ''
       }`}
       onClick={!disabled ? onClick : undefined}
@@ -29,10 +30,10 @@ const FeatureCard = ({
         <div className={`bg-gradient-to-br ${gradient} p-4 rounded-2xl w-fit group-hover:scale-110 transition-transform duration-300 mb-4`}>
           {icon}
         </div>
-        <CardTitle className="text-lg font-bold text-foreground dark:text-[#f2f2f2] leading-tight">
+        <CardTitle className="text-lg font-bold text-slate-900 leading-tight">
           {title}
         </CardTitle>
-        <CardDescription className="text-muted-foreground dark:text-[#bbbbbb] leading-relaxed text-sm">
+        <CardDescription className="text-slate-600 leading-relaxed text-sm">
           {description}
         </CardDescription>
       </CardHeader>

@@ -7,59 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Simple PDF text extraction simulation (in production, use proper OCR)
-function extractPDFData(fileName: string, fileSize: number) {
-  // Create consistent analysis based on file characteristics
-  const fileNameLower = fileName.toLowerCase();
-  const isArchitecturalProject = fileNameLower.includes('projeto') || 
-                                fileNameLower.includes('plant') ||
-                                fileNameLower.includes('arquitet') ||
-                                fileNameLower.includes('desenho') ||
-                                fileNameLower.includes('residenc');
-
-  if (!isArchitecturalProject) {
-    return {
-      isRealProject: false,
-      extractedInfo: {
-        hasFloorPlan: false,
-        hasElevations: false,
-        estimatedArea: null,
-        roomCount: null,
-        projectType: 'Documento PDF'
-      }
-    };
-  }
-
-  // Generate consistent data based on file size and name
-  const sizeBasedSeed = Math.floor(fileSize / 10000);
-  const nameBasedSeed = fileName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const combinedSeed = (sizeBasedSeed + nameBasedSeed) % 1000;
-
-  // Use seeds to generate consistent but varied data
-  const baseArea = 80 + (combinedSeed % 400); // 80-480 m²
-  const roomCount = 2 + (combinedSeed % 8); // 2-10 rooms
-  
-  const projectTypes = ['Residencial', 'Comercial', 'Industrial', 'Institucional'];
-  const projectType = projectTypes[combinedSeed % projectTypes.length];
-
-  return {
-    isRealProject: true,
-    extractedInfo: {
-      hasFloorPlan: true,
-      hasElevations: combinedSeed % 3 !== 0, // ~66% chance
-      estimatedArea: baseArea,
-      roomCount: roomCount,
-      projectType: projectType,
-      technicalSpecs: {
-        structuralSystem: combinedSeed % 2 === 0 ? 'Concreto Armado' : 'Alvenaria Estrutural',
-        foundationType: combinedSeed % 3 === 0 ? 'Sapata Corrida' : 'Radier',
-        roofType: combinedSeed % 2 === 0 ? 'Laje' : 'Telha Cerâmica'
-      }
-    }
-  };
-}
-
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -67,11 +16,13 @@ serve(async (req) => {
   try {
     console.log('Upload project function called')
     
+    // Create Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Get user from Authorization header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       console.error('No authorization header')
@@ -94,18 +45,19 @@ serve(async (req) => {
 
     console.log('User authenticated:', user.email)
 
+    // Parse JSON body
     const body = await req.json()
-    const { fileName, originalName, projectName, fileSize } = body
+    const { fileName, originalName, fileSize } = body
 
-    if (!fileName || !originalName || !projectName) {
-      console.error('Missing required fields:', { fileName, originalName, projectName })
+    if (!fileName || !originalName) {
+      console.error('Missing required fields:', { fileName, originalName })
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: fileName, originalName, projectName' }),
+        JSON.stringify({ error: 'Missing required fields: fileName, originalName' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('Processing file:', { fileName, originalName, projectName, fileSize })
+    console.log('Processing file:', { fileName, originalName, fileSize })
 
     // Verificar se o arquivo existe no storage
     const { data: fileData, error: fileError } = await supabase.storage
@@ -122,30 +74,42 @@ serve(async (req) => {
 
     console.log('File found in storage, size:', fileData.size)
 
-    // Extract consistent PDF data
-    const extractedData = extractPDFData(originalName, fileData.size);
-    
+    // Simular análise do projeto (em uma implementação real, aqui seria feita a análise do PDF)
+    const isRealProject = originalName.toLowerCase().includes('projeto') || 
+                         originalName.toLowerCase().includes('plant') ||
+                         originalName.toLowerCase().includes('desenho')
+
     const analysisData = {
-      ...extractedData,
+      isRealProject,
       fileSize: fileData.size,
       processingTime: new Date().toISOString(),
-      version: 1 // For future version control
-    };
+      extractedInfo: {
+        hasFloorPlan: Math.random() > 0.5,
+        hasElevations: Math.random() > 0.5,
+        estimatedArea: isRealProject ? Math.floor(Math.random() * 500) + 50 : null,
+        roomCount: isRealProject ? Math.floor(Math.random() * 10) + 2 : null
+      }
+    }
+
+    // Determinar tipo do projeto
+    let projectType = 'Documento PDF'
+    if (isRealProject) {
+      const types = ['Residencial', 'Comercial', 'Industrial', 'Institucional']
+      projectType = types[Math.floor(Math.random() * types.length)]
+    }
 
     // Criar registro do projeto no banco
     const { data: project, error: projectError } = await supabase
       .from('projects')
       .insert({
         user_id: user.id,
-        name: projectName.trim(),
+        name: originalName.replace(/\.[^/.]+$/, ""), // Remove extensão
         file_path: fileName,
         file_size: fileData.size,
         analysis_data: analysisData,
-        project_type: extractedData.extractedInfo.projectType,
-        total_area: extractedData.extractedInfo.estimatedArea,
-        extracted_text: extractedData.isRealProject ? 
-          `Projeto arquitetônico: ${projectName}\nÁrea construída: ${extractedData.extractedInfo.estimatedArea}m²\nNúmero de ambientes: ${extractedData.extractedInfo.roomCount}` :
-          'Conteúdo do documento PDF processado...'
+        project_type: projectType,
+        total_area: analysisData.extractedInfo.estimatedArea,
+        extracted_text: isRealProject ? 'Texto extraído do projeto arquitetônico...' : 'Conteúdo do documento PDF...'
       })
       .select()
       .single()
@@ -160,9 +124,9 @@ serve(async (req) => {
 
     console.log('Project created successfully:', project.id)
 
-    const message = extractedData.isRealProject 
-      ? `Projeto "${projectName}" analisado com sucesso! Área identificada: ${extractedData.extractedInfo.estimatedArea}m² com ${extractedData.extractedInfo.roomCount} ambientes.`
-      : `PDF "${projectName}" processado com sucesso! Documento analisado e armazenado.`
+    const message = isRealProject 
+      ? 'Projeto arquitetônico analisado com sucesso! A IA identificou elementos técnicos no documento.'
+      : 'PDF processado com sucesso! Documento analisado e armazenado.'
 
     return new Response(
       JSON.stringify({

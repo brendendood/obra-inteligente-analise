@@ -1,77 +1,38 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Lock, User, UserPlus, FileText, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useFormValidation } from '@/hooks/useFormValidation';
-import { useSessionControl } from '@/hooks/useSessionControl';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import FormField from '@/components/common/FormField';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 const Signup = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { toast } = useToast();
-  
-  useSessionControl();
 
-  const { fields, setFieldValue, validateAll } = useFormValidation({
-    name: {
-      value: '',
-      rules: {
-        required: true,
-        minLength: 2,
-        maxLength: 100
-      }
-    },
-    email: {
-      value: '',
-      rules: {
-        required: true,
-        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      }
-    },
-    password: {
-      value: '',
-      rules: {
-        required: true,
-        minLength: 6,
-        maxLength: 50
-      }
-    },
-    confirmPassword: {
-      value: '',
-      rules: {
-        required: true,
-        custom: (value) => {
-          if (value !== fields.password?.value) {
-            return 'As senhas não coincidem';
-          }
-          return null;
-        }
-      }
-    }
-  });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateAll()) {
-      toast({
-        title: "❌ Campos inválidos",
-        description: "Por favor, corrija os erros antes de continuar.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!acceptTerms) {
       toast({
         title: "❌ Aceite os termos",
@@ -81,16 +42,34 @@ const Signup = () => {
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "❌ Senhas não coincidem",
+        description: "As senhas digitadas são diferentes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({
+        title: "❌ Senha muito curta",
+        description: "A senha deve ter pelo menos 6 caracteres.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { error } = await supabase.auth.signUp({
-        email: fields.email.value,
-        password: fields.password.value,
+        email: formData.email,
+        password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/painel`,
           data: {
-            full_name: fields.name.value
+            full_name: formData.name
           }
         }
       });
@@ -116,30 +95,30 @@ const Signup = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <Header />
         
-        <div className="flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-md w-full">
-            <Card className="shadow-xl border border-border bg-card backdrop-blur-sm">
+            <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
               <CardHeader className="text-center">
-                <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full w-fit mx-auto mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                <div className="bg-green-100 p-3 rounded-full w-fit mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
                 </div>
-                <CardTitle className="text-xl text-green-800 dark:text-green-400">Cadastro Realizado!</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Enviamos um email de confirmação para <strong>{fields.email.value}</strong>
+                <CardTitle className="text-xl text-green-800">Cadastro Realizado!</CardTitle>
+                <CardDescription>
+                  Enviamos um email de confirmação para <strong>{formData.email}</strong>
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center space-y-4">
-                <p className="text-muted-foreground text-sm sm:text-base">
+                <p className="text-slate-600">
                   Verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-500">
                   Não recebeu? Verifique a pasta de spam ou lixo eletrônico.
                 </p>
                 <Link to="/login">
-                  <Button className="w-full btn-primary-gradient">
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600">
                     Ir para Login
                   </Button>
                 </Link>
@@ -154,96 +133,114 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header />
       
-      <div className="flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="bg-primary p-3 rounded-xl w-fit mx-auto mb-4">
-              <FileText className="h-6 sm:h-8 w-6 sm:w-8 text-primary-foreground" />
+          <div className="text-center mb-8">
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-xl w-fit mx-auto mb-4">
+              <FileText className="h-8 w-8 text-white" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">Criar sua conta</h2>
-            <p className="text-muted-foreground mt-2 text-sm sm:text-base px-2">
+            <h2 className="text-3xl font-bold text-slate-900">Criar sua conta</h2>
+            <p className="text-slate-600 mt-2">
               Comece gratuitamente e acelere seus projetos
             </p>
           </div>
 
-          <Card className="shadow-xl border border-border bg-card backdrop-blur-sm">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg sm:text-xl text-center text-foreground">Cadastro Gratuito</CardTitle>
-              <CardDescription className="text-center text-muted-foreground text-sm">
+          <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-xl text-center">Cadastro Gratuito</CardTitle>
+              <CardDescription className="text-center">
                 Preencha os dados abaixo para começar
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-6">
-                <FormField
-                  id="name"
-                  label="Nome Completo"
-                  placeholder="Seu nome completo"
-                  value={fields.name.value}
-                  onChange={(e) => setFieldValue('name', e.target.value)}
-                  error={fields.name.error}
-                  icon={User}
-                  required
-                  disabled={loading}
-                />
+              <form onSubmit={handleSignUp} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="Seu nome completo"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
 
-                <FormField
-                  id="email"
-                  label="Email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={fields.email.value}
-                  onChange={(e) => setFieldValue('email', e.target.value)}
-                  error={fields.email.error}
-                  icon={Mail}
-                  required
-                  disabled={loading}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="pl-10"
+                      required
+                    />
+                  </div>
+                </div>
 
-                <FormField
-                  id="password"
-                  label="Senha"
-                  type="password"
-                  placeholder="••••••••"
-                  value={fields.password.value}
-                  onChange={(e) => setFieldValue('password', e.target.value)}
-                  error={fields.password.error}
-                  icon={Lock}
-                  required
-                  disabled={loading}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="password">Senha</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="pl-10"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
 
-                <FormField
-                  id="confirmPassword"
-                  label="Confirmar Senha"
-                  type="password"
-                  placeholder="••••••••"
-                  value={fields.confirmPassword.value}
-                  onChange={(e) => setFieldValue('confirmPassword', e.target.value)}
-                  error={fields.confirmPassword.error}
-                  icon={Lock}
-                  required
-                  disabled={loading}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="pl-10"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
 
-                <div className="flex items-start space-x-3 py-2">
+                <div className="flex items-start space-x-3">
                   <Checkbox 
                     id="terms" 
                     checked={acceptTerms}
                     onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
                     className="mt-1"
-                    disabled={loading}
                   />
-                  <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                  <label htmlFor="terms" className="text-sm text-slate-600 leading-relaxed">
                     Li e aceito os{' '}
-                    <Link to="/termos" className="text-primary hover:text-primary/80 underline transition-colors">
+                    <Link to="/termos" className="text-blue-600 hover:text-blue-700 underline">
                       Termos de Uso
                     </Link>
                     {' '}e a{' '}
-                    <Link to="/politica" className="text-primary hover:text-primary/80 underline transition-colors">
+                    <Link to="/politica" className="text-blue-600 hover:text-blue-700 underline">
                       Política de Privacidade
                     </Link>
                     .
@@ -252,27 +249,18 @@ const Signup = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full btn-primary-gradient min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" 
                   disabled={loading || !acceptTerms}
                 >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <LoadingSpinner size="sm" />
-                      <span>Criando conta...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <UserPlus className="h-4 w-4" />
-                      <span>Criar conta</span>
-                    </div>
-                  )}
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  {loading ? 'Criando conta...' : 'Criar conta'}
                 </Button>
               </form>
 
               <div className="mt-6 text-center">
-                <p className="text-muted-foreground text-sm">
+                <p className="text-slate-600">
                   Já tem uma conta?{' '}
-                  <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                  <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
                     Fazer login
                   </Link>
                 </p>

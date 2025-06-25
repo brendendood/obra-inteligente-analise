@@ -1,277 +1,218 @@
 
-import React from 'react';
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { 
-  User, 
+  Menu, 
+  X, 
+  Home, 
+  Upload, 
+  MessageSquare, 
   LogOut, 
-  Moon, 
-  Sun,
-  ArrowLeft,
-  FolderOpen,
-  Menu,
-  X
+  User,
+  FolderOpen
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from './ThemeProvider';
-import { useNavigationHistory } from '@/hooks/useNavigationHistory';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 const Header = () => {
-  const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
-  const { goBack } = useNavigationHistory();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
-      navigate('/');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
         title: "👋 Logout realizado",
         description: "Você foi desconectado com sucesso.",
       });
+      
+      navigate('/');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Erro no logout:', error);
+      toast({
+        title: "❌ Erro no logout",
+        description: "Não foi possível fazer logout.",
+        variant: "destructive",
+      });
     }
   };
 
-  const showBackButton = location.pathname !== '/' && location.pathname !== '/painel';
-
-  const navigationLinks = [
-    { to: '/painel', label: 'Painel' },
-    { to: '/obras', label: 'Obras' }
+  const navigationItems = [
+    { name: 'Dashboard', path: '/painel', icon: Home },
+    { name: 'Minhas Obras', path: '/obras', icon: FolderOpen },
+    { name: 'Upload', path: '/upload', icon: Upload },
+    { name: 'Assistente', path: '/assistant', icon: MessageSquare },
   ];
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
+  const isActivePath = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
-    <header className="bg-background dark:bg-[#1a1a1a] border-b border-border dark:border-[#333] shadow-sm sticky top-0 z-50 backdrop-blur-sm">
+    <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14 sm:h-16">
-          {/* Left side - Logo and Back Button */}
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1 sm:flex-none">
-            {showBackButton && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={goBack}
-                className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323] hidden sm:flex"
-              >
-                <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Voltar</span>
-              </Button>
-            )}
-            
-            <Link to="/" className="flex items-center space-x-2 min-w-0" onClick={closeMobileMenu}>
-              <div className="bg-primary p-1.5 sm:p-2 rounded-lg shadow-lg flex-shrink-0">
-                <FolderOpen className="h-4 w-4 sm:h-6 sm:w-6 text-primary-foreground" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold text-foreground dark:text-[#f2f2f2] truncate">
-                  ArchiAI
-                </h1>
-                <p className="text-xs text-muted-foreground dark:text-[#bbbbbb] hidden sm:block truncate">
-                  Análise Inteligente de Projetos
-                </p>
-              </div>
-            </Link>
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div 
+            className="flex items-center cursor-pointer" 
+            onClick={() => navigate(isAuthenticated ? '/painel' : '/')}
+          >
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl mr-3">
+              <div className="w-6 h-6 bg-white rounded-sm"></div>
+            </div>
+            <span className="text-xl font-bold text-slate-900">ConstructIA</span>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
-            </Button>
+          {isAuthenticated && (
+            <nav className="hidden md:flex space-x-1">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Button
+                    key={item.name}
+                    variant={isActivePath(item.path) ? "default" : "ghost"}
+                    onClick={() => navigate(item.path)}
+                    className={`flex items-center space-x-2 ${
+                      isActivePath(item.path) 
+                        ? 'bg-blue-600 text-white' 
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{item.name}</span>
+                  </Button>
+                );
+              })}
+            </nav>
+          )}
 
-            {user ? (
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isAuthenticated ? (
               <>
-                {/* User Info */}
-                <div className="flex items-center space-x-3">
-                  <div className="text-right hidden xl:block">
-                    <p className="text-sm font-medium text-foreground dark:text-[#f2f2f2] truncate max-w-[150px]">
-                      {user.email}
-                    </p>
-                    <Badge variant="outline" className="text-xs border-border dark:border-[#333] text-muted-foreground dark:text-[#bbbbbb]">
-                      Usuário
-                    </Badge>
-                  </div>
-                  <div className="bg-primary p-2 rounded-full shadow-lg flex-shrink-0">
-                    <User className="h-4 w-4 text-primary-foreground" />
-                  </div>
+                <div className="flex items-center space-x-2 text-sm text-slate-600">
+                  <User className="h-4 w-4" />
+                  <span className="max-w-32 truncate">
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                  </span>
                 </div>
-
-                {/* Navigation Buttons */}
-                <div className="flex items-center space-x-2">
-                  {navigationLinks.map((link) => (
-                    <Button
-                      key={link.to}
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(link.to)}
-                      className={cn(
-                        "text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323] transition-all duration-200",
-                        location.pathname === link.to && "bg-accent dark:bg-[#232323] text-foreground dark:text-[#f2f2f2]"
-                      )}
-                    >
-                      {link.label}
-                    </Button>
-                  ))}
-                </div>
-
-                {/* Logout Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <Button 
+                  variant="outline" 
                   onClick={handleLogout}
-                  className="text-destructive dark:text-red-400 hover:text-destructive hover:bg-destructive/10 dark:hover:bg-red-900/20 transition-all duration-200"
+                  className="flex items-center space-x-2"
                 >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sair
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair</span>
                 </Button>
               </>
             ) : (
-              <div className="flex items-center space-x-2">
-                <Link to="/login">
-                  <Button variant="ghost" size="sm" className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2]">
-                    Entrar
-                  </Button>
-                </Link>
-                <Link to="/cadastro">
-                  <Button size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 text-white">
-                    Cadastrar
-                  </Button>
-                </Link>
+              <div className="flex items-center space-x-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/login')}
+                >
+                  Entrar
+                </Button>
+                <Button 
+                  onClick={() => navigate('/cadastro')}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                >
+                  Cadastrar
+                </Button>
               </div>
             )}
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center space-x-2 lg:hidden">
+          <div className="md:hidden">
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleTheme}
-              className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {theme === 'light' ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
-            </Button>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-border dark:border-[#333] bg-background dark:bg-[#1a1a1a] animate-fade-in">
-          <div className="px-4 py-3 space-y-3">
-            {showBackButton && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  goBack();
-                  closeMobileMenu();
-                }}
-                className="w-full justify-start text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
-              </Button>
-            )}
-
-            {user ? (
-              <>
-                <div className="px-3 py-2 border-b border-border dark:border-[#333]">
-                  <p className="text-sm font-medium text-foreground dark:text-[#f2f2f2] truncate">
-                    {user.email}
-                  </p>
-                  <Badge variant="outline" className="text-xs border-border dark:border-[#333] text-muted-foreground dark:text-[#bbbbbb] mt-1">
-                    Usuário
-                  </Badge>
-                </div>
-
-                {navigationLinks.map((link) => (
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-slate-200 py-4">
+            <div className="space-y-2">
+              {isAuthenticated && navigationItems.map((item) => {
+                const Icon = item.icon;
+                return (
                   <Button
-                    key={link.to}
-                    variant="ghost"
-                    size="sm"
+                    key={item.name}
+                    variant={isActivePath(item.path) ? "default" : "ghost"}
                     onClick={() => {
-                      navigate(link.to);
-                      closeMobileMenu();
+                      navigate(item.path);
+                      setIsMenuOpen(false);
                     }}
-                    className={cn(
-                      "w-full justify-start text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2] hover:bg-accent dark:hover:bg-[#232323]",
-                      location.pathname === link.to && "bg-accent dark:bg-[#232323] text-foreground dark:text-[#f2f2f2]"
-                    )}
+                    className={`w-full justify-start flex items-center space-x-2 ${
+                      isActivePath(item.path) 
+                        ? 'bg-blue-600 text-white' 
+                        : 'text-slate-600'
+                    }`}
                   >
-                    {link.label}
+                    <Icon className="h-4 w-4" />
+                    <span>{item.name}</span>
                   </Button>
-                ))}
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    handleLogout();
-                    closeMobileMenu();
-                  }}
-                  className="w-full justify-start text-destructive dark:text-red-400 hover:text-destructive hover:bg-destructive/10 dark:hover:bg-red-900/20"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sair
-                </Button>
-              </>
-            ) : (
-              <div className="space-y-2">
-                <Link to="/login" onClick={closeMobileMenu}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground dark:text-[#bbbbbb] hover:text-foreground dark:hover:text-[#f2f2f2]">
+                );
+              })}
+              
+              {isAuthenticated ? (
+                <>
+                  <div className="px-3 py-2 text-sm text-slate-600 border-t border-slate-200 mt-2 pt-4">
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full justify-start"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </Button>
+                </>
+              ) : (
+                <div className="space-y-2 pt-2 border-t border-slate-200">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      navigate('/login');
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full justify-start"
+                  >
                     Entrar
                   </Button>
-                </Link>
-                <Link to="/cadastro" onClick={closeMobileMenu}>
-                  <Button size="sm" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 dark:bg-gradient-to-r dark:from-green-600 dark:to-green-500 text-white">
+                  <Button 
+                    onClick={() => {
+                      navigate('/cadastro');
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full justify-start bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  >
                     Cadastrar
                   </Button>
-                </Link>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 };

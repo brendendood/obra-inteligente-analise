@@ -1,256 +1,487 @@
 
-import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useProject } from '@/contexts/ProjectContext';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '@/components/layout/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useDropzone } from 'react-dropzone';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload as UploadIcon, FileText, AlertCircle } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Upload as UploadIcon, 
+  FileText, 
+  CheckCircle, 
+  AlertCircle,
+  Bot,
+  Zap,
+  Clock,
+  BarChart3,
+  X,
+  RefreshCw
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import ProcessingProgress from '@/components/common/ProcessingProgress';
+import { useProcessingSteps } from '@/hooks/useProcessingSteps';
 
 const Upload = () => {
-  const { isAuthenticated } = useAuth();
-  const { uploadProject } = useProject();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { currentProject, loadUserProjects } = useProject();
   const [file, setFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Use the processing steps hook
+  const { 
+    steps, 
+    currentStep, 
+    isProcessing, 
+    progress: processingProgress, 
+    startProcessing, 
+    stopProcessing 
+  } = useProcessingSteps();
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/login');
     }
-  };
+  }, [isAuthenticated, authLoading, navigate]);
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile.type === 'application/pdf') {
-        setFile(droppedFile);
-        if (!projectName) {
-          setProjectName(droppedFile.name.replace('.pdf', ''));
-        }
-      } else {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const uploadedFile = acceptedFiles[0];
+    if (uploadedFile) {
+      if (uploadedFile.type !== 'application/pdf') {
         toast({
-          title: "❌ Formato inválido",
+          title: "❌ Arquivo inválido",
           description: "Apenas arquivos PDF são aceitos.",
           variant: "destructive",
         });
+        return;
       }
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      if (selectedFile.type === 'application/pdf') {
-        setFile(selectedFile);
-        if (!projectName) {
-          setProjectName(selectedFile.name.replace('.pdf', ''));
-        }
-      } else {
+      if (uploadedFile.size > 50 * 1024 * 1024) {
         toast({
-          title: "❌ Formato inválido",
-          description: "Apenas arquivos PDF são aceitos.",
+          title: "❌ Arquivo muito grande",
+          description: "O arquivo deve ter no máximo 50MB.",
           variant: "destructive",
         });
+        return;
+      }
+      setFile(uploadedFile);
+      // Auto-fill project name with file name (without extension) if empty
+      if (!projectName) {
+        const nameWithoutExtension = uploadedFile.name.replace(/\.[^/.]+$/, "");
+        setProjectName(nameWithoutExtension);
       }
     }
-  };
+  }, [toast, projectName]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf']
+    },
+    multiple: false,
+    maxSize: 50 * 1024 * 1024
+  });
 
   const handleUpload = async () => {
-    if (!file || !projectName.trim()) {
+    if (!file || !user || !projectName.trim()) {
       toast({
-        title: "❌ Dados incompletos",
-        description: "Selecione um arquivo PDF e defina um nome para o projeto.",
+        title: "❌ Campos obrigatórios",
+        description: "Por favor, selecione um arquivo e informe o nome do projeto.",
         variant: "destructive",
       });
       return;
     }
 
-    setIsUploading(true);
+    setUploading(true);
+    setProgress(0);
+    startProcessing();
+
     try {
-      const success = await uploadProject(file, projectName.trim());
-      if (success) {
-        toast({
-          title: "🎉 Upload realizado!",
-          description: "Seu projeto foi enviado e está sendo processado.",
+      const fileName = `${user.id}/${Date.now()}-${file.name}`;
+      
+      // Simular progresso de upload
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 80) {
+            clearInterval(progressInterval);
+            return 80;
+          }
+          return prev + 10;
         });
-        navigate('/obras');
+      }, 200);
+
+      console.log('Uploading file to storage:', fileName);
+
+      // Upload do arquivo para o storage
+      const { error: uploadError } = await supabase.storage
+        .from('project-files')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
       }
+
+      console.log('File uploaded successfully, calling edge function');
+      setProgress(90);
+
+      // Chamar edge function para processar metadados
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Sessão não encontrada. Faça login novamente.');
+      }
+
+      const { data, error: processError } = await supabase.functions
+        .invoke('upload-project', {
+          body: {
+            fileName,
+            originalName: file.name,
+            projectName: projectName.trim(), // Send custom project name
+            fileSize: file.size
+          }
+        });
+
+      if (processError) {
+        console.error('Edge function error:', processError);
+        throw new Error(`Erro no processamento: ${processError.message}`);
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Erro no processamento');
+      }
+
+      clearInterval(progressInterval);
+      setProgress(100);
+      setUploadComplete(true);
+      stopProcessing();
+      
+      console.log('Upload completed successfully:', data);
+      
+      toast({
+        title: "🎉 Upload concluído!",
+        description: data.message || "Seu projeto foi analisado com sucesso.",
+      });
+
+      // Recarregar projetos
+      setTimeout(() => {
+        loadUserProjects();
+        navigate('/painel');
+      }, 2000);
+
     } catch (error) {
       console.error('Upload error:', error);
+      stopProcessing();
+      
+      let errorMessage = "Erro desconhecido";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      toast({
+        title: "❌ Erro no upload",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
-      setIsUploading(false);
+      setUploading(false);
     }
   };
+
+  const handleAnalyzeExisting = () => {
+    if (currentProject) {
+      navigate('/assistant');
+    } else {
+      toast({
+        title: "ℹ️ Nenhum projeto encontrado",
+        description: "Faça upload de um projeto primeiro.",
+        variant: "default",
+      });
+    }
+  };
+
+  const resetUpload = () => {
+    setFile(null);
+    setProjectName('');
+    setUploading(false);
+    setProgress(0);
+    setUploadComplete(false);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-slate-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;
   }
 
   return (
-    <DashboardLayout>
-      <div className="p-6 max-w-4xl mx-auto space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white">Enviar Novo Projeto</h1>
-          <p className="text-gray-400 text-lg">
-            Faça upload do seu projeto arquitetônico para análise com IA
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Header />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 rounded-2xl w-fit mx-auto mb-6 shadow-lg">
+            <UploadIcon className="h-10 w-10 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+            Análise de Projetos
+          </h1>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Faça upload do seu projeto arquitetônico e deixe nossa IA analisar cada detalhe
           </p>
         </div>
 
-        <Card className="bg-[#1a1a1a] border-[#333]">
+        {/* Quick Action - Existing Project */}
+        {currentProject && (
+          <Card className="mb-8 shadow-xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold text-green-800 flex items-center">
+                <CheckCircle className="h-6 w-6 mr-3 text-green-600" />
+                Projeto Ativo Encontrado
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-lg font-bold text-green-900 mb-1">{currentProject.name}</p>
+                  <p className="text-green-700 mb-2">
+                    {currentProject.total_area ? `${currentProject.total_area}m² • ` : ''}
+                    {currentProject.project_type}
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <Badge className="bg-green-100 text-green-800">✅ Processado</Badge>
+                    <Badge className="bg-green-100 text-green-800">🤖 IA Pronta</Badge>
+                  </div>
+                </div>
+                <Button 
+                  onClick={handleAnalyzeExisting}
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 text-lg"
+                >
+                  <Bot className="h-5 w-5 mr-2" />
+                  Analisar com IA
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Main Upload Area */}
+        <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <UploadIcon className="h-5 w-5 mr-2" />
-              Upload de Arquivo PDF
+            <CardTitle className="text-2xl text-center">
+              {uploading ? 'Processando Projeto' : 'Novo Projeto'}
             </CardTitle>
+            <CardDescription className="text-center text-lg">
+              {uploading 
+                ? 'Nossa IA está analisando seu projeto...' 
+                : 'Arraste um arquivo PDF ou clique para selecionar'
+              }
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Drop Zone */}
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
-                dragActive 
-                  ? 'border-blue-500 bg-blue-500/10' 
-                  : 'border-[#333] hover:border-[#555]'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              {file ? (
-                <div className="space-y-4">
-                  <div className="bg-green-500/20 p-4 rounded-lg inline-block">
-                    <FileText className="h-8 w-8 text-green-400 mx-auto" />
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">{file.name}</p>
-                    <p className="text-gray-400 text-sm">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setFile(null)}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    Remover arquivo
-                  </Button>
+          <CardContent>
+            {!uploading && !uploadComplete && (
+              <>
+                {/* Project Name Field */}
+                <div className="mb-6">
+                  <Label htmlFor="projectName" className="text-lg font-semibold text-slate-700 mb-2 block">
+                    Nome do Projeto *
+                  </Label>
+                  <Input
+                    id="projectName"
+                    type="text"
+                    placeholder="Ex: Residência Silva, Apartamento Copacabana..."
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    className="text-lg p-4 border-2 border-slate-300 focus:border-blue-500"
+                    disabled={uploading}
+                  />
+                  <p className="text-sm text-slate-500 mt-1">
+                    Defina um nome personalizado para identificar seu projeto
+                  </p>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-[#333] p-4 rounded-lg inline-block">
-                    <UploadIcon className="h-8 w-8 text-gray-400 mx-auto" />
-                  </div>
-                  <div>
-                    <p className="text-white font-medium mb-2">
-                      Arraste e solte seu arquivo PDF aqui
-                    </p>
-                    <p className="text-gray-400 text-sm mb-4">
-                      ou clique para selecionar
-                    </p>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={handleFileChange}
-                      className="hidden"
-                      id="file-upload"
-                    />
-                    <label htmlFor="file-upload">
-                      <Button variant="outline" className="cursor-pointer">
-                        Selecionar Arquivo
+
+                {/* Upload Zone */}
+                <div
+                  {...getRootProps()}
+                  className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 mb-6 ${
+                    isDragActive 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : file 
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50'
+                  }`}
+                >
+                  <input {...getInputProps()} />
+                  
+                  {file ? (
+                    <div className="space-y-4">
+                      <CheckCircle className="h-16 w-16 text-green-600 mx-auto" />
+                      <div>
+                        <p className="text-xl font-bold text-green-800 mb-2">Arquivo selecionado!</p>
+                        <p className="text-green-700 text-lg">{file.name}</p>
+                        <p className="text-green-600 text-sm">
+                          {(file.size / (1024 * 1024)).toFixed(1)} MB
+                        </p>
+                      </div>
+                      <Button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          resetUpload();
+                        }}
+                        variant="outline"
+                        className="mt-4"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Remover arquivo
                       </Button>
-                    </label>
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <FileText className="h-16 w-16 text-slate-400 mx-auto" />
+                      <div>
+                        <p className="text-xl font-bold text-slate-700 mb-2">
+                          {isDragActive 
+                            ? 'Solte o arquivo aqui...' 
+                            : 'Selecione seu projeto PDF'
+                          }
+                        </p>
+                        <p className="text-slate-500">
+                          Máximo 50MB • Apenas arquivos PDF
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Project Name */}
-            <div className="space-y-2">
-              <label className="text-white font-medium">Nome do Projeto</label>
-              <Input
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                placeholder="Ex: Casa Residencial - São Paulo"
-                className="bg-[#0d0d0d] border-[#333] text-white"
-              />
-            </div>
+                {/* Action Button */}
+                {file && projectName.trim() && (
+                  <Button 
+                    onClick={handleUpload}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 text-lg font-semibold"
+                    size="lg"
+                  >
+                    <Zap className="h-5 w-5 mr-2" />
+                    Analisar com IA
+                  </Button>
+                )}
+              </>
+            )}
 
-            {/* Requirements */}
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <AlertCircle className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="space-y-2">
-                  <h4 className="text-blue-400 font-medium">Requisitos do arquivo:</h4>
-                  <ul className="text-gray-300 text-sm space-y-1">
-                    <li>• Formato: PDF apenas</li>
-                    <li>• Tamanho máximo: 50MB</li>
-                    <li>• Plantas arquitetônicas legíveis</li>
-                    <li>• Texto e medidas visíveis</li>
-                  </ul>
+            {/* Upload Progress */}
+            {uploading && (
+              <div className="space-y-6">
+                <ProcessingProgress 
+                  steps={steps}
+                  currentStep={currentStep}
+                  progress={processingProgress}
+                  isProcessing={isProcessing}
+                />
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-700 font-medium">Progresso do upload</span>
+                    <span className="text-blue-600 font-bold">{progress}%</span>
+                  </div>
+                  <Progress value={progress} className="h-3" />
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                    <span className="text-blue-800 font-medium">
+                      Processando projeto "{projectName}" com IA...
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Upload Button */}
-            <Button
-              onClick={handleUpload}
-              disabled={!file || !projectName.trim() || isUploading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50"
-              size="lg"
-            >
-              {isUploading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Processando...
-                </>
-              ) : (
-                <>
-                  <UploadIcon className="h-4 w-4 mr-2" />
-                  Enviar Projeto
-                </>
-              )}
-            </Button>
+            {/* Success State */}
+            {uploadComplete && (
+              <div className="text-center space-y-6">
+                <CheckCircle className="h-20 w-20 text-green-600 mx-auto" />
+                <div>
+                  <h3 className="text-2xl font-bold text-green-800 mb-2">
+                    Projeto "{projectName}" Analisado com Sucesso!
+                  </h3>
+                  <p className="text-green-700 text-lg">
+                    Redirecionando para o painel...
+                  </p>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-[#1a1a1a] border-[#333] text-center p-4">
-            <div className="text-2xl mb-2">🤖</div>
-            <h3 className="text-white font-medium mb-1">Análise Automática</h3>
-            <p className="text-gray-400 text-sm">IA extrai informações do projeto</p>
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader>
+              <div className="bg-gradient-to-br from-blue-100 to-blue-200 p-3 rounded-2xl w-fit">
+                <Bot className="h-6 w-6 text-blue-600" />
+              </div>
+              <CardTitle className="text-lg">Análise Inteligente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600">
+                IA especializada extrai informações técnicas e identifica padrões arquitetônicos
+              </p>
+            </CardContent>
           </Card>
-          
-          <Card className="bg-[#1a1a1a] border-[#333] text-center p-4">
-            <div className="text-2xl mb-2">📊</div>
-            <h3 className="text-white font-medium mb-1">Orçamento Inteligente</h3>
-            <p className="text-gray-400 text-sm">Cálculos automáticos de custos</p>
+
+          <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader>
+              <div className="bg-gradient-to-br from-green-100 to-green-200 p-3 rounded-2xl w-fit">
+                <Clock className="h-6 w-6 text-green-600" />
+              </div>
+              <CardTitle className="text-lg">Processamento Rápido</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600">
+                Análise completa em segundos, economizando horas de trabalho manual
+              </p>
+            </CardContent>
           </Card>
-          
-          <Card className="bg-[#1a1a1a] border-[#333] text-center p-4">
-            <div className="text-2xl mb-2">📅</div>
-            <h3 className="text-white font-medium mb-1">Cronograma</h3>
-            <p className="text-gray-400 text-sm">Planejamento de etapas da obra</p>
+
+          <Card className="shadow-lg border-0 hover:shadow-xl transition-all duration-300">
+            <CardHeader>
+              <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-3 rounded-2xl w-fit">
+                <BarChart3 className="h-6 w-6 text-purple-600" />
+              </div>
+              <CardTitle className="text-lg">Relatórios Detalhados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-600">
+                Orçamentos automáticos, cronogramas e análises técnicas precisas
+              </p>
+            </CardContent>
           </Card>
         </div>
       </div>
-    </DashboardLayout>
+
+      <Footer />
+    </div>
   );
 };
 

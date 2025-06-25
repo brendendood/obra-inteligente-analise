@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -21,104 +20,37 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
-import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ProjectProvider>
+      <TooltipProvider>
         <Toaster />
+        <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Rotas públicas */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Signup />} />
+            <Route path="/painel" element={<Dashboard />} />
+            <Route path="/obras" element={<Projects />} />
+            <Route path="/obra/:projectId" element={<ProjectDetail />} />
+            <Route path="/upload" element={<Upload />} />
+            <Route path="/assistant" element={<Assistant />} />
+            <Route path="/budget" element={<Budget />} />
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/documents" element={<Documents />} />
             <Route path="/termos" element={<Terms />} />
             <Route path="/politica" element={<Privacy />} />
-            
-            {/* Rotas protegidas com layout e ProjectProvider */}
-            <Route path="/painel" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Dashboard />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/obras" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Projects />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/obra/:projectId" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <ProjectDetail />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/upload" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Upload />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/assistant" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Assistant />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/budget" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Budget />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/schedule" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Schedule />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/documents" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Documents />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Admin />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            {/* Rota 404 */}
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
-}
+      </TooltipProvider>
+    </ProjectProvider>
+  </QueryClientProvider>
+);
 
 export default App;
