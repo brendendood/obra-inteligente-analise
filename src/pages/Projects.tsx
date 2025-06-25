@@ -6,6 +6,7 @@ import ProjectsStats from '@/components/projects/ProjectsStats';
 import ProjectsGrid from '@/components/projects/ProjectsGrid';
 import ProjectDeleteDialog from '@/components/projects/ProjectDeleteDialog';
 import { useProjectsLogic } from '@/hooks/useProjectsLogic';
+import { ErrorFallback } from '@/components/error/ErrorFallback';
 
 const Projects = () => {
   const {
@@ -33,7 +34,7 @@ const Projects = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Carregando suas obras...</p>
+            <p className="text-gray-600">Carregando seus projetos...</p>
           </div>
         </div>
       </AppLayout>
@@ -41,7 +42,7 @@ const Projects = () => {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return <ErrorFallback title="Acesso Negado" message="Você precisa estar logado para ver seus projetos." />;
   }
 
   return (

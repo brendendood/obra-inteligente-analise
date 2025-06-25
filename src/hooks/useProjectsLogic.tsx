@@ -2,13 +2,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useProject } from '@/contexts/ProjectContext';
+import { useProjectLoader } from '@/hooks/useProjectLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProjectsLogic = () => {
   const { isAuthenticated, loading } = useAuth();
-  const { loadUserProjects, clearAllProjects } = useProject();
+  const { loadUserProjects } = useProjectLoader();
   const [projects, setProjects] = useState<any[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,14 +56,12 @@ export const useProjectsLogic = () => {
   const loadProjects = async () => {
     setIsLoading(true);
     try {
-      console.log('Carregando projetos na página de obras...');
+      console.log('Carregando projetos na página de projetos...');
       const userProjects = await loadUserProjects();
-      console.log('Projetos carregados na página de obras:', userProjects.length);
+      console.log('Projetos carregados na página de projetos:', userProjects.length);
       setProjects(userProjects);
     } catch (error) {
       console.error('Erro ao carregar projetos:', error);
-      // Em caso de erro, limpar estado
-      clearAllProjects();
       setProjects([]);
     } finally {
       setIsLoading(false);
@@ -84,11 +82,6 @@ export const useProjectsLogic = () => {
       // Atualizar estado local
       const updatedProjects = projects.filter(p => p.id !== projectId);
       setProjects(updatedProjects);
-      
-      // Se não há mais projetos, limpar estado completamente
-      if (updatedProjects.length === 0) {
-        clearAllProjects();
-      }
       
       setDeleteProject(null);
 

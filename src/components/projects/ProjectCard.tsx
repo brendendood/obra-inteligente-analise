@@ -98,7 +98,7 @@ const ProjectCard = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem 
-                onClick={() => navigate(`/obra/${project.id}`)}
+                onClick={() => navigate(`/projeto/${project.id}`)}
                 className="flex items-center space-x-2"
               >
                 <Eye className="h-4 w-4" />
@@ -133,7 +133,7 @@ const ProjectCard = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
-                onClick={() => navigate(`/obra/${project.id}`)}
+                onClick={() => navigate(`/projeto/${project.id}`)}
                 className="w-full bg-blue-600 hover:bg-blue-700"
                 size="sm"
               >

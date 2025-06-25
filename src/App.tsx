@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { useAuth } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { ErrorFallback } from "@/components/error/ErrorFallback";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -17,7 +18,6 @@ import ProjectWorkspacePage from "./pages/ProjectWorkspace";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -44,94 +44,127 @@ const LandingPageWrapper = () => {
   return <LandingPage />;
 };
 
+// Error Boundary Component
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+
+    return this.props.children;
+  }
+}
+
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Rotas públicas */}
-            <Route path="/" element={<LandingPageWrapper />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Signup />} />
-            <Route path="/termos" element={<Terms />} />
-            <Route path="/politica" element={<Privacy />} />
-            <Route path="/admin" element={<Admin />} />
-            
-            {/* Rotas protegidas com ProjectProvider */}
-            <Route path="/painel" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Dashboard />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/obras" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Projects />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/upload" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <Upload />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            {/* Área de trabalho do projeto com todas as seções */}
-            <Route path="/projeto/:projectId" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <ProjectWorkspacePage />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/projeto/:projectId/orcamento" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <ProjectWorkspacePage />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/projeto/:projectId/cronograma" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <ProjectWorkspacePage />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/projeto/:projectId/assistente" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <ProjectWorkspacePage />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/projeto/:projectId/documentos" element={
-              <ProtectedRoute>
-                <ProjectProvider>
-                  <ProjectWorkspacePage />
-                </ProjectProvider>
-              </ProtectedRoute>
-            } />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Rotas públicas */}
+              <Route path="/" element={<LandingPageWrapper />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
+              <Route path="/termos" element={<Terms />} />
+              <Route path="/politica" element={<Privacy />} />
+              <Route path="/admin" element={<Admin />} />
+              
+              {/* Rotas protegidas com ProjectProvider */}
+              <Route path="/painel" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Dashboard />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Rota unificada para projetos */}
+              <Route path="/projetos" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Projects />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Manter compatibilidade com /obras redirecionando para /projetos */}
+              <Route path="/obras" element={<Navigate to="/projetos" replace />} />
+              
+              <Route path="/upload" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Upload />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Área de trabalho do projeto com todas as seções */}
+              <Route path="/projeto/:projectId" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projeto/:projectId/orcamento" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projeto/:projectId/cronograma" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projeto/:projectId/assistente" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projeto/:projectId/documentos" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
 
-            {/* Rota 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+              {/* Rota 404 */}
+              <Route path="*" element={<ErrorFallback title="Página não encontrada" message="A página que você está procurando não existe." />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

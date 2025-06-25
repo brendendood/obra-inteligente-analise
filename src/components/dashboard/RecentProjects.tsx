@@ -28,7 +28,7 @@ export const RecentProjects = ({ projects }: RecentProjectsProps) => {
         <h2 className="text-2xl font-bold text-gray-900">Projetos Recentes</h2>
         <Button 
           variant="outline" 
-          onClick={() => navigate('/obras')}
+          onClick={() => navigate('/projetos')}
           className="flex items-center space-x-2"
         >
           <FolderOpen className="h-4 w-4" />
@@ -41,7 +41,7 @@ export const RecentProjects = ({ projects }: RecentProjectsProps) => {
           <Card 
             key={project.id}
             className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
-            onClick={() => navigate(`/obra/${project.id}`)}
+            onClick={() => navigate(`/projeto/${project.id}`)}
           >
             <CardHeader className="pb-3">
               <CardTitle className="text-lg text-gray-900 line-clamp-2">

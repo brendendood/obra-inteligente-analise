@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useProject } from '@/contexts/ProjectContext';
+import { useProjectLoader } from '@/hooks/useProjectLoader';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,7 +14,7 @@ interface DashboardStats {
 
 export const useDashboardData = () => {
   const { user } = useAuth();
-  const { loadUserProjects, clearAllProjects } = useProject();
+  const { loadUserProjects } = useProjectLoader();
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
@@ -56,7 +56,6 @@ export const useDashboardData = () => {
       console.log('Estatísticas calculadas:', newStats);
     } catch (error) {
       console.error('Erro ao carregar projetos no Dashboard:', error);
-      clearAllProjects();
       setProjects([]);
       setStats({
         totalProjects: 0,
@@ -90,7 +89,6 @@ export const useDashboardData = () => {
 
         console.log(`${userProjects.length} projetos excluídos com sucesso`);
         
-        clearAllProjects();
         setProjects([]);
         setStats({
           totalProjects: 0,
