@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -15,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Upload from "./pages/Upload";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
+import ProjectSpecificBudget from "./pages/ProjectSpecificBudget";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
@@ -117,7 +119,7 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* Área de trabalho do projeto com todas as seções */}
+              {/* Área de trabalho do projeto - visão geral */}
               <Route path="/projeto/:projectId" element={
                 <ProtectedRoute>
                   <ProjectProvider>
@@ -126,10 +128,11 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
+              {/* Rotas específicas para cada seção do projeto */}
               <Route path="/projeto/:projectId/orcamento" element={
                 <ProtectedRoute>
                   <ProjectProvider>
-                    <ProjectWorkspacePage />
+                    <ProjectSpecificBudget />
                   </ProjectProvider>
                 </ProtectedRoute>
               } />
