@@ -27,26 +27,20 @@ export const useDashboardData = () => {
   const { toast } = useToast();
   const initializedRef = useRef(false);
   const isLoadingRef = useRef(false);
+  const mountedRef = useRef(true);
 
+  // Função estável de carregamento
   const loadProjects = useCallback(async () => {
-    // Prevenir múltiplas execuções simultâneas
-    if (isLoadingRef.current) {
-      console.log('⏳ Load projects já em andamento, ignorando...');
+    if (isLoadingRef.current || !mountedRef.current) {
       return;
     }
 
-    console.log('📊 Dashboard loadProjects:', { loading, isAuthenticated, userId: user?.id });
-    
-    if (loading) {
-      console.log('⏳ Dashboard aguardando auth...');
-      return;
-    }
-
-    if (!isAuthenticated || !user) {
-      console.log('🚫 Dashboard: usuário não autenticado');
-      setProjects([]);
-      setIsLoadingProjects(false);
-      initializedRef.current = true;
+    if (loading || !isAuthenticated || !user) {
+      if (!loading && !isAuthenticated) {
+        setProjects([]);
+        setIsLoadingProjects(false);
+        initializedRef.current = true;
+      }
       return;
     }
 
@@ -54,9 +48,9 @@ export const useDashboardData = () => {
     setIsLoadingProjects(true);
     
     try {
-      console.log('🔄 Dashboard carregando projetos...');
       const userProjects = await loadUserProjects();
-      console.log('📋 Dashboard projetos carregados:', userProjects.length);
+      
+      if (!mountedRef.current) return;
       
       setProjects(userProjects);
       
@@ -80,43 +74,49 @@ export const useDashboardData = () => {
       };
 
       setStats(newStats);
-      console.log('📈 Stats calculadas:', newStats);
       
     } catch (error) {
-      console.error('💥 Erro no Dashboard:', error);
-      setProjects([]);
-      toast({
-        title: "Erro ao carregar projetos",
-        description: "Não foi possível carregar seus projetos. Tente novamente.",
-        variant: "destructive"
-      });
+      console.error('Erro no Dashboard:', error);
+      if (mountedRef.current) {
+        setProjects([]);
+        toast({
+          title: "Erro ao carregar projetos",
+          description: "Não foi possível carregar seus projetos. Tente novamente.",
+          variant: "destructive"
+        });
+      }
     } finally {
-      setIsLoadingProjects(false);
-      isLoadingRef.current = false;
-      initializedRef.current = true;
+      if (mountedRef.current) {
+        setIsLoadingProjects(false);
+        isLoadingRef.current = false;
+        initializedRef.current = true;
+      }
     }
   }, [loading, isAuthenticated, user?.id, loadUserProjects, toast]);
 
-  // Auto refresh com configurações mais conservadoras
+  // Auto refresh MUITO conservador
   const { forceRefresh } = useAutoRefresh({
     onRefresh: loadProjects,
-    interval: 120000, // 2 minutos em vez de 1
-    enabled: isAuthenticated && !loading && initializedRef.current,
-    refreshOnRouteChange: false // DESABILITADO para evitar loops
+    interval: 600000, // 10 minutos
+    enabled: isAuthenticated && !loading && initializedRef.current
   });
 
-  // Carregar apenas uma vez quando auth estiver pronto
+  // Carregar apenas UMA vez quando tudo estiver pronto
   useEffect(() => {
-    if (!loading && !initializedRef.current) {
-      console.log('🎯 Dashboard inicializando...');
+    if (!loading && !initializedRef.current && isAuthenticated && user) {
       loadProjects();
     }
-  }, [loading, loadProjects]);
+  }, [loading, isAuthenticated, user?.id]); // Dependências mínimas e estáveis
+
+  // Cleanup na desmontagem
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleDeleteAllProjects = async () => {
     try {
-      console.log('Excluindo todos os projetos...');
-      
       const { data: userProjects, error: fetchError } = await supabase
         .from('projects')
         .select('id')
@@ -131,21 +131,21 @@ export const useDashboardData = () => {
           .eq('user_id', user?.id);
 
         if (deleteError) throw deleteError;
-
-        console.log(`${userProjects.length} projetos excluídos com sucesso`);
         
-        setProjects([]);
-        setStats({
-          totalProjects: 0,
-          totalArea: 0,
-          recentProjects: 0,
-          timeSaved: 0
-        });
-        
-        toast({
-          title: "✅ Projetos excluídos!",
-          description: `${userProjects.length} projeto(s) foram removidos com sucesso.`,
-        });
+        if (mountedRef.current) {
+          setProjects([]);
+          setStats({
+            totalProjects: 0,
+            totalArea: 0,
+            recentProjects: 0,
+            timeSaved: 0
+          });
+          
+          toast({
+            title: "✅ Projetos excluídos!",
+            description: `${userProjects.length} projeto(s) foram removidos com sucesso.`,
+          });
+        }
       } else {
         toast({
           title: "ℹ️ Nenhum projeto encontrado",

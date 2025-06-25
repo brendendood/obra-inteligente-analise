@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -17,6 +17,7 @@ const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { preferences, addRecentProject } = useUserPreferences();
+  const [showContent, setShowContent] = useState(false);
   
   const {
     projects,
@@ -28,6 +29,16 @@ const Dashboard = () => {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       navigate('/login');
+      return;
+    }
+    
+    // Delay mínimo para evitar flashing
+    if (!authLoading && isAuthenticated) {
+      const timer = setTimeout(() => {
+        setShowContent(true);
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
   }, [isAuthenticated, authLoading, navigate]);
 
@@ -36,10 +47,11 @@ const Dashboard = () => {
     navigate(`/projeto/${projectId}`);
   };
 
-  // Simplificar lógica de loading
-  const isLoading = authLoading || (isAuthenticated && isLoadingProjects);
+  // Estados de loading mais estáveis
+  const isInitialLoading = authLoading || !showContent;
+  const isDataLoading = showContent && isAuthenticated && isLoadingProjects;
 
-  if (isLoading) {
+  if (isInitialLoading) {
     return (
       <AppLayout>
         <div className="space-y-8 animate-fade-in">
@@ -77,9 +89,10 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <EnhancedBreadcrumb />
           <SmartLoading 
-            isLoading={false} 
+            isLoading={isDataLoading} 
             hasData={projects.length > 0}
             successText={`${projects.length} projetos carregados`}
+            loadingText="Carregando projetos..."
           />
         </div>
         
@@ -101,10 +114,11 @@ const Dashboard = () => {
             </div>
             <button
               onClick={forceRefresh}
-              className="text-blue-600 hover:text-blue-700 p-3 rounded-lg hover:bg-blue-50 transition-all duration-200 group"
+              disabled={isDataLoading}
+              className="text-blue-600 hover:text-blue-700 p-3 rounded-lg hover:bg-blue-50 transition-all duration-200 group disabled:opacity-50"
               title="Atualizar dados"
             >
-              <RefreshCw className="h-5 w-5 group-hover:rotate-180 transition-transform duration-500" />
+              <RefreshCw className={`h-5 w-5 transition-transform duration-500 ${isDataLoading ? 'animate-spin' : 'group-hover:rotate-180'}`} />
             </button>
           </div>
         </div>
@@ -115,8 +129,20 @@ const Dashboard = () => {
         {/* Ações rápidas melhoradas */}
         <EnhancedQuickActions />
 
-        {/* Grade de projetos recentes com animações */}
-        {projects.length > 0 ? (
+        {/* Grade de projetos recentes com proteção de loading */}
+        {isDataLoading ? (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <EnhancedSkeleton variant="text" className="h-8 w-48" />
+              <EnhancedSkeleton variant="text" className="h-5 w-32" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <EnhancedSkeleton key={i} variant="card" />
+              ))}
+            </div>
+          </div>
+        ) : projects.length > 0 ? (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">Projetos Recentes</h2>
