@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +22,41 @@ import {
   BarChart3,
   Zap
 } from 'lucide-react';
+
+interface AnimatedCardProps {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  hoverEffect?: 'lift' | 'glow' | 'scale';
+}
+
+export const AnimatedCard = ({ 
+  children, 
+  className = '', 
+  onClick, 
+  hoverEffect = 'lift' 
+}: AnimatedCardProps) => {
+  const getHoverClasses = () => {
+    switch (hoverEffect) {
+      case 'glow':
+        return 'hover:shadow-2xl hover:shadow-blue-500/20';
+      case 'scale':
+        return 'hover:scale-105';
+      case 'lift':
+      default:
+        return 'hover:shadow-xl hover:-translate-y-1';
+    }
+  };
+
+  return (
+    <Card 
+      className={`transition-all duration-300 cursor-pointer ${getHoverClasses()} ${className}`}
+      onClick={onClick}
+    >
+      {children}
+    </Card>
+  );
+};
 
 interface AnimatedProjectCardProps {
   project: any;
