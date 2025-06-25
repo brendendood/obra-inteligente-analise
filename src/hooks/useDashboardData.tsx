@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectLoader } from '@/hooks/useProjectLoader';
+import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -72,10 +74,23 @@ export const useDashboardData = () => {
     } catch (error) {
       console.error('💥 Erro no Dashboard:', error);
       setProjects([]);
+      toast({
+        title: "Erro ao carregar projetos",
+        description: "Não foi possível carregar seus projetos. Tente novamente.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoadingProjects(false);
     }
   };
+
+  // Auto refresh ativo
+  const { forceRefresh } = useAutoRefresh({
+    onRefresh: loadProjects,
+    interval: 60000, // 1 minuto
+    enabled: isAuthenticated && !loading,
+    refreshOnRouteChange: true
+  });
 
   // Carregar quando auth estiver pronto
   useEffect(() => {
@@ -139,6 +154,7 @@ export const useDashboardData = () => {
     stats,
     isLoadingProjects,
     loadProjects,
-    handleDeleteAllProjects
+    handleDeleteAllProjects,
+    forceRefresh
   };
 };

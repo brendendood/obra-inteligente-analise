@@ -10,6 +10,7 @@ import { AnimatedProjectCard } from '@/components/ui/animated-card';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { Plus } from 'lucide-react';
+import { SmartLoading } from '@/components/ui/smart-loading';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading } = useAuth();
@@ -19,7 +20,8 @@ const Dashboard = () => {
   const {
     projects,
     stats,
-    isLoadingProjects
+    isLoadingProjects,
+    forceRefresh
   } = useDashboardData();
 
   useEffect(() => {
@@ -37,7 +39,16 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="space-y-8 animate-fade-in">
-          <EnhancedSkeleton variant="text" lines={2} className="h-20" />
+          <div className="flex items-center justify-between">
+            <EnhancedSkeleton variant="text" lines={2} className="h-20 w-1/2" />
+            <SmartLoading 
+              isLoading={true} 
+              hasData={false}
+              loadingText="Carregando dashboard..."
+              showProgress={true}
+              progress={isLoadingProjects ? 50 : 75}
+            />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
               <EnhancedSkeleton key={i} variant="card" />
@@ -59,16 +70,37 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <div className="space-y-8 animate-fade-in">
-        <EnhancedBreadcrumb />
+        <div className="flex items-center justify-between">
+          <EnhancedBreadcrumb />
+          <SmartLoading 
+            isLoading={isLoadingProjects} 
+            hasData={projects.length > 0}
+            loadingText="Sincronizando..."
+            successText={`${projects.length} projetos carregados`}
+          />
+        </div>
         
         {/* Header com boas-vindas animado */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {greeting}, {userName}! 👋
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Bem-vindo ao seu painel de controle. Gerencie seus projetos de forma inteligente.
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {greeting}, {userName}! 👋
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Bem-vindo ao seu painel de controle. Gerencie seus projetos de forma inteligente.
+              </p>
+            </div>
+            <button
+              onClick={forceRefresh}
+              className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-colors"
+              title="Atualizar dados"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Cards de estatísticas */}
@@ -82,12 +114,20 @@ const Dashboard = () => {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold text-gray-900">Projetos Recentes</h2>
-              <button 
-                onClick={() => navigate('/projetos')}
-                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
-              >
-                Ver todos os {projects.length} projetos →
-              </button>
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-500">
+                  Última atualização: {new Date().toLocaleTimeString('pt-BR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                  })}
+                </span>
+                <button 
+                  onClick={() => navigate('/projetos')}
+                  className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                >
+                  Ver todos os {projects.length} projetos →
+                </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
