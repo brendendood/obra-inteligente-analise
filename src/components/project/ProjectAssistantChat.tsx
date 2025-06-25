@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,7 +35,7 @@ export const ProjectAssistantChat = ({
       sender: 'assistant',
       message: `Olá! Sou o assistente IA especializado no projeto "${project?.name}". Posso ajudá-lo com análises técnicas, estimativas de custos, cronogramas e questões específicas sobre sua obra. Como posso ajudar?`,
       timestamp: new Date(),
-      metadata: { type: 'suggestion' }
+      metadata: { type: 'suggestion' as const }
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -68,7 +67,7 @@ export const ProjectAssistantChat = ({
                 `• **Variação esperada**: ±15%\n\n` +
                 `💡 Gostaria que eu gere um orçamento detalhado baseado na tabela SINAPI?`,
         metadata: { 
-          type: 'calculation',
+          type: 'calculation' as const,
           data: { estimatedCost, costPerM2, area }
         }
       };
@@ -92,7 +91,7 @@ export const ProjectAssistantChat = ({
                 phases.map((phase, i) => `${i + 1}. ${phase}`).join('\n') + '\n\n' +
                 `💡 Posso gerar um cronograma detalhado com datas específicas?`,
         metadata: { 
-          type: 'timeline',
+          type: 'timeline' as const,
           data: { duration, phases, area }
         }
       };
@@ -110,7 +109,7 @@ export const ProjectAssistantChat = ({
                 `*Estimativas baseadas em padrões construtivos residenciais*\n\n` +
                 `📋 Sobre qual material específico gostaria de mais detalhes?`,
         metadata: { 
-          type: 'calculation',
+          type: 'calculation' as const,
           data: { materials: true, area }
         }
       };
@@ -130,7 +129,7 @@ export const ProjectAssistantChat = ({
                 `- Lista de materiais\n\n` +
                 `Qual análise específica você gostaria de ver primeiro?`,
         metadata: { 
-          type: 'suggestion',
+          type: 'suggestion' as const,
           data: { hasAnalysis: true }
         }
       };
@@ -146,7 +145,7 @@ export const ProjectAssistantChat = ({
               `📋 **Normas técnicas** - NBRs aplicáveis\n` +
               `🔍 **Análise técnica** - Insights do seu projeto\n\n` +
               `Sobre qual aspecto específico você gostaria de conversar?`,
-      metadata: { type: 'suggestion' }
+      metadata: { type: 'suggestion' as const }
     };
   };
 
