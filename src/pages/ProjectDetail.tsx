@@ -4,28 +4,24 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
-  ArrowUp,
+  ArrowLeft,
   FileText, 
   Calendar, 
   Calculator, 
   Bot,
-  Home,
   AlertCircle,
   RefreshCw,
   Download,
-  FileDown,
+  ExternalLink,
   ClipboardList,
   BarChart3
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import ProjectActionCard from '@/components/project/ProjectActionCard';
-import GanttChart from '@/components/project/GanttChart';
+import { AppLayout } from '@/components/layout/AppLayout';
+import GanttChart from '@/components/schedule/GanttChart';
 
 interface Project {
   id: string;
@@ -123,15 +119,25 @@ const ProjectDetail = () => {
     setShowBudget(false);
     
     try {
-      const { data, error } = await supabase.functions.invoke('chat-assistant', {
-        body: {
-          message: 'Gere um orçamento detalhado usando a tabela SINAPI para este projeto',
-          projectId: project.id
-        }
+      // Integração com N8N
+      const response = await fetch('https://brendendood.app.n8n.cloud/webhook-test/agente-ia-orcamento', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: project.id,
+          projectName: project.name,
+          projectData: project.analysis_data,
+          userId: user?.id
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Erro na comunicação com o serviço de orçamento');
+      }
 
+      const data = await response.json();
       setBudgetData(data);
       setShowBudget(true);
       
@@ -158,16 +164,6 @@ const ProjectDetail = () => {
     setShowSchedule(false);
     
     try {
-      const { data, error } = await supabase.functions.invoke('chat-assistant', {
-        body: {
-          message: 'Gere um cronograma detalhado de execução para este projeto',
-          projectId: project.id
-        }
-      });
-
-      if (error) throw error;
-
-      // Simulate schedule data for the Gantt component
       const mockScheduleData = [
         {
           id: '1',
@@ -229,76 +225,66 @@ const ProjectDetail = () => {
   // Loading state
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Carregando projeto...</p>
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Carregando projeto...</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   // Error states
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-        <Header />
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Card className="shadow-lg border-0 text-center">
-            <CardContent className="py-12">
-              <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">
-                {error || 'Projeto não encontrado'}
-              </h2>
-              <p className="text-slate-600 mb-8">
-                {error === 'Projeto não encontrado' 
-                  ? 'O projeto que você está procurando pode ter sido removido ou você não tem permissão para acessá-lo.'
-                  : 'Ocorreu um erro inesperado ao carregar o projeto.'
-                }
-              </p>
+      <AppLayout>
+        <Card className="border-0 shadow-lg text-center">
+          <CardContent className="py-12">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {error || 'Projeto não encontrado'}
+            </h2>
+            <p className="text-gray-600 mb-8">
+              {error === 'Projeto não encontrado' 
+                ? 'O projeto que você está procurando pode ter sido removido ou você não tem permissão para acessá-lo.'
+                : 'Ocorreu um erro inesperado ao carregar o projeto.'
+              }
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => navigate('/obras')}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Voltar às Obras
+              </Button>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={() => navigate('/obras')}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                >
-                  <Home className="h-4 w-4 mr-2" />
-                  Ver Todas as Obras
-                </Button>
-                
-                <Button 
-                  onClick={() => navigate('/upload')}
-                  variant="outline"
-                >
-                  <ArrowUp className="h-4 w-4 mr-2" />
-                  Novo Projeto
-                </Button>
-                
-                <Button 
-                  onClick={loadProject}
-                  variant="outline"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Tentar Novamente
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <Footer />
-      </div>
+              <Button 
+                onClick={loadProject}
+                variant="outline"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Tentar Novamente
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </AppLayout>
     );
   }
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Header />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppLayout>
+      <div className="space-y-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-slate-600 mb-6">
+        <nav className="flex items-center space-x-2 text-sm text-gray-600">
           <button onClick={() => navigate('/painel')} className="hover:text-blue-600">
             Painel
           </button>
@@ -307,28 +293,35 @@ const ProjectDetail = () => {
             Obras
           </button>
           <span>/</span>
-          <span className="text-slate-900 font-medium">{project.name}</span>
+          <span className="text-gray-900 font-medium">{project.name}</span>
         </nav>
 
         {/* Project Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">{project.name}</h1>
-              <div className="flex items-center space-x-4 text-slate-600">
-                {project.total_area && (
-                  <span>Área: {project.total_area}m²</span>
-                )}
-                {project.project_type && (
-                  <Badge variant="outline">{project.project_type}</Badge>
-                )}
-                <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
-              </div>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.name}</h1>
+            <div className="flex items-center space-x-4 text-gray-600">
+              {project.total_area && (
+                <span>Área: {project.total_area}m²</span>
+              )}
+              {project.project_type && (
+                <Badge variant="outline">{project.project_type}</Badge>
+              )}
+              <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
             </div>
-            
-            <Badge className="bg-green-100 text-green-800">
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <Badge className="bg-green-100 text-green-800 border-green-200">
               ✅ Processado
             </Badge>
+            <Button 
+              onClick={() => navigate('/obras')}
+              variant="outline"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Button>
           </div>
         </div>
 
@@ -336,7 +329,7 @@ const ProjectDetail = () => {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* PDF Viewer */}
-            <Card className="shadow-lg border-0">
+            <Card className="border-0 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <FileText className="h-5 w-5 mr-2 text-blue-600" />
@@ -346,22 +339,39 @@ const ProjectDetail = () => {
               <CardContent>
                 {getPdfUrl() ? (
                   <div className="space-y-4">
-                    <iframe
-                      src={`${getPdfUrl()}#view=FitH`}
-                      className="w-full h-96 border border-slate-200 rounded-lg"
-                      title="PDF do Projeto"
-                    />
-                    <Button
-                      onClick={() => window.open(getPdfUrl(), '_blank')}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Abrir PDF em Nova Aba
-                    </Button>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <iframe
+                        src={`${getPdfUrl()}#view=FitH`}
+                        className="w-full h-96"
+                        title="PDF do Projeto"
+                      />
+                    </div>
+                    <div className="flex space-x-3">
+                      <Button
+                        onClick={() => window.open(getPdfUrl(), '_blank')}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Abrir em Nova Aba
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = getPdfUrl() || '';
+                          link.download = `${project.name}.pdf`;
+                          link.click();
+                        }}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-500">
+                  <div className="text-center py-8 text-gray-500">
                     <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p>Arquivo PDF não disponível</p>
                   </div>
@@ -371,7 +381,7 @@ const ProjectDetail = () => {
 
             {/* Budget Display */}
             {showBudget && budgetData && (
-              <Card className="shadow-lg border-0">
+              <Card className="border-0 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Calculator className="h-5 w-5 mr-2 text-green-600" />
@@ -380,7 +390,9 @@ const ProjectDetail = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="prose max-w-none">
-                    <pre className="whitespace-pre-wrap text-sm">{budgetData.message || JSON.stringify(budgetData, null, 2)}</pre>
+                    <pre className="whitespace-pre-wrap text-sm bg-gray-50 p-4 rounded-lg">
+                      {budgetData.message || JSON.stringify(budgetData, null, 2)}
+                    </pre>
                   </div>
                 </CardContent>
               </Card>
@@ -399,50 +411,91 @@ const ProjectDetail = () => {
 
           {/* Actions Sidebar */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Ferramentas do Projeto</h3>
+            <h3 className="text-lg font-bold text-gray-900">Ferramentas do Projeto</h3>
             
-            <ProjectActionCard
-              icon={Bot}
-              title="Assistente IA"
-              description="Chat inteligente sobre o projeto"
-              onClick={() => navigate('/assistant')}
-            />
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/assistant')}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-purple-100 rounded-lg">
+                    <Bot className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Assistente IA</h4>
+                    <p className="text-sm text-gray-600">Chat inteligente sobre o projeto</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <ProjectActionCard
-              icon={Calculator}
-              title="Orçamento Inteligente"
-              description="Gerar orçamento baseado na tabela SINAPI"
-              onClick={handleBudgetGeneration}
-              isLoading={budgetLoading}
-            />
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={handleBudgetGeneration}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-green-100 rounded-lg">
+                    <Calculator className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900">Orçamento Inteligente</h4>
+                    <p className="text-sm text-gray-600">Gerar orçamento baseado na tabela SINAPI</p>
+                    {budgetLoading && (
+                      <div className="mt-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <ProjectActionCard
-              icon={Calendar}
-              title="Cronograma"
-              description="Timeline visual das etapas de execução"
-              onClick={handleScheduleGeneration}
-              isLoading={scheduleLoading}
-            />
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={handleScheduleGeneration}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900">Cronograma</h4>
+                    <p className="text-sm text-gray-600">Timeline visual das etapas</p>
+                    {scheduleLoading && (
+                      <div className="mt-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <ProjectActionCard
-              icon={FileDown}
-              title="Documentos"
-              description="Downloads e relatórios técnicos"
-              onClick={() => navigate('/documents')}
-            />
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => navigate('/documents')}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-orange-100 rounded-lg">
+                    <FileText className="h-6 w-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Documentos</h4>
+                    <p className="text-sm text-gray-600">Downloads e relatórios</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            <ProjectActionCard
-              icon={BarChart3}
-              title="Análises"
-              description="Relatórios detalhados e insights"
-              onClick={() => toast({ title: "📊 Em desenvolvimento", description: "Funcionalidade será lançada em breve" })}
-            />
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow cursor-pointer" onClick={() => toast({ title: "📊 Em desenvolvimento", description: "Funcionalidade será lançada em breve" })}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-indigo-100 rounded-lg">
+                    <BarChart3 className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Análises</h4>
+                    <p className="text-sm text-gray-600">Relatórios detalhados</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };
 
