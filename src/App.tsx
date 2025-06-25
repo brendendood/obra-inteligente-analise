@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,50 +47,68 @@ function App() {
             <Route path="/termos" element={<Terms />} />
             <Route path="/politica" element={<Privacy />} />
             
-            {/* Rotas protegidas com layout */}
+            {/* Rotas protegidas com layout e ProjectProvider */}
             <Route path="/painel" element={
               <ProtectedRoute>
-                <Dashboard />
+                <ProjectProvider>
+                  <Dashboard />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/obras" element={
               <ProtectedRoute>
-                <Projects />
+                <ProjectProvider>
+                  <Projects />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/obra/:projectId" element={
               <ProtectedRoute>
-                <ProjectDetail />
+                <ProjectProvider>
+                  <ProjectDetail />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/upload" element={
               <ProtectedRoute>
-                <Upload />
+                <ProjectProvider>
+                  <Upload />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/assistant" element={
               <ProtectedRoute>
-                <Assistant />
+                <ProjectProvider>
+                  <Assistant />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/budget" element={
               <ProtectedRoute>
-                <Budget />
+                <ProjectProvider>
+                  <Budget />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/schedule" element={
               <ProtectedRoute>
-                <Schedule />
+                <ProjectProvider>
+                  <Schedule />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/documents" element={
               <ProtectedRoute>
-                <Documents />
+                <ProjectProvider>
+                  <Documents />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             <Route path="/admin" element={
               <ProtectedRoute>
-                <Admin />
+                <ProjectProvider>
+                  <Admin />
+                </ProjectProvider>
               </ProtectedRoute>
             } />
             
