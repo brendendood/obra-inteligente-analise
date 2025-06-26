@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -141,58 +140,66 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
                   )}
                 </div>
 
-                {/* Ações rápidas - agora em grid de 3 colunas */}
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/projeto/${project.id}/orcamento`);
-                    }}
-                    className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
-                  >
-                    {isMobile ? (
-                      <span>💰</span>
-                    ) : (
-                      <>
+                {/* Ações rápidas - layout em 2 linhas */}
+                <div className="space-y-2">
+                  {/* Primeira linha: Orçamento e IA */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/projeto/${project.id}/orcamento`);
+                      }}
+                      className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                    >
+                      {isMobile ? (
                         <span>💰</span>
-                        <span>Orçamento</span>
-                      </>
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/projeto/${project.id}/cronograma`);
-                    }}
-                    className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
-                  >
-                    {isMobile ? (
-                      <span>📅</span>
-                    ) : (
-                      <>
-                        <span>📅</span>
-                        <span>Cronograma</span>
-                      </>
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/projeto/${project.id}/assistente`);
-                    }}
-                    className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
-                  >
-                    {isMobile ? (
-                      <span>🤖</span>
-                    ) : (
-                      <>
+                      ) : (
+                        <>
+                          <span>💰</span>
+                          <span>Orçamento</span>
+                        </>
+                      )}
+                    </button>
+                    
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/projeto/${project.id}/assistente`);
+                      }}
+                      className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                    >
+                      {isMobile ? (
                         <span>🤖</span>
-                        <span>IA</span>
-                      </>
-                    )}
-                  </button>
+                      ) : (
+                        <>
+                          <span>🤖</span>
+                          <span>IA</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  
+                  {/* Segunda linha: Cronograma centralizado */}
+                  <div className="flex justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/projeto/${project.id}/cronograma`);
+                      }}
+                      className={`flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs ${
+                        isMobile ? 'w-16' : 'w-32'
+                      }`}
+                    >
+                      {isMobile ? (
+                        <span>📅</span>
+                      ) : (
+                        <>
+                          <span>📅</span>
+                          <span>Cronograma</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Indicador de hover */}
