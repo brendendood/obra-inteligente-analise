@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useProjectsLogic } from '@/hooks/useProjectsLogic';
 import ProjectCard from '@/components/projects/ProjectCard';
 import { ProjectEditDialog } from '@/components/projects/ProjectEditDialog';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProjectsGridProps { 
   projects: any[];
@@ -21,7 +21,7 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
   } = useProjectsLogic();
 
   const [editingProject, setEditingProject] = useState<any>(null);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const handleEditProject = (project: any) => {
     setEditingProject(project);
@@ -33,7 +33,6 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
   };
 
   if (isMobile) {
-    // Layout grid vertical para mobile
     return (
       <>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -66,11 +65,9 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
     );
   }
 
-  // Layout horizontal para desktop
   return (
     <>
       <div className="relative">
-        {/* Indicadores de scroll */}
         <div className="flex items-center space-x-2 mb-4">
           <span className="text-sm text-gray-500">
             {projects.length} projeto(s) • Arraste horizontalmente para navegar
@@ -78,7 +75,6 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
           <div className="flex-1 border-t border-gray-200"></div>
         </div>
 
-        {/* Container horizontal com scroll */}
         <div className="overflow-x-auto pb-4">
           <div className="flex space-x-6 min-w-max">
             {projects.map((project, index) => (
@@ -101,7 +97,6 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
           </div>
         </div>
 
-        {/* Gradiente de indicação de scroll */}
         <div className="absolute right-0 top-12 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
       </div>
 

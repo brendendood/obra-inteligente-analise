@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +7,7 @@ import { Project } from '@/types/project';
 import { AIMessage } from './AIMessage';
 import { AITypingIndicator } from './AITypingIndicator';
 import { getProjectAIResponse } from '@/utils/projectAIService';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChatMessage {
   id: string;
@@ -37,7 +36,7 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   // Scroll automático otimizado
   useEffect(() => {

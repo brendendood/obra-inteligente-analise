@@ -23,7 +23,7 @@ import {
   Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProjectCardProps {
   project: any;
@@ -45,12 +45,11 @@ const ProjectCard = ({
   onEdit 
 }: ProjectCardProps) => {
   const navigate = useNavigate();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   const getStatusBadge = (project: any) => {
     if (project.analysis_data) {
       if (isMobile) {
-        // Mobile: apenas ícone
         return (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -64,7 +63,6 @@ const ProjectCard = ({
           </Tooltip>
         );
       } else {
-        // Desktop: texto completo
         return (
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <CheckCircle className="h-3 w-3 mr-1" />
@@ -75,7 +73,6 @@ const ProjectCard = ({
     }
     
     if (isMobile) {
-      // Mobile: apenas ícone
       return (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -89,7 +86,6 @@ const ProjectCard = ({
         </Tooltip>
       );
     } else {
-      // Desktop: texto completo
       return (
         <Badge className="bg-orange-100 text-orange-800 border-orange-200">
           <Clock className="h-3 w-3 mr-1" />
