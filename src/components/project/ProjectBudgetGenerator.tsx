@@ -1,15 +1,15 @@
+
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Calculator, Download, History, Plus, RefreshCw } from 'lucide-react';
 import { Project } from '@/types/project';
-import { EditableBudgetItem } from './budget/EditableBudgetItem';
+import { BudgetGenerationProgress } from './budget/BudgetGenerationProgress';
+import { BudgetItemsList } from './budget/BudgetItemsList';
 import { BudgetSummary } from './budget/BudgetSummary';
+import { BudgetActions } from './budget/BudgetActions';
+import { EmptyBudgetState } from './budget/EmptyBudgetState';
 import { AddItemDialog } from './budget/AddItemDialog';
 import { BudgetExportDialog } from './budget/BudgetExportDialog';
 import { BudgetHistoryDialog } from './budget/BudgetHistoryDialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { generateAutomaticBudget, BudgetData, BudgetItem } from '@/utils/budgetGenerator';
 import { useToast } from '@/hooks/use-toast';
 
@@ -154,89 +154,30 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <Button
-              onClick={() => setShowAddDialog(true)}
-              disabled={!budgetData}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Item
-            </Button>
-            
-            <Button
-              onClick={() => setShowExportDialog(true)}
-              disabled={!budgetData}
-              variant="outline"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Exportar
-            </Button>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={() => setShowHistoryDialog(true)}
-                  disabled={!budgetData}
-                  variant="outline"
-                >
-                  <History className="h-4 w-4 mr-2" />
-                  Histórico
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Funcionalidade em desenvolvimento. Em breve estará disponível!</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+          <BudgetActions
+            onAddItem={() => setShowAddDialog(true)}
+            onExport={() => setShowExportDialog(true)}
+            onViewHistory={() => setShowHistoryDialog(true)}
+            disabled={!budgetData}
+          />
         </div>
 
         {isGenerating && (
-          <Card className="bg-blue-50/80 backdrop-blur-sm border border-blue-200/50">
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <RefreshCw className="h-5 w-5 animate-spin text-blue-600" />
-                  <span className="font-medium text-blue-900">
-                    Gerando orçamento automaticamente com MadenAI...
-                  </span>
-                </div>
-                <Progress value={progress} className="h-3 bg-blue-100" />
-                <p className="text-sm text-blue-700">
-                  Analisando {project.total_area || 100}m² e consultando base SINAPI atualizada
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <BudgetGenerationProgress 
+            progress={progress} 
+            projectArea={project.total_area || 100} 
+          />
         )}
 
         {budgetData && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3 space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Itens do Orçamento
-                    </h3>
-                    <span className="text-sm text-gray-500">
-                      {budgetData.items.length} itens • Última atualização: {budgetData.data_referencia}
-                    </span>
-                  </div>
-                  
-                  {/* Cards dos itens */}
-                  <div className="space-y-4">
-                    {budgetData.items.map((item) => (
-                      <EditableBudgetItem
-                        key={item.id}
-                        item={item}
-                        onUpdate={updateItem}
-                        onRemove={removeItem}
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <BudgetItemsList
+                items={budgetData.items}
+                dataReferencia={budgetData.data_referencia}
+                onUpdateItem={updateItem}
+                onRemoveItem={removeItem}
+              />
             </div>
 
             <div className="space-y-6">
@@ -252,25 +193,11 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         )}
 
         {!budgetData && !isGenerating && (
-          <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50">
-            <CardContent className="text-center py-16">
-              <Calculator className="h-16 w-16 text-blue-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-700 mb-2">
-                Orçamento Inteligente para {project.name}
-              </h3>
-              <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                Gere um orçamento detalhado e editável baseado na análise automatizada 
-                do seu projeto de {project.total_area || 100}m² com preços SINAPI atualizados.
-              </p>
-              <Button 
-                onClick={generateBudget}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Calculator className="h-4 w-4 mr-2" />
-                Gerar Orçamento Automático
-              </Button>
-            </CardContent>
-          </Card>
+          <EmptyBudgetState
+            projectName={project.name}
+            projectArea={project.total_area || 100}
+            onGenerateBudget={generateBudget}
+          />
         )}
 
         {/* Dialogs */}
