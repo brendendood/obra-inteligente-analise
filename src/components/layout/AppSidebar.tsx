@@ -1,4 +1,3 @@
-
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -87,7 +86,7 @@ export const AppSidebar = () => {
     }
   ];
 
-  // Menu items para área do projeto
+  // Menu items para área do projeto - ATUALIZADO com nova rota da IA
   const projectMenuItems = [
     { 
       icon: FileText, 
@@ -110,7 +109,7 @@ export const AppSidebar = () => {
     { 
       icon: Bot, 
       label: 'Assistente IA', 
-      path: `/projeto/${projectId}/assistente`,
+      path: `/ia/${projectId}`,
       color: 'text-orange-600'
     },
     { 

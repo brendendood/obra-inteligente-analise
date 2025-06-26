@@ -36,7 +36,7 @@ export const ProjectCardActions = ({ projectId, onActionClick }: ProjectCardActi
         </button>
         
         <button
-          onClick={(e) => handleAction(e, `/projeto/${projectId}/assistente`)}
+          onClick={(e) => handleAction(e, `/ia/${projectId}`)}
           className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
         >
           {isMobile ? (

@@ -18,9 +18,11 @@ import Upload from "./pages/Upload";
 import ProjectWorkspacePage from "./pages/ProjectWorkspace";
 import ProjectSpecificBudget from "./pages/ProjectSpecificBudget";
 import ProjectSpecificSchedule from "./pages/ProjectSpecificSchedule";
+import ProjectSpecificAssistant from "./pages/ProjectSpecificAssistant";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -39,7 +41,6 @@ const LandingPageWrapper = () => {
     );
   }
   
-  // Se usuário está autenticado, redirecionar para o painel
   if (isAuthenticated) {
     return <Navigate to="/painel" replace />;
   }
@@ -145,10 +146,11 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              <Route path="/projeto/:projectId/assistente" element={
+              {/* Nova rota para o Assistente IA específico do projeto */}
+              <Route path="/ia/:projectId" element={
                 <ProtectedRoute>
                   <ProjectProvider>
-                    <ProjectWorkspacePage />
+                    <ProjectSpecificAssistant />
                   </ProjectProvider>
                 </ProtectedRoute>
               } />
@@ -161,8 +163,12 @@ const App = () => {
                 </ProtectedRoute>
               } />
 
+              {/* Redirecionar rotas antigas para NotFound */}
+              <Route path="/assistente" element={<NotFound />} />
+              <Route path="/projeto/:projectId/assistente" element={<Navigate to="/ia/:projectId" replace />} />
+
               {/* Rota 404 */}
-              <Route path="*" element={<ErrorFallback title="Página não encontrada" message="A página que você está procurando não existe." />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
