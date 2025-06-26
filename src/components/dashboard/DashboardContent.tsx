@@ -37,17 +37,21 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
       {/* Dashboard com resumo de insights */}
       <InsightsDashboard stats={stats} />
 
-      {/* Layout principal - duas colunas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Coluna principal - projetos recentes (2/3 do espaço) */}
-        <div className="lg:col-span-2">
+      {/* Layout principal - duas colunas com melhor distribuição */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Coluna principal - projetos recentes (3/4 do espaço) */}
+        <div className="lg:col-span-3">
           <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
         </div>
         
-        {/* Coluna lateral - atividade e ações (1/3 do espaço) */}
-        <div className="lg:col-span-1 space-y-6">
-          <RecentActivity projects={projects} />
-          <EnhancedQuickActions />
+        {/* Coluna lateral - atividade e ações (1/4 do espaço, mas melhor aproveitado) */}
+        <div className="lg:col-span-1 space-y-6 flex flex-col">
+          <div className="flex-1">
+            <RecentActivity projects={projects} />
+          </div>
+          <div className="flex-shrink-0">
+            <EnhancedQuickActions />
+          </div>
         </div>
       </div>
     </div>
