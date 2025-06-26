@@ -6,6 +6,9 @@ import DashboardRecentProjects from '@/components/dashboard/DashboardRecentProje
 import { InsightsDashboard } from '@/components/dashboard/InsightsDashboard';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { SidebarQuickActions } from '@/components/dashboard/SidebarQuickActions';
+import { ProjectProgressChart } from '@/components/dashboard/ProjectProgressChart';
+import { ProjectTypesDistribution } from '@/components/dashboard/ProjectTypesDistribution';
+import { AIInsights } from '@/components/dashboard/AIInsights';
 
 interface DashboardContentProps {
   stats: any;
@@ -38,26 +41,36 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
       {/* Dashboard com resumo de insights */}
       <InsightsDashboard stats={stats} />
 
-      {/* Layout principal usando flexbox para garantir preenchimento total */}
-      <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
-        {/* Coluna principal - projetos recentes */}
-        <div className="flex-1 lg:w-3/4">
+      {/* Layout principal com duas colunas */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Coluna principal - projetos recentes e seções adicionais */}
+        <div className="flex-1 lg:w-3/4 space-y-6">
+          {/* Projetos Recentes */}
           <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
+          
+          {/* Gráfico de Progresso dos Projetos */}
+          <ProjectProgressChart projects={projects} />
+          
+          {/* Grid com duas seções lado a lado */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ProjectTypesDistribution stats={stats} />
+            <AIInsights projects={projects} />
+          </div>
         </div>
         
-        {/* Coluna lateral - garantindo que ocupe todo o espaço disponível */}
+        {/* Coluna lateral */}
         <div className="lg:w-1/4 min-w-[300px] flex flex-col gap-6">
-          {/* Atividade Recente - flexível para ocupar espaço */}
+          {/* Atividade Recente */}
           <div className="flex-1 min-h-[400px]">
             <RecentActivity projects={projects} />
           </div>
           
-          {/* Ações Rápidas - compacta para sidebar */}
+          {/* Ações Rápidas */}
           <div className="flex-shrink-0">
             <SidebarQuickActions />
           </div>
           
-          {/* Conteúdo adicional para garantir preenchimento */}
+          {/* Dicas MadenAI */}
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Dicas MadenAI</h3>
             <div className="space-y-3">
