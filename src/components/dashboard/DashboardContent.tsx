@@ -47,7 +47,7 @@ const DashboardContent = ({
           <ProjectProgressChart projects={projects} />
           
           {/* Grid com duas seções lado a lado */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-0">
             <ProjectTypesDistribution stats={stats} />
             <AIInsights projects={projects} />
           </div>
