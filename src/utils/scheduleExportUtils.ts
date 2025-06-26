@@ -1,16 +1,8 @@
-
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { ScheduleTask, ScheduleData } from '@/types/project';
-
-// Extend jsPDF type to include autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 export const exportScheduleToPDF = async (data: ScheduleData, fileName: string) => {
   const pdf = new jsPDF();
@@ -39,8 +31,8 @@ export const exportScheduleToPDF = async (data: ScheduleData, fileName: string) 
     task.assignee?.name || 'Não atribuído'
   ]);
 
-  // Add table
-  pdf.autoTable({
+  // Add table using autoTable
+  autoTable(pdf, {
     head: [tableColumns],
     body: tableRows,
     startY: 100,

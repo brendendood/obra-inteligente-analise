@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -7,15 +6,8 @@ import { Download, FileText, Table, FileSpreadsheet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
-
-// Extend jsPDF type to include autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
 
 interface BudgetExportDialogProps {
   open: boolean;
@@ -125,8 +117,8 @@ export const BudgetExportDialog = ({ open, onOpenChange, budgetData }: BudgetExp
       `R$ ${item.total.toFixed(2)}`
     ]);
 
-    // Add table
-    pdf.autoTable({
+    // Add table using autoTable
+    autoTable(pdf, {
       head: [tableColumns],
       body: tableRows,
       startY: 80,
