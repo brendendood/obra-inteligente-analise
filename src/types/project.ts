@@ -22,3 +22,30 @@ export interface ProjectContextType {
   clearAllProjects: () => void;
   requiresAuth: boolean;
 }
+
+export interface ScheduleTask {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  duration: number;
+  cost: number;
+  status: 'planned' | 'in_progress' | 'completed';
+  category: string;
+  color: string;
+  dependencies: string[];
+  assignee?: {
+    name: string;
+    email: string;
+  };
+}
+
+export interface ScheduleData {
+  projectId: string;
+  projectName: string;
+  totalArea: number;
+  totalDuration: number;
+  totalCost: number;
+  tasks: ScheduleTask[];
+  criticalPath: string[];
+}

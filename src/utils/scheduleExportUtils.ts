@@ -3,37 +3,13 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { saveAs } from 'file-saver';
+import { ScheduleTask, ScheduleData } from '@/types/project';
 
 // Extend jsPDF type to include autoTable
 declare module 'jspdf' {
   interface jsPDF {
     autoTable: (options: any) => jsPDF;
   }
-}
-
-export interface ScheduleTask {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  duration: number;
-  cost: number;
-  status: 'planned' | 'in_progress' | 'completed';
-  category: string;
-  assignee?: {
-    name: string;
-    email: string;
-  };
-}
-
-export interface ScheduleData {
-  projectId: string;
-  projectName: string;
-  totalArea: number;
-  totalDuration: number;
-  totalCost: number;
-  tasks: ScheduleTask[];
-  criticalPath: string[];
 }
 
 export const exportScheduleToPDF = async (data: ScheduleData, fileName: string) => {
@@ -128,8 +104,8 @@ export const exportScheduleToExcel = async (data: ScheduleData, fileName: string
       task.name,
       task.startDate,
       task.endDate,
-      task.duration,
-      task.cost,
+      task.duration.toString(),
+      task.cost.toString(),
       getStatusLabel(task.status),
       task.category,
       task.assignee?.name || 'Não atribuído'
@@ -173,9 +149,9 @@ export const exportScheduleToExcel = async (data: ScheduleData, fileName: string
     const percentage = (values.cost / data.totalCost * 100).toFixed(1);
     categoryData.push([
       category,
-      values.count,
-      values.duration,
-      values.cost,
+      values.count.toString(),
+      values.duration.toString(),
+      values.cost.toString(),
       `${percentage}%`
     ]);
   });
@@ -201,12 +177,12 @@ export const exportScheduleToExcel = async (data: ScheduleData, fileName: string
   const criticalTasks = data.tasks.filter(task => data.criticalPath.includes(task.id));
   criticalTasks.forEach((task, index) => {
     criticalData.push([
-      index + 1,
+      (index + 1).toString(),
       task.name,
       task.startDate,
       task.endDate,
-      task.duration,
-      task.cost
+      task.duration.toString(),
+      task.cost.toString()
     ]);
   });
 
@@ -237,7 +213,7 @@ export const exportScheduleToCSV = async (data: ScheduleData, fileName: string) 
     `"${task.name.replace(/"/g, '""')}"`,
     task.startDate,
     task.endDate,
-    task.duration,
+    task.duration.toString(),
     task.cost.toFixed(2).replace('.', ','),
     getStatusLabel(task.status),
     task.category,
@@ -246,7 +222,7 @@ export const exportScheduleToCSV = async (data: ScheduleData, fileName: string) 
 
   const csvContent = [
     headers.join(';'),
-    ...rows.map((row: any[]) => row.join(';')),
+    ...rows.map((row: string[]) => row.join(';')),
     '',
     `Resumo do Projeto:;;;;;;;;`,
     `Total de Etapas;${data.tasks.length};;;;;;;`,
@@ -269,3 +245,6 @@ const getStatusLabel = (status: string) => {
   };
   return labels[status as keyof typeof labels] || status;
 };
+
+// Re-export types for backward compatibility
+export type { ScheduleTask, ScheduleData };

@@ -5,7 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Download, FileText, Table, FileSpreadsheet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { exportScheduleToPDF, exportScheduleToExcel, exportScheduleToCSV, ScheduleData } from '@/utils/scheduleExportUtils';
+import { exportScheduleToPDF, exportScheduleToExcel, exportScheduleToCSV } from '@/utils/scheduleExportUtils';
+import { ScheduleData } from '@/types/project';
 
 interface ScheduleExportDialogProps {
   open: boolean;

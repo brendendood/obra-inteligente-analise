@@ -10,24 +10,7 @@ import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
 import { ScheduleSimulator } from '@/components/schedule/ScheduleSimulator';
 import { ScheduleExportDialog } from '@/components/schedule/ScheduleExportDialog';
 import { Progress } from '@/components/ui/progress';
-import { ScheduleData } from '@/utils/scheduleExportUtils';
-
-interface ScheduleTask {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  duration: number;
-  cost: number;
-  status: 'planned' | 'in_progress' | 'completed';
-  category: string;
-  color: string;
-  dependencies: string[];
-  assignee?: {
-    name: string;
-    email: string;
-  };
-}
+import { ScheduleData, ScheduleTask } from '@/types/project';
 
 const ProjectSpecificSchedule = () => {
   const { projectId } = useParams<{ projectId: string }>();
