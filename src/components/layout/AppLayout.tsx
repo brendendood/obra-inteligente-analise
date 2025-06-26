@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
-import { Header } from './Header';
+import Header from './Header';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,7 +40,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <SidebarProvider 
       open={sidebarOpen} 
       onOpenChange={setSidebarOpen}
-      collapsedWidth={isMobile ? 0 : 56}
     >
       <div className="min-h-screen flex w-full bg-gray-50/30">
         {/* Sidebar Fixo */}

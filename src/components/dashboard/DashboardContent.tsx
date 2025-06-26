@@ -1,7 +1,7 @@
 
 import DashboardRecentProjects from './DashboardRecentProjects';
 import { QuickActions } from './QuickActions';
-import StatsCards from './StatsCards';
+import { StatsCards } from './StatsCards';
 import { Button } from '@/components/ui/button';
 import { Plus, FolderOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
