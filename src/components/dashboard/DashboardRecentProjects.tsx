@@ -141,14 +141,14 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
                   )}
                 </div>
 
-                {/* Ações rápidas */}
-                <div className="grid grid-cols-2 gap-2">
+                {/* Ações rápidas - agora em grid de 3 colunas */}
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/projeto/${project.id}/orcamento`);
                     }}
-                    className="flex items-center justify-center space-x-1 py-2 px-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                    className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
                   >
                     {isMobile ? (
                       <span>💰</span>
@@ -163,9 +163,26 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      navigate(`/projeto/${project.id}/cronograma`);
+                    }}
+                    className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                  >
+                    {isMobile ? (
+                      <span>📅</span>
+                    ) : (
+                      <>
+                        <span>📅</span>
+                        <span>Cronograma</span>
+                      </>
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       navigate(`/projeto/${project.id}/assistente`);
                     }}
-                    className="flex items-center justify-center space-x-1 py-2 px-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+                    className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
                   >
                     {isMobile ? (
                       <span>🤖</span>
