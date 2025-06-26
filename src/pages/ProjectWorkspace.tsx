@@ -57,10 +57,10 @@ const ProjectAssistant = () => {
   }
 
   return (
-    <div className="h-full flex flex-col -mx-6 -my-6">
+    <div className="h-full flex flex-col -mx-3 md:-mx-6 -my-3 md:-my-6">
       <ProjectAIHeader project={currentProject} />
       
-      <div className="flex-1 flex gap-6 min-h-0 px-6">
+      <div className="flex-1 flex flex-col md:flex-row gap-0 md:gap-6 min-h-0 px-3 md:px-6">
         {/* Chat Principal */}
         <div className="flex-1 flex flex-col min-w-0">
           <Card className="flex-1 flex flex-col border-0 shadow-lg">
@@ -70,8 +70,13 @@ const ProjectAssistant = () => {
           </Card>
         </div>
 
-        {/* Sidebar */}
-        <div className="w-80 flex-shrink-0">
+        {/* Sidebar - Hidden on mobile, shown as drawer */}
+        <div className="hidden md:block">
+          <ProjectAISidebar project={currentProject} />
+        </div>
+        
+        {/* Mobile Sidebar as Drawer */}
+        <div className="md:hidden">
           <ProjectAISidebar project={currentProject} />
         </div>
       </div>

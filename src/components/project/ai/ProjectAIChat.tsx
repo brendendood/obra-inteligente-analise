@@ -19,9 +19,10 @@ interface ChatMessage {
 
 interface ProjectAIChatProps {
   project: Project;
+  onQuestionClick?: (question: string) => void;
 }
 
-export const ProjectAIChat = ({ project }: ProjectAIChatProps) => {
+export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -44,13 +45,14 @@ export const ProjectAIChat = ({ project }: ProjectAIChatProps) => {
     }
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!inputMessage.trim() || isTyping) return;
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || inputMessage;
+    if (!textToSend.trim() || isTyping) return;
     
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputMessage,
+      content: textToSend,
       timestamp: new Date()
     };
     
@@ -59,7 +61,7 @@ export const ProjectAIChat = ({ project }: ProjectAIChatProps) => {
     setIsTyping(true);
     
     try {
-      const response = await getProjectAIResponse(inputMessage, project);
+      const response = await getProjectAIResponse(textToSend, project);
       
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -90,11 +92,18 @@ export const ProjectAIChat = ({ project }: ProjectAIChatProps) => {
     }
   };
 
+  // Expor função para componentes pais
+  useEffect(() => {
+    if (onQuestionClick) {
+      (window as any).sendAIQuestion = sendMessage;
+    }
+  }, [onQuestionClick]);
+
   return (
-    <div className="flex flex-col h-[700px]">
+    <div className="flex flex-col h-full max-h-[calc(100vh-12rem)] md:max-h-[calc(100vh-8rem)]">
       {/* Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
-        <div className="space-y-6">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 md:p-4">
+        <div className="space-y-3 md:space-y-4">
           {messages.map((message) => (
             <AIMessage key={message.id} message={message} />
           ))}
@@ -104,20 +113,21 @@ export const ProjectAIChat = ({ project }: ProjectAIChatProps) => {
       </ScrollArea>
       
       {/* Input Area */}
-      <div className="border-t border-gray-200 p-4 bg-gray-50/50">
-        <div className="flex space-x-3">
+      <div className="border-t border-gray-200 p-3 md:p-4 bg-gray-50/50 backdrop-blur-sm">
+        <div className="flex space-x-2 md:space-x-3">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={`Pergunte sobre o projeto ${project.name}...`}
+            placeholder={`Pergunte sobre ${project.name}...`}
             disabled={isTyping}
-            className="flex-1 bg-white"
+            className="flex-1 bg-white text-sm md:text-base"
           />
           <Button 
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={!inputMessage.trim() || isTyping}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-purple-600 hover:bg-purple-700 px-3 md:px-4"
+            size="default"
           >
             {isTyping ? (
               <Loader2 className="h-4 w-4 animate-spin" />
