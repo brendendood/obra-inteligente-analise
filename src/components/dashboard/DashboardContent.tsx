@@ -3,6 +3,7 @@ import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickActions';
 import DashboardRecentProjects from '@/components/dashboard/DashboardRecentProjects';
+import { InsightsDashboard } from '@/components/dashboard/InsightsDashboard';
 
 interface DashboardContentProps {
   stats: any;
@@ -28,16 +29,19 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
   }
 
   return (
-    <>
-      {/* Cards de estatísticas */}
+    <div className="space-y-8">
+      {/* Cards de estatísticas principais */}
       <StatsCards stats={stats} />
+
+      {/* Dashboard expandido com insights */}
+      <InsightsDashboard stats={stats} />
 
       {/* Ações rápidas melhoradas */}
       <EnhancedQuickActions />
 
       {/* Grade de projetos recentes */}
       <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
-    </>
+    </div>
   );
 };
 

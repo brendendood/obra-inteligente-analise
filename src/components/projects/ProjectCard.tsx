@@ -19,9 +19,11 @@ import {
   GripVertical,
   Trash2,
   Edit,
-  BarChart3
+  BarChart3,
+  Check
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useMobile } from '@/hooks/use-mobile';
 
 interface ProjectCardProps {
   project: any;
@@ -43,22 +45,58 @@ const ProjectCard = ({
   onEdit 
 }: ProjectCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useMobile();
 
   const getStatusBadge = (project: any) => {
     if (project.analysis_data) {
+      if (isMobile) {
+        // Mobile: apenas ícone
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center justify-center w-6 h-6 bg-green-100 rounded-full border border-green-200">
+                <Check className="h-3 w-3 text-green-700" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Projeto processado</p>
+            </TooltipContent>
+          </Tooltip>
+        );
+      } else {
+        // Desktop: texto completo
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Processado
+          </Badge>
+        );
+      }
+    }
+    
+    if (isMobile) {
+      // Mobile: apenas ícone
       return (
-        <Badge className="bg-green-100 text-green-800 border-green-200">
-          <CheckCircle className="h-3 w-3 mr-1" />
-          Processado
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center justify-center w-6 h-6 bg-orange-100 rounded-full border border-orange-200">
+              <Clock className="h-3 w-3 text-orange-700" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Processando projeto</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    } else {
+      // Desktop: texto completo
+      return (
+        <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+          <Clock className="h-3 w-3 mr-1" />
+          Processando
         </Badge>
       );
     }
-    return (
-      <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-        <Clock className="h-3 w-3 mr-1" />
-        Processando
-      </Badge>
-    );
   };
 
   return (
@@ -114,7 +152,7 @@ const ProjectCard = ({
                   className="flex items-center space-x-2 hover:bg-green-50 cursor-pointer transition-colors duration-200"
                 >
                   <Edit className="h-4 w-4" />
-                  <span>Renomear</span>
+                  <span>Editar</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />

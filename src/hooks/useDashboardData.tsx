@@ -10,6 +10,10 @@ interface DashboardStats {
   totalArea: number;
   recentProjects: number;
   timeSaved: number;
+  monthlyProjects: number;
+  estimatedValue: number;
+  aiEfficiency: number;
+  projectsByType: Record<string, number>;
 }
 
 export const useDashboardData = () => {
@@ -24,7 +28,11 @@ export const useDashboardData = () => {
     totalProjects: 0,
     totalArea: 0,
     recentProjects: 0,
-    timeSaved: 0
+    timeSaved: 0,
+    monthlyProjects: 0,
+    estimatedValue: 0,
+    aiEfficiency: 95,
+    projectsByType: {}
   });
   const { toast } = useToast();
   const mountedRef = useRef(true);
@@ -46,11 +54,32 @@ export const useDashboardData = () => {
       return createdAt >= weekAgo;
     }).length;
 
+    const monthlyProjects = projects.filter((project: any) => {
+      const createdAt = new Date(project.created_at);
+      const monthAgo = new Date();
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      return createdAt >= monthAgo;
+    }).length;
+
+    // Calcular valor estimado (estimativa baseada na área)
+    const estimatedValue = totalArea * 2500; // R$ 2.500 por m² (estimativa)
+
+    // Agrupar projetos por tipo
+    const projectsByType = projects.reduce((acc: Record<string, number>, project: any) => {
+      const type = project.project_type || 'Não definido';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+
     const newStats = {
       totalProjects: projects.length,
       totalArea,
       recentProjects,
-      timeSaved: projects.length * 2
+      timeSaved: projects.length * 2,
+      monthlyProjects,
+      estimatedValue,
+      aiEfficiency: 95,
+      projectsByType
     };
 
     console.log('📈 DASHBOARD: Stats calculadas:', newStats);
