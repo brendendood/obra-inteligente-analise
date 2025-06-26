@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 
 interface BudgetItem {
@@ -66,15 +65,16 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Item</DialogTitle>
+          <DialogTitle>Adicionar Novo Item ao Orçamento</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Código e Unidade */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="codigo">Código (opcional)</Label>
+              <Label htmlFor="codigo">Código SINAPI (opcional)</Label>
               <Input
                 id="codigo"
                 value={formData.codigo}
@@ -83,69 +83,70 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
               />
             </div>
             <div>
-              <Label htmlFor="unidade">Unidade</Label>
-              <Select value={formData.unidade} onValueChange={(value) => setFormData({ ...formData, unidade: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="m²">m²</SelectItem>
-                  <SelectItem value="m³">m³</SelectItem>
-                  <SelectItem value="m">m</SelectItem>
-                  <SelectItem value="un">un</SelectItem>
-                  <SelectItem value="kg">kg</SelectItem>
-                  <SelectItem value="vb">vb</SelectItem>
-                  <SelectItem value="cj">cj</SelectItem>
-                  <SelectItem value="pç">pç</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="unidade">Unidade *</Label>
+              <Input
+                id="unidade"
+                value={formData.unidade}
+                onChange={(e) => setFormData({ ...formData, unidade: e.target.value })}
+                placeholder="Ex: m², m³, un, kg"
+                required
+              />
             </div>
           </div>
 
+          {/* Descrição */}
           <div>
-            <Label htmlFor="descricao">Descrição *</Label>
+            <Label htmlFor="descricao">Descrição do Item *</Label>
             <Textarea
               id="descricao"
               value={formData.descricao}
               onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              placeholder="Digite a descrição detalhada do item..."
+              placeholder="Digite uma descrição detalhada do item ou serviço..."
               className="min-h-[80px]"
               required
             />
           </div>
 
+          {/* Categoria e Ambiente */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="categoria">Categoria *</Label>
-              <Select value={formData.categoria} onValueChange={(value) => setFormData({ ...formData, categoria: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="categoria"
+                value={formData.categoria}
+                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                placeholder="Ex: Alvenaria, Pintura, Instalações..."
+                list="categories-list"
+                required
+              />
+              <datalist id="categories-list">
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
             </div>
             <div>
               <Label htmlFor="ambiente">Ambiente *</Label>
-              <Select value={formData.ambiente} onValueChange={(value) => setFormData({ ...formData, ambiente: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {environments.map((env) => (
-                    <SelectItem key={env} value={env}>{env}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                id="ambiente"
+                value={formData.ambiente}
+                onChange={(e) => setFormData({ ...formData, ambiente: e.target.value })}
+                placeholder="Ex: Sala, Cozinha, Geral..."
+                list="environments-list"
+                required
+              />
+              <datalist id="environments-list">
+                {environments.map((env) => (
+                  <option key={env} value={env} />
+                ))}
+              </datalist>
             </div>
           </div>
 
+          {/* Quantidade e Preço */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="quantidade">Quantidade</Label>
+              <Label htmlFor="quantidade">Quantidade *</Label>
               <Input
                 id="quantidade"
                 type="number"
@@ -153,10 +154,11 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
                 step="0.01"
                 value={formData.quantidade}
                 onChange={(e) => setFormData({ ...formData, quantidade: parseFloat(e.target.value) || 0 })}
+                required
               />
             </div>
             <div>
-              <Label htmlFor="preco">Preço Unitário (R$)</Label>
+              <Label htmlFor="preco">Preço Unitário (R$) *</Label>
               <Input
                 id="preco"
                 type="number"
@@ -164,9 +166,22 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
                 step="0.01"
                 value={formData.preco_unitario}
                 onChange={(e) => setFormData({ ...formData, preco_unitario: parseFloat(e.target.value) || 0 })}
+                required
               />
             </div>
           </div>
+
+          {/* Preview do total */}
+          {formData.quantidade > 0 && formData.preco_unitario > 0 && (
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="text-center">
+                <p className="text-sm text-green-700 mb-1">Total do Item</p>
+                <p className="text-2xl font-bold text-green-800">
+                  R$ {(formData.quantidade * formData.preco_unitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

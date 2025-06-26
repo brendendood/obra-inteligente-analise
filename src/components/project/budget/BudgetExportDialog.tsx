@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Download, FileSpreadsheet, FileText, Database } from 'lucide-react';
 import { BudgetData } from '@/utils/budgetGenerator';
-import { exportToExcel, exportToPDF, exportToCSV } from '@/utils/exportUtils';
 import { useToast } from '@/hooks/use-toast';
 
 interface BudgetExportDialogProps {
@@ -20,29 +19,13 @@ export const BudgetExportDialog = ({ open, onOpenChange, budgetData, projectName
     if (!budgetData) return;
 
     try {
-      switch (format) {
-        case 'excel':
-          exportToExcel(budgetData, projectName);
-          toast({
-            title: "✅ Excel exportado!",
-            description: "Arquivo Excel baixado com sucesso.",
-          });
-          break;
-        case 'pdf':
-          exportToPDF(budgetData, projectName);
-          toast({
-            title: "✅ PDF exportado!",
-            description: "Arquivo PDF baixado com sucesso.",
-          });
-          break;
-        case 'csv':
-          exportToCSV(budgetData, projectName);
-          toast({
-            title: "✅ CSV exportado!",
-            description: "Arquivo CSV baixado com sucesso.",
-          });
-          break;
-      }
+      // Simular download - funcionalidade em desenvolvimento
+      toast({
+        title: "🚧 Em desenvolvimento",
+        description: `Exportação ${format.toUpperCase()} estará disponível em breve!`,
+        variant: "default",
+      });
+      
       onOpenChange(false);
     } catch (error) {
       toast({

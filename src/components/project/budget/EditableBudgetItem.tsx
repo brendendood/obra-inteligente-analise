@@ -2,21 +2,11 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Trash2, Edit3, Check, X } from 'lucide-react';
-
-interface BudgetItem {
-  id: string;
-  codigo: string;
-  descricao: string;
-  unidade: string;
-  quantidade: number;
-  preco_unitario: number;
-  total: number;
-  categoria: string;
-  ambiente: string;
-  isAiGenerated: boolean;
-  isCustom: boolean;
-}
+import { BudgetItem } from '@/utils/budgetGenerator';
 
 interface EditableBudgetItemProps {
   item: BudgetItem;
@@ -26,7 +16,12 @@ interface EditableBudgetItemProps {
 
 export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState(item);
+  const [editData, setEditData] = useState({
+    descricao: item.descricao,
+    quantidade: item.quantidade,
+    preco_unitario: item.preco_unitario,
+    unidade: item.unidade
+  });
 
   const handleSave = () => {
     onUpdate(item.id, editData);
@@ -34,105 +29,189 @@ export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetI
   };
 
   const handleCancel = () => {
-    setEditData(item);
+    setEditData({
+      descricao: item.descricao,
+      quantidade: item.quantidade,
+      preco_unitario: item.preco_unitario,
+      unidade: item.unidade
+    });
     setIsEditing(false);
   };
 
-  if (isEditing) {
-    return (
-      <tr className="bg-yellow-50/50">
-        <td className="border border-gray-300 p-2">
-          <Input
-            value={editData.codigo}
-            onChange={(e) => setEditData({ ...editData, codigo: e.target.value })}
-            className="h-8 text-xs"
-          />
-        </td>
-        <td className="border border-gray-300 p-2">
-          <Input
-            value={editData.descricao}
-            onChange={(e) => setEditData({ ...editData, descricao: e.target.value })}
-            className="h-8 text-xs"
-          />
-        </td>
-        <td className="border border-gray-300 p-2">
-          <Input
-            type="number"
-            value={editData.quantidade}
-            onChange={(e) => setEditData({ ...editData, quantidade: parseFloat(e.target.value) || 0 })}
-            className="h-8 text-xs w-20"
-          />
-        </td>
-        <td className="border border-gray-300 p-2 text-center text-xs">
-          {editData.unidade}
-        </td>
-        <td className="border border-gray-300 p-2">
-          <Input
-            type="number"
-            value={editData.preco_unitario}
-            onChange={(e) => setEditData({ ...editData, preco_unitario: parseFloat(e.target.value) || 0 })}
-            className="h-8 text-xs w-24"
-          />
-        </td>
-        <td className="border border-gray-300 p-2 text-right text-xs font-medium">
-          R$ {(editData.quantidade * editData.preco_unitario).toFixed(2)}
-        </td>
-        <td className="border border-gray-300 p-2">
-          <div className="flex space-x-1 justify-center">
-            <Button
-              onClick={handleSave}
-              size="sm"
-              className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
-            >
-              <Check className="h-3 w-3" />
-            </Button>
-            <Button
-              onClick={handleCancel}
-              size="sm"
-              variant="outline"
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        </td>
-      </tr>
-    );
-  }
-
   return (
-    <tr className={`hover:bg-gray-50 ${item.isCustom ? 'bg-blue-50/30' : ''}`}>
-      <td className="border border-gray-300 p-3 text-xs">
-        {item.codigo}
-        {item.isAiGenerated && (
-          <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full" title="Gerado por IA" />
-        )}
-      </td>
-      <td className="border border-gray-300 p-3 text-xs">{item.descricao}</td>
-      <td className="border border-gray-300 p-3 text-center text-xs">{item.quantidade}</td>
-      <td className="border border-gray-300 p-3 text-center text-xs">{item.unidade}</td>
-      <td className="border border-gray-300 p-3 text-right text-xs">R$ {item.preco_unitario.toFixed(2)}</td>
-      <td className="border border-gray-300 p-3 text-right text-xs font-medium">R$ {item.total.toFixed(2)}</td>
-      <td className="border border-gray-300 p-3">
-        <div className="flex space-x-1 justify-center">
-          <Button
-            onClick={() => setIsEditing(true)}
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0"
-          >
-            <Edit3 className="h-3 w-3" />
-          </Button>
-          <Button
-            onClick={() => onRemove(item.id)}
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+    <Card className="border border-gray-200 hover:border-gray-300 transition-colors w-full">
+      <CardContent className="p-4 sm:p-6">
+        <div className="space-y-4">
+          {/* Header com badges */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
+            <div className="flex flex-wrap items-center gap-2">
+              {item.codigo && (
+                <Badge variant="outline" className="text-xs">
+                  {item.codigo}
+                </Badge>
+              )}
+              <Badge className={`text-xs ${
+                item.isAiGenerated 
+                  ? 'bg-blue-100 text-blue-700 border-blue-200' 
+                  : 'bg-green-100 text-green-700 border-green-200'
+              }`}>
+                {item.isAiGenerated ? '🤖 IA' : '👤 Manual'}
+              </Badge>
+              <Badge variant="secondary" className="text-xs">
+                {item.categoria}
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-2">
+              {!isEditing ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                    className="h-8 w-8 p-0 hover:bg-blue-50"
+                  >
+                    <Edit3 className="h-4 w-4 text-blue-600" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onRemove(item.id)}
+                    className="h-8 w-8 p-0 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSave}
+                    className="h-8 w-8 p-0 hover:bg-green-50"
+                  >
+                    <Check className="h-4 w-4 text-green-600" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancel}
+                    className="h-8 w-8 p-0 hover:bg-gray-50"
+                  >
+                    <X className="h-4 w-4 text-gray-600" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1 block">
+              Descrição do Item
+            </label>
+            {!isEditing ? (
+              <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-md">
+                {item.descricao}
+              </p>
+            ) : (
+              <Textarea
+                value={editData.descricao}
+                onChange={(e) => setEditData({ ...editData, descricao: e.target.value })}
+                className="min-h-[60px] text-sm"
+                placeholder="Digite a descrição do item..."
+              />
+            )}
+          </div>
+
+          {/* Dados técnicos em grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Quantidade
+              </label>
+              {!isEditing ? (
+                <div className="bg-gray-50 p-3 rounded-md text-center">
+                  <span className="text-lg font-semibold text-gray-900">
+                    {editData.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              ) : (
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editData.quantidade}
+                  onChange={(e) => setEditData({ ...editData, quantidade: parseFloat(e.target.value) || 0 })}
+                  className="text-center font-semibold"
+                />
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Unidade
+              </label>
+              {!isEditing ? (
+                <div className="bg-gray-50 p-3 rounded-md text-center">
+                  <span className="text-sm font-medium text-gray-700">
+                    {editData.unidade}
+                  </span>
+                </div>
+              ) : (
+                <Input
+                  type="text"
+                  value={editData.unidade}
+                  onChange={(e) => setEditData({ ...editData, unidade: e.target.value })}
+                  className="text-center"
+                  placeholder="Ex: m², un, kg"
+                />
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Preço Unitário
+              </label>
+              {!isEditing ? (
+                <div className="bg-blue-50 p-3 rounded-md text-center">
+                  <span className="text-lg font-semibold text-blue-700">
+                    R$ {editData.preco_unitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              ) : (
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editData.preco_unitario}
+                  onChange={(e) => setEditData({ ...editData, preco_unitario: parseFloat(e.target.value) || 0 })}
+                  className="text-center font-semibold"
+                />
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">
+                Total
+              </label>
+              <div className="bg-green-50 p-3 rounded-md text-center border-2 border-green-200">
+                <span className="text-lg font-bold text-green-700">
+                  R$ {(editData.quantidade * editData.preco_unitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Ambiente */}
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <span className="font-medium">Ambiente:</span>
+            <Badge variant="outline" className="text-xs">
+              {item.ambiente}
+            </Badge>
+          </div>
         </div>
-      </td>
-    </tr>
+      </CardContent>
+    </Card>
   );
 };

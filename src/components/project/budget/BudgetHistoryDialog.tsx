@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Download, Eye } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface BudgetVersion {
   id: string;
@@ -21,6 +22,8 @@ interface BudgetHistoryDialogProps {
 }
 
 export const BudgetHistoryDialog = ({ open, onOpenChange, projectId }: BudgetHistoryDialogProps) => {
+  const { toast } = useToast();
+  
   // Mock data - seria substituído por dados reais do backend
   const versions: BudgetVersion[] = [
     {
@@ -51,6 +54,22 @@ export const BudgetHistoryDialog = ({ open, onOpenChange, projectId }: BudgetHis
       itemsCount: 4
     }
   ];
+
+  const handleViewVersion = (versionId: string) => {
+    toast({
+      title: "🚧 Em desenvolvimento",
+      description: "Visualização de versões anteriores estará disponível em breve!",
+      variant: "default",
+    });
+  };
+
+  const handleDownloadVersion = (versionId: string) => {
+    toast({
+      title: "🚧 Em desenvolvimento",
+      description: "Download de versões anteriores estará disponível em breve!",
+      variant: "default",
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,6 +113,8 @@ export const BudgetHistoryDialog = ({ open, onOpenChange, projectId }: BudgetHis
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0"
+                      onClick={() => handleViewVersion(version.id)}
+                      title="Funcionalidade em desenvolvimento. Em breve estará disponível!"
                     >
                       <Eye className="h-3 w-3" />
                     </Button>
@@ -101,6 +122,8 @@ export const BudgetHistoryDialog = ({ open, onOpenChange, projectId }: BudgetHis
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0"
+                      onClick={() => handleDownloadVersion(version.id)}
+                      title="Funcionalidade em desenvolvimento. Em breve estará disponível!"
                     >
                       <Download className="h-3 w-3" />
                     </Button>
