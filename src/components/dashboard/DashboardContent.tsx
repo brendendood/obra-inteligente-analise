@@ -4,6 +4,7 @@ import { StatsCards } from '@/components/dashboard/StatsCards';
 import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickActions';
 import DashboardRecentProjects from '@/components/dashboard/DashboardRecentProjects';
 import { InsightsDashboard } from '@/components/dashboard/InsightsDashboard';
+import { RecentActivity } from '@/components/dashboard/RecentActivity';
 
 interface DashboardContentProps {
   stats: any;
@@ -36,11 +37,23 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
       {/* Dashboard com apenas resumo de atividade (sem duplicação) */}
       <InsightsDashboard stats={stats} />
 
-      {/* Ações rápidas melhoradas */}
-      <EnhancedQuickActions />
-
-      {/* Grade de projetos recentes - melhor aproveitamento do espaço */}
-      <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
+      {/* Layout em grid para melhor aproveitamento do espaço */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Coluna principal - projetos recentes (2/3 do espaço) */}
+        <div className="xl:col-span-2">
+          <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
+        </div>
+        
+        {/* Coluna lateral - atividade recente (1/3 do espaço) */}
+        <div className="xl:col-span-1">
+          <div className="space-y-6">
+            <RecentActivity projects={projects} />
+            
+            {/* Ações rápidas movidas para a coluna lateral */}
+            <EnhancedQuickActions />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
