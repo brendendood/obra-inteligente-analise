@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 
@@ -22,7 +23,7 @@ interface BudgetItem {
 interface AddItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddItem: (item: Omit<BudgetItem, 'id'>) => void;
+  onAddItem: (item: Omit<BudgetItem, 'id' | 'total'>) => void;
   environments: string[];
   categories: string[];
 }
@@ -65,7 +66,7 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Adicionar Novo Item</DialogTitle>
         </DialogHeader>
@@ -94,6 +95,8 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
                   <SelectItem value="un">un</SelectItem>
                   <SelectItem value="kg">kg</SelectItem>
                   <SelectItem value="vb">vb</SelectItem>
+                  <SelectItem value="cj">cj</SelectItem>
+                  <SelectItem value="pç">pç</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -101,11 +104,12 @@ export const AddItemDialog = ({ open, onOpenChange, onAddItem, environments, cat
 
           <div>
             <Label htmlFor="descricao">Descrição *</Label>
-            <Input
+            <Textarea
               id="descricao"
               value={formData.descricao}
               onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-              placeholder="Digite a descrição do item..."
+              placeholder="Digite a descrição detalhada do item..."
+              className="min-h-[80px]"
               required
             />
           </div>

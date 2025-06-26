@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,30 +11,8 @@ import { AddItemDialog } from './budget/AddItemDialog';
 import { BudgetExportDialog } from './budget/BudgetExportDialog';
 import { BudgetHistoryDialog } from './budget/BudgetHistoryDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { v4 as uuidv4 } from 'uuid';
-
-interface BudgetItem {
-  id: string;
-  codigo: string;
-  descricao: string;
-  unidade: string;
-  quantidade: number;
-  preco_unitario: number;
-  total: number;
-  categoria: string;
-  ambiente: string;
-  isAiGenerated: boolean;
-  isCustom: boolean;
-}
-
-interface BudgetData {
-  data_referencia: string;
-  total: number;
-  bdi: number;
-  total_com_bdi: number;
-  totalArea: number;
-  items: BudgetItem[];
-}
+import { generateAutomaticBudget, BudgetData, BudgetItem } from '@/utils/budgetGenerator';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProjectBudgetGeneratorProps {
   project: Project;
@@ -47,92 +26,63 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
+  const { toast } = useToast();
 
-  const environments = ['Quarto', 'Sala', 'Cozinha', 'Banheiro', 'Lavanderia', 'Varanda', 'Garagem', 'Outro'];
+  const environments = ['Quarto', 'Sala', 'Cozinha', 'Banheiro', 'Lavanderia', 'Varanda', 'Garagem', 'Geral', 'Outro'];
   const categories = ['Alvenaria', 'Estrutura', 'Instalações', 'Revestimentos', 'Pintura', 'Esquadrias', 'Louças e Metais', 'Outro'];
-
-  useEffect(() => {
-    // Simular carregamento inicial do orçamento
-    if (project && project.analysis_data) {
-      // Gerar dados mock
-      const mockData: BudgetData = {
-        data_referencia: new Date().toLocaleDateString(),
-        total: 55000,
-        bdi: 0.28,
-        total_com_bdi: 70400,
-        totalArea: project.total_area || 100,
-        items: [
-          {
-            id: uuidv4(),
-            codigo: 'SINAPI-01',
-            descricao: 'Serviço de alvenaria',
-            unidade: 'm²',
-            quantidade: 50,
-            preco_unitario: 80,
-            total: 4000,
-            categoria: 'Alvenaria',
-            ambiente: 'Quarto',
-            isAiGenerated: true,
-            isCustom: false
-          },
-          {
-            id: uuidv4(),
-            codigo: 'SINAPI-02',
-            descricao: 'Pintura interna',
-            unidade: 'm²',
-            quantidade: 50,
-            preco_unitario: 30,
-            total: 1500,
-            categoria: 'Pintura',
-            ambiente: 'Quarto',
-            isAiGenerated: true,
-            isCustom: false
-          },
-          {
-            id: uuidv4(),
-            codigo: 'SINAPI-03',
-            descricao: 'Revestimento cerâmico',
-            unidade: 'm²',
-            quantidade: 20,
-            preco_unitario: 45,
-            total: 900,
-            categoria: 'Revestimentos',
-            ambiente: 'Banheiro',
-            isAiGenerated: true,
-            isCustom: false
-          }
-        ]
-      };
-      setBudgetData(mockData);
-    }
-  }, [project]);
 
   const generateBudget = useCallback(() => {
     setIsGenerating(true);
     setProgress(0);
 
-    // Simular progresso
+    // Simular progresso de geração
+    const steps = [
+      { progress: 20, message: 'Analisando projeto...' },
+      { progress: 40, message: 'Consultando tabela SINAPI...' },
+      { progress: 60, message: 'Calculando quantitativos...' },
+      { progress: 80, message: 'Aplicando preços...' },
+      { progress: 100, message: 'Finalizando orçamento...' }
+    ];
+
+    let currentStep = 0;
     const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        const newProgress = prevProgress + 10;
-        if (newProgress >= 100) {
-          clearInterval(interval);
-          setIsGenerating(false);
-          return 100;
+      if (currentStep < steps.length) {
+        setProgress(steps[currentStep].progress);
+        currentStep++;
+      } else {
+        clearInterval(interval);
+        
+        // Gerar orçamento automático
+        const generatedBudget = generateAutomaticBudget(project);
+        setBudgetData(generatedBudget);
+        setIsGenerating(false);
+        
+        toast({
+          title: "✅ Orçamento gerado!",
+          description: `Orçamento baseado na tabela SINAPI criado para ${project.name} (${project.total_area}m²).`,
+        });
+
+        if (onBudgetGenerated) {
+          onBudgetGenerated(generatedBudget);
         }
-        return newProgress;
-      });
-    }, 300);
-  }, []);
+      }
+    }, 500);
+  }, [project, onBudgetGenerated, toast]);
 
   const updateItem = (id: string, updates: Partial<BudgetItem>) => {
     setBudgetData((prevData) => {
       if (!prevData) return null;
-      const updatedItems = prevData.items.map((item) =>
-        item.id === id ? { ...item, ...updates, total: item.quantidade * item.preco_unitario } : item
-      );
       
-      const newTotal = updatedItems.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0);
+      const updatedItems = prevData.items.map((item) => {
+        if (item.id === id) {
+          const updatedItem = { ...item, ...updates };
+          updatedItem.total = updatedItem.quantidade * updatedItem.preco_unitario;
+          return updatedItem;
+        }
+        return item;
+      });
+      
+      const newTotal = updatedItems.reduce((acc, item) => acc + item.total, 0);
       const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
       return {
@@ -149,7 +99,7 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       if (!prevData) return null;
       const updatedItems = prevData.items.filter((item) => item.id !== id);
 
-      const newTotal = updatedItems.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0);
+      const newTotal = updatedItems.reduce((acc, item) => acc + item.total, 0);
       const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
       return {
@@ -161,18 +111,18 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
     });
   };
 
-  const addNewItem = (newItem: Omit<BudgetItem, 'id'>) => {
+  const addNewItem = (newItem: Omit<BudgetItem, 'id' | 'total'>) => {
     setBudgetData((prevData) => {
       if (!prevData) return null;
       
       const newItemWithId: BudgetItem = {
-        id: uuidv4(),
+        id: crypto.randomUUID(),
         ...newItem,
         total: newItem.quantidade * newItem.preco_unitario,
       };
       
       const updatedItems = [...prevData.items, newItemWithId];
-      const newTotal = updatedItems.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0);
+      const newTotal = updatedItems.reduce((acc, item) => acc + item.total, 0);
       const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
       return {
@@ -207,47 +157,23 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
             Adicionar Item
           </Button>
           
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button
-                  onClick={() => setShowExportDialog(true)}
-                  disabled={!budgetData}
-                  variant="outline"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar
-                </Button>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              {!budgetData ? 
-                "Função em desenvolvimento. Em breve disponível para seu projeto." :
-                "Exportar orçamento em Excel, PDF ou CSV"
-              }
-            </TooltipContent>
-          </Tooltip>
+          <Button
+            onClick={() => setShowExportDialog(true)}
+            disabled={!budgetData}
+            variant="outline"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Exportar
+          </Button>
           
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <Button
-                  onClick={() => setShowHistoryDialog(true)}
-                  disabled={!budgetData}
-                  variant="outline"
-                >
-                  <History className="h-4 w-4 mr-2" />
-                  Histórico
-                </Button>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              {!budgetData ? 
-                "Função em desenvolvimento. Em breve disponível para seu projeto." :
-                "Ver histórico de versões do orçamento"
-              }
-            </TooltipContent>
-          </Tooltip>
+          <Button
+            onClick={() => setShowHistoryDialog(true)}
+            disabled={!budgetData}
+            variant="outline"
+          >
+            <History className="h-4 w-4 mr-2" />
+            Histórico
+          </Button>
         </div>
       </div>
 
@@ -360,6 +286,7 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         open={showExportDialog}
         onOpenChange={setShowExportDialog}
         budgetData={budgetData}
+        projectName={project.name}
       />
 
       <BudgetHistoryDialog

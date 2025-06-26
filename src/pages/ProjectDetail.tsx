@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -120,84 +119,9 @@ const ProjectDetail = () => {
   };
 
   const generateScheduleFromProject = (project: Project) => {
-    const area = project.total_area || 100;
-    const complexity = area > 200 ? 'alta' : area > 100 ? 'média' : 'baixa';
-    
-    const baseDurations = {
-      baixa: { fundacao: 14, estrutura: 21, alvenaria: 18, instalacoes: 15, acabamento: 20 },
-      média: { fundacao: 18, estrutura: 28, alvenaria: 24, instalacoes: 21, acabamento: 28 },
-      alta: { fundacao: 25, estrutura: 35, alvenaria: 30, instalacoes: 28, acabamento: 35 }
-    };
-    
-    const durations = baseDurations[complexity];
-    let currentDate = new Date();
-    
-    const schedule = [
-      {
-        id: '1',
-        name: 'Fundação e Movimentação de Terra',
-        startDate: currentDate.toISOString().split('T')[0],
-        endDate: new Date(currentDate.getTime() + durations.fundacao * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        duration: durations.fundacao,
-        color: 'bg-blue-500',
-        category: 'estrutura',
-        progress: 0
-      }
-    ];
-    
-    currentDate = new Date(currentDate.getTime() + durations.fundacao * 24 * 60 * 60 * 1000);
-    
-    schedule.push({
-      id: '2',
-      name: 'Estrutura e Lajes',
-      startDate: currentDate.toISOString().split('T')[0],
-      endDate: new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      duration: durations.estrutura,
-      color: 'bg-orange-500',
-      category: 'estrutura',
-      progress: 0
-    });
-    
-    currentDate = new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000);
-    
-    schedule.push({
-      id: '3',
-      name: 'Alvenaria e Vedação',
-      startDate: currentDate.toISOString().split('T')[0],
-      endDate: new Date(currentDate.getTime() + durations.alvenaria * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      duration: durations.alvenaria,
-      color: 'bg-red-500',
-      category: 'alvenaria',
-      progress: 0
-    });
-    
-    currentDate = new Date(currentDate.getTime() + durations.alvenaria * 24 * 60 * 60 * 1000);
-    
-    schedule.push({
-      id: '4',
-      name: 'Instalações Hidráulicas e Elétricas',
-      startDate: currentDate.toISOString().split('T')[0],
-      endDate: new Date(currentDate.getTime() + durations.instalacoes * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      duration: durations.instalacoes,
-      color: 'bg-purple-500',
-      category: 'instalacoes',
-      progress: 0
-    });
-    
-    currentDate = new Date(currentDate.getTime() + durations.instalacoes * 24 * 60 * 60 * 1000);
-    
-    schedule.push({
-      id: '5',
-      name: 'Acabamentos e Pintura',
-      startDate: currentDate.toISOString().split('T')[0],
-      endDate: new Date(currentDate.getTime() + durations.acabamento * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      duration: durations.acabamento,
-      color: 'bg-green-500',
-      category: 'acabamento',
-      progress: 0
-    });
-    
-    return schedule;
+    // Import the new schedule generator
+    const { generateProjectSchedule } = require('@/utils/scheduleGenerator');
+    return generateProjectSchedule(project);
   };
 
   const getPdfUrl = () => {
@@ -261,14 +185,14 @@ const ProjectDetail = () => {
     setScheduleLoading(true);
     
     try {
-      // Usar dados específicos do projeto
+      // Usar novo gerador de cronograma
       const projectSchedule = generateScheduleFromProject(project);
       setScheduleData(projectSchedule);
       setActiveTab('schedule');
       
       toast({
         title: "📅 Cronograma atualizado!",
-        description: `Cronograma específico para ${project.name} (${project.total_area}m²) criado.`,
+        description: `Cronograma específico para ${project.name} (${project.total_area}m²) criado com dependências e durações otimizadas.`,
       });
     } catch (error) {
       console.error('Schedule generation error:', error);

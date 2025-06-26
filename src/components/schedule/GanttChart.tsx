@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, Edit, Calendar } from 'lucide-react';
+import { Plus, Trash2, Edit, Calendar, Download, FileSpreadsheet } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { exportToExcel, exportToPDF } from '@/utils/exportUtils';
+import { useToast } from '@/hooks/use-toast';
 
 interface Task {
   id: string;
@@ -14,6 +16,8 @@ interface Task {
   duration: number;
   color: string;
   category: string;
+  progress?: number;
+  dependencies?: string[];
 }
 
 interface GanttChartProps {
@@ -28,26 +32,49 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const { toast } = useToast();
 
   const handleAddTask = () => {
     if (!newTaskName.trim()) return;
 
+    const lastTask = tasks[tasks.length - 1];
+    const startDate = lastTask 
+      ? new Date(new Date(lastTask.endDate).getTime() + 24 * 60 * 60 * 1000)
+      : new Date();
+    const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+
     const newTask: Task = {
       id: Date.now().toString(),
       name: newTaskName,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
       duration: 7,
       color: 'bg-blue-500',
-      category: 'nova'
+      category: 'nova',
+      progress: 0
     };
 
     setTasks([...tasks, newTask]);
     setNewTaskName('');
+    
+    toast({
+      title: "✅ Tarefa adicionada",
+      description: `Tarefa "${newTaskName}" adicionada ao cronograma.`,
+    });
   };
 
   const handleDeleteTask = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId));
+    toast({
+      title: "🗑️ Tarefa removida",
+      description: "Tarefa removida do cronograma.",
+    });
+  };
+
+  const handleUpdateProgress = (taskId: string, progress: number) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, progress } : task
+    ));
   };
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
@@ -80,7 +107,7 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
     estrutura: 'bg-blue-500',
     alvenaria: 'bg-orange-500',
     instalacoes: 'bg-purple-500',
-    acabamentos: 'bg-green-500',
+    acabamento: 'bg-green-500',
     nova: 'bg-gray-500'
   };
 
@@ -88,8 +115,57 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
     estrutura: 'Estrutura',
     alvenaria: 'Alvenaria',
     instalacoes: 'Instalações',
-    acabamentos: 'Acabamentos',
+    acabamento: 'Acabamentos',
     nova: 'Nova Tarefa'
+  };
+
+  const handleExportToExcel = () => {
+    try {
+      // Converter dados do cronograma para formato de exportação
+      const scheduleData = {
+        data_referencia: new Date().toLocaleDateString('pt-BR'),
+        total: 0,
+        bdi: 0,
+        total_com_bdi: 0,
+        totalArea: 0,
+        items: tasks.map((task, index) => ({
+          id: task.id,
+          codigo: `TASK-${String(index + 1).padStart(3, '0')}`,
+          descricao: task.name,
+          unidade: 'dias',
+          quantidade: task.duration,
+          preco_unitario: 0,
+          total: 0,
+          categoria: categoryLabels[task.category] || task.category,
+          ambiente: 'Cronograma'
+        }))
+      };
+      
+      exportToExcel(scheduleData, `Cronograma_${projectName}`);
+      toast({
+        title: "📊 Cronograma exportado",
+        description: "Arquivo Excel gerado com sucesso.",
+      });
+    } catch (error) {
+      toast({
+        title: "❌ Erro na exportação",
+        description: "Não foi possível exportar o cronograma.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getTotalDuration = () => {
+    if (tasks.length === 0) return 0;
+    const startDate = new Date(Math.min(...tasks.map(t => new Date(t.startDate).getTime())));
+    const endDate = new Date(Math.max(...tasks.map(t => new Date(t.endDate).getTime())));
+    return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
+  const getCompletionPercentage = () => {
+    if (tasks.length === 0) return 0;
+    const totalProgress = tasks.reduce((acc, task) => acc + (task.progress || 0), 0);
+    return Math.round(totalProgress / tasks.length);
   };
 
   return (
@@ -101,20 +177,26 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
               <Calendar className="h-6 w-6 mr-3 text-blue-600" />
               Cronograma - {projectName}
             </CardTitle>
-            <p className="text-gray-600 mt-1">
-              Arraste as tarefas para reorganizar
-            </p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+              <span>Duração total: {getTotalDuration()} dias</span>
+              <span>Progresso: {getCompletionPercentage()}%</span>
+              <span>{tasks.length} tarefas</span>
+            </div>
           </div>
           
           <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleExportToExcel}
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Excel
+            </Button>
             {onExportPDF && (
               <Button variant="outline" size="sm" onClick={onExportPDF}>
+                <Download className="h-4 w-4 mr-2" />
                 PDF
-              </Button>
-            )}
-            {onExportExcel && (
-              <Button variant="outline" size="sm" onClick={onExportExcel}>
-                Excel
               </Button>
             )}
           </div>
@@ -136,6 +218,55 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
             Adicionar
           </Button>
         </div>
+
+        {/* Timeline Overview */}
+        {tasks.length > 0 && (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="font-medium mb-3">Visão Geral do Timeline</h4>
+            <div className="space-y-2">
+              {tasks.map((task) => {
+                const totalDays = getTotalDuration();
+                const taskStart = new Date(task.startDate);
+                const taskEnd = new Date(task.endDate);
+                const projectStart = new Date(Math.min(...tasks.map(t => new Date(t.startDate).getTime())));
+                
+                const startOffset = Math.max(0, (taskStart.getTime() - projectStart.getTime()) / (1000 * 60 * 60 * 24));
+                const taskWidth = (task.duration / totalDays) * 100;
+                const leftPosition = (startOffset / totalDays) * 100;
+                
+                return (
+                  <div key={task.id} className="flex items-center space-x-3">
+                    <div className="w-48 text-sm font-medium truncate">{task.name}</div>
+                    <div className="flex-1 relative h-6 bg-gray-200 rounded">
+                      <div 
+                        className={`absolute h-full ${task.color} rounded flex items-center justify-center text-white text-xs font-medium`}
+                        style={{ 
+                          left: `${leftPosition}%`, 
+                          width: `${taskWidth}%`,
+                          minWidth: '60px'
+                        }}
+                      >
+                        {task.duration}d
+                      </div>
+                      {task.progress !== undefined && task.progress > 0 && (
+                        <div 
+                          className="absolute h-full bg-green-600 rounded opacity-75"
+                          style={{ 
+                            left: `${leftPosition}%`, 
+                            width: `${(taskWidth * task.progress) / 100}%`
+                          }}
+                        />
+                      )}
+                    </div>
+                    <div className="w-20 text-sm text-gray-500">
+                      {task.progress || 0}%
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Tasks List */}
         <div className="space-y-3">
@@ -189,22 +320,24 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
                     <span>Início: {new Date(task.startDate).toLocaleDateString('pt-BR')}</span>
                     <span>Fim: {new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
                     <span>{task.duration} dias</span>
+                    {task.dependencies && task.dependencies.length > 0 && (
+                      <span>Deps: {task.dependencies.join(', ')}</span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Timeline Bar */}
-              <div className="flex-1 max-w-xs">
-                <div className="h-6 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full ${categoryColors[task.category]} rounded-full flex items-center justify-center`}
-                    style={{ width: `${Math.min(100, (task.duration / 30) * 100)}%` }}
-                  >
-                    <span className="text-xs text-white font-medium">
-                      {task.duration}d
-                    </span>
-                  </div>
-                </div>
+              {/* Progress Control */}
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={task.progress || 0}
+                  onChange={(e) => handleUpdateProgress(task.id, parseInt(e.target.value) || 0)}
+                  className="w-16 h-8 text-xs"
+                  placeholder="%"
+                />
               </div>
 
               {/* Actions */}
