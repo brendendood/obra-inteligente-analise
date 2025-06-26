@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -90,7 +91,7 @@ const App = () => {
               <Route path="/politica" element={<Privacy />} />
               <Route path="/admin" element={<Admin />} />
               
-              {/* Rotas protegidas com ProjectProvider */}
+              {/* Todas as rotas protegidas agora usam AppLayout através do ProjectProvider */}
               <Route path="/painel" element={
                 <ProtectedRoute>
                   <ProjectProvider>
@@ -99,7 +100,6 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* Rota unificada para projetos */}
               <Route path="/projetos" element={
                 <ProtectedRoute>
                   <ProjectProvider>

@@ -2,8 +2,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap } from 'lucide-react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import UploadHeader from '@/components/upload/UploadHeader';
 import ProjectNameField from '@/components/upload/ProjectNameField';
 import FileDropzone from '@/components/upload/FileDropzone';
@@ -33,12 +33,14 @@ const Upload = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-700 font-medium">Carregando...</p>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-slate-700 font-medium">Carregando...</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
@@ -47,14 +49,14 @@ const Upload = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Header />
-      
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppLayout>
+      <div className="space-y-6 animate-fade-in">
+        <EnhancedBreadcrumb />
+        
         <UploadHeader />
 
         {/* Main Upload Area */}
-        <Card className="shadow-xl border border-gray-200 bg-white mb-8">
+        <Card className="shadow-xl border border-gray-200 bg-white">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
             <CardTitle className="text-2xl text-center text-gray-900 font-bold">
               {uploading ? 'Processando Projeto' : 'Novo Projeto'}
@@ -130,9 +132,7 @@ const Upload = () => {
 
         <UploadFeatures />
       </div>
-
-      <Footer />
-    </div>
+    </AppLayout>
   );
 };
 
