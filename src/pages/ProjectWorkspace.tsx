@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { useProject } from '@/contexts/ProjectContext';
 import { ProjectOverview } from '@/components/project/ProjectOverview';
+import { ProjectAIChat } from '@/components/project/ai/ProjectAIChat';
+import { ProjectAIHeader } from '@/components/project/ai/ProjectAIHeader';
+import { ProjectAISidebar } from '@/components/project/ai/ProjectAISidebar';
+import { Card, CardContent } from '@/components/ui/card';
 
 // Componentes para cada seção
 const ProjectBudget = () => (
@@ -33,19 +37,47 @@ const ProjectSchedule = () => (
   </div>
 );
 
-const ProjectAssistant = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-    <div className="text-center">
-      <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <span className="text-2xl">🤖</span>
+const ProjectAssistant = () => {
+  const { currentProject } = useProject();
+  
+  if (!currentProject) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">🤖</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Assistente IA</h2>
+          <p className="text-gray-600 max-w-md mx-auto">
+            Carregando projeto...
+          </p>
+        </div>
       </div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">Assistente IA</h2>
-      <p className="text-gray-600 max-w-md mx-auto">
-        Chat inteligente personalizado para este projeto específico será disponibilizado em breve.
-      </p>
+    );
+  }
+
+  return (
+    <div className="h-full flex flex-col -mx-6 -my-6">
+      <ProjectAIHeader project={currentProject} />
+      
+      <div className="flex-1 flex gap-6 min-h-0 px-6">
+        {/* Chat Principal */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <Card className="flex-1 flex flex-col border-0 shadow-lg">
+            <CardContent className="flex-1 flex flex-col p-0">
+              <ProjectAIChat project={currentProject} />
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="w-80 flex-shrink-0">
+          <ProjectAISidebar project={currentProject} />
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ProjectDocuments = () => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
