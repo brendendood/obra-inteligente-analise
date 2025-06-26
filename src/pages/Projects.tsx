@@ -10,7 +10,7 @@ import { useUserPreferences } from '@/hooks/useUserPreferences';
 import ProjectsPageHeader from '@/components/projects/ProjectsPageHeader';
 import ProjectsFiltersBar from '@/components/projects/ProjectsFiltersBar';
 import ProjectsEmptyState from '@/components/projects/ProjectsEmptyState';
-import ProjectsGrid from '@/components/projects/ProjectsGrid';
+import { ProjectsGrid } from '@/components/projects/ProjectsGrid';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -90,7 +90,7 @@ const Projects = () => {
         />
 
         {filteredProjects.length > 0 ? (
-          <ProjectsGrid projects={filteredProjects} />
+          <ProjectsGrid />
         ) : (
           <ProjectsEmptyState hasProjects={projects.length > 0} />
         )}

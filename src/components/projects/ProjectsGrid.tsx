@@ -1,8 +1,8 @@
 
-import { ProjectCard } from './ProjectCard';
-import { ProjectDeleteDialog } from './ProjectDeleteDialog';
+import ProjectCard from './ProjectCard';
+import ProjectDeleteDialog from './ProjectDeleteDialog';
 import { ProjectEditDialog } from './ProjectEditDialog';
-import { ProjectsEmptyState } from './ProjectsEmptyState';
+import ProjectsEmptyState from './ProjectsEmptyState';
 import { DropIndicator } from '@/components/ui/DropIndicator';
 import { useProjectsLogic } from '@/hooks/useProjectsLogic';
 import { GripVertical } from 'lucide-react';
@@ -33,7 +33,7 @@ export const ProjectsGrid = () => {
   }
 
   if (filteredProjects.length === 0) {
-    return <ProjectsEmptyState />;
+    return <ProjectsEmptyState hasProjects={false} />;
   }
 
   return (
@@ -60,9 +60,12 @@ export const ProjectsGrid = () => {
               {/* Project Card */}
               <ProjectCard
                 project={project}
+                onDragStart={() => {}}
+                onDragEnd={() => {}}
+                onDragOver={() => {}}
+                onDrop={() => {}}
                 onEdit={() => {}}
                 onDelete={() => setDeleteProject(project)}
-                onUpdate={updateProject}
               />
             </div>
             
@@ -77,10 +80,12 @@ export const ProjectsGrid = () => {
       {/* Dialogs */}
       <ProjectDeleteDialog
         project={deleteProject}
-        open={!!deleteProject}
+        isOpen={!!deleteProject}
         onClose={() => setDeleteProject(null)}
-        onConfirm={(projectId) => {
-          handleDeleteProject(projectId);
+        onConfirm={() => {
+          if (deleteProject) {
+            handleDeleteProject(deleteProject.id);
+          }
         }}
       />
     </>
