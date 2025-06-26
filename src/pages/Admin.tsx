@@ -23,6 +23,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AdminStatsCard from '@/components/admin/AdminStatsCard';
 import UsersList from '@/components/admin/UsersList';
+import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
 
 const Admin = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
@@ -142,6 +143,11 @@ const Admin = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Complete Data Cleanup Section */}
+        <div className="mb-8">
+          <CompleteDataCleanup />
         </div>
 
         {/* Stats Cards */}
