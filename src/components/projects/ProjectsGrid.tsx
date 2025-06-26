@@ -48,22 +48,18 @@ export const ProjectsGrid = () => {
             <div
               {...getDragItemProps(project, index)}
               {...getDropZoneProps(index)}
-              className={`relative transition-all duration-200 ${
+              className={`relative transition-all duration-300 ${
                 isDragging ? 'select-none' : ''
-              }`}
+              } hover:scale-[1.02] hover:shadow-lg`}
             >
               {/* Drag Handle */}
-              <div className="absolute top-2 right-2 z-10 p-1 rounded bg-white/80 backdrop-blur-sm shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+              <div className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-white/90 backdrop-blur-sm shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-grab active:cursor-grabbing hover:bg-white">
                 <GripVertical className="h-4 w-4 text-gray-600" />
               </div>
               
               {/* Project Card */}
               <ProjectCard
                 project={project}
-                onDragStart={() => {}}
-                onDragEnd={() => {}}
-                onDragOver={() => {}}
-                onDrop={() => {}}
                 onEdit={() => {}}
                 onDelete={() => setDeleteProject(project)}
               />

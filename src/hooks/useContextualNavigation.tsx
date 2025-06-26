@@ -1,127 +1,78 @@
 
-import { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useCallback, useEffect, useState } from 'react';
 
-interface NavigationHistory {
-  projectId?: string;
-  previousPath: string;
-  timestamp: number;
-  title?: string;
+interface NavigationState {
+  previousPath: string | null;
+  canGoBack: boolean;
+  fallbackPath: string;
 }
 
-export const useContextualNavigation = () => {
+export const useContextualNavigation = (fallbackPath: string = '/painel') => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const [navigationState, setNavigationState] = useState<NavigationState>({
+    previousPath: null,
+    canGoBack: false,
+    fallbackPath
+  });
 
-  const getNavigationHistory = (): NavigationHistory[] => {
-    try {
-      const history = localStorage.getItem('navigationHistory');
-      return history ? JSON.parse(history) : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const saveToHistory = useCallback((path: string, projectId?: string, title?: string) => {
-    try {
-      const history = getNavigationHistory();
-      const newEntry: NavigationHistory = {
-        projectId,
-        previousPath: path,
-        timestamp: Date.now(),
-        title
-      };
-      
-      // Manter apenas os últimos 10 registros e remover duplicatas
-      const filteredHistory = history.filter(h => h.previousPath !== path);
-      const updatedHistory = [newEntry, ...filteredHistory].slice(0, 10);
-      localStorage.setItem('navigationHistory', JSON.stringify(updatedHistory));
-    } catch (error) {
-      console.warn('Erro ao salvar histórico de navegação:', error);
-    }
-  }, []);
-
-  const navigateContextual = useCallback((path: string, projectId?: string, title?: string) => {
-    // Salvar caminho atual no histórico antes de navegar
-    saveToHistory(location.pathname, projectId, title);
+  useEffect(() => {
+    // Manter histórico de navegação no localStorage
+    const currentPath = location.pathname;
+    const storedPreviousPath = localStorage.getItem('previousPath');
     
-    // Se usuário autenticado tentar ir para landing page, redirecionar para painel
-    if (isAuthenticated && path === '/') {
-      console.log('🔄 Redirecionando usuário autenticado para painel');
-      navigate('/painel');
-      return;
+    if (storedPreviousPath && storedPreviousPath !== currentPath) {
+      setNavigationState(prev => ({
+        ...prev,
+        previousPath: storedPreviousPath,
+        canGoBack: true
+      }));
     }
-    
-    console.log('🧭 Navegação contextual:', { from: location.pathname, to: path, projectId });
-    navigate(path);
-  }, [navigate, location.pathname, isAuthenticated, saveToHistory]);
+
+    // Atualizar o path anterior
+    localStorage.setItem('previousPath', currentPath);
+  }, [location.pathname]);
 
   const goBack = useCallback(() => {
-    const currentPath = location.pathname;
-    console.log('🔙 Tentando voltar de:', currentPath);
-    
-    // Se estamos em uma subseção de projeto (orçamento, cronograma, etc.)
-    if (currentPath.includes('/projeto/') && !currentPath.match(/^\/projeto\/[^\/]+\/?$/)) {
-      const projectId = currentPath.split('/')[2];
-      const projectMainPath = `/projeto/${projectId}`;
-      console.log('🔙 Voltando para página principal do projeto:', projectMainPath);
-      navigate(projectMainPath);
-      return;
-    }
-    
-    // Se estamos na página principal de um projeto específico
-    if (currentPath.match(/^\/projeto\/[^\/]+\/?$/)) {
-      console.log('🔙 Voltando para lista de projetos');
-      navigate('/projetos');
-      return;
-    }
-    
-    // Se estamos na página de projetos
-    if (currentPath === '/projetos') {
-      console.log('🔙 Voltando para painel');
-      navigate('/painel');
-      return;
-    }
-    
-    // Se estamos no upload
-    if (currentPath === '/upload') {
-      console.log('🔙 Voltando para painel');
-      navigate('/painel');
-      return;
-    }
-    
-    // Para outras páginas, tentar usar histórico
-    const history = getNavigationHistory();
-    if (history.length > 0) {
-      const lastEntry = history[0];
-      // Evitar loops - não voltar para a mesma página
-      if (lastEntry.previousPath !== currentPath) {
-        console.log('🔙 Voltando via histórico para:', lastEntry.previousPath);
-        navigate(lastEntry.previousPath);
+    console.log('🔙 Tentativa de navegação:', {
+      canGoBack: navigationState.canGoBack,
+      previousPath: navigationState.previousPath,
+      fallbackPath: navigationState.fallbackPath,
+      currentPath: location.pathname
+    });
+
+    // Tentar usar o histórico do browser primeiro
+    if (window.history.length > 1) {
+      try {
+        window.history.back();
         return;
+      } catch (error) {
+        console.warn('⚠️ Erro no history.back():', error);
       }
     }
-    
-    // Fallback: voltar para painel
-    console.log('🔙 Fallback: voltando para painel');
-    navigate('/painel');
+
+    // Usar path anterior armazenado
+    if (navigationState.canGoBack && navigationState.previousPath) {
+      navigate(navigationState.previousPath);
+      return;
+    }
+
+    // Fallback final
+    console.log('📍 Usando fallback:', navigationState.fallbackPath);
+    navigate(navigationState.fallbackPath);
+  }, [navigate, navigationState, location.pathname]);
+
+  const navigateWithHistory = useCallback((path: string) => {
+    // Salvar path atual antes de navegar
+    localStorage.setItem('previousPath', location.pathname);
+    navigate(path);
   }, [navigate, location.pathname]);
 
-  const clearHistory = useCallback(() => {
-    try {
-      localStorage.removeItem('navigationHistory');
-      console.log('🧹 Histórico de navegação limpo');
-    } catch (error) {
-      console.warn('Erro ao limpar histórico:', error);
-    }
-  }, []);
-
   return {
-    navigateContextual,
     goBack,
-    clearHistory,
-    saveToHistory
+    navigateWithHistory,
+    canGoBack: navigationState.canGoBack,
+    previousPath: navigationState.previousPath
   };
 };

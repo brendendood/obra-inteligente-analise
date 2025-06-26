@@ -3,11 +3,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, User, ArrowLeft } from 'lucide-react';
+import { Send, Bot, User, ArrowLeft, Sparkles } from 'lucide-react';
 import { Project } from '@/types/project';
 import { getProjectAIResponse } from '@/utils/projectAIService';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useNavigate } from 'react-router-dom';
+import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 
 interface ChatMessage {
   id: string;
@@ -35,7 +35,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
+  const { goBack } = useContextualNavigation(`/projeto/${project.id}`);
 
   // Auto scroll para a última mensagem
   useEffect(() => {
@@ -65,6 +65,14 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
     setIsTyping(true);
     
     try {
+      // TODO: Integrar com webhook N8N aqui
+      // const response = await fetch('/api/n8n-webhook', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ message: userMessage.content, projectId: project.id })
+      // });
+      
+      // Por enquanto usando resposta local
       const response = await getProjectAIResponse(inputMessage, project);
       
       const assistantMessage: ChatMessage = {
@@ -109,24 +117,32 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
     ));
   };
 
+  const suggestedQuestions = [
+    "Qual o volume de concreto necessário?",
+    "Área total de alvenaria do projeto?",
+    "Especificações dos revestimentos?",
+    "Cronograma estimado da obra?",
+  ];
+
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header Mobile */}
+    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Header - Apenas no mobile */}
       {isMobile && (
-        <div className="flex items-center p-4 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(`/projeto/${project.id}`)}
-            className="mr-3"
+            onClick={goBack}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
+            <span>Voltar</span>
           </Button>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
-              <Bot className="h-4 w-4 text-white" />
+              <Sparkles className="h-4 w-4 text-white" />
             </div>
-            <div>
+            <div className="text-right">
               <h3 className="font-semibold text-gray-900 text-sm">MadenAI</h3>
               <p className="text-xs text-gray-500">{project.name}</p>
             </div>
@@ -137,28 +153,44 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
       {/* Messages Area */}
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="max-w-3xl mx-auto px-4 py-6">
+          <div className="max-w-4xl mx-auto px-4 py-6">
             {messages.map((message) => (
-              <div key={message.id} className="mb-8">
-                <div className="flex items-start space-x-4">
+              <div key={message.id} className="mb-6">
+                <div className={`flex items-start space-x-4 ${
+                  message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                }`}>
                   {/* Avatar */}
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                     message.type === 'user' 
                       ? 'bg-blue-600' 
                       : 'bg-gradient-to-r from-purple-600 to-blue-600'
                   }`}>
                     {message.type === 'user' ? (
-                      <User className="h-4 w-4 text-white" />
+                      <User className="h-5 w-5 text-white" />
                     ) : (
-                      <Bot className="h-4 w-4 text-white" />
+                      <Sparkles className="h-5 w-5 text-white" />
                     )}
                   </div>
                   
                   {/* Message Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="prose prose-sm max-w-none text-gray-900">
-                      {formatMessage(message.content)}
+                  <div className={`flex-1 min-w-0 ${
+                    message.type === 'user' ? 'text-right' : ''
+                  }`}>
+                    <div className={`inline-block max-w-[85%] p-4 rounded-2xl shadow-sm ${
+                      message.type === 'user' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-white border border-gray-200 text-gray-900'
+                    }`}>
+                      <div className="prose prose-sm max-w-none">
+                        {formatMessage(message.content)}
+                      </div>
                     </div>
+                    <p className="text-xs text-gray-500 mt-2 px-2">
+                      {message.timestamp.toLocaleTimeString('pt-BR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -166,15 +198,18 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
             
             {/* Typing Indicator */}
             {isTyping && (
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-white" />
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center">
+                    <Sparkles className="h-5 w-5 text-white" />
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="flex items-center space-x-2 bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                    <span className="text-sm text-gray-500 ml-2">MadenAI está pensando...</span>
                   </div>
                 </div>
               </div>
@@ -184,33 +219,54 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Sugestões */}
+      {messages.length === 1 && (
+        <div className="border-t border-gray-200 bg-white/50 backdrop-blur-sm">
+          <div className="max-w-4xl mx-auto p-4">
+            <div className="flex flex-wrap gap-2">
+              {suggestedQuestions.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInputMessage(question)}
+                  className="px-3 py-2 text-sm bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Input Area */}
       <div className="border-t border-gray-200 bg-white">
-        <div className="max-w-3xl mx-auto p-4">
-          <div className="relative">
-            <Textarea
-              ref={textareaRef}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Mensagem MadenAI..."
-              disabled={isTyping}
-              className="min-h-[60px] max-h-[200px] resize-none border-gray-300 rounded-xl pr-12 py-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              style={{ fontSize: isMobile ? '16px' : '14px' }}
-            />
-            
-            <Button 
-              onClick={sendMessage}
-              disabled={!inputMessage.trim() || isTyping}
-              size="sm"
-              className="absolute bottom-2 right-2 w-8 h-8 p-0 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+        <div className="max-w-4xl mx-auto p-4">
+          <div className="relative flex items-end space-x-3">
+            <div className="flex-1 relative">
+              <Textarea
+                ref={textareaRef}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Mensagem MadenAI..."
+                disabled={isTyping}
+                className="min-h-[60px] max-h-[200px] resize-none border-gray-300 rounded-2xl pr-12 py-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ fontSize: isMobile ? '16px' : '14px' }}
+              />
+              
+              <Button 
+                onClick={sendMessage}
+                disabled={!inputMessage.trim() || isTyping}
+                size="sm"
+                className="absolute bottom-3 right-3 w-8 h-8 p-0 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
-          <p className="text-xs text-gray-500 text-center mt-2">
+          <p className="text-xs text-gray-500 text-center mt-3">
             MadenAI pode cometer erros. Considere verificar informações importantes.
           </p>
         </div>

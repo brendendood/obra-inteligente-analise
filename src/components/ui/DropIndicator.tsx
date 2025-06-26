@@ -12,22 +12,21 @@ export const DropIndicator = ({ isVisible, isActive, className }: DropIndicatorP
 
   return (
     <div className={cn(
-      "h-0.5 w-full transition-all duration-200 ease-out",
+      "h-1 w-full transition-all duration-300 ease-out relative",
       isActive ? "bg-blue-500 shadow-lg" : "bg-gray-300",
-      "relative",
       className
     )}>
       {isActive && (
         <>
-          {/* Linha principal */}
-          <div className="absolute inset-0 bg-blue-500 rounded-full" />
+          {/* Linha principal com animação */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full animate-pulse" />
           
           {/* Glow effect */}
-          <div className="absolute inset-0 bg-blue-400 rounded-full blur-sm opacity-60" />
+          <div className="absolute inset-0 bg-blue-400 rounded-full blur-md opacity-70" />
           
-          {/* Pontos nas extremidades */}
-          <div className="absolute -left-1 -top-1 w-2 h-2 bg-blue-500 rounded-full" />
-          <div className="absolute -right-1 -top-1 w-2 h-2 bg-blue-500 rounded-full" />
+          {/* Pontos nas extremidades com animação */}
+          <div className="absolute -left-2 -top-1.5 w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-bounce" />
+          <div className="absolute -right-2 -top-1.5 w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-bounce" style={{ animationDelay: '0.1s' }} />
         </>
       )}
     </div>

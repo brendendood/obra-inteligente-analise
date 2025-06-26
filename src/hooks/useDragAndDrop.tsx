@@ -30,7 +30,7 @@ export const useDragAndDrop = ({ items, onReorder, keyExtractor }: UseDragAndDro
     setDraggedItem(dragData);
     setIsDragging(true);
 
-    // Criar ghost element
+    // Criar ghost element com visual aprimorado
     const target = e.currentTarget as HTMLElement;
     dragElementRef.current = target;
     
@@ -40,11 +40,13 @@ export const useDragAndDrop = ({ items, onReorder, keyExtractor }: UseDragAndDro
     ghost.style.top = '-1000px';
     ghost.style.left = '-1000px';
     ghost.style.pointerEvents = 'none';
-    ghost.style.opacity = '0.7';
-    ghost.style.transform = 'rotate(3deg)';
-    ghost.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
-    ghost.style.borderRadius = '8px';
+    ghost.style.opacity = '0.8';
+    ghost.style.transform = 'rotate(2deg) scale(0.95)';
+    ghost.style.boxShadow = '0 12px 40px rgba(0,0,0,0.4)';
+    ghost.style.borderRadius = '12px';
     ghost.style.zIndex = '9999';
+    ghost.style.border = '2px solid #3b82f6';
+    ghost.style.backgroundColor = '#f8fafc';
     
     document.body.appendChild(ghost);
     ghostElementRef.current = ghost;
@@ -53,8 +55,9 @@ export const useDragAndDrop = ({ items, onReorder, keyExtractor }: UseDragAndDro
     e.dataTransfer.effectAllowed = 'move';
     
     // Estilo do elemento original durante o drag
-    target.style.opacity = '0.3';
-    target.style.transform = 'scale(0.95)';
+    target.style.opacity = '0.4';
+    target.style.transform = 'scale(0.98)';
+    target.style.transition = 'all 0.2s ease';
     
     // Remover ghost depois de um tempo
     setTimeout(() => {
@@ -69,6 +72,7 @@ export const useDragAndDrop = ({ items, onReorder, keyExtractor }: UseDragAndDro
     const target = e.currentTarget as HTMLElement;
     target.style.opacity = '1';
     target.style.transform = 'scale(1)';
+    target.style.transition = 'all 0.2s ease';
     
     setDraggedItem(null);
     setDropTargetIndex(null);
