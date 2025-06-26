@@ -4,6 +4,7 @@ import { StatsCards } from '@/components/dashboard/StatsCards';
 import DashboardRecentProjects from '@/components/dashboard/DashboardRecentProjects';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { SidebarQuickActions } from '@/components/dashboard/SidebarQuickActions';
+import { QuickActions } from '@/components/dashboard/QuickActions';
 
 interface DashboardContentProps {
   stats: any;
@@ -33,8 +34,11 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
       {/* Layout principal com duas colunas */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Coluna principal - projetos recentes */}
-        <div className="flex-1 lg:w-3/4">
+        <div className="flex-1 lg:w-3/4 space-y-8">
           <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
+          
+          {/* Card de Ações Rápidas */}
+          <QuickActions />
         </div>
         
         {/* Coluna lateral */}
