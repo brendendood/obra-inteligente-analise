@@ -9,11 +9,12 @@ import ProjectsEmptyState from '@/components/projects/ProjectsEmptyState';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus } from 'lucide-react';
 
 export default function Projects() {
   const navigate = useNavigate();
-  const { projects, isLoadingProjects } = useDashboardData();
+  const { projects, isLoading: isLoadingProjects } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
@@ -71,55 +72,57 @@ export default function Projects() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50/30">
-        <div className="p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Projetos</h1>
-                <p className="text-gray-600 mt-1 text-sm sm:text-base">Gerencie e analise seus projetos de construção</p>
-              </div>
-              
-              <Button
-                onClick={() => navigate('/upload')}
-                className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Novo Projeto</span>
-                <span className="sm:hidden">Novo</span>
-              </Button>
-            </div>
-
-            {/* Stats */}
-            <ProjectsStats 
-              totalProjects={projects.length} 
-              processedProjects={analyzedProjects} 
-            />
-
-            {projects.length === 0 ? (
-              <ProjectsEmptyState />
-            ) : (
-              <>
-                {/* Filters */}
-                <ProjectsFiltersBar
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  sortBy={sortBy}
-                  onSortChange={handleSortChange}
-                  totalProjects={projects.length}
-                  analyzedProjects={analyzedProjects}
-                />
-
-                {/* Projects Grid */}
-                <div className="pb-8">
-                  <ProjectsGrid projects={filteredAndSortedProjects} />
+      <ScrollArea className="h-screen">
+        <div className="min-h-screen bg-gray-50/30">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-8">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Projetos</h1>
+                  <p className="text-gray-600 mt-1 text-sm sm:text-base">Gerencie e analise seus projetos de construção</p>
                 </div>
-              </>
-            )}
+                
+                <Button
+                  onClick={() => navigate('/upload')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Novo Projeto</span>
+                  <span className="sm:hidden">Novo</span>
+                </Button>
+              </div>
+
+              {/* Stats */}
+              <ProjectsStats 
+                totalProjects={projects.length} 
+                processedProjects={analyzedProjects} 
+              />
+
+              {projects.length === 0 ? (
+                <ProjectsEmptyState />
+              ) : (
+                <>
+                  {/* Filters */}
+                  <ProjectsFiltersBar
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    sortBy={sortBy}
+                    onSortChange={handleSortChange}
+                    totalProjects={projects.length}
+                    analyzedProjects={analyzedProjects}
+                  />
+
+                  {/* Projects Grid */}
+                  <div className="pb-8">
+                    <ProjectsGrid projects={filteredAndSortedProjects} />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </ScrollArea>
     </AppLayout>
   );
 }
