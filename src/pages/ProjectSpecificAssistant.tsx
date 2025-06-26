@@ -1,34 +1,16 @@
 
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Bot, FileText, Lightbulb } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
-import { ProjectAssistantChat } from '@/components/project/ProjectAssistantChat';
-import { useProjectNavigation } from '@/hooks/useProjectNavigation';
+import { ProjectAIChat } from '@/components/project/ai/ProjectAIChat';
+import { ProjectAIHeader } from '@/components/project/ai/ProjectAIHeader';
+import { ProjectAISidebar } from '@/components/project/ai/ProjectAISidebar';
 
 const ProjectSpecificAssistant = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const { navigateToProjectSection } = useProjectNavigation();
-
-  const handleGenerateBudget = () => {
-    if (projectId) {
-      navigateToProjectSection(projectId, 'orcamento');
-    }
-  };
-
-  const handleGenerateSchedule = () => {
-    if (projectId) {
-      navigateToProjectSection(projectId, 'cronograma');
-    }
-  };
-
-  const handleViewDocuments = () => {
-    if (projectId) {
-      navigateToProjectSection(projectId, 'documentos');
-    }
-  };
 
   if (!currentProject) {
     return (
@@ -44,31 +26,24 @@ const ProjectSpecificAssistant = () => {
 
   return (
     <ProjectWorkspace>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Assistente IA - {currentProject.name}</h1>
-            <p className="text-gray-600">Chat especializado baseado nos dados específicos deste projeto</p>
+      <div className="h-full flex flex-col">
+        <ProjectAIHeader project={currentProject} />
+        
+        <div className="flex-1 flex gap-6 min-h-0">
+          {/* Chat Principal */}
+          <div className="flex-1 flex flex-col min-w-0">
+            <Card className="flex-1 flex flex-col border-0 shadow-lg">
+              <CardContent className="flex-1 flex flex-col p-0">
+                <ProjectAIChat project={currentProject} />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="w-80 flex-shrink-0">
+            <ProjectAISidebar project={currentProject} />
           </div>
         </div>
-
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center">
-              <Bot className="h-5 w-5 mr-2 text-purple-600" />
-              Chat Especializado do Projeto
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="p-0">
-            <ProjectAssistantChat
-              project={currentProject}
-              onGenerateBudget={handleGenerateBudget}
-              onGenerateSchedule={handleGenerateSchedule}
-              onViewDocuments={handleViewDocuments}
-            />
-          </CardContent>
-        </Card>
       </div>
     </ProjectWorkspace>
   );
