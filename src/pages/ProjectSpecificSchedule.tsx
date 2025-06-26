@@ -1,4 +1,3 @@
-
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +8,9 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
 import { ScheduleSimulator } from '@/components/schedule/ScheduleSimulator';
+import { ScheduleExportDialog } from '@/components/schedule/ScheduleExportDialog';
 import { Progress } from '@/components/ui/progress';
+import { ScheduleData } from '@/utils/scheduleExportUtils';
 
 interface ScheduleTask {
   id: string;
@@ -28,16 +29,6 @@ interface ScheduleTask {
   };
 }
 
-interface ScheduleData {
-  projectId: string;
-  projectName: string;
-  totalArea: number;
-  totalDuration: number;
-  totalCost: number;
-  tasks: ScheduleTask[];
-  criticalPath: string[];
-}
-
 const ProjectSpecificSchedule = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
@@ -45,6 +36,7 @@ const ProjectSpecificSchedule = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showSimulator, setShowSimulator] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const { toast } = useToast();
 
   const generateSchedule = async () => {
@@ -123,6 +115,7 @@ const ProjectSpecificSchedule = () => {
         assignee: { name: 'Equipe Estrutura', email: 'estrutura@obra.com' }
       });
       
+      
       currentDate = new Date(currentDate.getTime() + durations.estrutura * 24 * 60 * 60 * 1000);
       
       tasks.push({
@@ -181,7 +174,7 @@ const ProjectSpecificSchedule = () => {
         totalDuration,
         totalCost,
         tasks,
-        criticalPath: ['1', '2', '3', '4', '5'] // All tasks are on critical path in this sequential example
+        criticalPath: ['1', '2', '3', '4', '5']
       });
       
       toast({
@@ -220,13 +213,6 @@ const ProjectSpecificSchedule = () => {
     setScheduleData({
       ...scheduleData,
       tasks: [...scheduleData.tasks, newTask]
-    });
-  };
-
-  const exportSchedule = (format: 'excel' | 'pdf' | 'project') => {
-    toast({
-      title: `📊 Exportando para ${format.toUpperCase()}`,
-      description: "Funcionalidade de exportação será implementada em breve.",
     });
   };
 
@@ -278,9 +264,9 @@ const ProjectSpecificSchedule = () => {
                   Simular Atraso
                 </Button>
                 
-                <Button variant="outline" onClick={() => exportSchedule('excel')}>
+                <Button variant="outline" onClick={() => setShowExportDialog(true)}>
                   <Download className="h-4 w-4 mr-2" />
-                  Exportar Excel
+                  Exportar
                 </Button>
               </>
             )}
@@ -384,11 +370,19 @@ const ProjectSpecificSchedule = () => {
           </Card>
         )}
 
-        {/* Simulator Dialog */}
+        {/* Dialogs */}
         {showSimulator && scheduleData && (
           <ScheduleSimulator
             open={showSimulator}
             onOpenChange={setShowSimulator}
+            scheduleData={scheduleData}
+          />
+        )}
+
+        {showExportDialog && scheduleData && (
+          <ScheduleExportDialog
+            open={showExportDialog}
+            onOpenChange={setShowExportDialog}
             scheduleData={scheduleData}
           />
         )}

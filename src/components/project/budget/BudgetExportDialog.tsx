@@ -5,6 +5,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Download, FileText, Table, FileSpreadsheet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { saveAs } from 'file-saver';
+
+// Extend jsPDF type to include autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
 
 interface BudgetExportDialogProps {
   open: boolean;
@@ -53,54 +64,24 @@ export const BudgetExportDialog = ({ open, onOpenChange, budgetData }: BudgetExp
     setIsExporting(true);
 
     try {
-      // Simulate export process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Generate mock file based on format
       const fileName = `Orcamento_${budgetData.projectName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
       
-      let blob: Blob;
-      let mimeType: string;
-      let extension: string;
-
       switch (format) {
         case 'pdf':
-          // Mock PDF generation
-          const pdfContent = generatePDFContent(budgetData);
-          blob = new Blob([pdfContent], { type: 'application/pdf' });
-          mimeType = 'application/pdf';
-          extension = 'pdf';
+          await generatePDF(budgetData, fileName);
           break;
           
         case 'excel':
-          // Mock Excel generation
-          const excelContent = generateExcelContent(budgetData);
-          blob = new Blob([excelContent], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-          mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-          extension = 'xlsx';
+          await generateExcel(budgetData, fileName);
           break;
           
         case 'csv':
-          // Real CSV generation
-          const csvContent = generateCSVContent(budgetData);
-          blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-          mimeType = 'text/csv';
-          extension = 'csv';
+          await generateCSV(budgetData, fileName);
           break;
           
         default:
           throw new Error('Formato não suportado');
       }
-
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${fileName}.${extension}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
 
       toast({
         title: "✅ Exportação concluída!",
@@ -120,37 +101,180 @@ export const BudgetExportDialog = ({ open, onOpenChange, budgetData }: BudgetExp
     }
   };
 
-  const generateCSVContent = (data: any) => {
-    const headers = ['Código', 'Descrição', 'Unidade', 'Quantidade', 'Preço Unitário', 'Total', 'Categoria', 'Ambiente'];
-    const rows = data.items.map((item: any) => [
+  const generatePDF = async (data: any, fileName: string) => {
+    const pdf = new jsPDF();
+    
+    // Header
+    pdf.setFontSize(20);
+    pdf.setTextColor(40, 40, 40);
+    pdf.text('ORÇAMENTO DETALHADO', 20, 30);
+    
+    pdf.setFontSize(12);
+    pdf.text(`Projeto: ${data.projectName}`, 20, 45);
+    pdf.text(`Área Total: ${data.totalArea}m²`, 20, 55);
+    pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 65);
+    
+    // Prepare table data
+    const tableColumns = ['Código', 'Descrição', 'Unid.', 'Qtd.', 'Preço Unit.', 'Total'];
+    const tableRows = data.items.map((item: any) => [
       item.codigo,
-      `"${item.descricao}"`,
+      item.descricao.length > 40 ? item.descricao.substring(0, 40) + '...' : item.descricao,
       item.unidade,
       item.quantidade.toFixed(2),
-      item.preco_unitario.toFixed(2),
-      item.total.toFixed(2),
-      item.categoria,
-      item.ambiente
+      `R$ ${item.preco_unitario.toFixed(2)}`,
+      `R$ ${item.total.toFixed(2)}`
     ]);
 
-    return [
-      headers.join(','),
-      ...rows.map((row: any[]) => row.join(',')),
+    // Add table
+    pdf.autoTable({
+      head: [tableColumns],
+      body: tableRows,
+      startY: 80,
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+      },
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      columnStyles: {
+        1: { cellWidth: 50 }, // Descrição
+        4: { halign: 'right' }, // Preço Unit.
+        5: { halign: 'right' }  // Total
+      }
+    });
+
+    // Summary
+    const finalY = (pdf as any).lastAutoTable.finalY + 20;
+    
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, 'bold');
+    pdf.text(`Subtotal: R$ ${data.total.toFixed(2)}`, 20, finalY);
+    pdf.text(`BDI (${data.bdi}%): R$ ${(data.total_com_bdi - data.total).toFixed(2)}`, 20, finalY + 10);
+    pdf.text(`TOTAL GERAL: R$ ${data.total_com_bdi.toFixed(2)}`, 20, finalY + 20);
+
+    // Save PDF
+    pdf.save(`${fileName}.pdf`);
+  };
+
+  const generateExcel = async (data: any, fileName: string) => {
+    const workbook = XLSX.utils.book_new();
+    
+    // Sheet 1: Orçamento Detalhado
+    const budgetData = [
+      ['ORÇAMENTO DETALHADO'],
+      [''],
+      ['Projeto:', data.projectName],
+      ['Área Total:', `${data.totalArea}m²`],
+      ['Data:', new Date().toLocaleDateString('pt-BR')],
+      [''],
+      ['Código', 'Descrição', 'Unidade', 'Quantidade', 'Preço Unitário', 'Total', 'Categoria'],
+      ...data.items.map((item: any) => [
+        item.codigo,
+        item.descricao,
+        item.unidade,
+        item.quantidade,
+        item.preco_unitario,
+        item.total,
+        item.categoria
+      ]),
+      [''],
+      ['', '', '', '', 'Subtotal:', data.total],
+      ['', '', '', '', `BDI (${data.bdi}%):`, data.total_com_bdi - data.total],
+      ['', '', '', '', 'TOTAL GERAL:', data.total_com_bdi]
+    ];
+
+    const budgetSheet = XLSX.utils.aoa_to_sheet(budgetData);
+    
+    // Format cells
+    budgetSheet['A1'] = { t: 's', v: 'ORÇAMENTO DETALHADO', s: { font: { bold: true, sz: 16 } } };
+    
+    // Set column widths
+    budgetSheet['!cols'] = [
+      { wch: 15 }, // Código
+      { wch: 50 }, // Descrição
+      { wch: 10 }, // Unidade
+      { wch: 12 }, // Quantidade
+      { wch: 15 }, // Preço Unitário
+      { wch: 15 }, // Total
+      { wch: 20 }  // Categoria
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, budgetSheet, 'Orçamento');
+
+    // Sheet 2: Resumo por Categoria
+    const categoryData = [
+      ['RESUMO POR CATEGORIA'],
+      [''],
+      ['Categoria', 'Quantidade de Itens', 'Valor Total', 'Percentual']
+    ];
+
+    const categories = data.items.reduce((acc: any, item: any) => {
+      if (!acc[item.categoria]) {
+        acc[item.categoria] = { count: 0, total: 0 };
+      }
+      acc[item.categoria].count += 1;
+      acc[item.categoria].total += item.total;
+      return acc;
+    }, {});
+
+    Object.entries(categories).forEach(([category, values]: [string, any]) => {
+      const percentage = (values.total / data.total * 100).toFixed(1);
+      categoryData.push([
+        category,
+        values.count,
+        values.total,
+        `${percentage}%`
+      ]);
+    });
+
+    const summarySheet = XLSX.utils.aoa_to_sheet(categoryData);
+    summarySheet['!cols'] = [
+      { wch: 25 }, // Categoria
+      { wch: 20 }, // Quantidade
+      { wch: 15 }, // Valor Total
+      { wch: 12 }  // Percentual
+    ];
+
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Resumo');
+
+    // Generate and save Excel file
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `${fileName}.xlsx`);
+  };
+
+  const generateCSV = async (data: any, fileName: string) => {
+    // UTF-8 BOM for proper Excel encoding
+    const BOM = '\uFEFF';
+    
+    const headers = ['Código', 'Descrição', 'Unidade', 'Quantidade', 'Preço Unitário', 'Total', 'Categoria'];
+    const rows = data.items.map((item: any) => [
+      item.codigo,
+      `"${item.descricao.replace(/"/g, '""')}"`, // Escape quotes
+      item.unidade,
+      item.quantidade.toFixed(2).replace('.', ','), // Brazilian decimal format
+      item.preco_unitario.toFixed(2).replace('.', ','),
+      item.total.toFixed(2).replace('.', ','),
+      item.categoria
+    ]);
+
+    const csvContent = [
+      headers.join(';'),
+      ...rows.map((row: any[]) => row.join(';')),
       '',
-      `Subtotal,,,,,${data.total.toFixed(2)},,`,
-      `BDI (${data.bdi}%),,,,,${(data.total_com_bdi - data.total).toFixed(2)},,`,
-      `TOTAL GERAL,,,,,${data.total_com_bdi.toFixed(2)},,`
+      `;;;Subtotal;${data.total.toFixed(2).replace('.', ',')};;`,
+      `;;;BDI (${data.bdi}%);${(data.total_com_bdi - data.total).toFixed(2).replace('.', ',')};;`,
+      `;;;TOTAL GERAL;${data.total_com_bdi.toFixed(2).replace('.', ',')};;`
     ].join('\n');
-  };
 
-  const generatePDFContent = (data: any) => {
-    // Mock PDF content - in real implementation, use a PDF library
-    return `Orçamento - ${data.projectName}\nÁrea: ${data.totalArea}m²\nTotal: R$ ${data.total_com_bdi.toFixed(2)}`;
-  };
-
-  const generateExcelContent = (data: any) => {
-    // Mock Excel content - in real implementation, use a library like xlsx
-    return `Orçamento Excel - ${data.projectName}`;
+    const blob = new Blob([BOM + csvContent], {
+      type: 'text/csv;charset=utf-8;'
+    });
+    
+    saveAs(blob, `${fileName}.csv`);
   };
 
   return (
