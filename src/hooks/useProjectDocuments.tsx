@@ -119,27 +119,27 @@ export const useProjectDocuments = (projectId: string) => {
   };
 
   // Download document
-  const downloadDocument = async (document: ProjectDocument) => {
+  const downloadDocument = async (doc: ProjectDocument) => {
     try {
       const { data, error } = await supabase.storage
         .from('project-documents')
-        .download(document.file_path);
+        .download(doc.file_path);
 
       if (error) throw error;
 
       // Create download link
       const url = URL.createObjectURL(data);
-      const link = document.createElement('a');
+      const link = window.document.createElement('a');
       link.href = url;
-      link.download = document.file_name;
-      document.body.appendChild(link);
+      link.download = doc.file_name;
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
       toast({
         title: "✅ Download iniciado",
-        description: `Baixando ${document.file_name}`,
+        description: `Baixando ${doc.file_name}`,
       });
     } catch (error: any) {
       console.error('Error downloading document:', error);
