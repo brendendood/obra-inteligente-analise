@@ -35,9 +35,23 @@ export const useDashboardData = () => {
   const { toast } = useToast();
   const mountedRef = useRef(true);
 
+  // Forçar refresh automático a cada 30 segundos para manter sincronização
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const interval = setInterval(() => {
+      console.log('🔄 AUTO-REFRESH: Atualizando dados do dashboard');
+      refreshProjects();
+    }, 30000); // 30 segundos
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, refreshProjects]);
+
   // Calcular estatísticas sempre que os projetos mudarem
   useEffect(() => {
     if (!mountedRef.current || !projects) return;
+
+    console.log('📊 DASHBOARD: Calculando estatísticas para', projects.length, 'projetos');
 
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
@@ -80,6 +94,7 @@ export const useDashboardData = () => {
       projectsByType
     };
 
+    console.log('✅ DASHBOARD: Estatísticas atualizadas:', newStats);
     setStats(newStats);
   }, [projects]);
 
@@ -125,7 +140,7 @@ export const useDashboardData = () => {
         });
       }
     } catch (error) {
-      console.error('Erro ao excluir projetos:', error);
+      console.error('💥 DASHBOARD: Erro ao excluir projetos:', error);
       toast({
         title: "❌ Erro ao excluir",
         description: "Não foi possível excluir os projetos.",

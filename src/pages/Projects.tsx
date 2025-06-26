@@ -14,10 +14,13 @@ import { Plus } from 'lucide-react';
 
 export default function Projects() {
   const navigate = useNavigate();
+  // Usar o mesmo hook para garantir consistência
   const { projects, isLoadingProjects } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
+
+  console.log('📂 PROJETOS: Renderizando com', projects.length, 'projetos');
 
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects.filter(project =>
@@ -80,7 +83,9 @@ export default function Projects() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Projetos</h1>
-                  <p className="text-gray-600 mt-1 text-sm sm:text-base">Gerencie e analise seus projetos de construção</p>
+                  <p className="text-gray-600 mt-1 text-sm sm:text-base">
+                    Gerencie e analise seus projetos de construção ({projects.length} projetos)
+                  </p>
                 </div>
                 
                 <Button

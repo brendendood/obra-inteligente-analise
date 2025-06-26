@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { SmartLoading } from '@/components/ui/smart-loading';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import DashboardContent from '@/components/dashboard/DashboardContent';
@@ -13,7 +12,6 @@ import DashboardContent from '@/components/dashboard/DashboardContent';
 const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { preferences, addRecentProject } = useUserPreferences();
   
   const {
     projects,
