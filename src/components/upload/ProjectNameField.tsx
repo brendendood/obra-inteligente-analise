@@ -10,8 +10,11 @@ interface ProjectNameFieldProps {
 
 const ProjectNameField = ({ value, onChange, disabled = false }: ProjectNameFieldProps) => {
   return (
-    <div className="mb-6">
-      <Label htmlFor="projectName" className="text-lg font-semibold text-slate-700 mb-2 block">
+    <div className="mb-4 sm:mb-6 w-full">
+      <Label 
+        htmlFor="projectName" 
+        className="text-base sm:text-lg font-semibold text-slate-700 mb-2 block"
+      >
         Nome do Projeto *
       </Label>
       <Input
@@ -20,10 +23,11 @@ const ProjectNameField = ({ value, onChange, disabled = false }: ProjectNameFiel
         placeholder="Ex: Residência Silva, Apartamento Copacabana..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="text-lg p-4 border-2 border-slate-300 focus:border-blue-500"
+        className="text-base sm:text-lg p-3 sm:p-4 border-2 border-slate-300 focus:border-blue-500 w-full"
+        style={{ fontSize: '16px' }} // Previne zoom no iOS
         disabled={disabled}
       />
-      <p className="text-sm text-slate-500 mt-1">
+      <p className="text-xs sm:text-sm text-slate-500 mt-1">
         Defina um nome personalizado para identificar seu projeto
       </p>
     </div>

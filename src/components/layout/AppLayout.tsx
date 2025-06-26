@@ -9,11 +9,11 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-gray-50/30">
         <AppSidebar />
-        <SidebarInset>
-          <main className="flex-1 p-4 lg:p-8 overflow-auto">
-            <div className="max-w-7xl mx-auto">
+        <SidebarInset className="flex-1 min-w-0">
+          <main className="flex-1 p-2 sm:p-4 lg:p-6 xl:p-8 overflow-auto">
+            <div className="max-w-full mx-auto w-full">
               {children}
             </div>
           </main>
