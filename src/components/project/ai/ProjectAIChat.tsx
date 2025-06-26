@@ -43,7 +43,7 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || inputMessage;
@@ -92,18 +92,16 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
     }
   };
 
-  // Expor função para componentes pais
+  // Expor função para componentes externos
   useEffect(() => {
-    if (onQuestionClick) {
-      (window as any).sendAIQuestion = sendMessage;
-    }
-  }, [onQuestionClick]);
+    (window as any).sendAIQuestion = sendMessage;
+  }, []);
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-12rem)] md:max-h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-full">
       {/* Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 md:p-4">
-        <div className="space-y-3 md:space-y-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 px-2 md:px-4 py-2 md:py-3">
+        <div className="space-y-2 md:space-y-3 max-w-4xl mx-auto">
           {messages.map((message) => (
             <AIMessage key={message.id} message={message} />
           ))}
@@ -113,21 +111,20 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
       </ScrollArea>
       
       {/* Input Area */}
-      <div className="border-t border-gray-200 p-3 md:p-4 bg-gray-50/50 backdrop-blur-sm">
-        <div className="flex space-x-2 md:space-x-3">
+      <div className="shrink-0 border-t border-gray-200 p-2 md:p-4 bg-white/95 backdrop-blur-sm">
+        <div className="flex space-x-2 max-w-4xl mx-auto">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={`Pergunte sobre ${project.name}...`}
             disabled={isTyping}
-            className="flex-1 bg-white text-sm md:text-base"
+            className="flex-1 bg-white border-gray-300 text-sm md:text-base h-10 md:h-11"
           />
           <Button 
             onClick={() => sendMessage()}
             disabled={!inputMessage.trim() || isTyping}
-            className="bg-purple-600 hover:bg-purple-700 px-3 md:px-4"
-            size="default"
+            className="bg-purple-600 hover:bg-purple-700 shrink-0 h-10 md:h-11 px-3 md:px-4"
           >
             {isTyping ? (
               <Loader2 className="h-4 w-4 animate-spin" />

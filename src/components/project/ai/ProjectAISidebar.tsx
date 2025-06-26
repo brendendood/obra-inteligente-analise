@@ -2,9 +2,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
-import { Lightbulb, FileText, Table, MapPin, Ruler, Wrench, MessageSquare } from 'lucide-react';
+import { Lightbulb, FileText, Table, MapPin, Ruler, Wrench, MessageSquare, X } from 'lucide-react';
 import { Project } from '@/types/project';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useState } from 'react';
 
 interface ProjectAISidebarProps {
   project: Project;
@@ -12,11 +13,16 @@ interface ProjectAISidebarProps {
 
 export const ProjectAISidebar = ({ project }: ProjectAISidebarProps) => {
   const isMobile = useIsMobile();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const handleQuestionClick = (question: string) => {
     // Usar a função global exposta pelo chat
     if ((window as any).sendAIQuestion) {
       (window as any).sendAIQuestion(question);
+    }
+    // Fechar drawer no mobile após enviar pergunta
+    if (isMobile) {
+      setIsDrawerOpen(false);
     }
   };
 
@@ -34,7 +40,7 @@ export const ProjectAISidebar = ({ project }: ProjectAISidebarProps) => {
       icon: MapPin,
       category: "Localização & Layout",
       questions: [
-        "Onde ficam os pontos de hidráulica no térreo?",
+        "Onde ficam os pontos de hidráulica?",
         "Quantas janelas há no projeto?",
         "Disposição dos ambientes?"
       ]
@@ -153,20 +159,29 @@ export const ProjectAISidebar = ({ project }: ProjectAISidebarProps) => {
   // Em mobile, mostrar como drawer
   if (isMobile) {
     return (
-      <Drawer>
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerTrigger asChild>
           <Button 
             variant="outline" 
             size="sm"
-            className="fixed bottom-20 right-4 z-40 bg-white shadow-lg border-purple-200 text-purple-700 hover:bg-purple-50"
+            className="fixed bottom-20 right-4 z-50 bg-white shadow-lg border-purple-200 text-purple-700 hover:bg-purple-50 h-12 px-4"
           >
             <MessageSquare className="h-4 w-4 mr-2" />
             Perguntas
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="max-h-[80vh]">
-          <DrawerHeader>
-            <DrawerTitle>Perguntas e Informações</DrawerTitle>
+        <DrawerContent className="max-h-[85vh]">
+          <DrawerHeader className="border-b">
+            <div className="flex items-center justify-between">
+              <DrawerTitle>Perguntas e Informações</DrawerTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsDrawerOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </DrawerHeader>
           <div className="px-4 pb-4 overflow-y-auto">
             <SidebarContent />

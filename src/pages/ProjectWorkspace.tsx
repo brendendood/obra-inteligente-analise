@@ -57,10 +57,10 @@ const ProjectAssistant = () => {
   }
 
   return (
-    <div className="h-full flex flex-col -mx-3 md:-mx-6 -my-3 md:-my-6">
+    <div className="h-[calc(100vh-12rem)] flex flex-col -mx-3 md:-mx-6 -my-3 md:-my-6">
       <ProjectAIHeader project={currentProject} />
       
-      <div className="flex-1 flex flex-col md:flex-row gap-0 md:gap-6 min-h-0 px-3 md:px-6">
+      <div className="flex-1 flex flex-col md:flex-row gap-0 md:gap-4 min-h-0 px-3 md:px-6">
         {/* Chat Principal */}
         <div className="flex-1 flex flex-col min-w-0">
           <Card className="flex-1 flex flex-col border-0 shadow-lg">
