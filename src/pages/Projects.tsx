@@ -14,7 +14,7 @@ import { Plus } from 'lucide-react';
 
 export default function Projects() {
   const navigate = useNavigate();
-  const { projects, isLoading: isLoadingProjects } = useDashboardData();
+  const { projects, isLoadingProjects } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
