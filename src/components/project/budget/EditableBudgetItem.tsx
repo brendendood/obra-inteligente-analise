@@ -1,9 +1,8 @@
 
 import { useState } from 'react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, X, Edit3, Bot, User } from 'lucide-react';
+import { Trash2, Edit3, Check, X } from 'lucide-react';
 
 interface BudgetItem {
   id: string;
@@ -22,141 +21,117 @@ interface BudgetItem {
 interface EditableBudgetItemProps {
   item: BudgetItem;
   onUpdate: (id: string, updates: Partial<BudgetItem>) => void;
-  onToggleSource: (id: string) => void;
+  onRemove: (id: string) => void;
 }
 
-export const EditableBudgetItem = ({ 
-  item, 
-  onUpdate, 
-  onToggleSource 
-}: EditableBudgetItemProps) => {
+export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedQuantity, setEditedQuantity] = useState(item.quantidade.toString());
-  const [editedPrice, setEditedPrice] = useState(item.preco_unitario.toString());
+  const [editData, setEditData] = useState(item);
 
   const handleSave = () => {
-    const newQuantity = parseFloat(editedQuantity) || 0;
-    const newPrice = parseFloat(editedPrice) || 0;
-    
-    onUpdate(item.id, {
-      quantidade: newQuantity,
-      preco_unitario: newPrice,
-      total: newQuantity * newPrice,
-      isCustom: true
-    });
-    
+    onUpdate(item.id, editData);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setEditedQuantity(item.quantidade.toString());
-    setEditedPrice(item.preco_unitario.toString());
+    setEditData(item);
     setIsEditing(false);
   };
 
-  const getCategoryColor = (categoria: string) => {
-    const colors: { [key: string]: string } = {
-      'Movimento de Terra': 'bg-amber-100 text-amber-800 border-amber-200',
-      'Estrutura': 'bg-blue-100 text-blue-800 border-blue-200',
-      'Alvenaria': 'bg-red-100 text-red-800 border-red-200',
-      'Instalações': 'bg-purple-100 text-purple-800 border-purple-200',
-      'Acabamentos': 'bg-green-100 text-green-800 border-green-200',
-      'Cobertura': 'bg-orange-100 text-orange-800 border-orange-200'
-    };
-    return colors[categoria] || 'bg-gray-100 text-gray-800 border-gray-200';
-  };
-
-  return (
-    <tr className="hover:bg-gray-50/80 transition-colors">
-      <td className="border border-gray-300 p-3">
-        <div className="space-y-2">
-          <span className="font-mono text-sm text-gray-600">{item.codigo}</span>
-          <div className="flex flex-wrap gap-1">
-            <Badge 
-              className={getCategoryColor(item.categoria)}
-              variant="secondary"
+  if (isEditing) {
+    return (
+      <tr className="bg-yellow-50/50">
+        <td className="border border-gray-300 p-2">
+          <Input
+            value={editData.codigo}
+            onChange={(e) => setEditData({ ...editData, codigo: e.target.value })}
+            className="h-8 text-xs"
+          />
+        </td>
+        <td className="border border-gray-300 p-2">
+          <Input
+            value={editData.descricao}
+            onChange={(e) => setEditData({ ...editData, descricao: e.target.value })}
+            className="h-8 text-xs"
+          />
+        </td>
+        <td className="border border-gray-300 p-2">
+          <Input
+            type="number"
+            value={editData.quantidade}
+            onChange={(e) => setEditData({ ...editData, quantidade: parseFloat(e.target.value) || 0 })}
+            className="h-8 text-xs w-20"
+          />
+        </td>
+        <td className="border border-gray-300 p-2 text-center text-xs">
+          {editData.unidade}
+        </td>
+        <td className="border border-gray-300 p-2">
+          <Input
+            type="number"
+            value={editData.preco_unitario}
+            onChange={(e) => setEditData({ ...editData, preco_unitario: parseFloat(e.target.value) || 0 })}
+            className="h-8 text-xs w-24"
+          />
+        </td>
+        <td className="border border-gray-300 p-2 text-right text-xs font-medium">
+          R$ {(editData.quantidade * editData.preco_unitario).toFixed(2)}
+        </td>
+        <td className="border border-gray-300 p-2">
+          <div className="flex space-x-1 justify-center">
+            <Button
+              onClick={handleSave}
+              size="sm"
+              className="h-6 w-6 p-0 bg-green-600 hover:bg-green-700"
             >
-              {item.categoria}
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {item.ambiente}
-            </Badge>
-          </div>
-        </div>
-      </td>
-      
-      <td className="border border-gray-300 p-3">
-        <div className="flex items-start justify-between">
-          <span className="text-sm">{item.descricao}</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onToggleSource(item.id)}
-            className="ml-2 flex-shrink-0"
-          >
-            {item.isAiGenerated ? (
-              <Bot className="h-4 w-4 text-blue-600" />
-            ) : (
-              <User className="h-4 w-4 text-green-600" />
-            )}
-          </Button>
-        </div>
-      </td>
-
-      <td className="border border-gray-300 p-3 text-center">
-        {isEditing ? (
-          <Input
-            type="number"
-            step="0.01"
-            value={editedQuantity}
-            onChange={(e) => setEditedQuantity(e.target.value)}
-            className="w-20 text-center"
-          />
-        ) : (
-          <span>{item.quantidade.toFixed(2)}</span>
-        )}
-      </td>
-
-      <td className="border border-gray-300 p-3 text-center">{item.unidade}</td>
-
-      <td className="border border-gray-300 p-3 text-right">
-        {isEditing ? (
-          <Input
-            type="number"
-            step="0.01"
-            value={editedPrice}
-            onChange={(e) => setEditedPrice(e.target.value)}
-            className="w-24 text-right"
-          />
-        ) : (
-          <span>R$ {item.preco_unitario.toFixed(2)}</span>
-        )}
-      </td>
-
-      <td className="border border-gray-300 p-3 text-right font-semibold">
-        R$ {item.total.toFixed(2)}
-      </td>
-
-      <td className="border border-gray-300 p-3 text-center">
-        {isEditing ? (
-          <div className="flex space-x-1">
-            <Button size="sm" onClick={handleSave} className="bg-green-600 hover:bg-green-700">
               <Check className="h-3 w-3" />
             </Button>
-            <Button size="sm" variant="outline" onClick={handleCancel}>
+            <Button
+              onClick={handleCancel}
+              size="sm"
+              variant="outline"
+              className="h-6 w-6 p-0"
+            >
               <X className="h-3 w-3" />
             </Button>
           </div>
-        ) : (
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className={`hover:bg-gray-50 ${item.isCustom ? 'bg-blue-50/30' : ''}`}>
+      <td className="border border-gray-300 p-3 text-xs">
+        {item.codigo}
+        {item.isAiGenerated && (
+          <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full" title="Gerado por IA" />
+        )}
+      </td>
+      <td className="border border-gray-300 p-3 text-xs">{item.descricao}</td>
+      <td className="border border-gray-300 p-3 text-center text-xs">{item.quantidade}</td>
+      <td className="border border-gray-300 p-3 text-center text-xs">{item.unidade}</td>
+      <td className="border border-gray-300 p-3 text-right text-xs">R$ {item.preco_unitario.toFixed(2)}</td>
+      <td className="border border-gray-300 p-3 text-right text-xs font-medium">R$ {item.total.toFixed(2)}</td>
+      <td className="border border-gray-300 p-3">
+        <div className="flex space-x-1 justify-center">
           <Button
+            onClick={() => setIsEditing(true)}
             size="sm"
             variant="ghost"
-            onClick={() => setIsEditing(true)}
-            className="hover:bg-blue-50"
+            className="h-6 w-6 p-0"
           >
             <Edit3 className="h-3 w-3" />
           </Button>
-        )}
+          <Button
+            onClick={() => onRemove(item.id)}
+            size="sm"
+            variant="ghost"
+            className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
+        </div>
       </td>
     </tr>
   );

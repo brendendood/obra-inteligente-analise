@@ -1,17 +1,16 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { RefreshCw, Calculator, Download, Plus, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { BudgetHeader } from './budget/BudgetHeader';
-import { BudgetSummary } from './budget/BudgetSummary';
+import { Progress } from '@/components/ui/progress';
+import { Calculator, Download, History, Plus, RefreshCw } from 'lucide-react';
+import { Project } from '@/types/project';
 import { EditableBudgetItem } from './budget/EditableBudgetItem';
+import { BudgetSummary } from './budget/BudgetSummary';
 import { AddItemDialog } from './budget/AddItemDialog';
 import { BudgetExportDialog } from './budget/BudgetExportDialog';
 import { BudgetHistoryDialog } from './budget/BudgetHistoryDialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { v4 as uuidv4 } from 'uuid';
 
 interface BudgetItem {
   id: string;
@@ -28,20 +27,17 @@ interface BudgetItem {
 }
 
 interface BudgetData {
-  projectId: string;
-  projectName: string;
-  totalArea: number;
-  items: BudgetItem[];
-  subtotais: { [categoria: string]: number };
+  data_referencia: string;
   total: number;
   bdi: number;
   total_com_bdi: number;
-  data_referencia: string;
+  totalArea: number;
+  items: BudgetItem[];
 }
 
 interface ProjectBudgetGeneratorProps {
-  project: any;
-  onBudgetGenerated?: (data: BudgetData) => void;
+  project: Project;
+  onBudgetGenerated?: (budget: BudgetData) => void;
 }
 
 export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBudgetGeneratorProps) => {
@@ -51,255 +47,142 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showHistoryDialog, setShowHistoryDialog] = useState(false);
-  const { toast } = useToast();
 
-  // Auto-generate budget when project loads
+  const environments = ['Quarto', 'Sala', 'Cozinha', 'Banheiro', 'Lavanderia', 'Varanda', 'Garagem', 'Outro'];
+  const categories = ['Alvenaria', 'Estrutura', 'Instalações', 'Revestimentos', 'Pintura', 'Esquadrias', 'Louças e Metais', 'Outro'];
+
   useEffect(() => {
-    if (project && !budgetData) {
-      console.log('🤖 Auto-gerando orçamento para projeto:', project.name);
-      generateBudget();
+    // Simular carregamento inicial do orçamento
+    if (project && project.analysis_data) {
+      // Gerar dados mock
+      const mockData: BudgetData = {
+        data_referencia: new Date().toLocaleDateString(),
+        total: 55000,
+        bdi: 0.28,
+        total_com_bdi: 70400,
+        totalArea: project.total_area || 100,
+        items: [
+          {
+            id: uuidv4(),
+            codigo: 'SINAPI-01',
+            descricao: 'Serviço de alvenaria',
+            unidade: 'm²',
+            quantidade: 50,
+            preco_unitario: 80,
+            total: 4000,
+            categoria: 'Alvenaria',
+            ambiente: 'Quarto',
+            isAiGenerated: true,
+            isCustom: false
+          },
+          {
+            id: uuidv4(),
+            codigo: 'SINAPI-02',
+            descricao: 'Pintura interna',
+            unidade: 'm²',
+            quantidade: 50,
+            preco_unitario: 30,
+            total: 1500,
+            categoria: 'Pintura',
+            ambiente: 'Quarto',
+            isAiGenerated: true,
+            isCustom: false
+          },
+          {
+            id: uuidv4(),
+            codigo: 'SINAPI-03',
+            descricao: 'Revestimento cerâmico',
+            unidade: 'm²',
+            quantidade: 20,
+            preco_unitario: 45,
+            total: 900,
+            categoria: 'Revestimentos',
+            ambiente: 'Banheiro',
+            isAiGenerated: true,
+            isCustom: false
+          }
+        ]
+      };
+      setBudgetData(mockData);
     }
   }, [project]);
 
-  const generateBudget = async () => {
-    if (!project) return;
-    
-    console.log('💰 ORÇAMENTO: Gerando para projeto:', project.name);
+  const generateBudget = useCallback(() => {
     setIsGenerating(true);
     setProgress(0);
-    
-    try {
-      const progressSteps = [
-        { step: 20, message: 'Analisando plantas e especificações...' },
-        { step: 40, message: 'Consultando tabela SINAPI atualizada...' },
-        { step: 60, message: 'Calculando quantitativos por ambiente...' },
-        { step: 80, message: 'Aplicando custos regionais...' },
-        { step: 100, message: 'Finalizando orçamento detalhado...' }
-      ];
-      
-      for (const progressStep of progressSteps) {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setProgress(progressStep.step);
-      }
-      
-      const area = project.total_area || 100;
-      
-      const items: BudgetItem[] = [
-        {
-          id: '1',
-          codigo: 'SINAPI-92551',
-          descricao: 'Escavação manual de valas em material de 1ª categoria',
-          unidade: 'm³',
-          quantidade: Math.round(area * 0.3 * 100) / 100,
-          preco_unitario: 45.67,
-          total: Math.round(area * 0.3 * 45.67 * 100) / 100,
-          categoria: 'Movimento de Terra',
-          ambiente: 'Área Externa',
-          isAiGenerated: true,
-          isCustom: false
-        },
-        {
-          id: '2',
-          codigo: 'SINAPI-94102',
-          descricao: 'Concreto FCK=25MPa, com brita 1 e 2 - lançamento manual',
-          unidade: 'm³',
-          quantidade: Math.round(area * 0.15 * 100) / 100,
-          preco_unitario: 387.45,
-          total: Math.round(area * 0.15 * 387.45 * 100) / 100,
-          categoria: 'Estrutura',
-          ambiente: 'Estrutural',
-          isAiGenerated: true,
-          isCustom: false
-        },
-        {
-          id: '3',
-          codigo: 'SINAPI-87245',
-          descricao: 'Alvenaria de vedação com tijolos cerâmicos furados',
-          unidade: 'm²',
-          quantidade: Math.round(area * 2.8 * 100) / 100,
-          preco_unitario: 89.23,
-          total: Math.round(area * 2.8 * 89.23 * 100) / 100,
-          categoria: 'Alvenaria',
-          ambiente: 'Geral',
-          isAiGenerated: true,
-          isCustom: false
-        },
-        {
-          id: '4',
-          codigo: 'SINAPI-91204',
-          descricao: 'Revestimento cerâmico para paredes internas 20x30cm',
-          unidade: 'm²',
-          quantidade: Math.round(area * 1.5 * 100) / 100,
-          preco_unitario: 156.78,
-          total: Math.round(area * 1.5 * 156.78 * 100) / 100,
-          categoria: 'Acabamentos',
-          ambiente: 'Banheiros',
-          isAiGenerated: true,
-          isCustom: false
-        },
-        {
-          id: '5',
-          codigo: 'SINAPI-91856',
-          descricao: 'Instalação elétrica completa - residencial padrão médio',
-          unidade: 'm²',
-          quantidade: area,
-          preco_unitario: 125.34,
-          total: Math.round(area * 125.34 * 100) / 100,
-          categoria: 'Instalações',
-          ambiente: 'Geral',
-          isAiGenerated: true,
-          isCustom: false
-        },
-        {
-          id: '6',
-          codigo: 'SINAPI-92115',
-          descricao: 'Instalação hidrossanitária completa - residencial',
-          unidade: 'm²',
-          quantidade: area,
-          preco_unitario: 98.45,
-          total: Math.round(area * 98.45 * 100) / 100,
-          categoria: 'Instalações',
-          ambiente: 'Banheiros',
-          isAiGenerated: true,
-          isCustom: false
+
+    // Simular progresso
+    const interval = setInterval(() => {
+      setProgress((prevProgress) => {
+        const newProgress = prevProgress + 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          setIsGenerating(false);
+          return 100;
         }
-      ];
-      
-      const subtotais = items.reduce((acc, item) => {
-        acc[item.categoria] = (acc[item.categoria] || 0) + item.total;
-        return acc;
-      }, {} as { [categoria: string]: number });
-      
-      const total = items.reduce((sum, item) => sum + item.total, 0);
-      const bdi = 25;
-      const total_com_bdi = total * (1 + bdi / 100);
-      
-      const mockBudget: BudgetData = {
-        projectId: project.id,
-        projectName: project.name,
-        totalArea: area,
-        items,
-        subtotais,
-        total,
-        bdi,
-        total_com_bdi,
-        data_referencia: new Date().toLocaleDateString('pt-BR')
-      };
-      
-      setBudgetData(mockBudget);
-      onBudgetGenerated?.(mockBudget);
-      
-      toast({
-        title: "✅ Orçamento gerado automaticamente!",
-        description: `Orçamento SINAPI para ${project.name} pronto para revisão e edição.`,
+        return newProgress;
       });
-    } catch (error) {
-      console.error('❌ ORÇAMENTO: Erro ao gerar:', error);
-      toast({
-        title: "❌ Erro ao gerar orçamento",
-        description: "Não foi possível gerar o orçamento. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-      setProgress(0);
-    }
-  };
+    }, 300);
+  }, []);
 
   const updateItem = (id: string, updates: Partial<BudgetItem>) => {
-    if (!budgetData) return;
-    
-    const updatedItems = budgetData.items.map(item => {
-      if (item.id === id) {
-        const updated = { ...item, ...updates };
-        updated.total = updated.quantidade * updated.preco_unitario;
-        return updated;
-      }
-      return item;
-    });
-    
-    const newSubtotais = updatedItems.reduce((acc, item) => {
-      acc[item.categoria] = (acc[item.categoria] || 0) + item.total;
-      return acc;
-    }, {} as { [categoria: string]: number });
-    
-    const newTotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
-    const newTotalComBdi = newTotal * (1 + budgetData.bdi / 100);
-    
-    setBudgetData({
-      ...budgetData,
-      items: updatedItems,
-      subtotais: newSubtotais,
-      total: newTotal,
-      total_com_bdi: newTotalComBdi
-    });
-  };
+    setBudgetData((prevData) => {
+      if (!prevData) return null;
+      const updatedItems = prevData.items.map((item) =>
+        item.id === id ? { ...item, ...updates, total: item.quantidade * item.preco_unitario } : item
+      );
+      
+      const newTotal = updatedItems.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0);
+      const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
-  const addNewItem = (newItem: Omit<BudgetItem, 'id'>) => {
-    if (!budgetData) return;
-    
-    const itemWithId: BudgetItem = {
-      ...newItem,
-      id: Date.now().toString(),
-      total: newItem.quantidade * newItem.preco_unitario
-    };
-    
-    const updatedItems = [...budgetData.items, itemWithId];
-    const newSubtotais = updatedItems.reduce((acc, item) => {
-      acc[item.categoria] = (acc[item.categoria] || 0) + item.total;
-      return acc;
-    }, {} as { [categoria: string]: number });
-    
-    const newTotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
-    const newTotalComBdi = newTotal * (1 + budgetData.bdi / 100);
-    
-    setBudgetData({
-      ...budgetData,
-      items: updatedItems,
-      subtotais: newSubtotais,
-      total: newTotal,
-      total_com_bdi: newTotalComBdi
+      return {
+        ...prevData,
+        total: newTotal,
+        total_com_bdi: newTotalComBDI,
+        items: updatedItems,
+      };
     });
   };
 
   const removeItem = (id: string) => {
-    if (!budgetData) return;
-    
-    const updatedItems = budgetData.items.filter(item => item.id !== id);
-    const newSubtotais = updatedItems.reduce((acc, item) => {
-      acc[item.categoria] = (acc[item.categoria] || 0) + item.total;
-      return acc;
-    }, {} as { [categoria: string]: number });
-    
-    const newTotal = updatedItems.reduce((sum, item) => sum + item.total, 0);
-    const newTotalComBdi = newTotal * (1 + budgetData.bdi / 100);
-    
-    setBudgetData({
-      ...budgetData,
-      items: updatedItems,
-      subtotais: newSubtotais,
-      total: newTotal,
-      total_com_bdi: newTotalComBdi
+    setBudgetData((prevData) => {
+      if (!prevData) return null;
+      const updatedItems = prevData.items.filter((item) => item.id !== id);
+
+      const newTotal = updatedItems.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0);
+      const newTotalComBDI = newTotal * (1 + prevData.bdi);
+
+      return {
+        ...prevData,
+        total: newTotal,
+        total_com_bdi: newTotalComBDI,
+        items: updatedItems,
+      };
     });
   };
 
-  if (!project) {
-    return (
-      <div className="text-center py-16">
-        <Calculator className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Projeto não encontrado</h3>
-        <p className="text-gray-600">Não foi possível carregar os dados do projeto.</p>
-      </div>
-    );
-  }
+  const addNewItem = (newItem: Omit<BudgetItem, 'id'>) => {
+    setBudgetData((prevData) => {
+      if (!prevData) return null;
+      
+      const newItemWithId: BudgetItem = {
+        id: uuidv4(),
+        ...newItem,
+        total: newItem.quantidade * newItem.preco_unitario,
+      };
+      
+      const updatedItems = [...prevData.items, newItemWithId];
+      const newTotal = updatedItems.reduce((acc, item) => acc + (item.quantidade * item.preco_unitario), 0);
+      const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
-  const environments = budgetData ? 
-    [...new Set(budgetData.items.map(item => item.ambiente))] : 
-    ['Geral', 'Área Externa', 'Estrutural', 'Banheiros'];
-    
-  const categories = budgetData ? 
-    [...new Set(budgetData.items.map(item => item.categoria))] : 
-    ['Movimento de Terra', 'Estrutura', 'Alvenaria', 'Instalações', 'Acabamentos', 'Cobertura'];
+      return {
+        ...prevData,
+        total: newTotal,
+        total_com_bdi: newTotalComBDI,
+        items: updatedItems,
+      };
+    });
+  };
 
   return (
     <div className="space-y-6">
