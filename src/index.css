@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -69,6 +70,7 @@ html {
   /* Previne zoom horizontal e garante scroll vertical suave */
   overflow-x: hidden;
   scroll-behavior: smooth;
+  width: 100%;
 }
 
 body {
@@ -81,9 +83,14 @@ body {
   /* Garante que o body ocupe toda a largura */
   width: 100%;
   min-width: 0;
+  margin: 0;
+  padding: 0;
 }
 
-/* Previne zoom em inputs no mobile (iOS Safari) */
+/* Previne zoom em inputs no mobile (iOS Safari) - CRÍTICO PARA MOBILE */
+input,
+textarea, 
+select,
 input[type="color"],
 input[type="date"],
 input[type="datetime"],
@@ -97,9 +104,16 @@ input[type="tel"],
 input[type="text"],
 input[type="time"],
 input[type="url"],
-input[type="week"],
-select:focus,
-textarea {
+input[type="week"] {
+  font-size: 16px !important;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
   font-size: 16px !important;
 }
 
@@ -118,6 +132,7 @@ textarea {
   padding-right: 0.5rem;
   margin-left: auto;
   margin-right: auto;
+  box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
@@ -139,6 +154,78 @@ textarea {
     max-width: 1280px;
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+}
+
+/* Utilitários para prevenir overflow horizontal */
+.prevent-overflow {
+  overflow-x: hidden;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Flex containers responsivos */
+.flex-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .flex-responsive {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+/* Grid responsivo melhorado */
+.responsive-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid {
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}
+
+/* Cards responsivos */
+.card-responsive {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Botões responsivos */
+.button-responsive {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  word-wrap: break-word;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .button-responsive {
+    width: auto;
+    min-width: auto;
   }
 }
 
@@ -318,6 +405,8 @@ textarea {
   .card {
     min-width: 0;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   /* Melhora o espaçamento em mobile */
@@ -327,6 +416,13 @@ textarea {
   
   .space-y-8 > * + * {
     margin-top: 1.5rem;
+  }
+
+  /* Garante que botões não saiam da tela */
+  button {
+    max-width: 100%;
+    word-wrap: break-word;
+    box-sizing: border-box;
   }
 }
 
@@ -377,37 +473,4 @@ textarea {
   background: rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Utilities para prevenir overflow */
-.prevent-overflow {
-  overflow-x: hidden;
-  min-width: 0;
-}
-
-/* Grid responsivo melhorado */
-.responsive-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 640px) {
-  .responsive-grid {
-    gap: 1.5rem;
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .responsive-grid {
-    gap: 2rem;
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .responsive-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }

@@ -38,27 +38,32 @@ export const QuickActions = () => {
   ];
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Ações Rápidas</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full min-w-0">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 sm:px-0">
+        Ações Rápidas
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full px-2 sm:px-0">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (
             <Card 
               key={index}
-              className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group"
+              className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group w-full min-w-0"
               onClick={() => navigate(action.path)}
             >
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4">
-                  <div className={`p-3 rounded-xl ${action.color} ${action.hoverColor} transition-colors`}>
-                    <Icon className="h-6 w-6 text-white" />
+              <CardContent className="p-4 sm:p-6 w-full">
+                <div className="flex items-center space-x-3 sm:space-x-4 w-full min-w-0">
+                  <div className={`
+                    p-2 sm:p-3 rounded-xl ${action.color} ${action.hoverColor} 
+                    transition-colors flex-shrink-0
+                  `}>
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
                       {action.title}
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 text-sm break-words">
                       {action.description}
                     </p>
                   </div>

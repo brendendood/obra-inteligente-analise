@@ -42,38 +42,40 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-gray-200 hover:border-blue-300">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-2">
-            <Building2 className="h-5 w-5 text-blue-600" />
-            <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+    <Card className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-gray-200 hover:border-blue-300 w-full min-w-0 max-w-full">
+      <CardHeader className="pb-3 w-full">
+        <div className="flex items-start justify-between w-full min-w-0 gap-2">
+          <div className="flex items-center space-x-2 flex-1 min-w-0">
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+            <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
               {project.name}
             </CardTitle>
           </div>
           
-          <Badge className={`${
-            project.analysis_data 
+          <Badge className={`
+            flex-shrink-0 text-xs
+            ${project.analysis_data 
               ? 'bg-green-100 text-green-700 border-green-200' 
               : 'bg-yellow-100 text-yellow-700 border-yellow-200'
-          }`}>
+            }
+          `}>
             {project.analysis_data ? '✅ Analisado' : '⏳ Processando'}
           </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 w-full">
         {/* Informações do projeto */}
-        <div className="space-y-2 text-sm text-gray-600">
+        <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600 w-full">
           {project.total_area && (
-            <div className="flex items-center space-x-2">
-              <Ruler className="h-4 w-4" />
-              <span>Área: {project.total_area}m²</span>
+            <div className="flex items-center space-x-2 min-w-0">
+              <Ruler className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate">Área: {project.total_area}m²</span>
             </div>
           )}
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4" />
-            <span>Criado: {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+          <div className="flex items-center space-x-2 min-w-0">
+            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="truncate">Criado: {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
           </div>
         </div>
 
@@ -81,20 +83,21 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
         <Button
           onClick={handleOpenProject}
           disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white group-hover:bg-blue-700 transition-all duration-200"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white group-hover:bg-blue-700 transition-all duration-200 h-10 min-w-0"
+          style={{ fontSize: '16px' }}
         >
           {isLoading ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 flex-shrink-0"></div>
           ) : (
-            <Eye className="h-4 w-4 mr-2" />
+            <Eye className="h-4 w-4 mr-2 flex-shrink-0" />
           )}
-          {isLoading ? 'Carregando...' : 'Abrir Projeto'}
-          <ChevronRight className="h-4 w-4 ml-2" />
+          <span className="truncate">{isLoading ? 'Carregando...' : 'Abrir Projeto'}</span>
+          <ChevronRight className="h-4 w-4 ml-2 flex-shrink-0" />
         </Button>
 
         {/* Ações rápidas */}
         {showQuickActions && project.analysis_data && (
-          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 w-full">
             <Button
               variant="outline"
               size="sm"
@@ -102,10 +105,11 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
                 e.stopPropagation();
                 handleQuickAction('orcamento');
               }}
-              className="flex items-center space-x-1 text-xs"
+              className="flex items-center justify-center space-x-1 text-xs min-w-0 h-9"
+              style={{ fontSize: '14px' }}
             >
-              <Calculator className="h-3 w-3" />
-              <span>Orçamento</span>
+              <Calculator className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">Orçamento</span>
             </Button>
             
             <Button
@@ -115,10 +119,11 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
                 e.stopPropagation();
                 handleQuickAction('cronograma');
               }}
-              className="flex items-center space-x-1 text-xs"
+              className="flex items-center justify-center space-x-1 text-xs min-w-0 h-9"
+              style={{ fontSize: '14px' }}
             >
-              <Clock className="h-3 w-3" />
-              <span>Cronograma</span>
+              <Clock className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">Cronograma</span>
             </Button>
             
             <Button
@@ -128,10 +133,11 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
                 e.stopPropagation();
                 handleQuickAction('assistente');
               }}
-              className="flex items-center space-x-1 text-xs"
+              className="flex items-center justify-center space-x-1 text-xs min-w-0 h-9"
+              style={{ fontSize: '14px' }}
             >
-              <Bot className="h-3 w-3" />
-              <span>IA</span>
+              <Bot className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">IA</span>
             </Button>
             
             <Button
@@ -141,10 +147,11 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
                 e.stopPropagation();
                 handleQuickAction('documentos');
               }}
-              className="flex items-center space-x-1 text-xs"
+              className="flex items-center justify-center space-x-1 text-xs min-w-0 h-9"
+              style={{ fontSize: '14px' }}
             >
-              <FileText className="h-3 w-3" />
-              <span>Docs</span>
+              <FileText className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">Docs</span>
             </Button>
           </div>
         )}

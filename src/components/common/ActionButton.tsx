@@ -39,11 +39,11 @@ const ActionButton = ({
   const getSizeClasses = () => {
     switch (size) {
       case 'sm':
-        return 'px-4 py-2 text-sm h-9';
+        return 'px-3 py-2 text-sm h-9';
       case 'md':
-        return 'px-6 py-3 text-base h-10';
+        return 'px-4 py-3 text-base h-10';
       case 'lg':
-        return 'px-8 py-4 text-lg h-12';
+        return 'px-6 py-4 text-lg h-12';
       default:
         return '';
     }
@@ -53,17 +53,28 @@ const ActionButton = ({
     <Button
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={`${getVariantClasses()} ${getSizeClasses()} font-medium rounded-lg transition-all duration-200 ${className}`}
+      className={`
+        ${getVariantClasses()} 
+        ${getSizeClasses()} 
+        font-medium rounded-lg transition-all duration-200 
+        w-full sm:w-auto min-w-0 max-w-full box-border
+        flex items-center justify-center gap-2
+        ${className}
+      `}
+      style={{ fontSize: '16px' }}
     >
       {isLoading ? (
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+        <>
+          <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
+          <span className="truncate">Carregando...</span>
+        </>
       ) : icon ? (
-        <span className="flex items-center">
-          {icon}
-          <span className="ml-2">{children}</span>
-        </span>
+        <>
+          <span className="flex-shrink-0">{icon}</span>
+          <span className="truncate">{children}</span>
+        </>
       ) : (
-        children
+        <span className="truncate">{children}</span>
       )}
     </Button>
   );
