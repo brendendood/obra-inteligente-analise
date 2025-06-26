@@ -137,7 +137,9 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
           preco_unitario: 0,
           total: 0,
           categoria: categoryLabels[task.category] || task.category,
-          ambiente: 'Cronograma'
+          ambiente: 'Cronograma',
+          isAiGenerated: false,
+          isCustom: true
         }))
       };
       
