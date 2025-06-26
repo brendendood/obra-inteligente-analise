@@ -21,11 +21,8 @@ export const useProjectLoader = () => {
       }
 
       try {
-        // Aguardar carregamento dos projetos
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
         if (!projectExists(projectId)) {
-          // Não mostrar erro imediatamente - tentar novamente
+          // Aguardar um pouco para os projetos carregarem
           setTimeout(() => {
             if (projectExists(projectId)) {
               const project = getProject(projectId);
@@ -46,8 +43,7 @@ export const useProjectLoader = () => {
           setError(null);
         }
       } catch (err) {
-        console.error('Erro temporário ao carregar projeto:', err);
-        // Não definir erro - pode ser temporário
+        console.error('Erro ao carregar projeto:', err);
       } finally {
         setLoading(false);
       }
@@ -56,7 +52,7 @@ export const useProjectLoader = () => {
     loadProject();
   }, [projectId, projectExists, getProject, setCurrentProject]);
 
-  // Loading Component otimizado - sem mostrar erro desnecessário
+  // Loading Component otimizado
   const LoadingComponent = () => (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">

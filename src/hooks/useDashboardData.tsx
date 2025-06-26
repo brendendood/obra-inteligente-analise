@@ -16,7 +16,7 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { 
     projects, 
     isLoading: isLoadingProjects, 
@@ -37,9 +37,7 @@ export const useDashboardData = () => {
 
   // Calcular estatísticas sempre que os projetos mudarem
   useEffect(() => {
-    console.log('📊 DASHBOARD: Calculando stats para', projects.length, 'projetos');
-    
-    if (!mountedRef.current) return;
+    if (!mountedRef.current || !projects) return;
 
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
@@ -82,7 +80,6 @@ export const useDashboardData = () => {
       projectsByType
     };
 
-    console.log('📈 DASHBOARD: Stats calculadas:', newStats);
     setStats(newStats);
   }, [projects]);
 
@@ -98,8 +95,6 @@ export const useDashboardData = () => {
     }
 
     try {
-      console.log('🗑️ DASHBOARD: Excluindo todos os projetos do usuário:', user.id);
-
       const { data: userProjects, error: fetchError } = await supabase
         .from('projects')
         .select('id')
@@ -116,7 +111,6 @@ export const useDashboardData = () => {
         if (deleteError) throw deleteError;
         
         if (mountedRef.current) {
-          // Forçar refresh dos projetos após exclusão
           await refreshProjects();
           
           toast({
@@ -131,7 +125,7 @@ export const useDashboardData = () => {
         });
       }
     } catch (error) {
-      console.error('💥 DASHBOARD: Erro ao excluir projetos:', error);
+      console.error('Erro ao excluir projetos:', error);
       toast({
         title: "❌ Erro ao excluir",
         description: "Não foi possível excluir os projetos.",
@@ -143,7 +137,6 @@ export const useDashboardData = () => {
   // Cleanup na desmontagem
   useEffect(() => {
     return () => {
-      console.log('🧹 DASHBOARD: Cleanup executado');
       mountedRef.current = false;
     };
   }, []);

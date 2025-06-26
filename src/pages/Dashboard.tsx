@@ -15,7 +15,6 @@ const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { preferences, addRecentProject } = useUserPreferences();
-  const [showContent, setShowContent] = useState(false);
   
   const {
     projects,
@@ -29,20 +28,10 @@ const Dashboard = () => {
       navigate('/login');
       return;
     }
-    
-    // Delay mínimo para evitar flashing
-    if (!authLoading && isAuthenticated) {
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
   }, [isAuthenticated, authLoading, navigate]);
 
   // Estados de loading mais estáveis
-  const isInitialLoading = authLoading || !showContent;
-  const isDataLoading = showContent && isAuthenticated && isLoadingProjects;
+  const isInitialLoading = authLoading;
 
   if (isInitialLoading) {
     return <DashboardLoadingState />;
@@ -61,7 +50,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <EnhancedBreadcrumb />
           <SmartLoading 
-            isLoading={isDataLoading} 
+            isLoading={isLoadingProjects} 
             hasData={projects.length > 0}
             successText={`${projects.length} projetos carregados`}
             loadingText="Carregando projetos..."
@@ -73,14 +62,14 @@ const Dashboard = () => {
           userName={userName}
           greeting={greeting}
           onRefresh={forceRefresh}
-          isLoading={isDataLoading}
+          isLoading={isLoadingProjects}
         />
 
         {/* Conteúdo principal */}
         <DashboardContent
           stats={stats}
           projects={projects}
-          isDataLoading={isDataLoading}
+          isDataLoading={isLoadingProjects}
         />
       </div>
     </AppLayout>
