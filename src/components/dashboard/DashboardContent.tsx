@@ -5,6 +5,7 @@ import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickAction
 import DashboardRecentProjects from '@/components/dashboard/DashboardRecentProjects';
 import { InsightsDashboard } from '@/components/dashboard/InsightsDashboard';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { SidebarQuickActions } from '@/components/dashboard/SidebarQuickActions';
 
 interface DashboardContentProps {
   stats: any;
@@ -30,27 +31,49 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
   }
 
   return (
-    <div className="space-y-6 max-w-none">
+    <div className="space-y-6 max-w-none min-h-screen">
       {/* Cards de estatísticas principais */}
       <StatsCards stats={stats} />
 
       {/* Dashboard com resumo de insights */}
       <InsightsDashboard stats={stats} />
 
-      {/* Layout principal - duas colunas com melhor distribuição */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Coluna principal - projetos recentes (3/4 do espaço) */}
-        <div className="lg:col-span-3">
+      {/* Layout principal usando flexbox para garantir preenchimento total */}
+      <div className="flex flex-col lg:flex-row gap-6 min-h-[600px]">
+        {/* Coluna principal - projetos recentes */}
+        <div className="flex-1 lg:w-3/4">
           <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
         </div>
         
-        {/* Coluna lateral - atividade e ações (1/4 do espaço, mas melhor aproveitado) */}
-        <div className="lg:col-span-1 space-y-6 flex flex-col">
-          <div className="flex-1">
+        {/* Coluna lateral - garantindo que ocupe todo o espaço disponível */}
+        <div className="lg:w-1/4 min-w-[300px] flex flex-col gap-6">
+          {/* Atividade Recente - flexível para ocupar espaço */}
+          <div className="flex-1 min-h-[400px]">
             <RecentActivity projects={projects} />
           </div>
+          
+          {/* Ações Rápidas - compacta para sidebar */}
           <div className="flex-shrink-0">
-            <EnhancedQuickActions />
+            <SidebarQuickActions />
+          </div>
+          
+          {/* Conteúdo adicional para garantir preenchimento */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Dicas MadenAI</h3>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <span className="text-blue-600">💡</span>
+                <p className="text-sm text-gray-700">Use a IA para analisar seus projetos automaticamente</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="text-green-600">📊</span>
+                <p className="text-sm text-gray-700">Acompanhe estatísticas em tempo real</p>
+              </div>
+              <div className="flex items-start space-x-3">
+                <span className="text-purple-600">⚡</span>
+                <p className="text-sm text-gray-700">Gere orçamentos precisos em segundos</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -27,7 +27,7 @@ export const RecentActivity = ({ projects }: RecentActivityProps) => {
   const generateActivities = (): ActivityItem[] => {
     const activities: ActivityItem[] = [];
     
-    projects.slice(0, 8).forEach((project, index) => {
+    projects.slice(0, 12).forEach((project, index) => {
       const baseDate = new Date(project.created_at);
       
       // Atividade de upload
@@ -52,7 +52,7 @@ export const RecentActivity = ({ projects }: RecentActivityProps) => {
       }
       
       // Atividades simuladas adicionais para projetos mais recentes
-      if (index < 3) {
+      if (index < 6) {
         const budgetDate = new Date(baseDate.getTime() + (2 * 60 * 60 * 1000)); // 2h depois
         activities.push({
           id: `${project.id}-budget`,
@@ -61,12 +61,21 @@ export const RecentActivity = ({ projects }: RecentActivityProps) => {
           action: 'Orçamento gerado',
           timestamp: budgetDate
         });
+        
+        const scheduleDate = new Date(baseDate.getTime() + (4 * 60 * 60 * 1000)); // 4h depois
+        activities.push({
+          id: `${project.id}-schedule`,
+          type: 'schedule',
+          project: project.name,
+          action: 'Cronograma criado',
+          timestamp: scheduleDate
+        });
       }
     });
     
     return activities
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, 6);
+      .slice(0, 10);
   };
 
   const activities = generateActivities();
@@ -123,14 +132,14 @@ export const RecentActivity = ({ projects }: RecentActivityProps) => {
 
   if (activities.length === 0) {
     return (
-      <Card className="border-0 shadow-lg">
+      <Card className="border-0 shadow-lg h-full flex flex-col">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-gray-900">
             <Clock className="h-5 w-5 text-gray-600" />
             <span>Atividade Recente</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-1 flex items-center justify-center">
           <div className="text-center py-8">
             <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">Nenhuma atividade recente</p>
@@ -144,15 +153,15 @@ export const RecentActivity = ({ projects }: RecentActivityProps) => {
   }
 
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader>
+    <Card className="border-0 shadow-lg h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center space-x-2 text-gray-900">
           <Clock className="h-5 w-5 text-gray-600" />
           <span>Atividade Recente</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="flex-1 overflow-y-auto">
+        <div className="space-y-3">
           {activities.map((activity) => (
             <div 
               key={activity.id}
