@@ -1,57 +1,39 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  Plus, 
-  FolderOpen, 
-  Search
-} from 'lucide-react';
-
+import { Plus, FolderOpen, Search, Zap } from 'lucide-react';
 export const SidebarQuickActions = () => {
   const navigate = useNavigate();
-
-  const quickActions = [
-    {
-      icon: Plus,
-      title: "Novo Projeto",
-      path: "/upload"
-    },
-    {
-      icon: FolderOpen,
-      title: "Ver Projetos",
-      path: "/projetos"
-    },
-    {
-      icon: Search,
-      title: "Buscar",
-      path: "/projetos?search=true"
-    }
-  ];
-
-  return (
-    <Card className="border border-gray-200 bg-white">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold text-gray-900">
-          Ações Rápidas
+  const quickActions = [{
+    icon: Plus,
+    title: "Novo Projeto",
+    path: "/upload",
+    color: "bg-blue-500 hover:bg-blue-600"
+  }, {
+    icon: FolderOpen,
+    title: "Ver Projetos",
+    path: "/projetos",
+    color: "bg-green-500 hover:bg-green-600"
+  }, {
+    icon: Search,
+    title: "Buscar",
+    path: "/projetos?search=true",
+    color: "bg-purple-500 hover:bg-purple-600"
+  }];
+  return <Card className="border-0 shadow-lg">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center space-x-2 text-gray-900 text-lg">
+          
+          <span>Ações Rápidas</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {quickActions.map((action, index) => {
-          const Icon = action.icon;
-          return (
-            <Button
-              key={index}
-              onClick={() => navigate(action.path)}
-              variant="outline"
-              className="w-full justify-start h-12 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-            >
-              <Icon className="h-5 w-5 mr-3 text-gray-600" />
+        const Icon = action.icon;
+        return <button key={index} onClick={() => navigate(action.path)} className={`w-full flex items-center space-x-3 p-3 rounded-lg ${action.color} text-white transition-all duration-200 hover:shadow-lg`}>
+              <Icon className="h-5 w-5" />
               <span className="font-medium">{action.title}</span>
-            </Button>
-          );
-        })}
+            </button>;
+      })}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
