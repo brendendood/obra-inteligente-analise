@@ -1,18 +1,13 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Eye, 
-  Calendar, 
-  Ruler, 
-  Building, 
-  ArrowRight,
-  Folder
-} from 'lucide-react';
+import { ArrowRight, Folder } from 'lucide-react';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ProjectCard } from './ProjectCard';
+import { EmptyProjectsState } from './EmptyProjectsState';
 
 interface DashboardRecentProjectsProps {
   projects: any[];
@@ -89,136 +84,19 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
         {recentProjects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {recentProjects.map((project, index) => (
-              <div
+              <ProjectCard
                 key={project.id}
-                draggable={!isMobile}
-                onDragStart={(e) => handleDragStart(e, index)}
+                project={project}
+                index={index}
+                draggedItem={draggedItem}
+                onDragStart={handleDragStart}
                 onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, index)}
-                className={`group relative bg-white border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-all duration-300 cursor-pointer ${
-                  !isMobile ? 'hover:scale-[1.02]' : ''
-                } ${draggedItem === index ? 'opacity-50' : ''}`}
-                onClick={() => navigate(`/projeto/${project.id}`)}
-              >
-                {/* Header do projeto */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 truncate text-sm">
-                      {project.name}
-                    </h3>
-                    <div className="flex items-center space-x-1 mt-1">
-                      <Calendar className="h-3 w-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">
-                        {new Date(project.created_at).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  {/* Badge de status - apenas ícone no mobile */}
-                  <Badge className="bg-green-100 text-green-700 border-green-200 shrink-0">
-                    {isMobile ? (
-                      <span className="text-xs">✓</span>
-                    ) : (
-                      'Analisado'
-                    )}
-                  </Badge>
-                </div>
-
-                {/* Informações do projeto */}
-                <div className="space-y-2 mb-4">
-                  {project.total_area && (
-                    <div className="flex items-center space-x-2 text-xs text-gray-600">
-                      <Ruler className="h-3 w-3" />
-                      <span>{project.total_area}m²</span>
-                    </div>
-                  )}
-                  {project.project_type && (
-                    <div className="flex items-center space-x-2 text-xs text-gray-600">
-                      <Building className="h-3 w-3" />
-                      <span>{project.project_type}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Ações rápidas - layout em 2 linhas */}
-                <div className="space-y-2">
-                  {/* Primeira linha: Orçamento e IA */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/projeto/${project.id}/orcamento`);
-                      }}
-                      className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
-                    >
-                      {isMobile ? (
-                        <span>💰</span>
-                      ) : (
-                        <>
-                          <span>💰</span>
-                          <span>Orçamento</span>
-                        </>
-                      )}
-                    </button>
-                    
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/projeto/${project.id}/assistente`);
-                      }}
-                      className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
-                    >
-                      {isMobile ? (
-                        <span>🤖</span>
-                      ) : (
-                        <>
-                          <span>🤖</span>
-                          <span>IA</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  
-                  {/* Segunda linha: Cronograma centralizado */}
-                  <div className="flex justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/projeto/${project.id}/cronograma`);
-                      }}
-                      className={`flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs ${
-                        isMobile ? 'w-16' : 'w-32'
-                      }`}
-                    >
-                      {isMobile ? (
-                        <span>📅</span>
-                      ) : (
-                        <>
-                          <span>📅</span>
-                          <span>Cronograma</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Indicador de hover */}
-                <div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-5 rounded-xl transition-opacity duration-300"></div>
-              </div>
+                onDrop={handleDrop}
+              />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <Folder className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum projeto ainda</h3>
-            <p className="text-gray-500 mb-6">Comece criando seu primeiro projeto.</p>
-            <Button 
-              onClick={() => navigate('/upload')}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              + Novo Projeto
-            </Button>
-          </div>
+          <EmptyProjectsState />
         )}
       </CardContent>
     </Card>
