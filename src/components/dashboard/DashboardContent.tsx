@@ -30,28 +30,24 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
   }
 
   return (
-    <div className="space-y-8 max-w-none">
+    <div className="space-y-6 max-w-none">
       {/* Cards de estatísticas principais */}
       <StatsCards stats={stats} />
 
-      {/* Dashboard com apenas resumo de atividade (sem duplicação) */}
+      {/* Dashboard com resumo de insights */}
       <InsightsDashboard stats={stats} />
 
-      {/* Layout em grid para melhor aproveitamento do espaço */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      {/* Layout principal - duas colunas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Coluna principal - projetos recentes (2/3 do espaço) */}
-        <div className="xl:col-span-2">
+        <div className="lg:col-span-2">
           <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
         </div>
         
-        {/* Coluna lateral - atividade recente (1/3 do espaço) */}
-        <div className="xl:col-span-1">
-          <div className="space-y-6">
-            <RecentActivity projects={projects} />
-            
-            {/* Ações rápidas movidas para a coluna lateral */}
-            <EnhancedQuickActions />
-          </div>
+        {/* Coluna lateral - atividade e ações (1/3 do espaço) */}
+        <div className="lg:col-span-1 space-y-6">
+          <RecentActivity projects={projects} />
+          <EnhancedQuickActions />
         </div>
       </div>
     </div>
