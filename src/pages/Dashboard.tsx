@@ -52,8 +52,8 @@ const Dashboard = () => {
           <SmartLoading 
             isLoading={isLoadingProjects} 
             hasData={projects.length > 0}
-            successText={`${projects.length} projetos carregados`}
-            loadingText="Carregando projetos..."
+            successText={`${projects.length} projetos sincronizados`}
+            loadingText="Sincronizando projetos..."
           />
         </div>
         
@@ -73,7 +73,7 @@ const Dashboard = () => {
                 onClick={forceRefresh}
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
               >
-                Atualizar
+                🔄 Sincronizar
               </button>
             )}
           </div>

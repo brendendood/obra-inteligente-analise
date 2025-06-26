@@ -12,7 +12,6 @@ import {
   Clock,
   Bot,
   FileText,
-  ChevronRight,
   ArrowRight
 } from 'lucide-react';
 import { useProjectNavigation } from '@/hooks/useProjectNavigation';

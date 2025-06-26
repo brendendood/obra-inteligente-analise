@@ -1,9 +1,6 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect, useCallback } from 'react';
+import { useProjectSync } from '@/hooks/useProjectSync';
 
 interface DashboardStats {
   totalProjects: number;
@@ -16,12 +13,11 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { user, isAuthenticated } = useAuth();
   const { 
     projects, 
     isLoading: isLoadingProjects, 
-    forceRefresh: refreshProjects 
-  } = useProjectsConsistency();
+    forceRefresh 
+  } = useProjectSync();
   
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
@@ -32,43 +28,40 @@ export const useDashboardData = () => {
     averageArea: 0,
     projectsByType: {}
   });
-  const { toast } = useToast();
-  const mountedRef = useRef(true);
-
-  // Forçar refresh automático a cada 30 segundos para manter sincronização
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const interval = setInterval(() => {
-      console.log('🔄 AUTO-REFRESH: Atualizando dados do dashboard');
-      refreshProjects();
-    }, 30000); // 30 segundos
-
-    return () => clearInterval(interval);
-  }, [isAuthenticated, refreshProjects]);
 
   // Calcular estatísticas sempre que os projetos mudarem
-  useEffect(() => {
-    if (!mountedRef.current || !projects) return;
+  const calculateStats = useCallback(() => {
+    if (!projects || projects.length === 0) {
+      setStats({
+        totalProjects: 0,
+        totalArea: 0,
+        recentProjects: 0,
+        processedProjects: 0,
+        monthlyProjects: 0,
+        averageArea: 0,
+        projectsByType: {}
+      });
+      return;
+    }
 
     console.log('📊 DASHBOARD: Calculando estatísticas para', projects.length, 'projetos');
 
-    const totalArea = projects.reduce((sum: number, project: any) => {
+    const totalArea = projects.reduce((sum, project) => {
       return sum + (project.total_area || 0);
     }, 0);
 
-    const processedProjects = projects.filter((project: any) => 
+    const processedProjects = projects.filter(project => 
       project.analysis_data && Object.keys(project.analysis_data).length > 0
     ).length;
 
-    const recentProjects = projects.filter((project: any) => {
+    const recentProjects = projects.filter(project => {
       const createdAt = new Date(project.created_at);
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       return createdAt >= weekAgo;
     }).length;
 
-    const monthlyProjects = projects.filter((project: any) => {
+    const monthlyProjects = projects.filter(project => {
       const createdAt = new Date(project.created_at);
       const monthAgo = new Date();
       monthAgo.setDate(monthAgo.getDate() - 30);
@@ -77,12 +70,11 @@ export const useDashboardData = () => {
 
     const averageArea = projects.length > 0 ? Math.round(totalArea / projects.length) : 0;
 
-    // Agrupar projetos por tipo
-    const projectsByType = projects.reduce((acc: Record<string, number>, project: any) => {
+    const projectsByType = projects.reduce((acc, project) => {
       const type = project.project_type || 'Não definido';
       acc[type] = (acc[type] || 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
 
     const newStats = {
       totalProjects: projects.length,
@@ -98,70 +90,14 @@ export const useDashboardData = () => {
     setStats(newStats);
   }, [projects]);
 
-  // Função para excluir todos os projetos
-  const handleDeleteAllProjects = async () => {
-    if (!user || !isAuthenticated) {
-      toast({
-        title: "❌ Erro de autenticação",
-        description: "Você precisa estar logado para excluir projetos.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { data: userProjects, error: fetchError } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('user_id', user.id);
-
-      if (fetchError) throw fetchError;
-
-      if (userProjects && userProjects.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('projects')
-          .delete()
-          .eq('user_id', user.id);
-
-        if (deleteError) throw deleteError;
-        
-        if (mountedRef.current) {
-          await refreshProjects();
-          
-          toast({
-            title: "✅ Projetos excluídos!",
-            description: `${userProjects.length} projeto(s) foram removidos com sucesso.`,
-          });
-        }
-      } else {
-        toast({
-          title: "ℹ️ Nenhum projeto encontrado",
-          description: "Não há projetos para excluir.",
-        });
-      }
-    } catch (error) {
-      console.error('💥 DASHBOARD: Erro ao excluir projetos:', error);
-      toast({
-        title: "❌ Erro ao excluir",
-        description: "Não foi possível excluir os projetos.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Cleanup na desmontagem
   useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+    calculateStats();
+  }, [calculateStats]);
 
   return {
     projects,
     stats,
     isLoadingProjects,
-    loadProjects: refreshProjects,
-    handleDeleteAllProjects,
-    forceRefresh: refreshProjects
+    forceRefresh
   };
 };
