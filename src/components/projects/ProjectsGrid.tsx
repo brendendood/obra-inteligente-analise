@@ -1,70 +1,88 @@
 
-import { useState } from 'react';
+import { ProjectCard } from './ProjectCard';
+import { ProjectDeleteDialog } from './ProjectDeleteDialog';
+import { ProjectEditDialog } from './ProjectEditDialog';
+import { ProjectsEmptyState } from './ProjectsEmptyState';
+import { DropIndicator } from '@/components/ui/DropIndicator';
 import { useProjectsLogic } from '@/hooks/useProjectsLogic';
-import ProjectCard from '@/components/projects/ProjectCard';
-import { ProjectEditDialog } from '@/components/projects/ProjectEditDialog';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { GripVertical } from 'lucide-react';
 
-interface ProjectsGridProps { 
-  projects: any[];
-}
-
-const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
+export const ProjectsGrid = () => {
   const {
+    filteredProjects,
+    isLoading,
+    deleteProject,
     setDeleteProject,
     handleDeleteProject,
-    handleDragStart,
-    handleDragEnd,
-    handleDragOver,
-    handleDrop,
     updateProject,
+    // Drag & Drop
+    isDragging,
+    getDragItemProps,
+    getDropZoneProps,
+    getDropIndicatorProps,
   } = useProjectsLogic();
 
-  const [editingProject, setEditingProject] = useState<any>(null);
-  const isMobile = useIsMobile();
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+        ))}
+      </div>
+    );
+  }
 
-  const handleEditProject = (project: any) => {
-    setEditingProject(project);
-  };
+  if (filteredProjects.length === 0) {
+    return <ProjectsEmptyState />;
+  }
 
-  const handleSaveProject = (updatedProject: any) => {
-    updateProject(updatedProject);
-    setEditingProject(null);
-  };
-
-  // Layout vertical responsivo para todas as telas - utilizando melhor o espaço
   return (
     <>
-      <div className="w-full max-w-none">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {projects.map((project, index) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProjects.map((project, index) => (
+          <div key={project.id} className="relative group">
+            {/* Drop Indicator */}
+            <DropIndicator {...getDropIndicatorProps(index)} className="mb-4" />
+            
+            {/* Project Card Container */}
             <div
-              key={project.id}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms` }}
+              {...getDragItemProps(project, index)}
+              {...getDropZoneProps(index)}
+              className={`relative transition-all duration-200 ${
+                isDragging ? 'select-none' : ''
+              }`}
             >
+              {/* Drag Handle */}
+              <div className="absolute top-2 right-2 z-10 p-1 rounded bg-white/80 backdrop-blur-sm shadow-sm opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+                <GripVertical className="h-4 w-4 text-gray-600" />
+              </div>
+              
+              {/* Project Card */}
               <ProjectCard
                 project={project}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDelete={setDeleteProject}
-                onEdit={handleEditProject}
+                onEdit={() => {}}
+                onDelete={() => setDeleteProject(project)}
+                onUpdate={updateProject}
               />
             </div>
-          ))}
-        </div>
+            
+            {/* Drop Indicator no final */}
+            {index === filteredProjects.length - 1 && (
+              <DropIndicator {...getDropIndicatorProps(filteredProjects.length)} className="mt-4" />
+            )}
+          </div>
+        ))}
       </div>
 
-      <ProjectEditDialog
-        project={editingProject}
-        isOpen={!!editingProject}
-        onClose={() => setEditingProject(null)}
-        onSave={handleSaveProject}
+      {/* Dialogs */}
+      <ProjectDeleteDialog
+        project={deleteProject}
+        open={!!deleteProject}
+        onClose={() => setDeleteProject(null)}
+        onConfirm={(projectId) => {
+          handleDeleteProject(projectId);
+        }}
       />
     </>
   );
 };
-
-export default ProjectsGrid;

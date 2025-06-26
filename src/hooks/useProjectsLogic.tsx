@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 
 export const useProjectsLogic = () => {
   const { isAuthenticated, loading, user } = useAuth();
@@ -16,10 +18,31 @@ export const useProjectsLogic = () => {
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteProject, setDeleteProject] = useState<any>(null);
-  const [draggedProject, setDraggedProject] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'area'>('date');
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Configurar drag & drop para projetos
+  const {
+    isDragging,
+    getDragItemProps,
+    getDropZoneProps,
+    getDropIndicatorProps,
+  } = useDragAndDrop({
+    items: filteredProjects,
+    onReorder: (reorderedProjects) => {
+      setFilteredProjects(reorderedProjects);
+      // Salvar nova ordem no localStorage
+      const projectOrder = reorderedProjects.map(p => p.id);
+      localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
+      
+      toast({
+        title: "✅ Ordem atualizada",
+        description: "A nova ordem dos projetos foi salva.",
+      });
+    },
+    keyExtractor: (project) => project.id,
+  });
 
   // Redirecionar se não autenticado
   useEffect(() => {
@@ -90,47 +113,6 @@ export const useProjectsLogic = () => {
     }
   };
 
-  const handleDragStart = (e: React.DragEvent, project: any) => {
-    setDraggedProject(project);
-    e.dataTransfer.effectAllowed = 'move';
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = '0.5';
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    const target = e.currentTarget as HTMLElement;
-    target.style.opacity = '1';
-    setDraggedProject(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = async (e: React.DragEvent, targetProject: any) => {
-    e.preventDefault();
-    
-    if (!draggedProject || draggedProject.id === targetProject.id) return;
-
-    const draggedIndex = projects.findIndex(p => p.id === draggedProject.id);
-    const targetIndex = projects.findIndex(p => p.id === targetProject.id);
-
-    const newProjects = [...projects];
-    const [removed] = newProjects.splice(draggedIndex, 1);
-    newProjects.splice(targetIndex, 0, removed);
-
-    const projectOrder = newProjects.map(p => p.id);
-    localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
-    
-    setDraggedProject(null);
-    
-    toast({
-      title: "✅ Ordem atualizada",
-      description: "A nova ordem dos projetos foi salva.",
-    });
-  };
-
   return {
     projects,
     filteredProjects,
@@ -144,10 +126,11 @@ export const useProjectsLogic = () => {
     deleteProject,
     setDeleteProject,
     handleDeleteProject,
-    handleDragStart,
-    handleDragEnd,
-    handleDragOver,
-    handleDrop,
     updateProject,
+    // Drag & Drop props
+    isDragging,
+    getDragItemProps,
+    getDropZoneProps,
+    getDropIndicatorProps,
   };
 };
