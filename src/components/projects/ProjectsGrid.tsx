@@ -6,11 +6,14 @@ import ProjectsEmptyState from './ProjectsEmptyState';
 import { DropIndicator } from '@/components/ui/DropIndicator';
 import { useProjectsLogic } from '@/hooks/useProjectsLogic';
 import { GripVertical } from 'lucide-react';
+import { Project } from '@/types/project';
 
-export const ProjectsGrid = () => {
+interface ProjectsGridProps {
+  projects: Project[];
+}
+
+export const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
   const {
-    filteredProjects,
-    isLoading,
     deleteProject,
     setDeleteProject,
     handleDeleteProject,
@@ -22,24 +25,14 @@ export const ProjectsGrid = () => {
     getDropIndicatorProps,
   } = useProjectsLogic();
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-64 bg-gray-100 rounded-lg animate-pulse" />
-        ))}
-      </div>
-    );
-  }
-
-  if (filteredProjects.length === 0) {
-    return <ProjectsEmptyState hasProjects={false} />;
+  if (projects.length === 0) {
+    return <ProjectsEmptyState />;
   }
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project, index) => (
+        {projects.map((project, index) => (
           <div key={project.id} className="relative group">
             {/* Drop Indicator */}
             <DropIndicator {...getDropIndicatorProps(index)} className="mb-4" />
@@ -64,8 +57,8 @@ export const ProjectsGrid = () => {
             </div>
             
             {/* Drop Indicator no final */}
-            {index === filteredProjects.length - 1 && (
-              <DropIndicator {...getDropIndicatorProps(filteredProjects.length)} className="mt-4" />
+            {index === projects.length - 1 && (
+              <DropIndicator {...getDropIndicatorProps(projects.length)} className="mt-4" />
             )}
           </div>
         ))}
