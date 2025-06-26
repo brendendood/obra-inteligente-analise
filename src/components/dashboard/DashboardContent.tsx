@@ -1,14 +1,11 @@
 
-import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
-import { StatsCards } from '@/components/dashboard/StatsCards';
-import { EnhancedQuickActions } from '@/components/dashboard/EnhancedQuickActions';
-import DashboardRecentProjects from '@/components/dashboard/DashboardRecentProjects';
-import { InsightsDashboard } from '@/components/dashboard/InsightsDashboard';
-import { RecentActivity } from '@/components/dashboard/RecentActivity';
-import { SidebarQuickActions } from '@/components/dashboard/SidebarQuickActions';
-import { ProjectProgressChart } from '@/components/dashboard/ProjectProgressChart';
-import { ProjectTypesDistribution } from '@/components/dashboard/ProjectTypesDistribution';
-import { AIInsights } from '@/components/dashboard/AIInsights';
+import DashboardRecentProjects from './DashboardRecentProjects';
+import { QuickActions } from './QuickActions';
+import StatsCards from './StatsCards';
+import { Button } from '@/components/ui/button';
+import { Plus, FolderOpen } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface DashboardContentProps {
   stats: any;
@@ -16,71 +13,65 @@ interface DashboardContentProps {
   isDataLoading: boolean;
 }
 
-const DashboardContent = ({
-  stats,
-  projects,
-  isDataLoading
-}: DashboardContentProps) => {
-  if (isDataLoading) {
-    return (
-      <div className="space-y-4 sm:space-y-6 px-2 sm:px-4 lg:px-0">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <EnhancedSkeleton variant="text" className="h-6 sm:h-8 w-full sm:w-48" />
-          <EnhancedSkeleton variant="text" className="h-4 sm:h-5 w-full sm:w-32" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {[...Array(8)].map((_, i) => (
-            <EnhancedSkeleton key={i} variant="card" className="h-32 sm:h-40" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentProps) => {
+  const navigate = useNavigate();
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8 max-w-none min-h-screen py-0 px-2 sm:px-4 lg:px-0">
-      {/* Cards de estatísticas principais */}
-      <div className="w-full">
-        <StatsCards stats={stats} />
-      </div>
-
-      {/* Dashboard com resumo de insights */}
-      <div className="w-full">
-        <InsightsDashboard stats={stats} />
-      </div>
-
-      {/* Layout principal com duas colunas responsivas */}
-      <div className="flex flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-8 w-full">
-        {/* Coluna principal - projetos recentes e seções adicionais */}
-        <div className="flex-1 w-full xl:w-3/4 space-y-4 sm:space-y-6 lg:space-y-8 min-w-0">
-          {/* Projetos Recentes */}
-          <div className="w-full">
-            <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
-          </div>
-          
-          {/* Gráfico de Progresso dos Projetos */}
-          <div className="w-full">
-            <ProjectProgressChart projects={projects} />
-          </div>
-          
-          {/* Grid com duas seções lado a lado - responsivo */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full">
-            <div className="min-w-0">
-              <ProjectTypesDistribution stats={stats} />
+    <div className="space-y-6 sm:space-y-8 w-full min-w-0">
+      {/* Stats Cards */}
+      <StatsCards stats={stats} />
+      
+      {/* Quick Actions */}
+      <QuickActions />
+      
+      {/* Projects Section - Estilo Pasta de Arquivos */}
+      <div className="relative w-full min-w-0">
+        <Card className="border border-gray-200 bg-white w-full min-w-0">
+          <CardHeader className="pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 w-full min-w-0">
+              <div className="flex items-center space-x-2 min-w-0">
+                <FolderOpen className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                <CardTitle className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                  Meus Projetos
+                </CardTitle>
+                <span className="text-sm text-gray-500 flex-shrink-0">
+                  ({projects.length})
+                </span>
+              </div>
+              
+              {/* Botão + Fixo */}
+              <Button
+                onClick={() => navigate('/upload')}
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 h-10 px-4 sm:px-6 font-medium rounded-lg w-full sm:w-auto min-w-0"
+                style={{ fontSize: '16px' }}
+              >
+                <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+                <span className="truncate">Novo Projeto</span>
+              </Button>
             </div>
-            <div className="min-w-0">
-              <AIInsights projects={projects} />
-            </div>
-          </div>
-        </div>
-        
-        {/* Coluna lateral - stack em mobile, sidebar em desktop */}
-        <div className="w-full xl:w-1/4 xl:min-w-[280px] xl:max-w-[320px] flex flex-col gap-4 sm:gap-6">
-          {/* Ações Rápidas */}
-          <div className="flex-shrink-0 w-full">
-            <SidebarQuickActions />
-          </div>
-        </div>
+          </CardHeader>
+          
+          <CardContent className="w-full min-w-0">
+            {/* Projetos Recentes com Drag & Drop */}
+            <DashboardRecentProjects
+              projects={projects}
+              isLoading={isDataLoading}
+            />
+            
+            {projects.length > 6 && (
+              <div className="mt-6 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/projetos')}
+                  className="border-gray-300 hover:border-blue-300 hover:bg-blue-50 text-gray-700 hover:text-blue-700 transition-all duration-200"
+                >
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  Ver Todos os Projetos ({projects.length})
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
