@@ -1,18 +1,19 @@
+
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectsGrid } from '@/components/projects/ProjectsGrid';
-import { ProjectsFiltersBar } from '@/components/projects/ProjectsFiltersBar';
-import { ProjectsStats } from '@/components/projects/ProjectsStats';
-import { ProjectsEmptyState } from '@/components/projects/ProjectsEmptyState';
+import ProjectsFiltersBar from '@/components/projects/ProjectsFiltersBar';
+import ProjectsStats from '@/components/projects/ProjectsStats';
+import ProjectsEmptyState from '@/components/projects/ProjectsEmptyState';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function Projects() {
   const navigate = useNavigate();
-  const { projects, isLoading } = useDashboardData();
+  const { projects, isLoadingProjects } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
@@ -43,19 +44,25 @@ export default function Projects() {
     setSortBy(value as 'name' | 'area' | 'date');
   };
 
-  if (isLoading) {
+  const analyzedProjects = projects.filter(project => project.analysis_data).length;
+
+  if (isLoadingProjects) {
     return (
       <AppLayout>
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <EnhancedSkeleton variant="text" className="h-8 w-64" />
-            <EnhancedSkeleton variant="button" className="h-10 w-32" />
-          </div>
-          <EnhancedSkeleton variant="card" className="h-32" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <EnhancedSkeleton key={i} variant="card" className="h-48" />
-            ))}
+        <div className="min-h-screen bg-gray-50/30">
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-8">
+              <div className="flex justify-between items-center">
+                <EnhancedSkeleton variant="text" className="h-8 w-64" />
+                <EnhancedSkeleton variant="default" className="h-10 w-32" />
+              </div>
+              <EnhancedSkeleton variant="default" className="h-32" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <EnhancedSkeleton key={i} variant="default" className="h-48" />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </AppLayout>
@@ -64,46 +71,54 @@ export default function Projects() {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Meus Projetos</h1>
-            <p className="text-gray-600 mt-1">Gerencie e analise seus projetos de construção</p>
-          </div>
-          
-          <Button
-            onClick={() => navigate('/upload')}
-            className="bg-blue-600 hover:bg-blue-700 text-white h-10"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Projeto
-          </Button>
-        </div>
+      <div className="min-h-screen bg-gray-50/30">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto space-y-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Projetos</h1>
+                <p className="text-gray-600 mt-1 text-sm sm:text-base">Gerencie e analise seus projetos de construção</p>
+              </div>
+              
+              <Button
+                onClick={() => navigate('/upload')}
+                className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Novo Projeto</span>
+                <span className="sm:hidden">Novo</span>
+              </Button>
+            </div>
 
-        {/* Stats */}
-        <ProjectsStats projects={projects} />
-
-        {projects.length === 0 ? (
-          <ProjectsEmptyState />
-        ) : (
-          <>
-            {/* Filters */}
-            <ProjectsFiltersBar
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              sortBy={sortBy}
-              onSortChange={handleSortChange}
-              showAnalyzedOnly={showAnalyzedOnly}
-              onShowAnalyzedOnlyChange={setShowAnalyzedOnly}
-              totalProjects={projects.length}
-              filteredCount={filteredAndSortedProjects.length}
+            {/* Stats */}
+            <ProjectsStats 
+              totalProjects={projects.length} 
+              processedProjects={analyzedProjects} 
             />
 
-            {/* Projects Grid */}
-            <ProjectsGrid projects={filteredAndSortedProjects} />
-          </>
-        )}
+            {projects.length === 0 ? (
+              <ProjectsEmptyState />
+            ) : (
+              <>
+                {/* Filters */}
+                <ProjectsFiltersBar
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  sortBy={sortBy}
+                  onSortChange={handleSortChange}
+                  totalProjects={projects.length}
+                  analyzedProjects={analyzedProjects}
+                />
+
+                {/* Projects Grid */}
+                <div className="pb-8">
+                  <ProjectsGrid projects={filteredAndSortedProjects} />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </AppLayout>
   );
