@@ -32,10 +32,11 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
     setEditingProject(null);
   };
 
-  if (isMobile) {
-    return (
-      <>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+  // Layout vertical responsivo para todas as telas - utilizando melhor o espaço
+  return (
+    <>
+      <div className="w-full max-w-none">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {projects.map((project, index) => (
             <div
               key={project.id}
@@ -54,50 +55,6 @@ const ProjectsGrid = ({ projects }: ProjectsGridProps) => {
             </div>
           ))}
         </div>
-
-        <ProjectEditDialog
-          project={editingProject}
-          isOpen={!!editingProject}
-          onClose={() => setEditingProject(null)}
-          onSave={handleSaveProject}
-        />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <div className="relative">
-        <div className="flex items-center space-x-2 mb-4">
-          <span className="text-sm text-gray-500">
-            {projects.length} projeto(s) • Arraste horizontalmente para navegar
-          </span>
-          <div className="flex-1 border-t border-gray-200"></div>
-        </div>
-
-        <div className="overflow-x-auto pb-4">
-          <div className="flex space-x-6 min-w-max">
-            {projects.map((project, index) => (
-              <div
-                key={project.id}
-                className="animate-fade-in flex-shrink-0 w-80"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <ProjectCard
-                  project={project}
-                  onDragStart={handleDragStart}
-                  onDragEnd={handleDragEnd}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onDelete={setDeleteProject}
-                  onEdit={handleEditProject}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute right-0 top-12 bottom-4 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
       </div>
 
       <ProjectEditDialog

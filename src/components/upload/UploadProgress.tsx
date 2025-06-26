@@ -28,6 +28,8 @@ const UploadProgress = ({
         progress={processingProgress}
         isProcessing={isProcessing}
       />
+      
+      {/* Progresso visual apenas - sem notificações push */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <span className="text-slate-700 font-medium">Progresso do upload</span>
@@ -35,6 +37,8 @@ const UploadProgress = ({
         </div>
         <Progress value={uploadProgress} className="h-3" />
       </div>
+      
+      {/* Status visual apenas - sem notificações */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
         <div className="flex items-center space-x-3">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>

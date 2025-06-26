@@ -29,17 +29,17 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-none">
       {/* Cards de estatísticas principais */}
       <StatsCards stats={stats} />
 
-      {/* Dashboard expandido com insights */}
+      {/* Dashboard com apenas resumo de atividade (sem duplicação) */}
       <InsightsDashboard stats={stats} />
 
       {/* Ações rápidas melhoradas */}
       <EnhancedQuickActions />
 
-      {/* Grade de projetos recentes */}
+      {/* Grade de projetos recentes - melhor aproveitamento do espaço */}
       <DashboardRecentProjects projects={projects} isLoading={isDataLoading} />
     </div>
   );

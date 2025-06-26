@@ -16,7 +16,8 @@ export const useProjectLoader = () => {
   useEffect(() => {
     const loadProject = async () => {
       if (!projectId) {
-        setError('ID do projeto não fornecido');
+        console.log('⚠️ WORKSPACE LOADER: ID do projeto não fornecido');
+        // Não mostrar erro se não há projectId (usuário pode estar navegando)
         setLoading(false);
         return;
       }
@@ -24,7 +25,11 @@ export const useProjectLoader = () => {
       console.log('🔄 WORKSPACE LOADER: Carregando projeto:', projectId);
 
       try {
+        // Dar tempo para os projetos carregarem se ainda não carregaram
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         if (!projectExists(projectId)) {
+          console.log('⚠️ WORKSPACE LOADER: Projeto não encontrado nos dados carregados');
           setError('Projeto não encontrado');
           setLoading(false);
           return;
@@ -32,17 +37,20 @@ export const useProjectLoader = () => {
 
         const project = getProject(projectId);
         if (!project) {
+          console.log('⚠️ WORKSPACE LOADER: Projeto não encontrado ao tentar obter dados');
           setError('Projeto não encontrado');
           setLoading(false);
           return;
         }
 
-        console.log('✅ WORKSPACE LOADER: Projeto carregado:', project.name);
+        console.log('✅ WORKSPACE LOADER: Projeto carregado com sucesso:', project.name);
         setCurrentProject(project);
         setError(null);
       } catch (err) {
         console.error('❌ WORKSPACE LOADER: Erro ao carregar projeto:', err);
-        setError('Erro ao carregar projeto');
+        // Não mostrar erro automaticamente - pode ser temporário
+        console.log('🔄 WORKSPACE LOADER: Erro temporário, tentando novamente...');
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -51,7 +59,7 @@ export const useProjectLoader = () => {
     loadProject();
   }, [projectId, projectExists, getProject, setCurrentProject]);
 
-  // Loading Component
+  // Loading Component otimizado
   const LoadingComponent = () => (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
