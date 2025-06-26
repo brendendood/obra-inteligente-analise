@@ -29,10 +29,10 @@ export const useProjectSync = () => {
 
   // Carregar projetos quando auth estiver pronto
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && isAuthenticated) {
       loadProjects();
     }
-  }, [authLoading, loadProjects]);
+  }, [authLoading, isAuthenticated, loadProjects]);
 
   // Restaurar projeto salvo quando projetos carregarem
   useEffect(() => {
@@ -41,17 +41,7 @@ export const useProjectSync = () => {
     }
   }, [state.projects.length, state.currentProject, restoreSavedProject]);
 
-  // Auto-refresh periódico (a cada 30 segundos)
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    const interval = setInterval(() => {
-      debugLog('🔄 Auto-refresh dos projetos');
-      loadProjects();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [isAuthenticated, loadProjects, debugLog]);
+  // REMOVIDO: Auto-refresh periódico que causava notificações infinitas
 
   return {
     // Estado

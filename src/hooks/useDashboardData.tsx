@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useProjectSync } from '@/hooks/useProjectSync';
 
 interface DashboardStats {
@@ -29,10 +29,10 @@ export const useDashboardData = () => {
     projectsByType: {}
   });
 
-  // Calcular estatísticas sempre que os projetos mudarem
-  const calculateStats = useCallback(() => {
+  // Memoizar cálculos pesados
+  const calculatedStats = useMemo(() => {
     if (!projects || projects.length === 0) {
-      setStats({
+      return {
         totalProjects: 0,
         totalArea: 0,
         recentProjects: 0,
@@ -40,8 +40,7 @@ export const useDashboardData = () => {
         monthlyProjects: 0,
         averageArea: 0,
         projectsByType: {}
-      });
-      return;
+      };
     }
 
     console.log('📊 DASHBOARD: Calculando estatísticas para', projects.length, 'projetos');
@@ -54,17 +53,19 @@ export const useDashboardData = () => {
       project.analysis_data && Object.keys(project.analysis_data).length > 0
     ).length;
 
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    
     const recentProjects = projects.filter(project => {
       const createdAt = new Date(project.created_at);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
       return createdAt >= weekAgo;
     }).length;
 
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+    
     const monthlyProjects = projects.filter(project => {
       const createdAt = new Date(project.created_at);
-      const monthAgo = new Date();
-      monthAgo.setDate(monthAgo.getDate() - 30);
       return createdAt >= monthAgo;
     }).length;
 
@@ -76,7 +77,7 @@ export const useDashboardData = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    const newStats = {
+    return {
       totalProjects: projects.length,
       totalArea,
       recentProjects,
@@ -85,14 +86,13 @@ export const useDashboardData = () => {
       averageArea,
       projectsByType
     };
-
-    console.log('✅ DASHBOARD: Estatísticas atualizadas:', newStats);
-    setStats(newStats);
   }, [projects]);
 
+  // Atualizar stats apenas quando calculatedStats mudarem
   useEffect(() => {
-    calculateStats();
-  }, [calculateStats]);
+    setStats(calculatedStats);
+    console.log('✅ DASHBOARD: Estatísticas atualizadas:', calculatedStats);
+  }, [calculatedStats]);
 
   return {
     projects,

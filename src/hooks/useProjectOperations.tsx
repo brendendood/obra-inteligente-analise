@@ -1,8 +1,8 @@
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useNotificationControl } from '@/hooks/useNotificationControl';
 import { Project } from '@/types/project';
 
 export const useProjectOperations = (
@@ -13,9 +13,11 @@ export const useProjectOperations = (
   state: any
 ) => {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { toast } = useToast();
+  const { showControlledError, showControlledSuccess } = useNotificationControl();
+  const loadingRef = useRef(false);
+  const lastLoadTime = useRef(0);
 
-  // Carregar todos os projetos
+  // Carregar todos os projetos com controle de duplicação
   const loadProjects = useCallback(async (force = false): Promise<Project[]> => {
     if (authLoading) return [];
     
@@ -30,14 +32,24 @@ export const useProjectOperations = (
       return [];
     }
 
-    // Evitar múltiplas chamadas simultâneas
     const now = Date.now();
-    if (!force && state.isLoading && (now - state.lastSync) < 1000) {
+    
+    // Evitar múltiplas chamadas simultâneas
+    if (loadingRef.current && !force) {
       debugLog('⏸️ Carregamento já em andamento');
       return state.projects;
     }
 
+    // Throttle: evitar muitas chamadas em sequência (mínimo 2 segundos)
+    if (!force && (now - lastLoadTime.current) < 2000) {
+      debugLog('⏸️ Throttle ativo, usando cache');
+      return state.projects;
+    }
+
     try {
+      loadingRef.current = true;
+      lastLoadTime.current = now;
+      
       updateProjectsState({ isLoading: true, error: null });
       debugLog('📥 Carregando projetos do usuário', { userId: user.id });
 
@@ -65,22 +77,25 @@ export const useProjectOperations = (
       debugLog('❌ Erro ao carregar projetos', { error: errorMessage });
       
       updateProjectsState({
-        projects: [],
+        projects: state.projects, // Manter projetos existentes em caso de erro
         isLoading: false,
         error: errorMessage
       });
 
-      toast({
-        title: "❌ Erro ao carregar projetos",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      // Usar notificação controlada
+      showControlledError(
+        "Erro ao carregar projetos",
+        "Houve um problema ao sincronizar os projetos. Tentando novamente...",
+        'load-projects-error'
+      );
 
-      return [];
+      return state.projects; // Retornar projetos existentes
+    } finally {
+      loadingRef.current = false;
     }
-  }, [user?.id, isAuthenticated, authLoading, state.isLoading, state.lastSync, debugLog, toast, updateProjectsState]);
+  }, [user?.id, isAuthenticated, authLoading, state.projects, debugLog, showControlledError, updateProjectsState]);
 
-  // Restaurar projeto salvo
+  // Restaurar projeto salvo sem notificação
   const restoreSavedProject = useCallback(() => {
     if (!isAuthenticated) return;
 

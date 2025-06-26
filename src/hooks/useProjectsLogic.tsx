@@ -1,10 +1,10 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectSync } from '@/hooks/useProjectSync';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useNotificationControl } from '@/hooks/useNotificationControl';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 
 export const useProjectsLogic = () => {
@@ -15,34 +15,11 @@ export const useProjectsLogic = () => {
     forceRefresh: refreshProjects 
   } = useProjectSync();
   
-  const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteProject, setDeleteProject] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'area'>('date');
-  const { toast } = useToast();
+  const { showControlledError, showControlledSuccess } = useNotificationControl();
   const navigate = useNavigate();
-
-  // Configurar drag & drop para projetos
-  const {
-    isDragging,
-    getDragItemProps,
-    getDropZoneProps,
-    getDropIndicatorProps,
-  } = useDragAndDrop({
-    items: filteredProjects,
-    onReorder: (reorderedProjects) => {
-      setFilteredProjects(reorderedProjects);
-      // Salvar nova ordem no localStorage
-      const projectOrder = reorderedProjects.map(p => p.id);
-      localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
-      
-      toast({
-        title: "✅ Ordem atualizada",
-        description: "A nova ordem dos projetos foi salva.",
-      });
-    },
-    keyExtractor: (project) => project.id,
-  });
 
   // Redirecionar se não autenticado
   useEffect(() => {
@@ -52,8 +29,8 @@ export const useProjectsLogic = () => {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  // Filtrar e ordenar projetos
-  useEffect(() => {
+  // Memoizar projetos filtrados para evitar recálculos
+  const filteredProjects = useMemo(() => {
     console.log('🔍 PROJETOS: Filtrando e ordenando', projects.length, 'projetos');
     
     let filtered = projects.filter(project =>
@@ -74,8 +51,29 @@ export const useProjectsLogic = () => {
     });
 
     console.log('✅ PROJETOS: Filtrados e ordenados:', filtered.length, 'projetos');
-    setFilteredProjects(filtered);
+    return filtered;
   }, [projects, searchTerm, sortBy]);
+
+  // Configurar drag & drop para projetos
+  const {
+    isDragging,
+    getDragItemProps,
+    getDropZoneProps,
+    getDropIndicatorProps,
+  } = useDragAndDrop({
+    items: filteredProjects,
+    onReorder: (reorderedProjects) => {
+      // Salvar nova ordem no localStorage
+      const projectOrder = reorderedProjects.map(p => p.id);
+      localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
+      
+      showControlledSuccess(
+        "✅ Ordem atualizada",
+        "A nova ordem dos projetos foi salva."
+      );
+    },
+    keyExtractor: (project) => project.id,
+  });
 
   const updateProject = (updatedProject: any) => {
     console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
@@ -99,17 +97,17 @@ export const useProjectsLogic = () => {
       
       setDeleteProject(null);
 
-      toast({
-        title: "✅ Projeto excluído!",
-        description: "O projeto foi removido com sucesso.",
-      });
+      showControlledSuccess(
+        "✅ Projeto excluído!",
+        "O projeto foi removido com sucesso."
+      );
     } catch (error) {
       console.error('💥 PROJETOS: Erro ao excluir projeto:', error);
-      toast({
-        title: "❌ Erro ao excluir",
-        description: "Não foi possível excluir o projeto.",
-        variant: "destructive",
-      });
+      showControlledError(
+        "❌ Erro ao excluir",
+        "Não foi possível excluir o projeto.",
+        'delete-project-error'
+      );
     }
   };
 

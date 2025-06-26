@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,11 +22,11 @@ interface ProjectCardEnhancedProps {
   showQuickActions?: boolean;
 }
 
-export const ProjectCardEnhanced = ({ project, showQuickActions = false }: ProjectCardEnhancedProps) => {
+export const ProjectCardEnhanced = memo(({ project, showQuickActions = false }: ProjectCardEnhancedProps) => {
   const { navigateToProject, navigateToProjectSection } = useProjectNavigation();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleOpenProject = async () => {
+  const handleOpenProject = useCallback(async () => {
     console.log('🔄 CARD: Abrindo projeto:', project.name);
     setIsLoading(true);
     
@@ -34,12 +34,12 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
     if (!success) {
       setIsLoading(false);
     }
-  };
+  }, [project.id, project.name, navigateToProject]);
 
-  const handleQuickAction = (section: 'orcamento' | 'cronograma' | 'assistente' | 'documentos') => {
+  const handleQuickAction = useCallback((section: 'orcamento' | 'cronograma' | 'assistente' | 'documentos') => {
     console.log('⚡ CARD: Ação rápida:', section, 'para projeto:', project.name);
     navigateToProjectSection(project.id, section);
-  };
+  }, [project.id, project.name, navigateToProjectSection]);
 
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-gray-200 hover:border-blue-300 w-full min-w-0 max-w-full hover-lift bg-white">
@@ -163,4 +163,6 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
       </CardContent>
     </Card>
   );
-};
+});
+
+ProjectCardEnhanced.displayName = 'ProjectCardEnhanced';
