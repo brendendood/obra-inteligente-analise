@@ -1,12 +1,5 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Activity,
-  TrendingUp,
-  Calendar,
-  Target
-} from 'lucide-react';
-
+import { Activity, TrendingUp, Calendar, Target } from 'lucide-react';
 interface InsightsDashboardProps {
   stats: {
     totalProjects: number;
@@ -18,18 +11,12 @@ interface InsightsDashboardProps {
     projectsByType: Record<string, number>;
   };
 }
-
-export const InsightsDashboard = ({ stats }: InsightsDashboardProps) => {
-  const growthRate = stats.monthlyProjects > 0 && stats.recentProjects > 0 
-    ? Math.round(((stats.recentProjects / 7) * 30 / stats.monthlyProjects - 1) * 100)
-    : 0;
-
-  const processingEfficiency = stats.totalProjects > 0 
-    ? Math.round((stats.processedProjects / stats.totalProjects) * 100) 
-    : 0;
-
-  return (
-    <div className="space-y-6">
+export const InsightsDashboard = ({
+  stats
+}: InsightsDashboardProps) => {
+  const growthRate = stats.monthlyProjects > 0 && stats.recentProjects > 0 ? Math.round((stats.recentProjects / 7 * 30 / stats.monthlyProjects - 1) * 100) : 0;
+  const processingEfficiency = stats.totalProjects > 0 ? Math.round(stats.processedProjects / stats.totalProjects * 100) : 0;
+  return <div className="space-y-6">
       {/* Insights e Análises */}
       <Card className="border-0 shadow-lg bg-gradient-to-r from-gray-50 to-slate-50">
         <CardHeader>
@@ -67,43 +54,9 @@ export const InsightsDashboard = ({ stats }: InsightsDashboardProps) => {
       </Card>
 
       {/* Distribuição por Tipo */}
-      {Object.keys(stats.projectsByType || {}).length > 0 && (
-        <Card className="border-0 shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-              <Target className="h-5 w-5 text-gray-600" />
-              <span>Distribuição por Tipo de Projeto</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {Object.entries(stats.projectsByType || {})
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 5)
-                .map(([type, count]) => {
-                  const percentage = Math.round((count / stats.totalProjects) * 100);
-                  return (
-                    <div key={type} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                        <span className="text-sm font-medium text-gray-700">{type}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
-                            style={{ width: `${percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm text-gray-600 w-12 text-right">{count}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+      {Object.keys(stats.projectsByType || {}).length > 0 && <Card className="border-0 shadow-lg">
+          
+          
+        </Card>}
+    </div>;
 };

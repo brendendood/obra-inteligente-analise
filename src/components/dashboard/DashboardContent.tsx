@@ -56,9 +56,7 @@ const DashboardContent = ({
         {/* Coluna lateral */}
         <div className="lg:w-1/4 min-w-[300px] flex flex-col gap-6">
           {/* Atividade Recente */}
-          <div className="flex-1 min-h-[400px]">
-            <RecentActivity projects={projects} />
-          </div>
+          
           
           {/* Ações Rápidas */}
           <div className="flex-shrink-0">
@@ -66,23 +64,7 @@ const DashboardContent = ({
           </div>
           
           {/* Dicas MadenAI */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Dicas MadenAI</h3>
-            <div className="space-y-3">
-              <div className="flex items-start space-x-3">
-                <span className="text-blue-600">💡</span>
-                <p className="text-sm text-gray-700">Use a IA para analisar seus projetos automaticamente</p>
-              </div>
-              <div className="flex items-start space-x-3">
-                <span className="text-green-600">📊</span>
-                <p className="text-sm text-gray-700">Acompanhe estatísticas em tempo real</p>
-              </div>
-              <div className="flex items-start space-x-3">
-                <span className="text-purple-600">⚡</span>
-                <p className="text-sm text-gray-700">Gere orçamentos precisos em segundos</p>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
     </div>;
