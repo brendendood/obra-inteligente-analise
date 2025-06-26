@@ -3,21 +3,16 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectDocument, UploadProgress } from '@/types/document';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
 
-export const useProjectDocuments = (projectId?: string) => {
+export const useProjectDocuments = (projectId: string) => {
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState<UploadProgress[]>([]);
   const { toast } = useToast();
-  const { user } = useAuth();
 
-  // Buscar documentos do projeto
-  const loadDocuments = async () => {
-    if (!projectId || !user) return;
-    
+  // Fetch documents for the project
+  const fetchDocuments = async () => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('project_documents')
         .select('*')
@@ -25,12 +20,19 @@ export const useProjectDocuments = (projectId?: string) => {
         .order('uploaded_at', { ascending: false });
 
       if (error) throw error;
-      setDocuments(data || []);
-    } catch (error) {
-      console.error('Erro ao carregar documentos:', error);
+
+      // Type assertion to ensure proper typing
+      const typedDocuments = (data || []).map(doc => ({
+        ...doc,
+        category: doc.category as ProjectDocument['category']
+      }));
+
+      setDocuments(typedDocuments);
+    } catch (error: any) {
+      console.error('Error fetching documents:', error);
       toast({
-        title: "Erro ao carregar documentos",
-        description: "Não foi possível carregar os documentos do projeto.",
+        title: "❌ Erro ao carregar documentos",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -38,129 +40,85 @@ export const useProjectDocuments = (projectId?: string) => {
     }
   };
 
-  // Upload de arquivo
-  const uploadDocument = async (
-    file: File, 
-    category: ProjectDocument['category']
-  ): Promise<boolean> => {
-    if (!projectId || !user) return false;
-
-    const fileId = Math.random().toString(36).substring(7);
-    const uploadProgress: UploadProgress = {
-      file,
-      progress: 0,
-      status: 'uploading'
-    };
-
-    setUploading(prev => [...prev, uploadProgress]);
-
+  // Upload document
+  const uploadDocument = async (file: File, category: ProjectDocument['category']) => {
     try {
-      // Upload para Storage
-      const filePath = `${user.id}/${projectId}/${category}/${Date.now()}_${file.name}`;
-      
+      // Add to uploading state
+      const uploadProgress: UploadProgress = {
+        file,
+        progress: 0,
+        status: 'uploading'
+      };
+      setUploading(prev => [...prev, uploadProgress]);
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
+      // Create file path
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${projectId}/${category}/${Date.now()}_${file.name}`;
+
+      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('project-documents')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // Salvar metadados no banco
-      const { error: dbError } = await supabase
+      // Update progress
+      setUploading(prev => prev.map(upload => 
+        upload.file === file 
+          ? { ...upload, progress: 50 }
+          : upload
+      ));
+
+      // Insert document record
+      const { error: insertError } = await supabase
         .from('project_documents')
         .insert({
           project_id: projectId,
           user_id: user.id,
           file_name: file.name,
-          file_path: filePath,
+          file_path: fileName,
           file_size: file.size,
-          file_type: file.name.split('.').pop()?.toLowerCase() || '',
+          file_type: fileExt || '',
           category,
-          mime_type: file.type || 'application/octet-stream'
+          mime_type: file.type
         });
 
-      if (dbError) throw dbError;
+      if (insertError) throw insertError;
 
-      // Atualizar progresso
-      setUploading(prev => 
-        prev.map(up => 
-          up.file === file 
-            ? { ...up, progress: 100, status: 'success' }
-            : up
-        )
-      );
+      // Update progress to success
+      setUploading(prev => prev.map(upload => 
+        upload.file === file 
+          ? { ...upload, progress: 100, status: 'success' }
+          : upload
+      ));
 
-      // Recarregar documentos
-      await loadDocuments();
-
-      toast({
-        title: "✅ Arquivo enviado!",
-        description: `${file.name} foi adicionado com sucesso.`,
-      });
-
+      // Refresh documents
+      await fetchDocuments();
       return true;
-    } catch (error) {
-      console.error('Erro no upload:', error);
+    } catch (error: any) {
+      console.error('Error uploading document:', error);
       
-      setUploading(prev => 
-        prev.map(up => 
-          up.file === file 
-            ? { ...up, status: 'error', error: 'Falha no upload' }
-            : up
-        )
-      );
+      // Update progress to error
+      setUploading(prev => prev.map(upload => 
+        upload.file === file 
+          ? { ...upload, status: 'error', error: error.message }
+          : upload
+      ));
 
       toast({
-        title: "Erro no upload",
-        description: `Não foi possível enviar ${file.name}.`,
-        variant: "destructive",
-      });
-
-      return false;
-    }
-  };
-
-  // Deletar documento
-  const deleteDocument = async (document: ProjectDocument): Promise<boolean> => {
-    try {
-      // Deletar do Storage
-      const { error: storageError } = await supabase.storage
-        .from('project-documents')
-        .remove([document.file_path]);
-
-      if (storageError) throw storageError;
-
-      // Deletar do banco
-      const { error: dbError } = await supabase
-        .from('project_documents')
-        .delete()
-        .eq('id', document.id);
-
-      if (dbError) throw dbError;
-
-      // Atualizar lista local
-      setDocuments(prev => prev.filter(doc => doc.id !== document.id));
-
-      toast({
-        title: "Documento removido",
-        description: `${document.file_name} foi excluído com sucesso.`,
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Erro ao deletar documento:', error);
-      toast({
-        title: "Erro ao excluir",
-        description: "Não foi possível excluir o documento.",
+        title: "❌ Erro no upload",
+        description: error.message,
         variant: "destructive",
       });
       return false;
     }
   };
 
-  // Download de documento
+  // Download document
   const downloadDocument = async (document: ProjectDocument) => {
     try {
       const { data, error } = await supabase.storage
@@ -169,47 +127,84 @@ export const useProjectDocuments = (projectId?: string) => {
 
       if (error) throw error;
 
-      // Criar URL de download
+      // Create download link
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = document.file_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = document.file_name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
       toast({
-        title: "Download iniciado",
-        description: `Baixando ${document.file_name}...`,
+        title: "✅ Download iniciado",
+        description: `Baixando ${document.file_name}`,
       });
-    } catch (error) {
-      console.error('Erro no download:', error);
+    } catch (error: any) {
+      console.error('Error downloading document:', error);
       toast({
-        title: "Erro no download",
-        description: "Não foi possível baixar o arquivo.",
+        title: "❌ Erro no download",
+        description: error.message,
         variant: "destructive",
       });
     }
   };
 
-  // Limpar uploads concluídos
+  // Delete document
+  const deleteDocument = async (document: ProjectDocument) => {
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('project-documents')
+        .remove([document.file_path]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('project_documents')
+        .delete()
+        .eq('id', document.id);
+
+      if (dbError) throw dbError;
+
+      toast({
+        title: "✅ Documento excluído",
+        description: `${document.file_name} foi removido com sucesso.`,
+      });
+
+      // Refresh documents
+      await fetchDocuments();
+    } catch (error: any) {
+      console.error('Error deleting document:', error);
+      toast({
+        title: "❌ Erro ao excluir",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Clear completed uploads
   const clearCompletedUploads = () => {
-    setUploading(prev => prev.filter(up => up.status === 'uploading'));
+    setUploading(prev => prev.filter(upload => upload.status === 'uploading'));
   };
 
   useEffect(() => {
-    loadDocuments();
-  }, [projectId, user]);
+    if (projectId) {
+      fetchDocuments();
+    }
+  }, [projectId]);
 
   return {
     documents,
     loading,
     uploading,
     uploadDocument,
-    deleteDocument,
     downloadDocument,
-    loadDocuments,
-    clearCompletedUploads
+    deleteDocument,
+    clearCompletedUploads,
+    refetch: fetchDocuments
   };
 };

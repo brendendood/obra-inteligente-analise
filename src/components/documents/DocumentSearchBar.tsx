@@ -2,19 +2,21 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Download, X } from 'lucide-react';
+import { Search, Download, X, FileText, Archive } from 'lucide-react';
 
 interface DocumentSearchBarProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
   onExportAll: () => void;
+  onExportReport: () => void;
   documentsCount: number;
 }
 
 const DocumentSearchBar = ({ 
   searchTerm, 
   onSearchChange, 
-  onExportAll, 
+  onExportAll,
+  onExportReport,
   documentsCount 
 }: DocumentSearchBarProps) => {
   return (
@@ -46,15 +48,27 @@ const DocumentSearchBar = ({
           </span>
           
           {documentsCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onExportAll}
-              className="flex items-center space-x-2"
-            >
-              <Download className="h-4 w-4" />
-              <span>Exportar Tudo (.zip)</span>
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onExportReport}
+                className="flex items-center space-x-2"
+              >
+                <FileText className="h-4 w-4" />
+                <span>Relatório PDF</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onExportAll}
+                className="flex items-center space-x-2"
+              >
+                <Archive className="h-4 w-4" />
+                <span>Baixar Tudo (.zip)</span>
+              </Button>
+            </div>
           )}
         </div>
       </div>

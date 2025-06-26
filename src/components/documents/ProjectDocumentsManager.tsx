@@ -4,6 +4,7 @@ import { FileText, Award, FileCheck, BookOpen, Folder } from 'lucide-react';
 import { ProjectDocument, DocumentCategory } from '@/types/document';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { useToast } from '@/hooks/use-toast';
+import { exportAllDocumentsAsZip, exportDocumentsReport } from '@/utils/documentsExportUtils';
 import DocumentCategorySection from './DocumentCategorySection';
 import DocumentSearchBar from './DocumentSearchBar';
 import UploadProgressIndicator from './UploadProgressIndicator';
@@ -108,12 +109,63 @@ const ProjectDocumentsManager = ({ projectId, projectName }: ProjectDocumentsMan
     setTimeout(clearCompletedUploads, 3000);
   };
 
-  // Handle export all
-  const handleExportAll = () => {
+  // Handle export all as ZIP
+  const handleExportAll = async () => {
+    if (filteredDocuments.length === 0) {
+      toast({
+        title: "❌ Nenhum documento",
+        description: "Não há documentos para exportar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     toast({
-      title: "🚧 Em desenvolvimento",
-      description: "A funcionalidade de exportar todos os documentos será implementada em breve.",
+      title: "📦 Preparando exportação...",
+      description: "Aguarde enquanto organizamos todos os documentos.",
     });
+
+    const result = await exportAllDocumentsAsZip(filteredDocuments, projectName);
+    
+    if (result.success) {
+      toast({
+        title: "✅ Exportação concluída!",
+        description: `Arquivo ${result.filename} baixado com sucesso.`,
+      });
+    } else {
+      toast({
+        title: "❌ Erro na exportação",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle export report
+  const handleExportReport = async () => {
+    if (filteredDocuments.length === 0) {
+      toast({
+        title: "❌ Nenhum documento",
+        description: "Não há documentos para gerar relatório.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const result = await exportDocumentsReport(filteredDocuments, projectName);
+    
+    if (result.success) {
+      toast({
+        title: "✅ Relatório gerado!",
+        description: `Relatório ${result.filename} baixado com sucesso.`,
+      });
+    } else {
+      toast({
+        title: "❌ Erro no relatório",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
   };
 
   // Handle preview
@@ -157,6 +209,7 @@ const ProjectDocumentsManager = ({ projectId, projectName }: ProjectDocumentsMan
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         onExportAll={handleExportAll}
+        onExportReport={handleExportReport}
         documentsCount={filteredDocuments.length}
       />
 
