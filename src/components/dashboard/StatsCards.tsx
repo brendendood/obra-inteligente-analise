@@ -2,21 +2,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   FolderOpen, 
-  TrendingUp, 
-  Clock,
-  BarChart3
+  FileText, 
+  CheckCircle,
+  BarChart3,
+  Calendar,
+  Zap
 } from 'lucide-react';
 
 interface StatsCardsProps {
   stats: {
     totalProjects: number;
     totalArea: number;
+    processedProjects: number;
+    projectsByType: Record<string, number>;
     recentProjects: number;
-    timeSaved: number;
+    averageArea: number;
   };
 }
 
 export const StatsCards = ({ stats }: StatsCardsProps) => {
+  const mostCommonType = Object.entries(stats.projectsByType || {})
+    .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Residencial';
+
+  const processingRate = stats.totalProjects > 0 
+    ? Math.round((stats.processedProjects / stats.totalProjects) * 100) 
+    : 0;
+
   const statsConfig = [
     {
       title: "Total de Projetos",
@@ -29,30 +40,30 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
       valueColor: "text-blue-900"
     },
     {
-      title: "Área Total",
-      value: `${stats.totalArea.toLocaleString()}m²`,
-      description: "Área construída total",
-      icon: BarChart3,
+      title: "Projetos Processados",
+      value: stats.processedProjects,
+      description: `${processingRate}% dos projetos`,
+      icon: CheckCircle,
       gradient: "from-green-50 to-green-100",
       textColor: "text-green-800",
       iconColor: "text-green-600",
       valueColor: "text-green-900"
     },
     {
-      title: "Últimos 7 dias",
-      value: stats.recentProjects,
-      description: "Novos projetos",
-      icon: TrendingUp,
+      title: "Área Total Analisada",
+      value: `${stats.totalArea.toLocaleString()}m²`,
+      description: "Área construída total",
+      icon: BarChart3,
       gradient: "from-purple-50 to-purple-100",
       textColor: "text-purple-800",
       iconColor: "text-purple-600",
       valueColor: "text-purple-900"
     },
     {
-      title: "Tempo Economizado",
-      value: `${stats.timeSaved}h`,
-      description: "Em análises manuais",
-      icon: Clock,
+      title: "Tipo Mais Comum",
+      value: mostCommonType,
+      description: `${stats.projectsByType[mostCommonType] || 0} projetos`,
+      icon: FileText,
       gradient: "from-orange-50 to-orange-100",
       textColor: "text-orange-800",
       iconColor: "text-orange-600",
@@ -65,7 +76,7 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
       {statsConfig.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className={`border-0 shadow-lg bg-gradient-to-br ${stat.gradient}`}>
+          <Card key={index} className={`border-0 shadow-lg bg-gradient-to-br ${stat.gradient} hover:shadow-xl transition-all duration-300`}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className={`text-sm font-medium ${stat.textColor}`}>
@@ -75,7 +86,7 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className={`text-3xl font-bold ${stat.valueColor} mb-1`}>
+              <div className={`text-2xl lg:text-3xl font-bold ${stat.valueColor} mb-1`}>
                 {stat.value}
               </div>
               <p className={`text-xs ${stat.textColor.replace('800', '700')}`}>

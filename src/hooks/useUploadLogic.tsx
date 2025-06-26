@@ -3,7 +3,6 @@ import { useProject } from '@/contexts/ProjectContext';
 import { useProcessingSteps } from '@/hooks/useProcessingSteps';
 import { useUploadState } from '@/hooks/useUploadState';
 import { useUploadAuth } from '@/hooks/useUploadAuth';
-import { useProjectValidationEffect } from '@/hooks/useProjectValidationEffect';
 import { useUploadHandlers } from '@/hooks/useUploadHandlers';
 
 export const useUploadLogic = () => {
@@ -16,13 +15,11 @@ export const useUploadLogic = () => {
     uploading,
     progress,
     uploadComplete,
-    validatedProject,
     setFile,
     setProjectName,
     setUploading,
     setProgress,
     setUploadComplete,
-    setValidatedProject,
     resetUpload
   } = useUploadState();
   
@@ -35,23 +32,15 @@ export const useUploadLogic = () => {
     stopProcessing 
   } = useProcessingSteps();
 
-  // Validar projeto atual quando o componente carregar
-  useProjectValidationEffect({
-    currentProject,
-    user,
-    clearAllProjects,
-    setValidatedProject
-  });
-
-  const { handleUpload, handleAnalyzeExisting } = useUploadHandlers({
+  const { handleUpload } = useUploadHandlers({
     file,
     projectName,
     user,
-    validatedProject,
+    validatedProject: null,
     setUploading,
     setProgress,
     setUploadComplete,
-    setValidatedProject,
+    setValidatedProject: () => {},
     startProcessing,
     stopProcessing,
     loadUserProjects
@@ -64,7 +53,6 @@ export const useUploadLogic = () => {
     uploading,
     progress,
     uploadComplete,
-    validatedProject,
     authLoading,
     isAuthenticated,
     steps,
@@ -75,7 +63,6 @@ export const useUploadLogic = () => {
     setFile,
     setProjectName,
     handleUpload,
-    handleAnalyzeExisting,
     resetUpload
   };
 };

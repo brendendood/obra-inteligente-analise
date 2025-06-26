@@ -5,7 +5,6 @@ import { Zap } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import UploadHeader from '@/components/upload/UploadHeader';
-import ExistingProjectCard from '@/components/upload/ExistingProjectCard';
 import ProjectNameField from '@/components/upload/ProjectNameField';
 import FileDropzone from '@/components/upload/FileDropzone';
 import UploadProgress from '@/components/upload/UploadProgress';
@@ -20,7 +19,6 @@ const Upload = () => {
     uploading,
     progress,
     uploadComplete,
-    validatedProject,
     authLoading,
     isAuthenticated,
     steps,
@@ -30,7 +28,6 @@ const Upload = () => {
     setFile,
     setProjectName,
     handleUpload,
-    handleAnalyzeExisting,
     resetUpload
   } = useUploadLogic();
 
@@ -56,13 +53,8 @@ const Upload = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <UploadHeader />
 
-        <ExistingProjectCard 
-          project={validatedProject}
-          onAnalyze={handleAnalyzeExisting}
-        />
-
         {/* Main Upload Area */}
-        <Card className="shadow-xl border border-gray-200 bg-white">
+        <Card className="shadow-xl border border-gray-200 bg-white mb-8">
           <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
             <CardTitle className="text-2xl text-center text-gray-900 font-bold">
               {uploading ? 'Processando Projeto' : 'Novo Projeto'}
@@ -119,6 +111,19 @@ const Upload = () => {
             {/* Success State */}
             {uploadComplete && (
               <UploadSuccess projectName={projectName} />
+            )}
+
+            {/* Reset Button */}
+            {(uploadComplete || (!uploading && (file || projectName))) && (
+              <div className="mt-6 text-center">
+                <Button 
+                  variant="outline" 
+                  onClick={resetUpload}
+                  className="text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400"
+                >
+                  Enviar Outro Projeto
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>

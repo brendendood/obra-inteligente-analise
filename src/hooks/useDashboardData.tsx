@@ -9,10 +9,9 @@ interface DashboardStats {
   totalProjects: number;
   totalArea: number;
   recentProjects: number;
-  timeSaved: number;
+  processedProjects: number;
   monthlyProjects: number;
-  estimatedValue: number;
-  aiEfficiency: number;
+  averageArea: number;
   projectsByType: Record<string, number>;
 }
 
@@ -28,10 +27,9 @@ export const useDashboardData = () => {
     totalProjects: 0,
     totalArea: 0,
     recentProjects: 0,
-    timeSaved: 0,
+    processedProjects: 0,
     monthlyProjects: 0,
-    estimatedValue: 0,
-    aiEfficiency: 95,
+    averageArea: 0,
     projectsByType: {}
   });
   const { toast } = useToast();
@@ -47,6 +45,10 @@ export const useDashboardData = () => {
       return sum + (project.total_area || 0);
     }, 0);
 
+    const processedProjects = projects.filter((project: any) => 
+      project.analysis_data && Object.keys(project.analysis_data).length > 0
+    ).length;
+
     const recentProjects = projects.filter((project: any) => {
       const createdAt = new Date(project.created_at);
       const weekAgo = new Date();
@@ -61,8 +63,7 @@ export const useDashboardData = () => {
       return createdAt >= monthAgo;
     }).length;
 
-    // Calcular valor estimado (estimativa baseada na área)
-    const estimatedValue = totalArea * 2500; // R$ 2.500 por m² (estimativa)
+    const averageArea = projects.length > 0 ? Math.round(totalArea / projects.length) : 0;
 
     // Agrupar projetos por tipo
     const projectsByType = projects.reduce((acc: Record<string, number>, project: any) => {
@@ -75,10 +76,9 @@ export const useDashboardData = () => {
       totalProjects: projects.length,
       totalArea,
       recentProjects,
-      timeSaved: projects.length * 2,
+      processedProjects,
       monthlyProjects,
-      estimatedValue,
-      aiEfficiency: 95,
+      averageArea,
       projectsByType
     };
 

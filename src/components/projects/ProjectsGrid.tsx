@@ -50,11 +50,6 @@ export const ProjectsGrid = () => {
                 isDragging ? 'select-none' : ''
               } hover:scale-[1.02] hover:shadow-lg`}
             >
-              {/* Drag Handle */}
-              <div className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-white/90 backdrop-blur-sm shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-grab active:cursor-grabbing hover:bg-white">
-                <GripVertical className="h-4 w-4 text-gray-600" />
-              </div>
-              
               {/* Project Card with all required props */}
               <ProjectCard
                 project={project}
@@ -64,6 +59,7 @@ export const ProjectsGrid = () => {
                 onDrop={(e) => getDropZoneProps(index).onDrop?.(e)}
                 onEdit={() => {}}
                 onDelete={() => setDeleteProject(project)}
+                onUpdate={updateProject}
               />
             </div>
             
