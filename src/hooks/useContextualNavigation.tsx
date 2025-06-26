@@ -69,9 +69,37 @@ export const useContextualNavigation = (fallbackPath: string = '/painel') => {
     navigate(path);
   }, [navigate, location.pathname]);
 
+  const navigateContextual = useCallback((path: string, projectId?: string) => {
+    // Salvar path atual antes de navegar
+    localStorage.setItem('previousPath', location.pathname);
+    
+    // Se estamos num projeto e navegando para uma área geral, manter contexto
+    if (projectId && path.startsWith('/') && !path.includes(projectId)) {
+      // Para navegação contextual dentro do projeto
+      if (path === '/painel' || path === '/projetos') {
+        navigate(path);
+      } else {
+        navigate(path);
+      }
+    } else {
+      navigate(path);
+    }
+  }, [navigate, location.pathname]);
+
+  const clearHistory = useCallback(() => {
+    localStorage.removeItem('previousPath');
+    setNavigationState(prev => ({
+      ...prev,
+      previousPath: null,
+      canGoBack: false
+    }));
+  }, []);
+
   return {
     goBack,
     navigateWithHistory,
+    navigateContextual,
+    clearHistory,
     canGoBack: navigationState.canGoBack,
     previousPath: navigationState.previousPath
   };

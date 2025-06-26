@@ -57,7 +57,7 @@ export const ProjectsGrid = () => {
                 <GripVertical className="h-4 w-4 text-gray-600" />
               </div>
               
-              {/* Project Card */}
+              {/* Project Card - simplified props */}
               <ProjectCard
                 project={project}
                 onEdit={() => {}}
