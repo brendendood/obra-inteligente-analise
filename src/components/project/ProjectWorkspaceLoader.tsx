@@ -16,41 +16,38 @@ export const useProjectLoader = () => {
   useEffect(() => {
     const loadProject = async () => {
       if (!projectId) {
-        console.log('⚠️ WORKSPACE LOADER: ID do projeto não fornecido');
-        // Não mostrar erro se não há projectId (usuário pode estar navegando)
         setLoading(false);
         return;
       }
 
-      console.log('🔄 WORKSPACE LOADER: Carregando projeto:', projectId);
-
       try {
-        // Dar tempo para os projetos carregarem se ainda não carregaram
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Aguardar carregamento dos projetos
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         if (!projectExists(projectId)) {
-          console.log('⚠️ WORKSPACE LOADER: Projeto não encontrado nos dados carregados');
-          setError('Projeto não encontrado');
+          // Não mostrar erro imediatamente - tentar novamente
+          setTimeout(() => {
+            if (projectExists(projectId)) {
+              const project = getProject(projectId);
+              if (project) {
+                setCurrentProject(project);
+                setError(null);
+              }
+            }
+          }, 1000);
+          
           setLoading(false);
           return;
         }
 
         const project = getProject(projectId);
-        if (!project) {
-          console.log('⚠️ WORKSPACE LOADER: Projeto não encontrado ao tentar obter dados');
-          setError('Projeto não encontrado');
-          setLoading(false);
-          return;
+        if (project) {
+          setCurrentProject(project);
+          setError(null);
         }
-
-        console.log('✅ WORKSPACE LOADER: Projeto carregado com sucesso:', project.name);
-        setCurrentProject(project);
-        setError(null);
       } catch (err) {
-        console.error('❌ WORKSPACE LOADER: Erro ao carregar projeto:', err);
-        // Não mostrar erro automaticamente - pode ser temporário
-        console.log('🔄 WORKSPACE LOADER: Erro temporário, tentando novamente...');
-        setError(null);
+        console.error('Erro temporário ao carregar projeto:', err);
+        // Não definir erro - pode ser temporário
       } finally {
         setLoading(false);
       }
@@ -59,10 +56,14 @@ export const useProjectLoader = () => {
     loadProject();
   }, [projectId, projectExists, getProject, setCurrentProject]);
 
-  // Loading Component otimizado
+  // Loading Component otimizado - sem mostrar erro desnecessário
   const LoadingComponent = () => (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <span className="text-gray-600">Carregando projeto...</span>
+        </div>
         <EnhancedSkeleton variant="card" className="h-20" />
         <EnhancedSkeleton variant="card" className="h-16" />
         <div className="space-y-4">
