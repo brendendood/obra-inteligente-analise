@@ -46,8 +46,6 @@ export const ProjectsGrid = () => {
             
             {/* Project Card Container */}
             <div
-              {...getDragItemProps(project, index)}
-              {...getDropZoneProps(index)}
               className={`relative transition-all duration-300 ${
                 isDragging ? 'select-none' : ''
               } hover:scale-[1.02] hover:shadow-lg`}
@@ -57,9 +55,13 @@ export const ProjectsGrid = () => {
                 <GripVertical className="h-4 w-4 text-gray-600" />
               </div>
               
-              {/* Project Card - simplified props */}
+              {/* Project Card with all required props */}
               <ProjectCard
                 project={project}
+                onDragStart={(e) => getDragItemProps(project, index).onDragStart?.(e)}
+                onDragEnd={(e) => getDragItemProps(project, index).onDragEnd?.(e)}
+                onDragOver={(e) => getDropZoneProps(index).onDragOver?.(e)}
+                onDrop={(e) => getDropZoneProps(index).onDrop?.(e)}
                 onEdit={() => {}}
                 onDelete={() => setDeleteProject(project)}
               />
