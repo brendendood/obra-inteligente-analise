@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -86,7 +87,7 @@ export const AppSidebar = () => {
     }
   ];
 
-  // Menu items para área do projeto - ATUALIZADO com nova rota da IA
+  // Menu items para área do projeto
   const projectMenuItems = [
     { 
       icon: FileText, 
@@ -109,7 +110,7 @@ export const AppSidebar = () => {
     { 
       icon: Bot, 
       label: 'Assistente IA', 
-      path: `/ia/${projectId}`,
+      path: `/projeto/${projectId}/assistente`,
       color: 'text-orange-600'
     },
     { 
@@ -130,7 +131,7 @@ export const AppSidebar = () => {
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
-          <span className="text-xl font-bold text-gray-800">MadenAI</span>
+          <span className="text-xl font-bold text-gray-800">Maden.AI</span>
         </div>
       </SidebarHeader>
 

@@ -1,3 +1,4 @@
+
 import { Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { DomainProvider } from "@/components/layout/DomainProvider";
+import { NotificationContainer } from "@/components/ui/notification-container";
 import { testSupabaseConnection } from "@/integrations/supabase/domainClient";
 import LandingPage from "@/pages/LandingPage";
 import Login from "@/pages/Login";
@@ -26,7 +28,7 @@ import NotFound from "@/pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 3,
+      retry: 2,
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000,
     },
@@ -44,6 +46,7 @@ const App = () => {
       <DomainProvider>
         <ProjectProvider>
           <TooltipProvider>
+            <NotificationContainer />
             <Toaster />
             <Sonner />
             <BrowserRouter>
@@ -67,9 +70,7 @@ const App = () => {
                   <Route path="/projeto/:projectId/orcamento" element={<ProjectSpecificBudget />} />
                   <Route path="/projeto/:projectId/cronograma" element={<ProjectSpecificSchedule />} />
                   <Route path="/projeto/:projectId/documentos" element={<ProjectSpecificDocuments />} />
-                  
-                  {/* AI Routes */}
-                  <Route path="/ia/:projectId" element={<ProjectSpecificAssistant />} />
+                  <Route path="/projeto/:projectId/assistente" element={<ProjectSpecificAssistant />} />
                   
                   {/* Legal Pages */}
                   <Route path="/termos" element={<Terms />} />

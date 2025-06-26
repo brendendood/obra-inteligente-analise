@@ -41,8 +41,6 @@ export const useProjectSync = () => {
     }
   }, [state.projects.length, state.currentProject, restoreSavedProject]);
 
-  // REMOVIDO: Auto-refresh periódico que causava notificações infinitas
-
   return {
     // Estado
     projects: state.projects,
