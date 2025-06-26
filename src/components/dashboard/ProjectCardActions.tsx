@@ -1,5 +1,6 @@
 
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProjectCardActionsProps {
@@ -18,56 +19,58 @@ export const ProjectCardActions = ({ projectId, onActionClick }: ProjectCardActi
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Primeira linha: Orçamento e IA */}
-      <div className="grid grid-cols-2 gap-2">
-        <button
+      <div className="grid grid-cols-2 gap-3">
+        <Button
           onClick={(e) => handleAction(e, `/projeto/${projectId}/orcamento`)}
-          className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+          variant="outline"
+          size="sm"
+          className="h-10 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
         >
           {isMobile ? (
             <span>💰</span>
           ) : (
             <>
               <span>💰</span>
-              <span>Orçamento</span>
+              <span className="ml-2">Orçamento</span>
             </>
           )}
-        </button>
+        </Button>
         
-        <button
+        <Button
           onClick={(e) => handleAction(e, `/ia/${projectId}`)}
-          className="flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs"
+          variant="outline"
+          size="sm"
+          className="h-10 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
         >
           {isMobile ? (
             <span>🤖</span>
           ) : (
             <>
               <span>🤖</span>
-              <span>IA</span>
+              <span className="ml-2">IA</span>
             </>
           )}
-        </button>
+        </Button>
       </div>
       
-      {/* Segunda linha: Cronograma centralizado */}
-      <div className="flex justify-center">
-        <button
-          onClick={(e) => handleAction(e, `/projeto/${projectId}/cronograma`)}
-          className={`flex items-center justify-center space-x-1 py-2 px-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-xs ${
-            isMobile ? 'w-16' : 'w-32'
-          }`}
-        >
-          {isMobile ? (
+      {/* Segunda linha: Cronograma */}
+      <Button
+        onClick={(e) => handleAction(e, `/projeto/${projectId}/cronograma`)}
+        variant="outline"
+        size="sm"
+        className="w-full h-10 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+      >
+        {isMobile ? (
+          <span>📅</span>
+        ) : (
+          <>
             <span>📅</span>
-          ) : (
-            <>
-              <span>📅</span>
-              <span>Cronograma</span>
-            </>
-          )}
-        </button>
-      </div>
+            <span className="ml-2">Cronograma</span>
+          </>
+        )}
+      </Button>
     </div>
   );
 };

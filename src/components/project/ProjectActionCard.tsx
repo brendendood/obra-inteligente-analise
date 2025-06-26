@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { LucideIcon } from 'lucide-react';
 
 interface ProjectActionCardProps {
@@ -25,20 +26,19 @@ const ProjectActionCard: React.FC<ProjectActionCardProps> = ({
   return (
     <Card 
       className={`
-        cursor-pointer transition-all duration-300 
-        ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] hover:shadow-xl'}
+        border border-gray-200 bg-white hover:shadow-md hover:border-gray-300 transition-all duration-200
+        ${disabled ? 'opacity-50' : ''}
         ${className}
       `}
-      onClick={disabled ? undefined : onClick}
     >
-      <CardContent className="p-8">
+      <CardContent className="p-6">
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200/50">
-              <Icon className="h-8 w-8 text-blue-600" />
+            <div className="p-3 bg-blue-50 rounded-xl">
+              <Icon className="h-6 w-6 text-blue-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
                 {title}
               </h3>
               {disabled && (
@@ -53,11 +53,17 @@ const ProjectActionCard: React.FC<ProjectActionCardProps> = ({
             {description}
           </p>
           
-          {isLoading && (
-            <div className="flex items-center justify-center pt-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-            </div>
-          )}
+          <Button
+            onClick={onClick}
+            disabled={disabled || isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10"
+          >
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              'Acessar'
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>

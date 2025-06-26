@@ -3,11 +3,9 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Folder } from 'lucide-react';
+import { ArrowRight, Folder, Plus } from 'lucide-react';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { ProjectCard } from './ProjectCard';
-import { EmptyProjectsState } from './EmptyProjectsState';
 
 interface DashboardRecentProjectsProps {
   projects: any[];
@@ -16,12 +14,11 @@ interface DashboardRecentProjectsProps {
 
 const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProjectsProps) => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [draggedItem, setDraggedItem] = useState<number | null>(null);
 
   if (isLoading) {
     return (
-      <Card className="border-0 shadow-lg">
+      <Card className="border border-gray-200 bg-white">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2 text-gray-900">
             <Folder className="h-5 w-5" />
@@ -29,9 +26,9 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <EnhancedSkeleton key={i} variant="card" className="h-48" />
+              <EnhancedSkeleton key={i} variant="card" className="h-64" />
             ))}
           </div>
         </CardContent>
@@ -53,15 +50,11 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    if (draggedItem === null) return;
-    
-    // Aqui você implementaria a lógica de reordenação
-    console.log(`Movendo projeto do índice ${draggedItem} para ${dropIndex}`);
     setDraggedItem(null);
   };
 
   return (
-    <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+    <Card className="border border-gray-200 bg-white">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2 text-gray-900">
@@ -71,8 +64,8 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
           {projects.length > 6 && (
             <Button 
               variant="ghost" 
-              onClick={() => navigate('/obras')}
-              className="text-blue-600 hover:text-blue-700"
+              onClick={() => navigate('/projetos')}
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
             >
               Ver todos
               <ArrowRight className="h-4 w-4 ml-1" />
@@ -82,7 +75,7 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
       </CardHeader>
       <CardContent>
         {recentProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentProjects.map((project, index) => (
               <ProjectCard
                 key={project.id}
@@ -96,7 +89,18 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
             ))}
           </div>
         ) : (
-          <EmptyProjectsState />
+          <div className="text-center py-12">
+            <Folder className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum projeto ainda</h3>
+            <p className="text-gray-500 mb-6">Comece criando seu primeiro projeto</p>
+            <Button 
+              onClick={() => navigate('/upload')}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Projeto
+            </Button>
+          </div>
         )}
       </CardContent>
     </Card>

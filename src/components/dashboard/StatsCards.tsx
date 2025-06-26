@@ -4,9 +4,7 @@ import {
   FolderOpen, 
   FileText, 
   CheckCircle,
-  BarChart3,
-  Calendar,
-  Zap
+  BarChart3
 } from 'lucide-react';
 
 interface StatsCardsProps {
@@ -34,40 +32,28 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
       value: stats.totalProjects,
       description: "Projetos cadastrados",
       icon: FolderOpen,
-      gradient: "from-blue-50 to-blue-100",
-      textColor: "text-blue-800",
-      iconColor: "text-blue-600",
-      valueColor: "text-blue-900"
+      iconColor: "text-blue-600"
     },
     {
       title: "Projetos Processados",
       value: stats.processedProjects,
       description: `${processingRate}% dos projetos`,
       icon: CheckCircle,
-      gradient: "from-green-50 to-green-100",
-      textColor: "text-green-800",
-      iconColor: "text-green-600",
-      valueColor: "text-green-900"
+      iconColor: "text-green-600"
     },
     {
-      title: "Área Total Analisada",
+      title: "Área Total",
       value: `${stats.totalArea.toLocaleString()}m²`,
       description: "Área construída total",
       icon: BarChart3,
-      gradient: "from-purple-50 to-purple-100",
-      textColor: "text-purple-800",
-      iconColor: "text-purple-600",
-      valueColor: "text-purple-900"
+      iconColor: "text-purple-600"
     },
     {
       title: "Tipo Mais Comum",
       value: mostCommonType,
       description: `${stats.projectsByType[mostCommonType] || 0} projetos`,
       icon: FileText,
-      gradient: "from-orange-50 to-orange-100",
-      textColor: "text-orange-800",
-      iconColor: "text-orange-600",
-      valueColor: "text-orange-900"
+      iconColor: "text-orange-600"
     }
   ];
 
@@ -76,20 +62,20 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
       {statsConfig.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className={`border-0 shadow-lg bg-gradient-to-br ${stat.gradient} hover:shadow-xl transition-all duration-300`}>
+          <Card key={index} className="border border-gray-200 bg-white hover:shadow-md transition-shadow duration-200">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className={`text-sm font-medium ${stat.textColor}`}>
+                <CardTitle className="text-sm font-medium text-gray-600">
                   {stat.title}
                 </CardTitle>
                 <Icon className={`h-5 w-5 ${stat.iconColor}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl lg:text-3xl font-bold ${stat.valueColor} mb-1`}>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
                 {stat.value}
               </div>
-              <p className={`text-xs ${stat.textColor.replace('800', '700')}`}>
+              <p className="text-sm text-gray-500">
                 {stat.description}
               </p>
             </CardContent>

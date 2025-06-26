@@ -47,18 +47,15 @@ export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContaine
           currentSection={getSectionTitle(activeTab)}
         />
         
-        <div className="flex-1 p-6">
-          <ProjectInfoAlert 
-            activeTab={activeTab}
-            projectName={currentProject.name}
-          />
-          
-          <ProjectWorkspaceTabs 
-            activeTab={activeTab} 
-            onTabChange={(value) => handleTabChange(value, currentProject)}
-          >
-            {children}
-          </ProjectWorkspaceTabs>
+        <div className="flex-1 p-8 bg-gray-50/50">
+          <div className="max-w-7xl mx-auto">
+            <ProjectWorkspaceTabs 
+              activeTab={activeTab} 
+              onTabChange={(value) => handleTabChange(value, currentProject)}
+            >
+              {children}
+            </ProjectWorkspaceTabs>
+          </div>
         </div>
       </div>
     </AppLayout>

@@ -22,15 +22,15 @@ export const ProjectWorkspaceTabs = ({
   ];
 
   return (
-    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-6">
-      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1 bg-white/80 backdrop-blur-sm border border-gray-200/50">
+    <Tabs value={activeTab} onValueChange={onTabChange} className="space-y-8">
+      <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1 bg-white border border-gray-200 rounded-xl">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <TabsTrigger 
               key={tab.value}
               value={tab.value} 
-              className="flex items-center space-x-2 py-3 px-4 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 transition-all duration-200"
+              className="flex items-center space-x-2 py-3 px-4 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 transition-all duration-200 rounded-lg"
             >
               <Icon className="h-4 w-4" />
               <span className="hidden sm:inline font-medium">{tab.label}</span>
@@ -45,7 +45,7 @@ export const ProjectWorkspaceTabs = ({
         })}
       </TabsList>
 
-      <TabsContent value={activeTab} className="space-y-6 animate-fade-in">
+      <TabsContent value={activeTab} className="space-y-8">
         {children}
       </TabsContent>
     </Tabs>

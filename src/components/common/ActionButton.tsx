@@ -26,11 +26,11 @@ const ActionButton = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl';
+        return 'bg-blue-600 hover:bg-blue-700 text-white';
       case 'secondary':
-        return 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 shadow-sm hover:shadow-md';
+        return 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50';
       case 'outline':
-        return 'border-2 border-slate-300 text-slate-700 hover:border-blue-400 hover:bg-blue-50 bg-white/80 backdrop-blur-sm';
+        return 'border border-gray-300 text-gray-700 hover:border-blue-400 hover:bg-blue-50 bg-white';
       default:
         return '';
     }
@@ -41,7 +41,7 @@ const ActionButton = ({
       case 'sm':
         return 'px-4 py-2 text-sm h-9';
       case 'md':
-        return 'px-6 py-3 text-base h-11';
+        return 'px-6 py-3 text-base h-10';
       case 'lg':
         return 'px-8 py-4 text-lg h-12';
       default:
@@ -53,7 +53,7 @@ const ActionButton = ({
     <Button
       onClick={onClick}
       disabled={disabled || isLoading}
-      className={`${getVariantClasses()} ${getSizeClasses()} font-semibold rounded-xl transition-all duration-300 ${className}`}
+      className={`${getVariantClasses()} ${getSizeClasses()} font-medium rounded-lg transition-all duration-200 ${className}`}
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin mr-2" />

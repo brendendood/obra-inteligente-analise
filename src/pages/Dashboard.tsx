@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -8,7 +8,6 @@ import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { SmartLoading } from '@/components/ui/smart-loading';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
-import DashboardWelcomeHeader from '@/components/dashboard/DashboardWelcomeHeader';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 
 const Dashboard = () => {
@@ -30,7 +29,6 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Estados de loading mais estáveis
   const isInitialLoading = authLoading;
 
   if (isInitialLoading) {
@@ -46,7 +44,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-8 animate-fade-in">
+      <div className="space-y-8">
         <div className="flex items-center justify-between">
           <EnhancedBreadcrumb />
           <SmartLoading 
@@ -57,13 +55,27 @@ const Dashboard = () => {
           />
         </div>
         
-        {/* Header com boas-vindas MadenAI */}
-        <DashboardWelcomeHeader
-          userName={userName}
-          greeting={greeting}
-          onRefresh={forceRefresh}
-          isLoading={isLoadingProjects}
-        />
+        {/* Header clean e minimalista */}
+        <div className="bg-white border border-gray-200 rounded-xl p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {greeting}, {userName}
+              </h1>
+              <p className="text-lg text-gray-600">
+                Gerencie seus projetos de construção com IA
+              </p>
+            </div>
+            {!isLoadingProjects && (
+              <button
+                onClick={forceRefresh}
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              >
+                Atualizar
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* Conteúdo principal */}
         <DashboardContent

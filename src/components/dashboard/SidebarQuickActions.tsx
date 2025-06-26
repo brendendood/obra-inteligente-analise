@@ -1,11 +1,11 @@
 
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
   Plus, 
   FolderOpen, 
-  Search,
-  Zap
+  Search
 } from 'lucide-react';
 
 export const SidebarQuickActions = () => {
@@ -15,43 +15,40 @@ export const SidebarQuickActions = () => {
     {
       icon: Plus,
       title: "Novo Projeto",
-      path: "/upload",
-      color: "bg-blue-500 hover:bg-blue-600"
+      path: "/upload"
     },
     {
       icon: FolderOpen,
       title: "Ver Projetos",
-      path: "/projetos",
-      color: "bg-green-500 hover:bg-green-600"
+      path: "/projetos"
     },
     {
       icon: Search,
       title: "Buscar",
-      path: "/projetos?search=true",
-      color: "bg-purple-500 hover:bg-purple-600"
+      path: "/projetos?search=true"
     }
   ];
 
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center space-x-2 text-gray-900 text-lg">
-          <Zap className="h-5 w-5 text-orange-500" />
-          <span>Ações Rápidas</span>
+    <Card className="border border-gray-200 bg-white">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg font-semibold text-gray-900">
+          Ações Rápidas
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (
-            <button
+            <Button
               key={index}
               onClick={() => navigate(action.path)}
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg ${action.color} text-white transition-all duration-200 hover:shadow-lg`}
+              variant="outline"
+              className="w-full justify-start h-12 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="h-5 w-5 mr-3 text-gray-600" />
               <span className="font-medium">{action.title}</span>
-            </button>
+            </Button>
           );
         })}
       </CardContent>
