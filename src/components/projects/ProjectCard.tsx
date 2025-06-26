@@ -68,7 +68,7 @@ const ProjectCard = ({
       onDragEnd={onDragEnd}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, project)}
-      className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-grab active:cursor-grabbing group hover:scale-[1.02] animate-fade-in"
+      className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-grab active:cursor-grabbing group hover:scale-[1.02] animate-fade-in relative"
     >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -94,10 +94,10 @@ const ProjectCard = ({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-all duration-200 h-8 w-8 p-0 hover:bg-gray-100"
+                className="opacity-0 group-hover:opacity-100 transition-all duration-200 h-8 w-8 p-0 hover:bg-gray-100 absolute top-2 right-2"
                 onClick={(e) => e.stopPropagation()}
               >
-                <MoreVertical className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4 text-gray-500" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white border border-gray-200 shadow-lg">
@@ -114,7 +114,7 @@ const ProjectCard = ({
                   className="flex items-center space-x-2 hover:bg-green-50 cursor-pointer transition-colors duration-200"
                 >
                   <Edit className="h-4 w-4" />
-                  <span>Editar</span>
+                  <span>Renomear</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />

@@ -1,10 +1,5 @@
 
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
 import { WelcomeSection } from '@/components/dashboard/WelcomeSection';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardWelcomeHeaderProps {
   userName: string;
@@ -14,99 +9,14 @@ interface DashboardWelcomeHeaderProps {
 }
 
 const DashboardWelcomeHeader = ({ userName, greeting, onRefresh, isLoading }: DashboardWelcomeHeaderProps) => {
-  const { toast } = useToast();
-  const { user } = useAuth();
-
-  const handleDeleteAllProjects = async () => {
-    if (!user) return;
-
-    try {
-      console.log('🗑️ LIMPEZA: Iniciando exclusão completa dos projetos...');
-
-      // Limpar localStorage
-      localStorage.clear();
-      sessionStorage.clear();
-      console.log('✅ Cache local limpo');
-
-      // Limpar análises primeiro (devido às foreign keys)
-      const { error: analysesError } = await supabase
-        .from('project_analyses')
-        .delete()
-        .eq('project_id', 'any'); // Deletar todas as análises do usuário atual
-
-      if (analysesError && analysesError.code !== 'PGRST116') {
-        console.error('❌ Erro ao limpar análises:', analysesError);
-      } else {
-        console.log('✅ Análises removidas');
-      }
-
-      // Limpar conversas
-      const { error: conversationsError } = await supabase
-        .from('project_conversations')
-        .delete()
-        .eq('project_id', 'any'); // Deletar todas as conversas do usuário atual
-
-      if (conversationsError && conversationsError.code !== 'PGRST116') {
-        console.error('❌ Erro ao limpar conversas:', conversationsError);
-      } else {
-        console.log('✅ Conversas removidas');
-      }
-
-      // Limpar todos os projetos do usuário
-      const { error: projectsError } = await supabase
-        .from('projects')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (projectsError) {
-        console.error('❌ Erro ao limpar projetos:', projectsError);
-        throw projectsError;
-      } else {
-        console.log('✅ Projetos removidos');
-      }
-
-      console.log('🎉 LIMPEZA: Todos os projetos foram excluídos com sucesso!');
-      
-      toast({
-        title: "🧹 Projetos Excluídos!",
-        description: "Todos os seus projetos foram removidos. O sistema está limpo para receber projetos reais.",
-        duration: 5000,
-      });
-
-      // Recarregar dados
-      setTimeout(() => {
-        onRefresh();
-        window.location.reload();
-      }, 2000);
-
-    } catch (error) {
-      console.error('💥 Erro durante limpeza:', error);
-      toast({
-        title: "❌ Erro na Exclusão",
-        description: "Não foi possível excluir todos os projetos. Tente novamente.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 mb-8 shadow-lg border border-blue-100">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6">
         <WelcomeSection 
           userName={userName}
-          hasProjects={true} // Sempre mostrar o botão para poder limpar
-          onDeleteAll={handleDeleteAllProjects}
+          onRefresh={onRefresh}
+          isLoading={isLoading}
         />
-        <Button 
-          onClick={onRefresh}
-          disabled={isLoading}
-          variant="outline" 
-          size="sm"
-          className="flex items-center space-x-2 border-blue-200 text-blue-700 hover:bg-blue-50"
-        >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>Atualizar</span>
-        </Button>
       </div>
 
       <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">

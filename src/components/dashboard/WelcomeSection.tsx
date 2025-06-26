@@ -1,25 +1,14 @@
 
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import { 
-  AlertDialog, 
-  AlertDialogAction, 
-  AlertDialogCancel, 
-  AlertDialogContent, 
-  AlertDialogDescription, 
-  AlertDialogFooter, 
-  AlertDialogHeader, 
-  AlertDialogTitle, 
-  AlertDialogTrigger 
-} from '@/components/ui/alert-dialog';
+import { RefreshCw } from 'lucide-react';
 
 interface WelcomeSectionProps {
   userName: string;
-  hasProjects: boolean;
-  onDeleteAll: () => void;
+  onRefresh?: () => void;
+  isLoading?: boolean;
 }
 
-export const WelcomeSection = ({ userName, hasProjects, onDeleteAll }: WelcomeSectionProps) => {
+export const WelcomeSection = ({ userName, onRefresh, isLoading }: WelcomeSectionProps) => {
   return (
     <div className="flex justify-between items-start">
       <div>
@@ -31,51 +20,17 @@ export const WelcomeSection = ({ userName, hasProjects, onDeleteAll }: WelcomeSe
         </p>
       </div>
       
-      {hasProjects && (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button 
-              variant="destructive"
-              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700"
-            >
-              <Trash2 className="h-4 w-4" />
-              <span>Limpar Todos os Projetos</span>
-            </Button>
-          </AlertDialogTrigger>
-          
-          <AlertDialogContent className="bg-white border border-gray-200 shadow-xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-red-900 text-xl">
-                🗑️ Excluir Todos os Projetos
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-gray-600 text-base">
-                <p className="mb-3">
-                  <strong className="text-red-600">ATENÇÃO:</strong> Esta ação irá remover permanentemente:
-                </p>
-                <ul className="list-disc ml-6 space-y-1 text-sm">
-                  <li>Todos os seus projetos</li>
-                  <li>Todas as análises de IA</li>
-                  <li>Todas as conversas e histórico</li>
-                  <li>Cache local do navegador</li>
-                </ul>
-                <p className="mt-3 text-green-700 font-medium">
-                  ✅ O sistema ficará limpo para receber projetos reais
-                </p>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="border-gray-200 text-gray-700 hover:bg-gray-50">
-                Cancelar
-              </AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={onDeleteAll}
-                className="bg-red-600 text-white hover:bg-red-700 shadow-lg font-semibold"
-              >
-                Sim, Excluir Tudo
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+      {onRefresh && (
+        <Button 
+          onClick={onRefresh}
+          disabled={isLoading}
+          variant="outline" 
+          size="sm"
+          className="flex items-center space-x-2 border-blue-200 text-blue-700 hover:bg-blue-50"
+        >
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <span>Atualizar</span>
+        </Button>
       )}
     </div>
   );
