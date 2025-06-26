@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectSync } from '@/hooks/useProjectSync';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
@@ -13,7 +13,7 @@ export const useProjectsLogic = () => {
     projects, 
     isLoading, 
     forceRefresh: refreshProjects 
-  } = useProjectsConsistency();
+  } = useProjectSync();
   
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');

@@ -2,14 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectSync } from '@/hooks/useProjectSync';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProject, projectExists } = useProjectsConsistency();
+  const { getProjectById, projectExists } = useProjectSync();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +25,7 @@ export const useProjectLoader = () => {
           // Aguardar um pouco para os projetos carregarem
           setTimeout(() => {
             if (projectExists(projectId)) {
-              const project = getProject(projectId);
+              const project = getProjectById(projectId);
               if (project) {
                 setCurrentProject(project);
                 setError(null);
@@ -37,7 +37,7 @@ export const useProjectLoader = () => {
           return;
         }
 
-        const project = getProject(projectId);
+        const project = getProjectById(projectId);
         if (project) {
           setCurrentProject(project);
           setError(null);
@@ -50,7 +50,7 @@ export const useProjectLoader = () => {
     };
 
     loadProject();
-  }, [projectId, projectExists, getProject, setCurrentProject]);
+  }, [projectId, projectExists, getProjectById, setCurrentProject]);
 
   // Loading Component otimizado
   const LoadingComponent = () => (
