@@ -1,10 +1,15 @@
 
+import { useState } from 'react';
+
 export interface ProcessingStep {
   id: string;
   name: string;
   label: string;
+  title: string;
   completed: boolean;
+  active: boolean;
   description?: string;
+  icon?: string;
 }
 
 export const useProcessingSteps = () => {
@@ -17,40 +22,62 @@ export const useProcessingSteps = () => {
       id: '1',
       name: 'upload',
       label: 'Enviando arquivos...',
+      title: 'Upload dos Documentos',
       completed: false,
-      description: 'Fazendo upload dos documentos do projeto'
+      active: false,
+      description: 'Fazendo upload dos documentos do projeto',
+      icon: '📁'
     },
     {
       id: '2',
       name: 'extract',
       label: 'Extraindo texto e dados...',
+      title: 'Extração de Dados',
       completed: false,
-      description: 'Analisando plantas e documentos técnicos'
+      active: false,
+      description: 'Analisando plantas e documentos técnicos',
+      icon: '🔍'
     },
     {
       id: '3',
       name: 'analyze',
       label: 'Analisando com IA...',
+      title: 'Análise Inteligente',
       completed: false,
-      description: 'Processamento inteligente dos dados do projeto'
+      active: false,
+      description: 'Processamento inteligente dos dados do projeto',
+      icon: '🤖'
     },
     {
       id: '4',
       name: 'generate',
       label: 'Gerando relatórios...',
+      title: 'Geração de Relatórios',
       completed: false,
-      description: 'Criando análises técnicas e quantitativos'
+      active: false,
+      description: 'Criando análises técnicas e quantitativos',
+      icon: '📊'
     },
     {
       id: '5',
       name: 'complete',
       label: 'Finalizando processamento...',
+      title: 'Finalização',
       completed: false,
-      description: 'Preparando dados para visualização'
+      active: false,
+      description: 'Preparando dados para visualização',
+      icon: '✅'
     }
   ];
 
-  const currentStep = steps[currentStepIndex] || null;
+  // Atualizar steps com estado ativo baseado no currentStepIndex
+  const updatedSteps = steps.map((step, index) => ({
+    ...step,
+    completed: index < currentStepIndex,
+    active: index === currentStepIndex
+  }));
+
+  const currentStep = updatedSteps[currentStepIndex] || null;
 
   const startProcessing = () => {
     setIsProcessing(true);
@@ -71,7 +98,7 @@ export const useProcessingSteps = () => {
   };
 
   return {
-    steps,
+    steps: updatedSteps,
     currentStep,
     isProcessing,
     progress,
@@ -80,5 +107,3 @@ export const useProcessingSteps = () => {
     stopProcessing
   };
 };
-
-const { useState } = require('react');
