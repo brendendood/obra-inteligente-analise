@@ -11,12 +11,18 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // CORREÇÃO: Redirecionar para lista de projetos após 3 segundos
+    console.log('✅ UPLOAD SUCCESS: Iniciando contagem regressiva para redirecionamento');
+    
+    // CORREÇÃO: Redirecionar para lista de projetos após 4 segundos
     const timer = setTimeout(() => {
+      console.log('📍 UPLOAD SUCCESS: Redirecionando para /projetos');
       navigate('/projetos', { replace: true });
-    }, 3000);
+    }, 4000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      console.log('🔄 UPLOAD SUCCESS: Limpando timer');
+      clearTimeout(timer);
+    };
   }, [navigate]);
 
   return (
@@ -29,13 +35,13 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
       <div className="space-y-4">
         <div className="bg-green-50 border border-green-200 rounded-xl p-6">
           <h3 className="text-2xl font-bold text-green-800 mb-3">
-            🎉 Projeto Analisado com Sucesso!
+            🎉 Projeto Processado com Sucesso!
           </h3>
           <p className="text-green-700 text-lg font-medium mb-2">
             "{projectName}"
           </p>
           <p className="text-green-600">
-            Análise concluída com IA. Redirecionando para seus projetos...
+            Análise concluída. Redirecionando para seus projetos...
           </p>
         </div>
         
@@ -43,6 +49,10 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
           <span className="font-medium">Carregando seus projetos</span>
           <ArrowRight className="h-4 w-4 animate-pulse" />
+        </div>
+        
+        <div className="text-sm text-gray-500">
+          Sincronizando estado do projeto...
         </div>
       </div>
     </div>

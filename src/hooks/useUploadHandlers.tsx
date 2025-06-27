@@ -62,7 +62,7 @@ export const useUploadHandlers = ({
         }
       }, 200);
 
-      console.log('📤 Iniciando upload:', fileName);
+      console.log('📤 UPLOAD: Iniciando upload:', fileName);
 
       // Upload do arquivo
       const { error: uploadError } = await supabase.storage
@@ -70,11 +70,11 @@ export const useUploadHandlers = ({
         .upload(fileName, file);
 
       if (uploadError) {
-        console.error('❌ Erro no storage:', uploadError);
+        console.error('❌ UPLOAD: Erro no storage:', uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
 
-      console.log('✅ Arquivo enviado, processando...');
+      console.log('✅ UPLOAD: Arquivo enviado, processando...');
       setProgress(90);
 
       // Processar projeto
@@ -94,7 +94,7 @@ export const useUploadHandlers = ({
         });
 
       if (processError) {
-        console.error('❌ Erro no processamento:', processError);
+        console.error('❌ UPLOAD: Erro no processamento:', processError);
         throw new Error(`Erro no processamento: ${processError.message}`);
       }
 
@@ -107,24 +107,32 @@ export const useUploadHandlers = ({
       setUploadComplete(true);
       stopProcessing();
       
-      console.log('🎉 Upload concluído:', data);
+      console.log('🎉 UPLOAD: Concluído com sucesso:', data);
       
       toast({
         title: "🎉 Upload concluído!",
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // CORREÇÃO: Aguardar um pouco e recarregar projetos antes de navegar
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      await loadUserProjects();
+      // CORREÇÃO: Garantir sincronização completa antes de navegar
+      console.log('🔄 UPLOAD: Recarregando projetos após upload...');
       
-      // Navegar para a lista de projetos após upload bem-sucedido
-      setTimeout(() => {
-        navigate('/projetos', { replace: true });
-      }, 2000);
+      // Aguardar processamento completo
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Recarregar projetos
+      const updatedProjects = await loadUserProjects();
+      console.log('✅ UPLOAD: Projetos recarregados:', updatedProjects.length);
+      
+      // Aguardar mais um pouco para garantir sincronização
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Navegar para a lista de projetos
+      console.log('📍 UPLOAD: Redirecionando para /projetos');
+      navigate('/projetos', { replace: true });
 
     } catch (error) {
-      console.error('💥 Erro no upload:', error);
+      console.error('💥 UPLOAD: Erro:', error);
       stopProcessing();
       
       let errorMessage = "Erro desconhecido";
@@ -147,6 +155,7 @@ export const useUploadHandlers = ({
 
   const handleAnalyzeExisting = () => {
     if (validatedProject) {
+      console.log('🔄 UPLOAD: Navegando para projeto existente:', validatedProject.id);
       navigate(`/projeto/${validatedProject.id}`);
     } else {
       toast({

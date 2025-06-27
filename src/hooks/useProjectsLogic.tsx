@@ -12,7 +12,8 @@ export const useProjectsLogic = () => {
   const { 
     projects, 
     isLoading, 
-    forceRefresh: refreshProjects 
+    forceRefresh: refreshProjects,
+    setCurrentProject 
   } = useProjectSync();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +25,7 @@ export const useProjectsLogic = () => {
 
   // Sincronizar projetos locais com os do servidor
   useEffect(() => {
+    console.log('🔄 PROJETOS LOGIC: Sincronizando', projects.length, 'projetos');
     setLocalProjects(projects);
   }, [projects]);
 
@@ -56,7 +58,6 @@ export const useProjectsLogic = () => {
       }
     });
 
-    console.log('✅ PROJETOS: Filtrados e ordenados:', filtered.length, 'projetos');
     return filtered;
   }, [localProjects, searchTerm, sortBy]);
 
@@ -69,7 +70,6 @@ export const useProjectsLogic = () => {
   } = useDragAndDrop({
     items: filteredProjects,
     onReorder: (reorderedProjects) => {
-      // Salvar nova ordem no localStorage
       const projectOrder = reorderedProjects.map(p => p.id);
       localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
       
@@ -83,9 +83,7 @@ export const useProjectsLogic = () => {
 
   const updateProject = (updatedProject: any) => {
     console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
-    // Atualizar localmente primeiro
     setLocalProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
-    // Forçar refresh para garantir consistência
     refreshProjects();
   };
 
@@ -93,22 +91,35 @@ export const useProjectsLogic = () => {
     try {
       console.log('🗑️ PROJETOS: Excluindo projeto:', projectId);
       
-      // CORREÇÃO: Remover imediatamente da tela
+      // CORREÇÃO: Remover imediatamente da lista local
+      const originalProjects = [...localProjects];
       setLocalProjects(prev => prev.filter(p => p.id !== projectId));
       
+      // Limpar projeto atual se for o que está sendo excluído
+      const currentProjectId = localStorage.getItem('maden_current_project');
+      if (currentProjectId && JSON.parse(currentProjectId).id === projectId) {
+        setCurrentProject(null);
+        localStorage.removeItem('maden_current_project');
+      }
+
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', projectId);
 
       if (error) {
-        // Reverter remoção local em caso de erro
-        setLocalProjects(projects);
+        console.error('❌ Erro ao excluir projeto:', error);
+        // Reverter em caso de erro
+        setLocalProjects(originalProjects);
         throw error;
       }
 
-      // Forçar refresh após exclusão bem-sucedida
-      await refreshProjects();
+      console.log('✅ Projeto excluído com sucesso');
+      
+      // Forçar refresh para garantir sincronização
+      setTimeout(() => {
+        refreshProjects();
+      }, 500);
       
       setDeleteProject(null);
 
@@ -131,7 +142,12 @@ export const useProjectsLogic = () => {
       console.log('🗑️ PROJETOS: Excluindo todos os projetos');
       
       // CORREÇÃO: Limpar lista local imediatamente
+      const originalProjects = [...localProjects];
       setLocalProjects([]);
+      
+      // Limpar projeto atual
+      setCurrentProject(null);
+      localStorage.removeItem('maden_current_project');
       
       const { error } = await supabase
         .from('projects')
@@ -139,13 +155,15 @@ export const useProjectsLogic = () => {
         .eq('user_id', user?.id);
 
       if (error) {
-        // Reverter limpeza local em caso de erro
-        setLocalProjects(projects);
+        // Reverter em caso de erro
+        setLocalProjects(originalProjects);
         throw error;
       }
 
-      // Forçar refresh após exclusão bem-sucedida
-      await refreshProjects();
+      // Forçar refresh para garantir sincronização
+      setTimeout(() => {
+        refreshProjects();
+      }, 500);
 
       showControlledSuccess(
         "✅ Todos os projetos excluídos!",

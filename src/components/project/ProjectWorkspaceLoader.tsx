@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
 import { useProjectSync } from '@/hooks/useProjectSync';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
@@ -9,58 +9,69 @@ import { AppLayout } from '@/components/layout/AppLayout';
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById, projectExists, projects } = useProjectSync();
+  const { getProjectById, projectExists, projects, loadProjects } = useProjectSync();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const loadedProjectRef = useRef<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProject = async () => {
       if (!projectId) {
+        console.log('❌ PROJECT LOADER: Sem ID do projeto');
         setLoading(false);
+        setError('ID do projeto não fornecido');
         return;
       }
 
-      // Evitar recarregamento do mesmo projeto
-      if (loadedProjectRef.current === projectId && currentProject?.id === projectId) {
+      console.log('🔄 PROJECT LOADER: Carregando projeto:', projectId);
+
+      // Se já carregamos este projeto, não recarregar
+      if (loadedProjectRef.current === projectId && 
+          currentProject?.id === projectId) {
+        console.log('✅ PROJECT LOADER: Projeto já carregado');
         setLoading(false);
         return;
       }
 
       try {
-        // Aguardar projetos carregarem se necessário
+        // Se não temos projetos carregados, carregar primeiro
         if (projects.length === 0) {
-          // Aguardar um ciclo para projetos carregarem
-          const timeout = setTimeout(() => {
-            if (projectExists(projectId)) {
-              const project = getProjectById(projectId);
-              if (project && project.id !== currentProject?.id) {
-                setCurrentProject(project);
-                loadedProjectRef.current = projectId;
-                setError(null);
-              }
-            } else {
-              setError('Projeto não encontrado');
-            }
-            setLoading(false);
-          }, 1000);
-
-          return () => clearTimeout(timeout);
+          console.log('📥 PROJECT LOADER: Carregando lista de projetos primeiro');
+          await loadProjects(true);
+          
+          // Aguardar um pouco para garantir que os projetos foram carregados
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        // Projetos já carregados
+        // Verificar se o projeto existe
         if (projectExists(projectId)) {
           const project = getProjectById(projectId);
-          if (project && project.id !== currentProject?.id) {
-            setCurrentProject(project);
+          if (project) {
+            console.log('✅ PROJECT LOADER: Projeto encontrado:', project.name);
+            
+            // Só atualizar se for diferente do atual
+            if (project.id !== currentProject?.id) {
+              setCurrentProject(project);
+            }
+            
             loadedProjectRef.current = projectId;
             setError(null);
+          } else {
+            console.error('❌ PROJECT LOADER: Projeto não encontrado no getProjectById');
+            setError('Projeto não encontrado');
           }
         } else {
+          console.error('❌ PROJECT LOADER: Projeto não existe:', projectId);
           setError('Projeto não encontrado');
+          
+          // Redirecionar para lista de projetos após um delay
+          setTimeout(() => {
+            navigate('/projetos', { replace: true });
+          }, 2000);
         }
       } catch (err) {
-        console.error('Erro ao carregar projeto:', err);
+        console.error('💥 PROJECT LOADER: Erro ao carregar projeto:', err);
         setError('Erro ao carregar projeto');
       } finally {
         setLoading(false);
@@ -68,9 +79,9 @@ export const useProjectLoader = () => {
     };
 
     loadProject();
-  }, [projectId, projectExists, getProjectById, setCurrentProject, projects.length, currentProject?.id]);
+  }, [projectId, projectExists, getProjectById, setCurrentProject, projects.length, currentProject?.id, loadProjects, navigate]);
 
-  // Loading Component otimizado para evitar piscar
+  // Loading Component otimizado
   const LoadingComponent = () => (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
