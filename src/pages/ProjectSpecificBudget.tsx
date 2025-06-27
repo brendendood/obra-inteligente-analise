@@ -1,7 +1,7 @@
 
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
-import { ProjectBudgetGenerator } from '@/components/project/ProjectBudgetGenerator';
+import { ProjectBudgetPlaceholder } from '@/components/project/ProjectBudgetPlaceholder';
 import { useProject } from '@/contexts/ProjectContext';
 
 const ProjectSpecificBudget = () => {
@@ -24,7 +24,7 @@ const ProjectSpecificBudget = () => {
   return (
     <ProjectWorkspace>
       <div className="animate-fade-in">
-        <ProjectBudgetGenerator project={currentProject} />
+        <ProjectBudgetPlaceholder />
       </div>
     </ProjectWorkspace>
   );
