@@ -1,8 +1,7 @@
 
 import { useEffect } from 'react';
 import { QuickActions } from './QuickActions';
-import { StatsCards } from './StatsCards';
-import { AdvancedStatsCards } from './AdvancedStatsCards';
+import { DashboardStatsGrid } from './DashboardStatsGrid';
 import { MonthlyProductivityChart } from './MonthlyProductivityChart';
 import { EnhancedProjectsSection } from './EnhancedProjectsSection';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
@@ -70,11 +69,9 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
 
   return (
     <div className="flex flex-col space-y-8 w-full min-w-0">
-      {/* Stats Cards Originais */}
-      <StatsCards stats={stats} />
-      
-      {/* Novos Cards de Métricas Avançadas */}
-      <AdvancedStatsCards 
+      {/* Grid Unificado de Estatísticas - Todos os 7 Cards */}
+      <DashboardStatsGrid 
+        stats={stats}
         avgCostPerSqm={avgCostPerSqm}
         avgProjectDuration={avgProjectDuration}
         riskLevel={riskLevel}
