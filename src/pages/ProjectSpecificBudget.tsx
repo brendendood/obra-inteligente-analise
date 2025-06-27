@@ -1,8 +1,9 @@
 
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
-import { ProjectBudgetPlaceholder } from '@/components/project/ProjectBudgetPlaceholder';
+import { Calculator } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
+import { ProjectBudgetGenerator } from '@/components/project/ProjectBudgetGenerator';
 
 const ProjectSpecificBudget = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -11,11 +12,10 @@ const ProjectSpecificBudget = () => {
   if (!currentProject) {
     return (
       <ProjectWorkspace>
-        <div className="flex items-center justify-center h-64 animate-fade-in">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Carregando projeto...</p>
-          </div>
+        <div className="text-center py-16">
+          <Calculator className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Projeto não encontrado</h3>
+          <p className="text-gray-600">Não foi possível carregar os dados do projeto.</p>
         </div>
       </ProjectWorkspace>
     );
@@ -23,9 +23,7 @@ const ProjectSpecificBudget = () => {
 
   return (
     <ProjectWorkspace>
-      <div className="animate-fade-in">
-        <ProjectBudgetPlaceholder />
-      </div>
+      <ProjectBudgetGenerator project={currentProject} />
     </ProjectWorkspace>
   );
 };

@@ -114,14 +114,18 @@ export const useUploadHandlers = ({
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // CORREÇÃO: Aguardar um pouco e recarregar projetos antes de navegar
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      await loadUserProjects();
-      
-      // Navegar para a lista de projetos após upload bem-sucedido
-      setTimeout(() => {
-        navigate('/projetos', { replace: true });
-      }, 2000);
+      // CORREÇÃO: Navegar diretamente para o projeto criado após 2 segundos
+      if (data.project?.id) {
+        console.log('🔄 Redirecionando para projeto:', data.project.id);
+        setTimeout(() => {
+          navigate(`/projeto/${data.project.id}`, { replace: true });
+        }, 2000);
+      } else {
+        // Fallback para projetos se não tiver ID do projeto
+        setTimeout(() => {
+          navigate('/projetos', { replace: true });
+        }, 2000);
+      }
 
     } catch (error) {
       console.error('💥 Erro no upload:', error);

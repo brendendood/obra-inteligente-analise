@@ -1,18 +1,17 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
-import { useProjectSync } from '@/hooks/useProjectSync';
+import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById, projectExists, projects } = useProjectSync();
+  const { getProject, projectExists } = useProjectsConsistency();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const loadedProjectRef = useRef<string | null>(null);
 
   useEffect(() => {
     const loadProject = async () => {
@@ -21,56 +20,39 @@ export const useProjectLoader = () => {
         return;
       }
 
-      // Evitar recarregamento do mesmo projeto
-      if (loadedProjectRef.current === projectId && currentProject?.id === projectId) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Aguardar projetos carregarem se necessário
-        if (projects.length === 0) {
-          // Aguardar um ciclo para projetos carregarem
-          const timeout = setTimeout(() => {
+        if (!projectExists(projectId)) {
+          // Aguardar um pouco para os projetos carregarem
+          setTimeout(() => {
             if (projectExists(projectId)) {
-              const project = getProjectById(projectId);
-              if (project && project.id !== currentProject?.id) {
+              const project = getProject(projectId);
+              if (project) {
                 setCurrentProject(project);
-                loadedProjectRef.current = projectId;
                 setError(null);
               }
-            } else {
-              setError('Projeto não encontrado');
             }
-            setLoading(false);
           }, 1000);
-
-          return () => clearTimeout(timeout);
+          
+          setLoading(false);
+          return;
         }
 
-        // Projetos já carregados
-        if (projectExists(projectId)) {
-          const project = getProjectById(projectId);
-          if (project && project.id !== currentProject?.id) {
-            setCurrentProject(project);
-            loadedProjectRef.current = projectId;
-            setError(null);
-          }
-        } else {
-          setError('Projeto não encontrado');
+        const project = getProject(projectId);
+        if (project) {
+          setCurrentProject(project);
+          setError(null);
         }
       } catch (err) {
         console.error('Erro ao carregar projeto:', err);
-        setError('Erro ao carregar projeto');
       } finally {
         setLoading(false);
       }
     };
 
     loadProject();
-  }, [projectId, projectExists, getProjectById, setCurrentProject, projects.length, currentProject?.id]);
+  }, [projectId, projectExists, getProject, setCurrentProject]);
 
-  // Loading Component otimizado para evitar piscar
+  // Loading Component otimizado
   const LoadingComponent = () => (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
