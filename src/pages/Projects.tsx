@@ -1,24 +1,62 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectsGrid } from '@/components/projects/ProjectsGrid';
 import ProjectsFiltersBar from '@/components/projects/ProjectsFiltersBar';
 import ProjectsStats from '@/components/projects/ProjectsStats';
 import ProjectsEmptyState from '@/components/projects/ProjectsEmptyState';
-import { useDashboardData } from '@/hooks/useDashboardData';
+import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus } from 'lucide-react';
+import { useProjectStore } from '@/stores/projectStore';
+import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 
 export default function Projects() {
   const navigate = useNavigate();
-  const { projects, isLoadingProjects } = useDashboardData();
+  
+  // Estado do Zustand
+  const { 
+    projects, 
+    isLoading, 
+    error, 
+    fetchProjects, 
+    clearError 
+  } = useProjectStore();
+  
+  // Hook para gerenciar exclusão
+  const {
+    projectToDelete,
+    isDeleting,
+    confirmDelete,
+    cancelDelete,
+    executeDelete,
+  } = useProjectDeletion();
+  
+  // Estados locais para filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
 
+  // Carregar projetos ao montar o componente
+  useEffect(() => {
+    console.log('🔄 PROJETOS: Carregando projetos...');
+    fetchProjects();
+  }, [fetchProjects]);
+
+  // Limpar erro quando houver mudanças
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        clearError();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
+
+  // Filtrar e ordenar projetos
   const filteredAndSortedProjects = useMemo(() => {
     let filtered = projects.filter(project =>
       project.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -47,7 +85,8 @@ export default function Projects() {
 
   const analyzedProjects = projects.filter(project => project.analysis_data).length;
 
-  if (isLoadingProjects) {
+  // Mostrar loading enquanto busca projetos
+  if (isLoading && projects.length === 0) {
     return (
       <AppLayout>
         <div className="min-h-screen bg-gray-50/30">
@@ -81,6 +120,11 @@ export default function Projects() {
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Meus Projetos</h1>
                   <p className="text-gray-600 mt-1 text-sm sm:text-base">Gerencie e analise seus projetos de construção</p>
+                  {error && (
+                    <p className="text-red-600 text-sm mt-2 bg-red-50 px-3 py-2 rounded-md border border-red-200">
+                      ⚠️ {error}
+                    </p>
+                  )}
                 </div>
                 
                 <Button
@@ -115,7 +159,10 @@ export default function Projects() {
 
                   {/* Projects Grid */}
                   <div className="pb-8">
-                    <ProjectsGrid projects={filteredAndSortedProjects} />
+                    <ProjectsGrid 
+                      projects={filteredAndSortedProjects}
+                      onDeleteProject={confirmDelete}
+                    />
                   </div>
                 </>
               )}
@@ -123,6 +170,15 @@ export default function Projects() {
           </div>
         </div>
       </ScrollArea>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <ProjectDeleteConfirmDialog
+        project={projectToDelete}
+        isOpen={!!projectToDelete}
+        isDeleting={isDeleting}
+        onConfirm={executeDelete}
+        onCancel={cancelDelete}
+      />
     </AppLayout>
   );
 }

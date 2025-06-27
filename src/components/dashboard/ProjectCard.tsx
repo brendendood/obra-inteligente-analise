@@ -13,9 +13,16 @@ import {
   Clock, 
   Bot,
   GripVertical,
-  MoreVertical 
+  MoreVertical,
+  Trash2
 } from 'lucide-react';
-import { ProjectCardActions } from './ProjectCardActions';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface ProjectCardProps {
   project: Project;
@@ -24,6 +31,7 @@ interface ProjectCardProps {
   onDragStart: (e: React.DragEvent, project: Project, index: number) => void;
   onDragOver: (e: React.DragEvent, index: number) => void;
   onDrop: (e: React.DragEvent, index: number) => void;
+  onDeleteProject?: (project: Project) => void;
 }
 
 export const ProjectCard = ({ 
@@ -32,9 +40,17 @@ export const ProjectCard = ({
   draggedItem, 
   onDragStart, 
   onDragOver, 
-  onDrop 
+  onDrop,
+  onDeleteProject 
 }: ProjectCardProps) => {
   const [showActions, setShowActions] = useState(false);
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDeleteProject?.(project);
+    setShowActions(false);
+  };
 
   return (
     <Card 
@@ -53,21 +69,35 @@ export const ProjectCard = ({
 
       {/* Actions Menu */}
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200"
-          onClick={() => setShowActions(!showActions)}
-        >
-          <MoreVertical className="h-4 w-4 text-gray-400" />
-        </Button>
-        
-        {showActions && (
-          <ProjectCardActions 
-            projectId={project.id}
-            onActionClick={() => setShowActions(false)}
-          />
-        )}
+        <DropdownMenu open={showActions} onOpenChange={setShowActions}>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200"
+            >
+              <MoreVertical className="h-4 w-4 text-gray-400" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <SmartProjectLink projectId={project.id}>
+              <DropdownMenuItem className="cursor-pointer">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Abrir Projeto
+              </DropdownMenuItem>
+            </SmartProjectLink>
+            <DropdownMenuSeparator />
+            {onDeleteProject && (
+              <DropdownMenuItem 
+                onClick={handleDeleteClick}
+                className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir Projeto
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <CardHeader className="pb-3 pt-8">

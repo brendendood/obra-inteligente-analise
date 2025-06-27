@@ -9,13 +9,19 @@ import { ProjectCard } from './ProjectCard';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { useToast } from '@/hooks/use-toast';
 import { DropIndicator } from '@/components/ui/DropIndicator';
+import { Project } from '@/types/project';
 
 interface DashboardRecentProjectsProps {
-  projects: any[];
+  projects: Project[];
   isLoading: boolean;
+  onDeleteProject?: (project: Project) => void;
 }
 
-const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProjectsProps) => {
+const DashboardRecentProjects = ({ 
+  projects, 
+  isLoading, 
+  onDeleteProject 
+}: DashboardRecentProjectsProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [orderedProjects, setOrderedProjects] = useState(projects);
@@ -127,7 +133,7 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
                 </div>
               </div>
 
-              {/* Project Card */}
+              {/* Project Card com funcionalidade de exclusão */}
               <ProjectCard
                 project={project}
                 index={index}
@@ -135,6 +141,7 @@ const DashboardRecentProjects = ({ projects, isLoading }: DashboardRecentProject
                 onDragStart={() => {}}
                 onDragOver={() => {}}
                 onDrop={() => {}}
+                onDeleteProject={onDeleteProject}
               />
             </div>
             

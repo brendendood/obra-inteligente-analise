@@ -10,11 +10,15 @@ import { SmartLoading } from '@/components/ui/smart-loading';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useProjectStateManager } from '@/hooks/useProjectStateManager';
+import { useProjectStore } from '@/stores/projectStore';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { preferences, addRecentProject } = useUserPreferences();
+  
+  // Estado do Zustand
+  const { projects, isLoading: isLoadingProjects, fetchProjects } = useProjectStore();
   
   // Usar o novo hook para gerenciamento de estado
   const { validateCurrentProject } = useProjectStateManager({
@@ -23,9 +27,7 @@ const Dashboard = () => {
   });
   
   const {
-    projects,
     stats,
-    isLoadingProjects,
     forceRefresh
   } = useDashboardData();
 
@@ -35,6 +37,14 @@ const Dashboard = () => {
       return;
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Carregar projetos do Zustand quando dashboard carregar 
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      console.log('🏠 DASHBOARD: Inicializando carregamento de projetos...');
+      fetchProjects();
+    }
+  }, [isAuthenticated, authLoading, fetchProjects]);
 
   // Validar projeto atual quando dashboard carregar
   useEffect(() => {
@@ -94,7 +104,7 @@ const Dashboard = () => {
         {/* Conteúdo principal */}
         <DashboardContent
           stats={stats}
-          projects={projects}
+          projects={projects} // Passando os projetos do Zustand
           isDataLoading={isLoadingProjects}
         />
       </div>
