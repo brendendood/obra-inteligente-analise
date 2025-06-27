@@ -1,11 +1,24 @@
 
 import { CheckCircle, ArrowRight } from 'lucide-react';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface UploadSuccessProps {
   projectName: string;
 }
 
 const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // CORREÇÃO: Redirecionar para lista de projetos após 3 segundos
+    const timer = setTimeout(() => {
+      navigate('/projetos', { replace: true });
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
   return (
     <div className="text-center space-y-8 py-8">
       <div className="relative">
@@ -22,13 +35,13 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
             "{projectName}"
           </p>
           <p className="text-green-600">
-            Análise concluída com IA. Redirecionando para o projeto...
+            Análise concluída com IA. Redirecionando para seus projetos...
           </p>
         </div>
         
         <div className="flex items-center justify-center space-x-2 text-blue-600">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-          <span className="font-medium">Carregando projeto</span>
+          <span className="font-medium">Carregando seus projetos</span>
           <ArrowRight className="h-4 w-4 animate-pulse" />
         </div>
       </div>

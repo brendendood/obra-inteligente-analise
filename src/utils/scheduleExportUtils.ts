@@ -1,27 +1,25 @@
+
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { saveAs } from 'file-saver';
 import { ScheduleTask, ScheduleData } from '@/types/project';
+import { createPDFWithMadenAIBrand, createStyledTable, addSummarySection } from './pdfExportUtils';
 
 export const exportScheduleToPDF = async (data: ScheduleData, fileName: string) => {
-  const pdf = new jsPDF();
-  
-  // Header
-  pdf.setFontSize(20);
-  pdf.setTextColor(40, 40, 40);
-  pdf.text('CRONOGRAMA FÍSICO-FINANCEIRO', 20, 30);
-  
-  pdf.setFontSize(12);
-  pdf.text(`Projeto: ${data.projectName}`, 20, 45);
-  pdf.text(`Área Total: ${data.totalArea}m²`, 20, 55);
-  pdf.text(`Duração Total: ${data.totalDuration} dias`, 20, 65);
-  pdf.text(`Custo Total: R$ ${data.totalCost.toLocaleString('pt-BR')}`, 20, 75);
-  pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, 85);
-  
+  const doc = createPDFWithMadenAIBrand({
+    title: 'CRONOGRAMA FÍSICO-FINANCEIRO',
+    subtitle: 'Planejamento temporal e controle de custos do projeto',
+    projectName: data.projectName,
+  });
+
+  // Informações básicas do projeto
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Área Total: ${data.totalArea}m²`, 20, 90);
+  doc.text(`Duração: ${data.totalDuration} dias`, 120, 90);
+  doc.text(`Custo Total: R$ ${data.totalCost.toLocaleString('pt-BR')}`, 20, 100);
+
   // Prepare table data
-  const tableColumns = ['Etapa', 'Início', 'Fim', 'Duração', 'Custo', 'Status', 'Responsável'];
-  const tableRows = data.tasks.map((task) => [
+  const tableData = data.tasks.map((task) => [
     task.name.length > 30 ? task.name.substring(0, 30) + '...' : task.name,
     new Date(task.startDate).toLocaleDateString('pt-BR'),
     new Date(task.endDate).toLocaleDateString('pt-BR'),
@@ -31,51 +29,42 @@ export const exportScheduleToPDF = async (data: ScheduleData, fileName: string) 
     task.assignee?.name || 'Não atribuído'
   ]);
 
-  // Add table using autoTable
-  autoTable(pdf, {
-    head: [tableColumns],
-    body: tableRows,
-    startY: 100,
-    styles: {
-      fontSize: 8,
-      cellPadding: 3,
-    },
-    headStyles: {
-      fillColor: [41, 128, 185],
-      textColor: 255,
-      fontStyle: 'bold'
-    },
-    columnStyles: {
-      0: { cellWidth: 40 }, // Etapa
-      4: { halign: 'right' }, // Custo
-    }
-  });
+  const finalY = createStyledTable(
+    doc,
+    ['Etapa', 'Início', 'Fim', 'Duração', 'Custo', 'Status', 'Responsável'],
+    tableData,
+    110
+  );
 
   // Critical Path section
-  const finalY = (pdf as any).lastAutoTable.finalY + 20;
-  
-  pdf.setFontSize(14);
-  pdf.setFont(undefined, 'bold');
-  pdf.text('CAMINHO CRÍTICO:', 20, finalY);
-  
   const criticalTasks = data.tasks.filter(task => data.criticalPath.includes(task.id));
-  pdf.setFontSize(10);
-  pdf.setFont(undefined, 'normal');
-  
-  criticalTasks.forEach((task, index) => {
-    pdf.text(`${index + 1}. ${task.name}`, 20, finalY + 15 + (index * 8));
-  });
+  if (criticalTasks.length > 0) {
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(60, 60, 60);
+    doc.text('CAMINHO CRÍTICO', 20, finalY + 20);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    
+    criticalTasks.forEach((task, index) => {
+      doc.text(`${index + 1}. ${task.name}`, 25, finalY + 35 + (index * 8));
+    });
+  }
 
   // Summary
-  const summaryY = finalY + 15 + (criticalTasks.length * 8) + 20;
-  pdf.setFontSize(12);
-  pdf.setFont(undefined, 'bold');
-  pdf.text(`Total de Etapas: ${data.tasks.length}`, 20, summaryY);
-  pdf.text(`Duração Total: ${data.totalDuration} dias`, 20, summaryY + 10);
-  pdf.text(`Custo Total: R$ ${data.totalCost.toLocaleString('pt-BR')}`, 20, summaryY + 20);
+  const summaryY = finalY + 35 + (criticalTasks.length * 8) + 20;
+  const summaryData = [
+    { label: 'Total de Etapas:', value: data.tasks.length.toString() },
+    { label: 'Duração Total:', value: `${data.totalDuration} dias` },
+    { label: 'Custo Total:', value: `R$ ${data.totalCost.toLocaleString('pt-BR')}` }
+  ];
+
+  addSummarySection(doc, 'RESUMO DO PROJETO', summaryData, summaryY);
 
   // Save PDF
-  pdf.save(`${fileName}.pdf`);
+  doc.save(`${fileName}.pdf`);
 };
 
 export const exportScheduleToExcel = async (data: ScheduleData, fileName: string) => {
@@ -83,7 +72,7 @@ export const exportScheduleToExcel = async (data: ScheduleData, fileName: string
   
   // Sheet 1: Cronograma Detalhado
   const scheduleData = [
-    ['CRONOGRAMA FÍSICO-FINANCEIRO'],
+    ['CRONOGRAMA FÍSICO-FINANCEIRO - MADENAI'],
     [''],
     ['Projeto:', data.projectName],
     ['Área Total:', `${data.totalArea}m²`],
