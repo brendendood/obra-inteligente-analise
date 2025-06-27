@@ -9,7 +9,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById, projectExists, projects, loadProjects } = useProjectSync();
+  const { getProjectById, projectExists, projects, loadProjects, isLoading } = useProjectSync();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const loadedProjectRef = useRef<string | null>(null);
@@ -26,50 +26,49 @@ export const useProjectLoader = () => {
 
       console.log('🔄 PROJECT LOADER: Carregando projeto:', projectId);
 
-      // Se já carregamos este projeto, não recarregar
-      if (loadedProjectRef.current === projectId && 
-          currentProject?.id === projectId) {
-        console.log('✅ PROJECT LOADER: Projeto já carregado');
-        setLoading(false);
-        return;
-      }
-
       try {
+        // Se ainda estamos carregando projetos, aguardar
+        if (isLoading) {
+          console.log('⏳ PROJECT LOADER: Aguardando carregamento dos projetos...');
+          return;
+        }
+
         // Se não temos projetos carregados, carregar primeiro
         if (projects.length === 0) {
           console.log('📥 PROJECT LOADER: Carregando lista de projetos primeiro');
           await loadProjects(true);
-          
-          // Aguardar um pouco para garantir que os projetos foram carregados
-          await new Promise(resolve => setTimeout(resolve, 500));
+          return; // O useEffect será executado novamente quando os projetos carregarem
         }
 
         // Verificar se o projeto existe
-        if (projectExists(projectId)) {
-          const project = getProjectById(projectId);
-          if (project) {
-            console.log('✅ PROJECT LOADER: Projeto encontrado:', project.name);
-            
-            // Só atualizar se for diferente do atual
-            if (project.id !== currentProject?.id) {
-              setCurrentProject(project);
-            }
-            
-            loadedProjectRef.current = projectId;
-            setError(null);
-          } else {
-            console.error('❌ PROJECT LOADER: Projeto não encontrado no getProjectById');
-            setError('Projeto não encontrado');
-          }
-        } else {
-          console.error('❌ PROJECT LOADER: Projeto não existe:', projectId);
+        if (!projectExists(projectId)) {
+          console.error('❌ PROJECT LOADER: Projeto não encontrado:', projectId);
           setError('Projeto não encontrado');
           
           // Redirecionar para lista de projetos após um delay
           setTimeout(() => {
             navigate('/projetos', { replace: true });
           }, 2000);
+          return;
         }
+
+        const project = getProjectById(projectId);
+        if (!project) {
+          console.error('❌ PROJECT LOADER: Erro ao obter projeto');
+          setError('Erro ao carregar projeto');
+          return;
+        }
+
+        console.log('✅ PROJECT LOADER: Projeto encontrado:', project.name);
+        
+        // Só atualizar se for diferente do atual
+        if (!currentProject || project.id !== currentProject.id) {
+          setCurrentProject(project);
+        }
+        
+        loadedProjectRef.current = projectId;
+        setError(null);
+
       } catch (err) {
         console.error('💥 PROJECT LOADER: Erro ao carregar projeto:', err);
         setError('Erro ao carregar projeto');
@@ -78,8 +77,14 @@ export const useProjectLoader = () => {
       }
     };
 
+    // Reset loading state when projectId changes
+    if (projectId !== loadedProjectRef.current) {
+      setLoading(true);
+      setError(null);
+    }
+
     loadProject();
-  }, [projectId, projectExists, getProjectById, setCurrentProject, projects.length, currentProject?.id, loadProjects, navigate]);
+  }, [projectId, projects.length, isLoading, projectExists, getProjectById, setCurrentProject, currentProject?.id, loadProjects, navigate]);
 
   // Loading Component otimizado
   const LoadingComponent = () => (

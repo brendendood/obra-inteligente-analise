@@ -43,19 +43,7 @@ export const useProjectSync = () => {
     }
   }, [state.projects.length, state.currentProject, restoreSavedProject]);
 
-  // CORREÇÃO: Garantir que o projeto atual seja sempre válido
-  useEffect(() => {
-    if (state.currentProject && state.projects.length > 0) {
-      const projectStillExists = state.projects.find(p => p.id === state.currentProject?.id);
-      if (!projectStillExists) {
-        console.log('⚠️ Projeto atual não existe mais, limpando...');
-        setCurrentProject(null);
-        localStorage.removeItem('maden_current_project');
-      }
-    }
-  }, [state.projects, state.currentProject, setCurrentProject]);
-
-  // CORREÇÃO: Função para definir projeto atual com melhor validação
+  // CORREÇÃO: Função melhorada para definir projeto atual
   const setCurrentProjectSafe = (project: any) => {
     if (!project) {
       console.log('🔄 PROJECT SYNC: Limpando projeto atual');
@@ -63,15 +51,30 @@ export const useProjectSync = () => {
       return;
     }
 
-    // Verificar se o projeto existe na lista
-    const projectExists = state.projects.find(p => p.id === project.id);
-    if (!projectExists) {
-      console.warn('⚠️ PROJECT SYNC: Tentativa de definir projeto inexistente:', project.id);
-      return;
-    }
-
     console.log('✅ PROJECT SYNC: Definindo projeto atual:', project.name);
     setCurrentProject(project);
+  };
+
+  // CORREÇÃO: Verificação de existência melhorada
+  const projectExistsSafe = (projectId: string): boolean => {
+    if (!projectId || !state.projects.length) {
+      return false;
+    }
+    
+    const exists = state.projects.some(p => p.id === projectId);
+    console.log('🔍 PROJECT SYNC: Verificando existência:', { projectId, exists, totalProjects: state.projects.length });
+    return exists;
+  };
+
+  // CORREÇÃO: Busca de projeto melhorada
+  const getProjectByIdSafe = (projectId: string) => {
+    if (!projectId || !state.projects.length) {
+      return null;
+    }
+    
+    const project = state.projects.find(p => p.id === projectId);
+    console.log('🔍 PROJECT SYNC: Buscando projeto:', { projectId, found: !!project });
+    return project || null;
   };
 
   return {
@@ -85,8 +88,8 @@ export const useProjectSync = () => {
     // Ações
     loadProjects,
     setCurrentProject: setCurrentProjectSafe,
-    getProjectById,
-    projectExists,
+    getProjectById: getProjectByIdSafe,
+    projectExists: projectExistsSafe,
     
     // Utilities
     forceRefresh: () => {

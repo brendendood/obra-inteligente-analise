@@ -12,10 +12,10 @@ import { Bot, AlertCircle } from 'lucide-react';
 const ProjectSpecificAssistant = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
-  const { loading, error } = useProjectLoader();
+  const { loading, error, LoadingComponent } = useProjectLoader();
 
   if (!projectId) {
-    return <Navigate to="/painel" replace />;
+    return <Navigate to="/projetos" replace />;
   }
 
   if (error) {
@@ -29,28 +29,7 @@ const ProjectSpecificAssistant = () => {
   }
 
   if (loading) {
-    return (
-      <AppLayout>
-        <div className="flex items-center justify-center h-screen bg-white">
-          <Card className="w-96 border-0 shadow-none">
-            <CardContent className="text-center p-8">
-              <div className="w-16 h-16 mx-auto bg-gray-900 rounded-full flex items-center justify-center mb-6">
-                <Bot className="h-8 w-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Carregando MadenAI</h3>
-              <p className="text-gray-500 mb-6">
-                Preparando sua assistente especializada...
-              </p>
-              <div className="flex justify-center gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </AppLayout>
-    );
+    return <LoadingComponent />;
   }
 
   if (!currentProject) {

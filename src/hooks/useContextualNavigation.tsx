@@ -51,60 +51,8 @@ export const useContextualNavigation = (fallbackPath: string = '/projetos') => {
       fallbackPath: navigationState.fallbackPath
     });
 
-    // CORREÇÃO: Lógica específica para páginas de projeto
-    if (currentPath.includes('/projeto/')) {
-      console.log('📍 Voltando de página de projeto para /projetos');
-      navigate('/projetos', { replace: true });
-      return;
-    }
-
-    // CORREÇÃO: Para páginas de upload, voltar para projetos
-    if (currentPath.includes('/upload')) {
-      console.log('📍 Voltando de upload para /projetos');
-      navigate('/projetos', { replace: true });
-      return;
-    }
-
-    // CORREÇÃO: Para páginas de documentos
-    if (currentPath.includes('/documentos')) {
-      // Se tem projeto ID na URL, voltar para o projeto
-      const projectIdMatch = currentPath.match(/\/projeto\/([^\/]+)/);
-      if (projectIdMatch) {
-        const projectId = projectIdMatch[1];
-        console.log('📍 Voltando de documentos para projeto:', projectId);
-        navigate(`/projeto/${projectId}`, { replace: true });
-        return;
-      }
-      // Senão, voltar para projetos
-      console.log('📍 Voltando de documentos para /projetos');
-      navigate('/projetos', { replace: true });
-      return;
-    }
-
-    // CORREÇÃO: Para páginas específicas de projeto (orçamento, cronograma, etc)
-    if (currentPath.match(/\/projeto\/[^\/]+\/(orcamento|cronograma|assistente)/)) {
-      const projectIdMatch = currentPath.match(/\/projeto\/([^\/]+)/);
-      if (projectIdMatch) {
-        const projectId = projectIdMatch[1];
-        console.log('📍 Voltando de seção específica para projeto:', projectId);
-        navigate(`/projeto/${projectId}`, { replace: true });
-        return;
-      }
-    }
-
-    // Usar path anterior se disponível e seguro
-    if (navigationState.canGoBack && 
-        navigationState.previousPath && 
-        !navigationState.previousPath.includes('/404') &&
-        !navigationState.previousPath.includes('/login') &&
-        !navigationState.previousPath.includes('/error')) {
-      console.log('📍 Usando path anterior:', navigationState.previousPath);
-      navigate(navigationState.previousPath, { replace: true });
-      return;
-    }
-
-    // Fallback seguro para projetos
-    console.log('📍 Usando fallback seguro: /projetos');
+    // CORREÇÃO: Sempre redirecionar para /projetos como fallback seguro
+    console.log('📍 Navegação segura para /projetos');
     navigate('/projetos', { replace: true });
   }, [navigate, navigationState, location.pathname]);
 
