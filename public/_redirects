@@ -1,8 +1,0 @@
-
-# Netlify redirects para domínio personalizado
-https://www.arqcloud.com.br/* https://arqcloud.com.br/:splat 301!
-http://arqcloud.com.br/* https://arqcloud.com.br/:splat 301!
-http://www.arqcloud.com.br/* https://arqcloud.com.br/:splat 301!
-
-# SPA fallback
-/*    /index.html   200

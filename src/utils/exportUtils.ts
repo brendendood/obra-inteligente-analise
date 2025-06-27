@@ -1,7 +1,8 @@
 
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { BudgetData } from './budgetGenerator';
-import { createPDFWithMadenAIBrand, createStyledTable, addSummarySection } from './pdfExportUtils';
 
 export const exportToExcel = (budgetData: BudgetData, projectName: string) => {
   try {
@@ -86,19 +87,28 @@ export const exportToExcel = (budgetData: BudgetData, projectName: string) => {
 
 export const exportToPDF = (budgetData: BudgetData, projectName: string) => {
   try {
-    const doc = createPDFWithMadenAIBrand({
-      title: 'ORÇAMENTO DETALHADO',
-      subtitle: 'Análise completa de custos e materiais do projeto',
-      projectName: projectName,
-    });
-
-    // Informações básicas do projeto
-    doc.setFontSize(10);
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.setTextColor(40, 40, 40);
+    doc.text('ORÇAMENTO DETALHADO', 20, 25);
+    
+    doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Área Total: ${budgetData.totalArea}m²`, 20, 90);
-    doc.text(`Custo por m²: R$ ${(budgetData.total_com_bdi / budgetData.totalArea).toFixed(2)}`, 120, 90);
+    doc.text('MadenAI - Plataforma de Gestão de Projetos', 20, 35);
+    
+    // Informações do projeto
+    doc.setFontSize(14);
+    doc.setTextColor(40, 40, 40);
+    doc.text(`Projeto: ${projectName}`, 20, 50);
+    
+    doc.setFontSize(10);
+    doc.text(`Data: ${budgetData.data_referencia}`, 20, 60);
+    doc.text(`Área Total: ${budgetData.totalArea}m²`, 20, 68);
+    doc.text(`Custo por m²: R$ ${(budgetData.total_com_bdi / budgetData.totalArea).toFixed(2)}`, 120, 68);
 
-    // Tabela principal do orçamento
+    // Tabela principal
     const tableData = budgetData.items.map(item => [
       item.codigo,
       item.descricao.substring(0, 35) + (item.descricao.length > 35 ? '...' : ''),
@@ -108,21 +118,42 @@ export const exportToPDF = (budgetData: BudgetData, projectName: string) => {
       `R$ ${item.total.toFixed(2)}`
     ]);
 
-    const finalY = createStyledTable(
-      doc,
-      ['Código', 'Descrição', 'Qtd.', 'Un.', 'Preço Unit.', 'Total'],
-      tableData,
-      100
-    );
+    (doc as any).autoTable({
+      head: [['Código', 'Descrição', 'Qtd.', 'Un.', 'Preço Unit.', 'Total']],
+      body: tableData,
+      startY: 80,
+      styles: { 
+        fontSize: 8,
+        cellPadding: 2
+      },
+      headStyles: { 
+        fillColor: [59, 130, 246],
+        textColor: 255
+      },
+      columnStyles: {
+        0: { cellWidth: 20 }, // Código
+        1: { cellWidth: 60 }, // Descrição
+        2: { cellWidth: 15 }, // Quantidade
+        3: { cellWidth: 15 }, // Unidade
+        4: { cellWidth: 25 }, // Preço
+        5: { cellWidth: 25 }  // Total
+      }
+    });
 
     // Resumo financeiro
-    const summaryData = [
-      { label: 'Subtotal:', value: `R$ ${budgetData.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` },
-      { label: `BDI (${(budgetData.bdi * 100).toFixed(1)}%):`, value: `R$ ${(budgetData.total_com_bdi - budgetData.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` },
-      { label: 'TOTAL GERAL:', value: `R$ ${budgetData.total_com_bdi.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` }
-    ];
-
-    addSummarySection(doc, 'RESUMO FINANCEIRO', summaryData, finalY + 20);
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
+    
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('RESUMO FINANCEIRO:', 20, finalY);
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Subtotal: R$ ${budgetData.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 20, finalY + 10);
+    doc.text(`BDI (${(budgetData.bdi * 100).toFixed(1)}%): R$ ${(budgetData.total_com_bdi - budgetData.total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 20, finalY + 18);
+    
+    doc.setFont(undefined, 'bold');
+    doc.text(`TOTAL: R$ ${budgetData.total_com_bdi.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 20, finalY + 28);
 
     const filename = `Orcamento_${projectName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(filename);

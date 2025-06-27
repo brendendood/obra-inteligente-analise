@@ -1,94 +1,179 @@
-import { Suspense, useEffect } from "react";
+
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
-import { DomainProvider } from "@/components/layout/DomainProvider";
-import { NotificationContainer } from "@/components/ui/notification-container";
-import { testSupabaseConnection } from "@/integrations/supabase/domainClient";
-import LandingPage from "@/pages/LandingPage";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import Dashboard from "@/pages/Dashboard";
-import Projects from "@/pages/Projects";
-import Upload from "@/pages/Upload";
-import Admin from "@/pages/Admin";
-import ProjectDetail from "@/pages/ProjectDetail";
-import ProjectSpecificBudget from "@/pages/ProjectSpecificBudget";
-import ProjectSpecificSchedule from "@/pages/ProjectSpecificSchedule";
-import ProjectSpecificDocuments from "@/pages/ProjectSpecificDocuments";
-import ProjectSpecificAssistant from "@/pages/ProjectSpecificAssistant";
-import Terms from "@/pages/Terms";
-import Privacy from "@/pages/Privacy";
-import NotFound from "@/pages/NotFound";
-import Onboarding from "@/pages/Onboarding";
+import { useAuth } from "@/hooks/useAuth";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { ErrorFallback } from "@/components/error/ErrorFallback";
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import Upload from "./pages/Upload";
+import ProjectWorkspacePage from "./pages/ProjectWorkspace";
+import ProjectSpecificBudget from "./pages/ProjectSpecificBudget";
+import ProjectSpecificSchedule from "./pages/ProjectSpecificSchedule";
+import ProjectSpecificAssistant from "./pages/ProjectSpecificAssistant";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Admin from "./pages/Admin";
+import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000,
-    },
-  },
-});
+const queryClient = new QueryClient();
+
+// Componente para redirecionar usuários autenticados da landing page
+const LandingPageWrapper = () => {
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (isAuthenticated) {
+    return <Navigate to="/painel" replace />;
+  }
+  
+  return <LandingPage />;
+};
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback error={this.state.error} />;
+    }
+
+    return this.props.children;
+  }
+}
 
 const App = () => {
-  // Testar conexão Supabase na inicialização
-  useEffect(() => {
-    testSupabaseConnection();
-  }, []);
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <DomainProvider>
-        <ProjectProvider>
-          <TooltipProvider>
-            <NotificationContainer />
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Suspense fallback={<div>Carregando...</div>}>
-                <Routes>
-                  {/* Landing Page */}
-                  <Route path="/" element={<LandingPage />} />
-                  
-                  {/* Auth Routes */}
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/cadastro" element={<Signup />} />
-                  
-                  {/* Onboarding */}
-                  <Route path="/tutorial" element={<Onboarding />} />
-                  
-                  {/* Protected Routes */}
-                  <Route path="/painel" element={<Dashboard />} />
-                  <Route path="/projetos" element={<Projects />} />
-                  <Route path="/upload" element={<Upload />} />
-                  <Route path="/admin" element={<Admin />} />
-                  
-                  {/* Project Routes */}
-                  <Route path="/projeto/:projectId" element={<ProjectDetail />} />
-                  <Route path="/projeto/:projectId/orcamento" element={<ProjectSpecificBudget />} />
-                  <Route path="/projeto/:projectId/cronograma" element={<ProjectSpecificSchedule />} />
-                  <Route path="/projeto/:projectId/documentos" element={<ProjectSpecificDocuments />} />
-                  <Route path="/projeto/:projectId/assistente" element={<ProjectSpecificAssistant />} />
-                  
-                  {/* Legal Pages */}
-                  <Route path="/termos" element={<Terms />} />
-                  <Route path="/privacidade" element={<Privacy />} />
-                  
-                  {/* 404 */}
-                  <Route path="/404" element={<NotFound />} />
-                  <Route path="*" element={<Navigate to="/404" replace />} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </TooltipProvider>
-        </ProjectProvider>
-      </DomainProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Rotas públicas */}
+              <Route path="/" element={<LandingPageWrapper />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
+              <Route path="/termos" element={<Terms />} />
+              <Route path="/politica" element={<Privacy />} />
+              <Route path="/admin" element={<Admin />} />
+              
+              {/* Todas as rotas protegidas agora usam AppLayout através do ProjectProvider */}
+              <Route path="/painel" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Dashboard />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projetos" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Projects />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Manter compatibilidade com /obras redirecionando para /projetos */}
+              <Route path="/obras" element={<Navigate to="/projetos" replace />} />
+              
+              <Route path="/upload" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Upload />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Área de trabalho do projeto - visão geral */}
+              <Route path="/projeto/:projectId" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Rotas específicas para cada seção do projeto */}
+              <Route path="/projeto/:projectId/orcamento" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectSpecificBudget />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projeto/:projectId/cronograma" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectSpecificSchedule />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Nova rota para o Assistente IA específico do projeto */}
+              <Route path="/ia/:projectId" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectSpecificAssistant />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projeto/:projectId/documentos" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <ProjectWorkspacePage />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+
+              {/* Redirecionar rotas antigas para NotFound */}
+              <Route path="/assistente" element={<NotFound />} />
+              <Route path="/projeto/:projectId/assistente" element={<Navigate to="/ia/:projectId" replace />} />
+
+              {/* Rota 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

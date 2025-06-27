@@ -22,8 +22,7 @@ import {
   FileText, 
   LogOut,
   ArrowLeft,
-  Building2,
-  GraduationCap
+  Building2
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProject } from '@/contexts/ProjectContext';
@@ -84,16 +83,10 @@ export const AppSidebar = () => {
       label: 'Novo Projeto', 
       path: '/upload',
       color: 'text-purple-600'
-    },
-    { 
-      icon: GraduationCap, 
-      label: 'Tutorial', 
-      path: '/tutorial',
-      color: 'text-orange-600'
     }
   ];
 
-  // Menu items para área do projeto
+  // Menu items para área do projeto - ATUALIZADO com nova rota da IA
   const projectMenuItems = [
     { 
       icon: FileText, 
@@ -116,7 +109,7 @@ export const AppSidebar = () => {
     { 
       icon: Bot, 
       label: 'Assistente IA', 
-      path: `/projeto/${projectId}/assistente`,
+      path: `/ia/${projectId}`,
       color: 'text-orange-600'
     },
     { 
@@ -137,7 +130,7 @@ export const AppSidebar = () => {
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
-          <span className="text-xl font-bold text-gray-800">Maden.AI</span>
+          <span className="text-xl font-bold text-gray-800">MadenAI</span>
         </div>
       </SidebarHeader>
 

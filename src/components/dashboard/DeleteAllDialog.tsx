@@ -9,45 +9,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Trash2, AlertTriangle } from 'lucide-react';
 
 interface DeleteAllDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  projectCount: number;
 }
 
-export const DeleteAllDialog = ({ isOpen, onClose, onConfirm, projectCount }: DeleteAllDialogProps) => {
+export const DeleteAllDialog = ({ open, onOpenChange, onConfirm }: DeleteAllDialogProps) => {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-md">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
         <AlertDialogHeader>
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-red-100 rounded-full">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-            <AlertDialogTitle className="text-lg text-red-800">
-              Excluir todos os projetos
-            </AlertDialogTitle>
-          </div>
-          <AlertDialogDescription className="text-gray-600">
-            Deseja excluir <strong>todos os {projectCount} projetos</strong> da sua conta?
-            <br /><br />
-            <span className="text-red-600 font-medium">
-              Esta ação removerá permanentemente todos os dados associados
-            </span> e não pode ser desfeita.
+          <AlertDialogTitle>Confirmar exclusão de todos os projetos</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tem certeza que deseja excluir TODOS os seus projetos? 
+            Esta ação não pode ser desfeita e todos os dados relacionados serão perdidos permanentemente.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="gap-2">
-          <AlertDialogCancel className="border-gray-300 hover:bg-gray-50">
-            Cancelar
-          </AlertDialogCancel>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-red-600 hover:bg-red-700"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
             Excluir Todos os Projetos
           </AlertDialogAction>
         </AlertDialogFooter>

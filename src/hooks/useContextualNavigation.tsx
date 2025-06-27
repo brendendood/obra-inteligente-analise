@@ -18,9 +18,9 @@ export const useContextualNavigation = (fallbackPath: string = '/painel') => {
   });
 
   useEffect(() => {
-    // Manter histórico de navegação contextual
+    // Manter histórico de navegação no localStorage
     const currentPath = location.pathname;
-    const storedPreviousPath = sessionStorage.getItem('contextualPreviousPath');
+    const storedPreviousPath = localStorage.getItem('previousPath');
     
     if (storedPreviousPath && storedPreviousPath !== currentPath) {
       setNavigationState(prev => ({
@@ -30,47 +30,64 @@ export const useContextualNavigation = (fallbackPath: string = '/painel') => {
       }));
     }
 
-    // Atualizar o path anterior apenas para navegações válidas
-    if (!currentPath.includes('/404') && !currentPath.includes('/login')) {
-      sessionStorage.setItem('contextualPreviousPath', currentPath);
-    }
+    // Atualizar o path anterior
+    localStorage.setItem('previousPath', currentPath);
   }, [location.pathname]);
 
   const goBack = useCallback(() => {
-    console.log('🔙 Navegação contextual:', {
+    console.log('🔙 Tentativa de navegação:', {
       canGoBack: navigationState.canGoBack,
       previousPath: navigationState.previousPath,
       fallbackPath: navigationState.fallbackPath,
       currentPath: location.pathname
     });
 
-    // Se estamos em um projeto, voltar para projetos
-    if (location.pathname.includes('/projeto/')) {
-      navigate('/projetos');
-      return;
+    // Tentar usar o histórico do browser primeiro
+    if (window.history.length > 1) {
+      try {
+        window.history.back();
+        return;
+      } catch (error) {
+        console.warn('⚠️ Erro no history.back():', error);
+      }
     }
 
-    // Usar path anterior se disponível
+    // Usar path anterior armazenado
     if (navigationState.canGoBack && navigationState.previousPath) {
       navigate(navigationState.previousPath);
       return;
     }
 
-    // Fallback para dashboard
+    // Fallback final
     console.log('📍 Usando fallback:', navigationState.fallbackPath);
     navigate(navigationState.fallbackPath);
   }, [navigate, navigationState, location.pathname]);
 
-  const navigateContextual = useCallback((path: string, projectId?: string) => {
-    // Salvar contexto atual
-    sessionStorage.setItem('contextualPreviousPath', location.pathname);
-    
-    // Navegar
+  const navigateWithHistory = useCallback((path: string) => {
+    // Salvar path atual antes de navegar
+    localStorage.setItem('previousPath', location.pathname);
     navigate(path);
   }, [navigate, location.pathname]);
 
+  const navigateContextual = useCallback((path: string, projectId?: string) => {
+    // Salvar path atual antes de navegar
+    localStorage.setItem('previousPath', location.pathname);
+    
+    // Se estamos num projeto e navegando para uma área geral, manter contexto
+    if (projectId && path.startsWith('/') && !path.includes(projectId)) {
+      // Para navegação contextual dentro do projeto
+      if (path === '/painel' || path === '/projetos') {
+        navigate(path);
+      } else {
+        navigate(path);
+      }
+    } else {
+      navigate(path);
+    }
+  }, [navigate, location.pathname]);
+
   const clearHistory = useCallback(() => {
-    sessionStorage.removeItem('contextualPreviousPath');
+    localStorage.removeItem('previousPath');
     setNavigationState(prev => ({
       ...prev,
       previousPath: null,
@@ -80,6 +97,7 @@ export const useContextualNavigation = (fallbackPath: string = '/painel') => {
 
   return {
     goBack,
+    navigateWithHistory,
     navigateContextual,
     clearHistory,
     canGoBack: navigationState.canGoBack,
