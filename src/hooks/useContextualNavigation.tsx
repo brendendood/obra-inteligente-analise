@@ -51,7 +51,22 @@ export const useContextualNavigation = (fallbackPath: string = '/projetos') => {
       fallbackPath: navigationState.fallbackPath
     });
 
-    // CORREÇÃO: Sempre redirecionar para /projetos como fallback seguro
+    // Se estamos numa página de projeto específico, voltar para o projeto principal
+    if (currentPath.includes('/projeto/') && (currentPath.includes('/orcamento') || currentPath.includes('/cronograma') || currentPath.includes('/assistente') || currentPath.includes('/documentos'))) {
+      const projectId = currentPath.split('/projeto/')[1].split('/')[0];
+      console.log('📍 Navegação para projeto principal:', projectId);
+      navigate(`/projeto/${projectId}`, { replace: true });
+      return;
+    }
+
+    // Se estamos na página principal do projeto, voltar para projetos
+    if (currentPath.match(/^\/projeto\/[^\/]+$/)) {
+      console.log('📍 Navegação para lista de projetos');
+      navigate('/projetos', { replace: true });
+      return;
+    }
+
+    // Fallback seguro para /projetos
     console.log('📍 Navegação segura para /projetos');
     navigate('/projetos', { replace: true });
   }, [navigate, navigationState, location.pathname]);

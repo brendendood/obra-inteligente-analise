@@ -43,7 +43,7 @@ export const useProjectSync = () => {
     }
   }, [state.projects.length, state.currentProject, restoreSavedProject]);
 
-  // CORREÇÃO: Função melhorada para definir projeto atual
+  // Função melhorada para definir projeto atual
   const setCurrentProjectSafe = (project: any) => {
     if (!project) {
       console.log('🔄 PROJECT SYNC: Limpando projeto atual');
@@ -53,9 +53,16 @@ export const useProjectSync = () => {
 
     console.log('✅ PROJECT SYNC: Definindo projeto atual:', project.name);
     setCurrentProject(project);
+    
+    // Garantir que o projeto seja salvo corretamente no localStorage
+    localStorage.setItem('maden_current_project', JSON.stringify({
+      id: project.id,
+      name: project.name,
+      timestamp: Date.now()
+    }));
   };
 
-  // CORREÇÃO: Verificação de existência melhorada
+  // Verificação de existência melhorada
   const projectExistsSafe = (projectId: string): boolean => {
     if (!projectId || !state.projects.length) {
       return false;
@@ -66,7 +73,7 @@ export const useProjectSync = () => {
     return exists;
   };
 
-  // CORREÇÃO: Busca de projeto melhorada
+  // Busca de projeto melhorada
   const getProjectByIdSafe = (projectId: string) => {
     if (!projectId || !state.projects.length) {
       return null;
@@ -75,6 +82,31 @@ export const useProjectSync = () => {
     const project = state.projects.find(p => p.id === projectId);
     console.log('🔍 PROJECT SYNC: Buscando projeto:', { projectId, found: !!project });
     return project || null;
+  };
+
+  // Função para forçar sincronização completa
+  const forceSync = async () => {
+    console.log('🔄 PROJECT SYNC: Forçando sincronização completa');
+    
+    // Recarregar projetos
+    const freshProjects = await loadProjects(true);
+    
+    // Se há um projeto atual salvo, tentar restaurá-lo
+    const savedProject = localStorage.getItem('maden_current_project');
+    if (savedProject && freshProjects.length > 0) {
+      try {
+        const parsed = JSON.parse(savedProject);
+        const foundProject = freshProjects.find(p => p.id === parsed.id);
+        if (foundProject) {
+          console.log('✅ PROJECT SYNC: Restaurando projeto após sync:', foundProject.name);
+          setCurrentProject(foundProject);
+        }
+      } catch (error) {
+        console.error('❌ PROJECT SYNC: Erro ao restaurar projeto salvo:', error);
+      }
+    }
+    
+    return freshProjects;
   };
 
   return {
@@ -92,13 +124,11 @@ export const useProjectSync = () => {
     projectExists: projectExistsSafe,
     
     // Utilities
-    forceRefresh: () => {
-      console.log('🔄 PROJECT SYNC: Forçando refresh');
-      return loadProjects(true);
-    },
+    forceRefresh: forceSync,
     clearCurrentProject: () => {
       console.log('🧹 PROJECT SYNC: Limpando projeto atual');
       setCurrentProject(null);
+      localStorage.removeItem('maden_current_project');
     }
   };
 };

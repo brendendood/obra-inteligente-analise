@@ -13,11 +13,11 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
   useEffect(() => {
     console.log('✅ UPLOAD SUCCESS: Iniciando contagem regressiva para redirecionamento');
     
-    // CORREÇÃO: Redirecionar para lista de projetos após 4 segundos
+    // Redirecionar para lista de projetos após 3 segundos
     const timer = setTimeout(() => {
       console.log('📍 UPLOAD SUCCESS: Redirecionando para /projetos');
       navigate('/projetos', { replace: true });
-    }, 4000);
+    }, 3000);
 
     return () => {
       console.log('🔄 UPLOAD SUCCESS: Limpando timer');
@@ -41,7 +41,7 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
             "{projectName}"
           </p>
           <p className="text-green-600">
-            Análise concluída. Redirecionando para seus projetos...
+            Projeto salvo e pronto para uso. Redirecionando...
           </p>
         </div>
         
@@ -52,7 +52,7 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
         </div>
         
         <div className="text-sm text-gray-500">
-          Sincronizando estado do projeto...
+          Você será redirecionado automaticamente em 3 segundos...
         </div>
       </div>
     </div>

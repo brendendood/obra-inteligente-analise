@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectSync } from '@/hooks/useProjectSync';
@@ -81,45 +81,58 @@ export const useProjectsLogic = () => {
     keyExtractor: (project) => project.id,
   });
 
-  const updateProject = (updatedProject: any) => {
+  const updateProject = useCallback((updatedProject: any) => {
     console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
     setLocalProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
     refreshProjects();
-  };
+  }, [refreshProjects]);
 
-  const handleDeleteProject = async (projectId: string) => {
+  const handleDeleteProject = useCallback(async (projectId: string) => {
     try {
       console.log('🗑️ PROJETOS: Excluindo projeto:', projectId);
       
-      // CORREÇÃO: Remover imediatamente da lista local
-      const originalProjects = [...localProjects];
-      setLocalProjects(prev => prev.filter(p => p.id !== projectId));
+      // Remover imediatamente da lista local para atualização instantânea da UI
+      setLocalProjects(prev => {
+        const updated = prev.filter(p => p.id !== projectId);
+        console.log('✅ PROJETOS: Lista local atualizada, projetos restantes:', updated.length);
+        return updated;
+      });
       
       // Limpar projeto atual se for o que está sendo excluído
       const currentProjectId = localStorage.getItem('maden_current_project');
-      if (currentProjectId && JSON.parse(currentProjectId).id === projectId) {
-        setCurrentProject(null);
-        localStorage.removeItem('maden_current_project');
+      if (currentProjectId) {
+        try {
+          const parsed = JSON.parse(currentProjectId);
+          if (parsed.id === projectId) {
+            setCurrentProject(null);
+            localStorage.removeItem('maden_current_project');
+            console.log('🧹 PROJETOS: Projeto atual limpo');
+          }
+        } catch (error) {
+          console.error('❌ PROJETOS: Erro ao verificar projeto atual:', error);
+        }
       }
 
+      // Executar exclusão no backend
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', projectId);
 
       if (error) {
-        console.error('❌ Erro ao excluir projeto:', error);
-        // Reverter em caso de erro
-        setLocalProjects(originalProjects);
+        console.error('❌ Erro ao excluir projeto no backend:', error);
+        // Reverter em caso de erro - recarregar projetos
+        await refreshProjects();
         throw error;
       }
 
-      console.log('✅ Projeto excluído com sucesso');
+      console.log('✅ Projeto excluído com sucesso do backend');
       
-      // Forçar refresh para garantir sincronização
-      setTimeout(() => {
-        refreshProjects();
-      }, 500);
+      // Forçar refresh para garantir sincronização com o servidor
+      setTimeout(async () => {
+        await refreshProjects();
+        console.log('🔄 PROJETOS: Sincronização pós-exclusão concluída');
+      }, 1000);
       
       setDeleteProject(null);
 
@@ -135,14 +148,13 @@ export const useProjectsLogic = () => {
         'delete-project-error'
       );
     }
-  };
+  }, [setCurrentProject, refreshProjects, showControlledSuccess, showControlledError]);
 
-  const handleDeleteAllProjects = async () => {
+  const handleDeleteAllProjects = useCallback(async () => {
     try {
       console.log('🗑️ PROJETOS: Excluindo todos os projetos');
       
-      // CORREÇÃO: Limpar lista local imediatamente
-      const originalProjects = [...localProjects];
+      // Limpar lista local imediatamente
       setLocalProjects([]);
       
       // Limpar projeto atual
@@ -156,14 +168,14 @@ export const useProjectsLogic = () => {
 
       if (error) {
         // Reverter em caso de erro
-        setLocalProjects(originalProjects);
+        await refreshProjects();
         throw error;
       }
 
       // Forçar refresh para garantir sincronização
-      setTimeout(() => {
-        refreshProjects();
-      }, 500);
+      setTimeout(async () => {
+        await refreshProjects();
+      }, 1000);
 
       showControlledSuccess(
         "✅ Todos os projetos excluídos!",
@@ -177,7 +189,7 @@ export const useProjectsLogic = () => {
         'delete-all-projects-error'
       );
     }
-  };
+  }, [user?.id, setCurrentProject, refreshProjects, showControlledSuccess, showControlledError]);
 
   return {
     projects: localProjects,

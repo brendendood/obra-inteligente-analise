@@ -114,18 +114,29 @@ export const useUploadHandlers = ({
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // CORREÇÃO: Garantir sincronização completa antes de navegar
-      console.log('🔄 UPLOAD: Recarregando projetos após upload...');
+      // Garantir sincronização completa antes de navegar
+      console.log('🔄 UPLOAD: Aguardando processamento completo...');
       
       // Aguardar processamento completo
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Recarregar projetos
+      // Recarregar projetos do servidor
+      console.log('🔄 UPLOAD: Recarregando projetos...');
       const updatedProjects = await loadUserProjects();
       console.log('✅ UPLOAD: Projetos recarregados:', updatedProjects.length);
       
-      // Aguardar mais um pouco para garantir sincronização
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Aguardar mais tempo para garantir sincronização
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Salvar projeto como atual se disponível
+      if (data.project && updatedProjects.some(p => p.id === data.project.id)) {
+        console.log('✅ UPLOAD: Definindo projeto como atual:', data.project.name);
+        localStorage.setItem('maden_current_project', JSON.stringify({
+          id: data.project.id,
+          name: data.project.name,
+          timestamp: Date.now()
+        }));
+      }
       
       // Navegar para a lista de projetos
       console.log('📍 UPLOAD: Redirecionando para /projetos');
