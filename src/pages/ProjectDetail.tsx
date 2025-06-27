@@ -12,32 +12,47 @@ const ProjectDetail = () => {
   const { currentProject } = useProject();
   const { loading, error, LoadingComponent } = useProjectLoader();
 
+  console.log('🔍 PROJECT_DETAIL: Renderizando', { 
+    projectId, 
+    currentProject: currentProject?.id,
+    loading,
+    error
+  });
+
   if (!projectId) {
+    console.log('❌ PROJECT_DETAIL: ProjectId não fornecido, redirecionando');
     return <Navigate to="/painel" replace />;
   }
 
-  if (error) {
-    return (
-      <ErrorFallback 
-        error={new Error(error)}
-        title="Erro ao carregar projeto"
-        message="Não foi possível carregar os detalhes do projeto. Verifique se o projeto existe e tente novamente."
-      />
-    );
-  }
-
   if (loading) {
+    console.log('⏳ PROJECT_DETAIL: Carregando projeto...');
     return <LoadingComponent />;
   }
 
-  if (!currentProject) {
+  if (error) {
+    console.log('❌ PROJECT_DETAIL: Erro detectado:', error);
     return (
       <ErrorFallback 
-        title="Projeto não encontrado"
-        message="O projeto que você está tentando acessar não foi encontrado ou você não tem permissão para visualizá-lo."
+        title="Erro ao carregar projeto"
+        message={error === 'Projeto não encontrado' 
+          ? "O projeto que você está tentando acessar não foi encontrado. Ele pode ter sido excluído ou você não tem permissão para visualizá-lo."
+          : "Não foi possível carregar os detalhes do projeto. Tente novamente em alguns instantes."
+        }
       />
     );
   }
+
+  if (!currentProject || currentProject.id !== projectId) {
+    console.log('❌ PROJECT_DETAIL: Projeto não encontrado no estado');
+    return (
+      <ErrorFallback 
+        title="Projeto não encontrado"
+        message="O projeto que você está tentando acessar não foi encontrado. Verifique se o projeto existe e tente novamente."
+      />
+    );
+  }
+
+  console.log('✅ PROJECT_DETAIL: Renderizando projeto:', currentProject.name);
 
   return (
     <AppLayout>
