@@ -98,8 +98,8 @@ export const useProjectsLogic = () => {
       setDeleteProject(null);
 
       showControlledSuccess(
-        "✅ Projeto excluído com sucesso!",
-        "O projeto foi removido permanentemente."
+        "✅ Projeto excluído!",
+        "O projeto foi removido com sucesso."
       );
     } catch (error) {
       console.error('💥 PROJETOS: Erro ao excluir projeto:', error);
@@ -125,7 +125,6 @@ export const useProjectsLogic = () => {
     setDeleteProject,
     handleDeleteProject,
     updateProject,
-    refreshProjects,
     // Drag & Drop props
     isDragging,
     getDragItemProps,
