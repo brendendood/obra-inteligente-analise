@@ -2,7 +2,6 @@
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
 
 interface ErrorFallbackProps {
   error?: Error;
@@ -17,14 +16,8 @@ export const ErrorFallback = ({
   title = "Oops! Algo deu errado",
   message = "Ocorreu um erro inesperado. Tente novamente ou volte para a página inicial."
 }: ErrorFallbackProps) => {
-  const navigate = useNavigate();
-
   const handleGoHome = () => {
-    navigate('/painel', { replace: true });
-  };
-
-  const handleGoToProjects = () => {
-    navigate('/projetos', { replace: true });
+    window.location.href = '/painel';
   };
 
   const handleRefresh = () => {
@@ -60,18 +53,14 @@ export const ErrorFallback = ({
               )}
             </div>
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button onClick={handleRefresh} variant="outline" className="flex items-center space-x-2">
                 <RefreshCw className="h-4 w-4" />
                 <span>Tentar Novamente</span>
               </Button>
-              <Button onClick={handleGoToProjects} className="flex items-center space-x-2">
+              <Button onClick={handleGoHome} className="flex items-center space-x-2">
                 <Home className="h-4 w-4" />
-                <span>Ver Projetos</span>
-              </Button>
-              <Button onClick={handleGoHome} variant="ghost" className="flex items-center space-x-2">
-                <Home className="h-4 w-4" />
-                <span>Ir para o Painel</span>
+                <span>Ir para Início</span>
               </Button>
             </div>
           </div>

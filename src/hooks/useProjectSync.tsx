@@ -30,18 +30,16 @@ export const useProjectSync = () => {
   // Carregar projetos quando auth estiver pronto
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      debugLog('🔄 SYNC: Auth pronto, carregando projetos iniciais');
       loadProjects();
     }
-  }, [authLoading, isAuthenticated, loadProjects, debugLog]);
+  }, [authLoading, isAuthenticated, loadProjects]);
 
-  // Restaurar projeto salvo apenas uma vez quando projetos carregarem
+  // Restaurar projeto salvo quando projetos carregarem
   useEffect(() => {
-    if (state.projects.length > 0 && !state.currentProject && !authLoading) {
-      debugLog('🔄 SYNC: Tentando restaurar projeto salvo');
+    if (state.projects.length > 0 && !state.currentProject) {
       restoreSavedProject();
     }
-  }, [state.projects.length, state.currentProject, restoreSavedProject, authLoading, debugLog]);
+  }, [state.projects.length, state.currentProject, restoreSavedProject]);
 
   return {
     // Estado
@@ -58,13 +56,7 @@ export const useProjectSync = () => {
     projectExists,
     
     // Utilities
-    forceRefresh: () => {
-      debugLog('🔄 SYNC: Forçando refresh completo');
-      return loadProjects(true);
-    },
-    clearCurrentProject: () => {
-      debugLog('🧹 SYNC: Limpando projeto atual');
-      setCurrentProject(null);
-    }
+    forceRefresh: () => loadProjects(true),
+    clearCurrentProject: () => setCurrentProject(null)
   };
 };

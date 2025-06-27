@@ -9,7 +9,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById, projectExists, projects, loadProjects } = useProjectSync();
+  const { getProjectById, projectExists, projects } = useProjectSync();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const loadedProjectRef = useRef<string | null>(null);
@@ -21,64 +21,56 @@ export const useProjectLoader = () => {
         return;
       }
 
-      console.log('🔄 WORKSPACE_LOADER: Iniciando carregamento do projeto:', projectId);
-
-      // Se já carregamos este projeto e ele está ativo, não recarregar
+      // Evitar recarregamento do mesmo projeto
       if (loadedProjectRef.current === projectId && currentProject?.id === projectId) {
-        console.log('✅ WORKSPACE_LOADER: Projeto já carregado e ativo');
-        setError(null);
         setLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
-        setError(null);
-
-        // Forçar recarregamento de projetos para garantir dados atualizados
-        console.log('🔄 WORKSPACE_LOADER: Forçando recarregamento de projetos');
-        await loadProjects(true);
-
-        // Aguardar um momento para garantir que o estado foi atualizado
-        setTimeout(() => {
-          console.log('🔍 WORKSPACE_LOADER: Verificando existência do projeto após reload');
-          
-          if (projectExists(projectId)) {
-            const project = getProjectById(projectId);
-            if (project) {
-              console.log('✅ WORKSPACE_LOADER: Projeto encontrado, definindo como atual:', project.name);
-              setCurrentProject(project);
-              loadedProjectRef.current = projectId;
-              setError(null);
+        // Aguardar projetos carregarem se necessário
+        if (projects.length === 0) {
+          // Aguardar um ciclo para projetos carregarem
+          const timeout = setTimeout(() => {
+            if (projectExists(projectId)) {
+              const project = getProjectById(projectId);
+              if (project && project.id !== currentProject?.id) {
+                setCurrentProject(project);
+                loadedProjectRef.current = projectId;
+                setError(null);
+              }
             } else {
-              console.error('❌ WORKSPACE_LOADER: getProjectById retornou null');
-              setError('Erro interno ao carregar projeto');
+              setError('Projeto não encontrado');
             }
-          } else {
-            console.error('❌ WORKSPACE_LOADER: Projeto não encontrado após reload:', projectId);
-            setError('Projeto não encontrado');
-          }
-          
-          setLoading(false);
-        }, 500);
+            setLoading(false);
+          }, 1000);
 
+          return () => clearTimeout(timeout);
+        }
+
+        // Projetos já carregados
+        if (projectExists(projectId)) {
+          const project = getProjectById(projectId);
+          if (project && project.id !== currentProject?.id) {
+            setCurrentProject(project);
+            loadedProjectRef.current = projectId;
+            setError(null);
+          }
+        } else {
+          setError('Projeto não encontrado');
+        }
       } catch (err) {
-        console.error('💥 WORKSPACE_LOADER: Erro ao carregar projeto:', err);
+        console.error('Erro ao carregar projeto:', err);
         setError('Erro ao carregar projeto');
+      } finally {
         setLoading(false);
       }
     };
 
-    // Reset do estado quando o projectId muda
-    if (projectId !== loadedProjectRef.current) {
-      loadedProjectRef.current = null;
-      setError(null);
-    }
-
     loadProject();
-  }, [projectId, projectExists, getProjectById, setCurrentProject, loadProjects]);
+  }, [projectId, projectExists, getProjectById, setCurrentProject, projects.length, currentProject?.id]);
 
-  // Loading Component otimizado
+  // Loading Component otimizado para evitar piscar
   const LoadingComponent = () => (
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
