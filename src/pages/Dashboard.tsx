@@ -11,7 +11,7 @@ import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState'
 import { ProjectCardEnhanced } from '@/components/ui/project-card-enhanced';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { Button } from '@/components/ui/button';
-import { Plus, FolderOpen, GraduationCap } from 'lucide-react';
+import { Plus, FolderOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Dashboard = () => {
@@ -71,15 +71,6 @@ const Dashboard = () => {
                 </p>
               </div>
               <div className="flex items-center space-x-3">
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/tutorial')}
-                  className="border-blue-200 text-blue-700 hover:bg-blue-50 flex items-center space-x-2"
-                >
-                  <GraduationCap className="h-4 w-4" />
-                  <span className="hidden sm:inline">Tutorial</span>
-                </Button>
-                
                 {!isLoadingProjects && (
                   <button
                     onClick={forceRefresh}
@@ -141,14 +132,6 @@ const Dashboard = () => {
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Criar Primeiro Projeto
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => navigate('/tutorial')}
-                        className="border-blue-200 text-blue-700 hover:bg-blue-50"
-                      >
-                        <GraduationCap className="h-4 w-4 mr-2" />
-                        Ver Tutorial
                       </Button>
                     </div>
                   </div>

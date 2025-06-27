@@ -14,14 +14,15 @@ export const OnboardingDetector = ({ children }: OnboardingDetectorProps) => {
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(false);
 
   useEffect(() => {
-    // Verificar se o usuário já completou o onboarding
+    // Verificar se o usuário nunca completou o onboarding e nunca viu o prompt
     const hasCompletedOnboarding = localStorage.getItem('maden-onboarding-completed');
-    const hasSeenPrompt = sessionStorage.getItem('maden-onboarding-prompt-seen');
+    const hasEverSeenPrompt = localStorage.getItem('maden-onboarding-prompt-ever-seen');
     
-    // Se não completou e não viu o prompt nesta sessão, mostrar prompt
-    if (!hasCompletedOnboarding && !hasSeenPrompt) {
+    // Só mostrar o popup se nunca completou E nunca viu o prompt antes
+    if (!hasCompletedOnboarding && !hasEverSeenPrompt) {
       setShowOnboardingPrompt(true);
-      sessionStorage.setItem('maden-onboarding-prompt-seen', 'true');
+      // Marcar que já viu o prompt uma vez (para não aparecer mais)
+      localStorage.setItem('maden-onboarding-prompt-ever-seen', 'true');
     }
   }, []);
 
@@ -32,14 +33,14 @@ export const OnboardingDetector = ({ children }: OnboardingDetectorProps) => {
 
   const handleSkipOnboarding = () => {
     setShowOnboardingPrompt(false);
-    localStorage.setItem('maden-onboarding-completed', 'true');
+    // Não marcar como completado, apenas fechar o popup
   };
 
   return (
     <>
       {children}
       
-      {/* Onboarding Prompt Modal */}
+      {/* Onboarding Prompt Modal - Apenas para usuários que nunca viram */}
       {showOnboardingPrompt && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full border-2 border-blue-200 shadow-2xl animate-scale-in">
@@ -89,6 +90,12 @@ export const OnboardingDetector = ({ children }: OnboardingDetectorProps) => {
                 >
                   Pular por agora
                 </Button>
+              </div>
+
+              <div className="text-center">
+                <p className="text-xs text-gray-500">
+                  💡 Você sempre pode acessar o tutorial pelo menu lateral
+                </p>
               </div>
             </CardContent>
           </Card>
