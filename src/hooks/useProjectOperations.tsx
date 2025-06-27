@@ -17,7 +17,7 @@ export const useProjectOperations = (
   const loadingRef = useRef(false);
   const lastLoadTime = useRef(0);
 
-  // Carregar todos os projetos com controle de duplicação
+  // Carregar todos os projetos com controle de duplicação e cache limpo
   const loadProjects = useCallback(async (force = false): Promise<Project[]> => {
     if (authLoading) return [];
     
@@ -40,8 +40,8 @@ export const useProjectOperations = (
       return state.projects;
     }
 
-    // Throttle: evitar muitas chamadas em sequência (mínimo 2 segundos)
-    if (!force && (now - lastLoadTime.current) < 2000) {
+    // Throttle reduzido para melhor responsividade
+    if (!force && (now - lastLoadTime.current) < 1000) {
       debugLog('⏸️ Throttle ativo, usando cache');
       return state.projects;
     }
@@ -53,16 +53,25 @@ export const useProjectOperations = (
       updateProjectsState({ isLoading: true, error: null });
       debugLog('📥 Carregando projetos do usuário', { userId: user.id });
 
+      // Limpar cache do Supabase antes da consulta
+      await supabase.auth.refreshSession();
+      
       const { data: projects, error } = await supabase
         .from('projects')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro na consulta Supabase:', error);
+        throw error;
+      }
 
       const validProjects = projects || [];
-      debugLog('✅ Projetos carregados', { count: validProjects.length });
+      debugLog('✅ Projetos carregados', { 
+        count: validProjects.length,
+        projects: validProjects.map(p => ({ id: p.id.substring(0, 8) + '...', name: p.name }))
+      });
 
       updateProjectsState({
         projects: validProjects,
@@ -77,7 +86,7 @@ export const useProjectOperations = (
       debugLog('❌ Erro ao carregar projetos', { error: errorMessage });
       
       updateProjectsState({
-        projects: state.projects, // Manter projetos existentes em caso de erro
+        projects: [], // Limpar projetos em caso de erro grave
         isLoading: false,
         error: errorMessage
       });
@@ -85,17 +94,17 @@ export const useProjectOperations = (
       // Usar notificação controlada
       showControlledError(
         "Erro ao carregar projetos",
-        "Houve um problema ao sincronizar os projetos. Tentando novamente...",
+        "Houve um problema ao sincronizar os projetos. Verifique sua conexão.",
         'load-projects-error'
       );
 
-      return state.projects; // Retornar projetos existentes
+      return [];
     } finally {
       loadingRef.current = false;
     }
-  }, [user?.id, isAuthenticated, authLoading, state.projects, debugLog, showControlledError, updateProjectsState]);
+  }, [user?.id, isAuthenticated, authLoading, debugLog, showControlledError, updateProjectsState]);
 
-  // Restaurar projeto salvo sem notificação
+  // Restaurar projeto salvo com validação melhorada
   const restoreSavedProject = useCallback(() => {
     if (!isAuthenticated) return;
 
@@ -104,16 +113,24 @@ export const useProjectOperations = (
       if (saved) {
         const { id, timestamp } = JSON.parse(saved);
         
-        // Verificar se não é muito antigo (mais de 1 dia)
-        if (Date.now() - timestamp > 24 * 60 * 60 * 1000) {
+        // Verificar se não é muito antigo (mais de 12 horas)
+        if (Date.now() - timestamp > 12 * 60 * 60 * 1000) {
           localStorage.removeItem('maden_current_project');
+          debugLog('🧹 Projeto salvo expirado, removendo');
           return;
         }
 
         const project = getProjectById(id);
         if (project) {
-          debugLog('🔄 Restaurando projeto salvo', { projectId: id });
+          debugLog('🔄 Restaurando projeto salvo', { 
+            projectId: id.substring(0, 8) + '...', 
+            projectName: project.name 
+          });
           setCurrentProject(project);
+          showControlledSuccess(
+            "Projeto restaurado",
+            `Continuando no projeto: ${project.name}`
+          );
         } else {
           debugLog('❌ Projeto salvo não encontrado, removendo');
           localStorage.removeItem('maden_current_project');
@@ -123,7 +140,7 @@ export const useProjectOperations = (
       debugLog('❌ Erro ao restaurar projeto salvo', error);
       localStorage.removeItem('maden_current_project');
     }
-  }, [isAuthenticated, getProjectById, setCurrentProject, debugLog]);
+  }, [isAuthenticated, getProjectById, setCurrentProject, debugLog, showControlledSuccess]);
 
   return {
     loadProjects,

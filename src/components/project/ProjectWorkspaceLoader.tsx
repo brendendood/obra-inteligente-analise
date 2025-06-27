@@ -9,7 +9,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById, projectExists, projects, loadProjects, isLoading } = useProjectSync();
+  const { getProjectById, projectExists, projects, loadProjects, isLoading, clearCache } = useProjectSync();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const loadedProjectRef = useRef<string | null>(null);
@@ -21,19 +21,22 @@ export const useProjectLoader = () => {
         console.log('❌ PROJECT LOADER: Sem ID do projeto');
         setLoading(false);
         setError('ID do projeto não fornecido');
+        navigate('/projetos', { replace: true });
         return;
       }
 
-      console.log('🔄 PROJECT LOADER: Carregando projeto:', projectId);
+      console.log('🔄 PROJECT LOADER: Carregando projeto:', projectId.substring(0, 8) + '...');
 
       try {
+        setError(null);
+
         // Se ainda estamos carregando projetos, aguardar
         if (isLoading) {
           console.log('⏳ PROJECT LOADER: Aguardando carregamento dos projetos...');
           return;
         }
 
-        // Se não temos projetos carregados, carregar primeiro
+        // Se não temos projetos carregados, forçar carregamento
         if (projects.length === 0) {
           console.log('📥 PROJECT LOADER: Carregando lista de projetos primeiro');
           await loadProjects(true);
@@ -42,10 +45,18 @@ export const useProjectLoader = () => {
 
         // Verificar se o projeto existe
         if (!projectExists(projectId)) {
-          console.error('❌ PROJECT LOADER: Projeto não encontrado:', projectId);
-          setError('Projeto não encontrado');
+          console.error('❌ PROJECT LOADER: Projeto não encontrado:', projectId.substring(0, 8) + '...');
           
-          // Redirecionar para lista de projetos após um delay
+          // Tentar recarregar projetos uma vez antes de desistir
+          if (loadedProjectRef.current !== projectId) {
+            console.log('🔄 PROJECT LOADER: Tentando recarregar projetos...');
+            clearCache();
+            await loadProjects(true);
+            loadedProjectRef.current = projectId;
+            return;
+          }
+
+          setError('Projeto não encontrado');
           setTimeout(() => {
             navigate('/projetos', { replace: true });
           }, 2000);
@@ -56,6 +67,9 @@ export const useProjectLoader = () => {
         if (!project) {
           console.error('❌ PROJECT LOADER: Erro ao obter projeto');
           setError('Erro ao carregar projeto');
+          setTimeout(() => {
+            navigate('/projetos', { replace: true });
+          }, 2000);
           return;
         }
 
@@ -64,6 +78,13 @@ export const useProjectLoader = () => {
         // Só atualizar se for diferente do atual
         if (!currentProject || project.id !== currentProject.id) {
           setCurrentProject(project);
+          
+          // Salvar no localStorage
+          localStorage.setItem('maden_current_project', JSON.stringify({
+            id: project.id,
+            name: project.name,
+            timestamp: Date.now()
+          }));
         }
         
         loadedProjectRef.current = projectId;
@@ -72,6 +93,9 @@ export const useProjectLoader = () => {
       } catch (err) {
         console.error('💥 PROJECT LOADER: Erro ao carregar projeto:', err);
         setError('Erro ao carregar projeto');
+        setTimeout(() => {
+          navigate('/projetos', { replace: true });
+        }, 3000);
       } finally {
         setLoading(false);
       }
@@ -84,7 +108,7 @@ export const useProjectLoader = () => {
     }
 
     loadProject();
-  }, [projectId, projects.length, isLoading, projectExists, getProjectById, setCurrentProject, currentProject?.id, loadProjects, navigate]);
+  }, [projectId, projects.length, isLoading, projectExists, getProjectById, setCurrentProject, currentProject?.id, loadProjects, navigate, clearCache]);
 
   // Loading Component otimizado
   const LoadingComponent = () => (
