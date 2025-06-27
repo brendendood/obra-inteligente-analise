@@ -27,26 +27,30 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
 
   const fetchProject = async () => {
     if (!projectId) {
+      console.log('1. Nenhum projectId fornecido na URL');
       setError('ID do projeto não fornecido');
       setIsLoading(false);
       return;
     }
 
+    console.log('1. Iniciando busca de dados para o projeto ID:', projectId);
+    
     try {
       setIsLoading(true);
       setError(null);
       
-      console.log('ProjectDetailProvider: Carregando projeto', projectId);
+      console.log('2. Fazendo busca no Supabase...');
       
-      const { data, error: fetchError } = await supabase
+      const { data: projectDataFromAPI, error: fetchError } = await supabase
         .from('projects')
         .select('*')
         .eq('id', projectId)
         .maybeSingle();
 
       if (fetchError) {
-        console.error('ProjectDetailProvider: Erro ao buscar projeto:', fetchError);
-        setError(`Erro ao carregar projeto: ${fetchError.message}`);
+        console.error('3. Erro do Supabase ao buscar dados:', fetchError);
+        const errorMessage = `Erro ao carregar projeto: ${fetchError.message}`;
+        setError(errorMessage);
         toast({
           title: "Erro ao carregar projeto",
           description: "Não foi possível carregar os dados do projeto. Tente novamente.",
@@ -55,7 +59,8 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
         return;
       }
 
-      if (!data) {
+      if (!projectDataFromAPI) {
+        console.log('3. Nenhum projeto encontrado com o ID fornecido');
         setError('Projeto não encontrado');
         toast({
           title: "Projeto não encontrado",
@@ -65,23 +70,26 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
         return;
       }
 
-      console.log('ProjectDetailProvider: Projeto carregado com sucesso:', data.name);
-      setProject(data);
+      console.log('2. Dados recebidos com sucesso:', projectDataFromAPI);
+      setProject(projectDataFromAPI);
+      
     } catch (error) {
-      console.error('ProjectDetailProvider: Erro inesperado:', error);
-      setError('Erro inesperado ao carregar projeto');
+      console.error('3. Erro inesperado durante a busca:', error);
+      const errorMessage = 'Erro inesperado ao carregar projeto';
+      setError(errorMessage);
       toast({
         title: "Erro ao carregar projeto",
         description: "Não foi possível carregar os dados do projeto. Tente novamente.",
         variant: "destructive",
       });
     } finally {
-      // CRÍTICO: Sempre definir isLoading como false, independente do resultado
+      console.log('4. Busca de dados finalizada. isLoading será definido como false.');
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log('useEffect disparado. ProjectId atual:', projectId);
     fetchProject();
   }, [projectId]);
 
@@ -91,6 +99,14 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
     error,
     refetchProject: fetchProject
   };
+
+  console.log('Provider renderizado. Estado atual:', {
+    projectId,
+    hasProject: !!project,
+    isLoading,
+    error,
+    projectName: project?.name
+  });
 
   return (
     <ProjectDetailContext.Provider value={value}>
