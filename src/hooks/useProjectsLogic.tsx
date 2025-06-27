@@ -18,8 +18,14 @@ export const useProjectsLogic = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteProject, setDeleteProject] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'area'>('date');
+  const [localProjects, setLocalProjects] = useState<any[]>([]);
   const { showControlledError, showControlledSuccess } = useNotificationControl();
   const navigate = useNavigate();
+
+  // Sincronizar projetos locais com os do servidor
+  useEffect(() => {
+    setLocalProjects(projects);
+  }, [projects]);
 
   // Redirecionar se não autenticado
   useEffect(() => {
@@ -31,9 +37,9 @@ export const useProjectsLogic = () => {
 
   // Memoizar projetos filtrados para evitar recálculos
   const filteredProjects = useMemo(() => {
-    console.log('🔍 PROJETOS: Filtrando e ordenando', projects.length, 'projetos');
+    console.log('🔍 PROJETOS: Filtrando e ordenando', localProjects.length, 'projetos');
     
-    let filtered = projects.filter(project =>
+    let filtered = localProjects.filter(project =>
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (project.project_type && project.project_type.toLowerCase().includes(searchTerm.toLowerCase()))
     );
@@ -52,7 +58,7 @@ export const useProjectsLogic = () => {
 
     console.log('✅ PROJETOS: Filtrados e ordenados:', filtered.length, 'projetos');
     return filtered;
-  }, [projects, searchTerm, sortBy]);
+  }, [localProjects, searchTerm, sortBy]);
 
   // Configurar drag & drop para projetos
   const {
@@ -77,6 +83,8 @@ export const useProjectsLogic = () => {
 
   const updateProject = (updatedProject: any) => {
     console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
+    // Atualizar localmente primeiro
+    setLocalProjects(prev => prev.map(p => p.id === updatedProject.id ? updatedProject : p));
     // Forçar refresh para garantir consistência
     refreshProjects();
   };
@@ -85,14 +93,21 @@ export const useProjectsLogic = () => {
     try {
       console.log('🗑️ PROJETOS: Excluindo projeto:', projectId);
       
+      // CORREÇÃO: Remover imediatamente da tela
+      setLocalProjects(prev => prev.filter(p => p.id !== projectId));
+      
       const { error } = await supabase
         .from('projects')
         .delete()
         .eq('id', projectId);
 
-      if (error) throw error;
+      if (error) {
+        // Reverter remoção local em caso de erro
+        setLocalProjects(projects);
+        throw error;
+      }
 
-      // Forçar refresh após exclusão
+      // Forçar refresh após exclusão bem-sucedida
       await refreshProjects();
       
       setDeleteProject(null);
@@ -111,8 +126,43 @@ export const useProjectsLogic = () => {
     }
   };
 
+  const handleDeleteAllProjects = async () => {
+    try {
+      console.log('🗑️ PROJETOS: Excluindo todos os projetos');
+      
+      // CORREÇÃO: Limpar lista local imediatamente
+      setLocalProjects([]);
+      
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('user_id', user?.id);
+
+      if (error) {
+        // Reverter limpeza local em caso de erro
+        setLocalProjects(projects);
+        throw error;
+      }
+
+      // Forçar refresh após exclusão bem-sucedida
+      await refreshProjects();
+
+      showControlledSuccess(
+        "✅ Todos os projetos excluídos!",
+        "Todos os projetos foram removidos com sucesso."
+      );
+    } catch (error) {
+      console.error('💥 PROJETOS: Erro ao excluir todos os projetos:', error);
+      showControlledError(
+        "❌ Erro ao excluir todos",
+        "Não foi possível excluir os projetos.",
+        'delete-all-projects-error'
+      );
+    }
+  };
+
   return {
-    projects,
+    projects: localProjects,
     filteredProjects,
     isLoading,
     loading,
@@ -124,6 +174,7 @@ export const useProjectsLogic = () => {
     deleteProject,
     setDeleteProject,
     handleDeleteProject,
+    handleDeleteAllProjects,
     updateProject,
     // Drag & Drop props
     isDragging,

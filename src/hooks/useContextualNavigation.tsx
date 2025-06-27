@@ -8,7 +8,7 @@ interface NavigationState {
   fallbackPath: string;
 }
 
-export const useContextualNavigation = (fallbackPath: string = '/painel') => {
+export const useContextualNavigation = (fallbackPath: string = '/projetos') => {
   const navigate = useNavigate();
   const location = useLocation();
   const [navigationState, setNavigationState] = useState<NavigationState>({
@@ -44,21 +44,28 @@ export const useContextualNavigation = (fallbackPath: string = '/painel') => {
       currentPath: location.pathname
     });
 
-    // Se estamos em um projeto, voltar para projetos
+    // CORREÇÃO: Sempre redirecionar para projetos em caso de dúvida
     if (location.pathname.includes('/projeto/')) {
-      navigate('/projetos');
+      navigate('/projetos', { replace: true });
       return;
     }
 
-    // Usar path anterior se disponível
-    if (navigationState.canGoBack && navigationState.previousPath) {
-      navigate(navigationState.previousPath);
+    if (location.pathname.includes('/upload')) {
+      navigate('/projetos', { replace: true });
       return;
     }
 
-    // Fallback para dashboard
-    console.log('📍 Usando fallback:', navigationState.fallbackPath);
-    navigate(navigationState.fallbackPath);
+    // Usar path anterior se disponível e seguro
+    if (navigationState.canGoBack && navigationState.previousPath && 
+        !navigationState.previousPath.includes('/404') &&
+        !navigationState.previousPath.includes('/login')) {
+      navigate(navigationState.previousPath, { replace: true });
+      return;
+    }
+
+    // Fallback seguro para projetos
+    console.log('📍 Usando fallback seguro: /projetos');
+    navigate('/projetos', { replace: true });
   }, [navigate, navigationState, location.pathname]);
 
   const navigateContextual = useCallback((path: string, projectId?: string) => {
@@ -66,7 +73,7 @@ export const useContextualNavigation = (fallbackPath: string = '/painel') => {
     sessionStorage.setItem('contextualPreviousPath', location.pathname);
     
     // Navegar
-    navigate(path);
+    navigate(path, { replace: true });
   }, [navigate, location.pathname]);
 
   const clearHistory = useCallback(() => {

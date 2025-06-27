@@ -41,6 +41,18 @@ export const useProjectSync = () => {
     }
   }, [state.projects.length, state.currentProject, restoreSavedProject]);
 
+  // CORREÇÃO: Garantir que o projeto atual seja sempre válido
+  useEffect(() => {
+    if (state.currentProject && state.projects.length > 0) {
+      const projectStillExists = state.projects.find(p => p.id === state.currentProject?.id);
+      if (!projectStillExists) {
+        console.log('⚠️ Projeto atual não existe mais, limpando...');
+        setCurrentProject(null);
+        localStorage.removeItem('maden_current_project');
+      }
+    }
+  }, [state.projects, state.currentProject, setCurrentProject]);
+
   return {
     // Estado
     projects: state.projects,
