@@ -18,7 +18,7 @@ interface DeleteAllDialogProps {
   projectCount: number;
 }
 
-export const DeleteAllDialog = ({ isOpen, onClose, onConfirm, projectCount }: DeleteAllDialogProps) => {
+const DeleteAllDialog = ({ isOpen, onClose, onConfirm, projectCount }: DeleteAllDialogProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="max-w-md">
@@ -55,3 +55,5 @@ export const DeleteAllDialog = ({ isOpen, onClose, onConfirm, projectCount }: De
     </AlertDialog>
   );
 };
+
+export default DeleteAllDialog;
