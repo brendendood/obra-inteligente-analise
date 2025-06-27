@@ -64,8 +64,8 @@ export const ProjectCard = ({
         
         {showActions && (
           <ProjectCardActions 
-            project={project} 
-            onClose={() => setShowActions(false)}
+            projectId={project.id}
+            onActionClick={() => setShowActions(false)}
           />
         )}
       </div>
