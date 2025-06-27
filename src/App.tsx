@@ -1,4 +1,3 @@
-
 import { Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -24,6 +23,7 @@ import ProjectSpecificAssistant from "@/pages/ProjectSpecificAssistant";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
 import NotFound from "@/pages/NotFound";
+import Onboarding from "@/pages/Onboarding";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +58,9 @@ const App = () => {
                   {/* Auth Routes */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/cadastro" element={<Signup />} />
+                  
+                  {/* Onboarding */}
+                  <Route path="/tutorial" element={<Onboarding />} />
                   
                   {/* Protected Routes */}
                   <Route path="/painel" element={<Dashboard />} />
