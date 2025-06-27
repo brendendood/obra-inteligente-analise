@@ -9,11 +9,18 @@ import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { SmartLoading } from '@/components/ui/smart-loading';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import DashboardContent from '@/components/dashboard/DashboardContent';
+import { useProjectStateManager } from '@/hooks/useProjectStateManager';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { preferences, addRecentProject } = useUserPreferences();
+  
+  // Usar o novo hook para gerenciamento de estado
+  const { validateCurrentProject } = useProjectStateManager({
+    autoLoadFromUrl: false, // Dashboard não precisa carregar projeto específico
+    validateOnMount: true
+  });
   
   const {
     projects,
@@ -28,6 +35,13 @@ const Dashboard = () => {
       return;
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  // Validar projeto atual quando dashboard carregar
+  useEffect(() => {
+    if (!isLoadingProjects && projects.length > 0) {
+      validateCurrentProject();
+    }
+  }, [isLoadingProjects, projects.length, validateCurrentProject]);
 
   const isInitialLoading = authLoading;
 

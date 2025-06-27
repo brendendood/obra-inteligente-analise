@@ -1,90 +1,36 @@
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SmartProjectLink } from '@/components/navigation/SmartProjectLink';
 import { Project } from '@/types/project';
-import { 
-  Calendar, 
-  Ruler, 
-  ExternalLink, 
-  Calculator, 
-  Clock, 
-  Bot,
-  GripVertical,
-  MoreVertical 
-} from 'lucide-react';
-import { ProjectCardActions } from './ProjectCardActions';
+import { Calendar, Ruler, ExternalLink, Calculator, Clock, Bot } from 'lucide-react';
 
-interface ProjectCardProps {
+interface OptimizedProjectCardProps {
   project: Project;
-  index: number;
-  draggedItem: any;
-  onDragStart: (e: React.DragEvent, project: Project, index: number) => void;
-  onDragOver: (e: React.DragEvent, index: number) => void;
-  onDrop: (e: React.DragEvent, index: number) => void;
+  onQuickAction?: (action: string) => void;
 }
 
-export const ProjectCard = ({ 
-  project, 
-  index, 
-  draggedItem, 
-  onDragStart, 
-  onDragOver, 
-  onDrop 
-}: ProjectCardProps) => {
-  const [showActions, setShowActions] = useState(false);
-
+export const OptimizedProjectCard = ({ project, onQuickAction }: OptimizedProjectCardProps) => {
   return (
-    <Card 
-      className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md relative"
-      draggable
-      onDragStart={(e) => onDragStart(e, project, index)}
-      onDragOver={(e) => onDragOver(e, index)}
-      onDrop={(e) => onDrop(e, index)}
-    >
-      {/* Grip Handle */}
-      <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-        <div className="bg-white/90 backdrop-blur-sm rounded-md p-1 shadow-sm border border-gray-200">
-          <GripVertical className="h-4 w-4 text-gray-400" />
+    <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <SmartProjectLink 
+            projectId={project.id}
+            className="flex-1 min-w-0"
+          >
+            <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              {project.name}
+            </CardTitle>
+          </SmartProjectLink>
+          
+          {project.analysis_data && (
+            <Badge className="bg-green-100 text-green-800 border-green-200 ml-2 flex-shrink-0">
+              ✅ Processado
+            </Badge>
+          )}
         </div>
-      </div>
-
-      {/* Actions Menu */}
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200"
-          onClick={() => setShowActions(!showActions)}
-        >
-          <MoreVertical className="h-4 w-4 text-gray-400" />
-        </Button>
-        
-        {showActions && (
-          <ProjectCardActions 
-            project={project} 
-            onClose={() => setShowActions(false)}
-          />
-        )}
-      </div>
-
-      <CardHeader className="pb-3 pt-8">
-        <SmartProjectLink 
-          projectId={project.id}
-          className="flex-1 min-w-0"
-        >
-          <CardTitle className="text-lg font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors pr-8">
-            {project.name}
-          </CardTitle>
-        </SmartProjectLink>
-        
-        {project.analysis_data && (
-          <Badge className="bg-green-100 text-green-800 border-green-200 self-start mt-2">
-            ✅ Processado
-          </Badge>
-        )}
       </CardHeader>
       
       <CardContent className="space-y-4">
@@ -113,6 +59,7 @@ export const ProjectCard = ({
               variant="outline" 
               size="sm" 
               className="w-full text-xs hover:bg-green-50 hover:border-green-300"
+              onClick={() => onQuickAction?.('budget')}
             >
               <Calculator className="h-3 w-3 mr-1" />
               Orçamento
@@ -127,6 +74,7 @@ export const ProjectCard = ({
               variant="outline" 
               size="sm" 
               className="w-full text-xs hover:bg-blue-50 hover:border-blue-300"
+              onClick={() => onQuickAction?.('schedule')}
             >
               <Clock className="h-3 w-3 mr-1" />
               Cronograma
@@ -142,6 +90,7 @@ export const ProjectCard = ({
             variant="outline" 
             size="sm" 
             className="w-full text-xs hover:bg-purple-50 hover:border-purple-300"
+            onClick={() => onQuickAction?.('ai')}
           >
             <Bot className="h-3 w-3 mr-1" />
             Assistente IA
