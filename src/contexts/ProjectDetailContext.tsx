@@ -76,6 +76,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
         variant: "destructive",
       });
     } finally {
+      // CRÍTICO: Sempre definir isLoading como false, independente do resultado
       setIsLoading(false);
     }
   };
