@@ -15,14 +15,18 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Upload from "./pages/Upload";
-import ProjectWorkspacePage from "./pages/ProjectWorkspace";
-import ProjectSpecificBudget from "./pages/ProjectSpecificBudget";
-import ProjectSpecificSchedule from "./pages/ProjectSpecificSchedule";
-import ProjectSpecificAssistant from "./pages/ProjectSpecificAssistant";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+
+// Layout e páginas do projeto específico
+import ProjectSpecificLayout from "./pages/project-specific/layout";
+import ProjectSpecificOverview from "./pages/project-specific/overview";
+import ProjectSpecificBudget from "./pages/project-specific/budget";
+import ProjectSpecificSchedule from "./pages/project-specific/schedule";
+import ProjectSpecificAssistant from "./pages/project-specific/assistant";
+import ProjectSpecificDocumentsPage from "./pages/project-specific/documents";
 
 const queryClient = new QueryClient();
 
@@ -92,7 +96,7 @@ const App = () => {
               <Route path="/politica" element={<Privacy />} />
               <Route path="/admin" element={<Admin />} />
               
-              {/* Todas as rotas protegidas agora usam AppLayout através do ProjectProvider */}
+              {/* Rotas protegidas com ProjectProvider */}
               <Route path="/painel" element={
                 <ProtectedRoute>
                   <ProjectProvider>
@@ -120,52 +124,36 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              {/* Área de trabalho do projeto - visão geral */}
+              {/* Layout Routes para projetos específicos */}
               <Route path="/projeto/:projectId" element={
                 <ProtectedRoute>
                   <ProjectProvider>
-                    <ProjectWorkspacePage />
+                    <ProjectSpecificLayout />
                   </ProjectProvider>
                 </ProtectedRoute>
-              } />
+              }>
+                {/* Rotas filhas aninhadas */}
+                <Route index element={<ProjectSpecificOverview />} />
+                <Route path="orcamento" element={<ProjectSpecificBudget />} />
+                <Route path="cronograma" element={<ProjectSpecificSchedule />} />
+                <Route path="assistente" element={<ProjectSpecificAssistant />} />
+                <Route path="documentos" element={<ProjectSpecificDocumentsPage />} />
+              </Route>
               
-              {/* Rotas específicas para cada seção do projeto */}
-              <Route path="/projeto/:projectId/orcamento" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
-                    <ProjectSpecificBudget />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/projeto/:projectId/cronograma" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
-                    <ProjectSpecificSchedule />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
-              
-              {/* Nova rota para o Assistente IA específico do projeto */}
+              {/* Rota especializada para IA (mantendo compatibilidade) */}
               <Route path="/ia/:projectId" element={
                 <ProtectedRoute>
                   <ProjectProvider>
-                    <ProjectSpecificAssistant />
+                    <ProjectSpecificLayout />
                   </ProjectProvider>
                 </ProtectedRoute>
-              } />
-              
-              <Route path="/projeto/:projectId/documentos" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
-                    <ProjectWorkspacePage />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
+              }>
+                <Route index element={<ProjectSpecificAssistant />} />
+              </Route>
 
-              {/* Redirecionar rotas antigas para NotFound */}
+              {/* Redirecionar rotas antigas */}
               <Route path="/assistente" element={<NotFound />} />
-              <Route path="/projeto/:projectId/assistente" element={<Navigate to="/ia/:projectId" replace />} />
+              <Route path="/projeto/:projectId/assistente" element={<Navigate to="/projeto/:projectId/assistente" replace />} />
 
               {/* Rota 404 */}
               <Route path="*" element={<NotFound />} />
