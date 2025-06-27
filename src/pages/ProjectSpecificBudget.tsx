@@ -1,13 +1,11 @@
 
-import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Calculator } from 'lucide-react';
-import { useProjectStateManager } from '@/hooks/useProjectStateManager';
 import { ProjectBudgetGenerator } from '@/components/project/ProjectBudgetGenerator';
+import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 
 const ProjectSpecificBudget = () => {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { currentProject, isProjectLoaded } = useProjectStateManager();
+  const { project: currentProject, isLoading: isProjectLoaded } = useProjectDetail();
 
   if (!isProjectLoaded || !currentProject) {
     return (

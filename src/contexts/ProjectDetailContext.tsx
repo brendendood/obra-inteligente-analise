@@ -1,0 +1,113 @@
+
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Project {
+  id: string;
+  name: string;
+  file_path: string;
+  file_size?: number;
+  extracted_text?: string;
+  analysis_data?: any;
+  project_type?: string;
+  total_area?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ProjectDetailContextType {
+  project: Project | null;
+  isLoading: boolean;
+  error: string | null;
+  refetchProject: () => Promise<void>;
+}
+
+const ProjectDetailContext = createContext<ProjectDetailContextType | undefined>(undefined);
+
+interface ProjectDetailProviderProps {
+  children: ReactNode;
+}
+
+export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const [project, setProject] = useState<Project | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const fetchProject = async () => {
+    if (!projectId) {
+      setError('ID do projeto não fornecido');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      console.log('ProjectDetailProvider: Carregando projeto', projectId);
+      
+      const { data, error: fetchError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+
+      if (fetchError) {
+        console.error('ProjectDetailProvider: Erro ao buscar projeto:', fetchError);
+        if (fetchError.code === 'PGRST116') {
+          setError('Projeto não encontrado');
+        } else {
+          setError(`Erro ao carregar projeto: ${fetchError.message}`);
+        }
+        return;
+      }
+
+      if (!data) {
+        setError('Projeto não encontrado');
+        return;
+      }
+
+      console.log('ProjectDetailProvider: Projeto carregado com sucesso:', data.name);
+      setProject(data);
+    } catch (error) {
+      console.error('ProjectDetailProvider: Erro inesperado:', error);
+      setError('Erro inesperado ao carregar projeto');
+      toast({
+        title: "Erro ao carregar projeto",
+        description: "Não foi possível carregar os dados do projeto. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProject();
+  }, [projectId]);
+
+  const value: ProjectDetailContextType = {
+    project,
+    isLoading,
+    error,
+    refetchProject: fetchProject
+  };
+
+  return (
+    <ProjectDetailContext.Provider value={value}>
+      {children}
+    </ProjectDetailContext.Provider>
+  );
+};
+
+export const useProjectDetail = (): ProjectDetailContextType => {
+  const context = useContext(ProjectDetailContext);
+  if (context === undefined) {
+    throw new Error('useProjectDetail deve ser usado dentro de um ProjectDetailProvider');
+  }
+  return context;
+};

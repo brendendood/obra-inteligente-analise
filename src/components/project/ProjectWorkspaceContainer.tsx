@@ -3,16 +3,16 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
 import { ProjectWorkspaceTabs } from './ProjectWorkspaceTabs';
 import { ProjectInfoAlert } from './ProjectInfoAlert';
-import { useProjectLoader } from './ProjectWorkspaceLoader';
 import { useProjectTabManager } from './ProjectWorkspaceTabManager';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
+import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 
 interface ProjectWorkspaceContainerProps {
   children: React.ReactNode;
 }
 
 export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContainerProps) => {
-  const { loading, error, currentProject } = useProjectLoader();
+  const { project: currentProject, isLoading: loading, error } = useProjectDetail();
   const { activeTab, handleTabChange, getSectionTitle } = useProjectTabManager();
 
   if (error) {

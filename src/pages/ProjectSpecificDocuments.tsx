@@ -1,15 +1,14 @@
-
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Eye, ExternalLink } from 'lucide-react';
-import { useProject } from '@/contexts/ProjectContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 
 const ProjectSpecificDocuments = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const { currentProject } = useProject();
+  const { project: currentProject } = useProjectDetail();
 
   const getPdfUrl = () => {
     if (!currentProject?.file_path) return null;

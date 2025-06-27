@@ -1,22 +1,15 @@
 
 import { useParams, Navigate } from 'react-router-dom';
-import { useProject } from '@/contexts/ProjectContext';
-import { useProjectLoader } from '@/components/project/ProjectWorkspaceLoader';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
 import { ModernAIChat } from '@/components/project/ai/ModernAIChat';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bot, AlertCircle } from 'lucide-react';
+import { ProjectDetailProvider, useProjectDetail } from '@/contexts/ProjectDetailContext';
 
-const ProjectSpecificAssistant = () => {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { currentProject } = useProject();
-  const { loading, error } = useProjectLoader();
-
-  if (!projectId) {
-    return <Navigate to="/painel" replace />;
-  }
+const ProjectSpecificAssistantContent = () => {
+  const { project: currentProject, isLoading: loading, error } = useProjectDetail();
 
   if (error) {
     return (
@@ -122,6 +115,20 @@ const ProjectSpecificAssistant = () => {
         </div>
       </div>
     </AppLayout>
+  );
+};
+
+const ProjectSpecificAssistant = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+
+  if (!projectId) {
+    return <Navigate to="/painel" replace />;
+  }
+
+  return (
+    <ProjectDetailProvider>
+      <ProjectSpecificAssistantContent />
+    </ProjectDetailProvider>
   );
 };
 

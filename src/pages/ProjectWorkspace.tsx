@@ -1,12 +1,12 @@
 
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
-import { useProject } from '@/contexts/ProjectContext';
 import { ProjectOverview } from '@/components/project/ProjectOverview';
 import { ProjectAIChat } from '@/components/project/ai/ProjectAIChat';
 import { ProjectAIHeader } from '@/components/project/ai/ProjectAIHeader';
 import { ProjectAISidebar } from '@/components/project/ai/ProjectAISidebar';
 import { Card, CardContent } from '@/components/ui/card';
+import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 
 // Componentes para cada seção
 const ProjectBudget = () => (
@@ -38,7 +38,7 @@ const ProjectSchedule = () => (
 );
 
 const ProjectAssistant = () => {
-  const { currentProject } = useProject();
+  const { project: currentProject } = useProjectDetail();
   
   if (!currentProject) {
     return (
