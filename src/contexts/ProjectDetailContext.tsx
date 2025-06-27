@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +25,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     if (!projectId) {
       console.log('1. Nenhum projectId fornecido na URL');
       setError('ID do projeto não fornecido');
@@ -86,12 +86,12 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
       console.log('4. Busca de dados finalizada. isLoading será definido como false.');
       setIsLoading(false);
     }
-  };
+  }, [projectId, toast]);
 
   useEffect(() => {
     console.log('useEffect disparado. ProjectId atual:', projectId);
     fetchProject();
-  }, [projectId]);
+  }, [fetchProject]);
 
   const value: ProjectDetailContextType = {
     project,
