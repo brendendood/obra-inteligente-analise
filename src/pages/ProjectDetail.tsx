@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NavigationBreadcrumb } from '@/components/layout/NavigationBreadcrumb';
 import GanttChart from '@/components/schedule/GanttChart';
+import { generateProjectSchedule } from '@/utils/scheduleGenerator';
 
 interface Project {
   id: string;
@@ -99,6 +100,7 @@ const ProjectDetail = () => {
       }
 
       setProject(data);
+      console.log('✅ Projeto carregado com sucesso:', data.name);
       
       // Gerar dados específicos deste projeto baseados no analysis_data
       if (data.analysis_data) {
@@ -113,15 +115,14 @@ const ProjectDetail = () => {
   };
 
   const generateProjectSpecificData = (projectData: Project) => {
-    // Gerar cronograma específico baseado na área e tipo do projeto
-    const baseSchedule = generateScheduleFromProject(projectData);
-    setScheduleData(baseSchedule);
-  };
-
-  const generateScheduleFromProject = (project: Project) => {
-    // Import the new schedule generator
-    const { generateProjectSchedule } = require('@/utils/scheduleGenerator');
-    return generateProjectSchedule(project);
+    try {
+      // Gerar cronograma específico baseado na área e tipo do projeto
+      const baseSchedule = generateProjectSchedule(projectData);
+      setScheduleData(baseSchedule);
+      console.log('✅ Cronograma base gerado para:', projectData.name);
+    } catch (error) {
+      console.error('❌ Erro ao gerar dados do projeto:', error);
+    }
   };
 
   const getPdfUrl = () => {
@@ -185,8 +186,8 @@ const ProjectDetail = () => {
     setScheduleLoading(true);
     
     try {
-      // Usar novo gerador de cronograma
-      const projectSchedule = generateScheduleFromProject(project);
+      // Usar gerador de cronograma corrigido
+      const projectSchedule = generateProjectSchedule(project);
       setScheduleData(projectSchedule);
       setActiveTab('schedule');
       
