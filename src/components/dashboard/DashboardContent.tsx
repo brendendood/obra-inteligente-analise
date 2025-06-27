@@ -69,7 +69,7 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 w-full min-w-0">
+    <div className="flex flex-col space-y-8 w-full min-w-0">
       {/* Stats Cards Originais */}
       <StatsCards stats={stats} />
       
@@ -80,24 +80,21 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
         riskLevel={riskLevel}
       />
       
-      {/* Quick Actions */}
+      {/* Quick Actions Refinadas */}
       <QuickActions />
       
-      {/* Layout em duas colunas para projetos e gráfico */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
-        {/* Seção de Projetos Aprimorada - 2 colunas */}
-        <div className="xl:col-span-2">
-          <EnhancedProjectsSection
-            projects={projects}
-            isLoading={isLoading}
-            onDeleteProject={confirmDelete}
-          />
-        </div>
-        
-        {/* Gráfico de Produtividade - 1 coluna */}
-        <div className="xl:col-span-1">
-          <MonthlyProductivityChart data={monthlyProductivity} />
-        </div>
+      {/* Hub de Projetos Centralizado - Largura Total */}
+      <div className="w-full">
+        <EnhancedProjectsSection
+          projects={projects}
+          isLoading={isLoading}
+          onDeleteProject={confirmDelete}
+        />
+      </div>
+      
+      {/* Gráfico de Produtividade - Largura Total */}
+      <div className="w-full">
+        <MonthlyProductivityChart data={monthlyProductivity} />
       </div>
 
       {/* Dialog de Confirmação de Exclusão */}

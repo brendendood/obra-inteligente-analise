@@ -68,7 +68,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-8">
+      <div className="flex flex-col space-y-8 w-full min-w-0">
         <div className="flex items-center justify-between">
           <EnhancedBreadcrumb />
           <SmartLoading 
@@ -80,20 +80,20 @@ const Dashboard = () => {
         </div>
         
         {/* Header clean e minimalista */}
-        <div className="bg-white border border-gray-200 rounded-xl p-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 truncate">
                 {greeting}, {userName}
               </h1>
-              <p className="text-lg text-gray-600">
+              <p className="text-base sm:text-lg text-gray-600">
                 Gerencie seus projetos de construção com IA
               </p>
             </div>
             {!isLoadingProjects && (
               <button
                 onClick={forceRefresh}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex-shrink-0"
               >
                 Atualizar
               </button>
@@ -101,12 +101,14 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Conteúdo principal */}
-        <DashboardContent
-          stats={stats}
-          projects={projects} // Passando os projetos do Zustand
-          isDataLoading={isLoadingProjects}
-        />
+        {/* Conteúdo principal - Layout vertical linear */}
+        <div className="w-full">
+          <DashboardContent
+            stats={stats}
+            projects={projects} // Passando os projetos do Zustand
+            isDataLoading={isLoadingProjects}
+          />
+        </div>
       </div>
     </AppLayout>
   );

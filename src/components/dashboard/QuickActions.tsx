@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   FolderOpen, 
-  Plus, 
-  Calculator
+  Plus
 } from 'lucide-react';
 
 export const QuickActions = () => {
@@ -23,17 +22,9 @@ export const QuickActions = () => {
       icon: FolderOpen,
       title: "Ver Obras",
       description: "Todos os projetos",
-      path: "/obras",
+      path: "/projetos",
       color: "bg-green-500",
       hoverColor: "hover:bg-green-600"
-    },
-    {
-      icon: Calculator,
-      title: "Orçamento",
-      description: "Gerar orçamento",
-      path: "/budget",
-      color: "bg-purple-500",
-      hoverColor: "hover:bg-purple-600"
     }
   ];
 
@@ -42,7 +33,7 @@ export const QuickActions = () => {
       <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 sm:px-0">
         Ações Rápidas
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full px-2 sm:px-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full px-2 sm:px-0">
         {quickActions.map((action, index) => {
           const Icon = action.icon;
           return (
