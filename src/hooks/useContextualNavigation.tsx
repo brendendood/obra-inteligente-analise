@@ -8,7 +8,7 @@ interface NavigationState {
   fallbackPath: string;
 }
 
-export const useContextualNavigation = (fallbackPath: string = '/projetos') => {
+export const useContextualNavigation = (fallbackPath: string = '/painel') => {
   const navigate = useNavigate();
   const location = useLocation();
   const [navigationState, setNavigationState] = useState<NavigationState>({
@@ -18,16 +18,8 @@ export const useContextualNavigation = (fallbackPath: string = '/projetos') => {
   });
 
   useEffect(() => {
+    // Manter histórico de navegação contextual
     const currentPath = location.pathname;
-    console.log('🔄 NAVIGATION: Caminho atual:', currentPath);
-    
-    // Não salvar caminhos problemáticos
-    if (currentPath.includes('/404') || 
-        currentPath.includes('/login') || 
-        currentPath.includes('/error')) {
-      return;
-    }
-    
     const storedPreviousPath = sessionStorage.getItem('contextualPreviousPath');
     
     if (storedPreviousPath && storedPreviousPath !== currentPath) {
@@ -38,52 +30,46 @@ export const useContextualNavigation = (fallbackPath: string = '/projetos') => {
       }));
     }
 
-    // Atualizar path anterior para navegações válidas
-    sessionStorage.setItem('contextualPreviousPath', currentPath);
+    // Atualizar o path anterior apenas para navegações válidas
+    if (!currentPath.includes('/404') && !currentPath.includes('/login')) {
+      sessionStorage.setItem('contextualPreviousPath', currentPath);
+    }
   }, [location.pathname]);
 
   const goBack = useCallback(() => {
-    const currentPath = location.pathname;
     console.log('🔙 Navegação contextual:', {
-      currentPath,
       canGoBack: navigationState.canGoBack,
       previousPath: navigationState.previousPath,
-      fallbackPath: navigationState.fallbackPath
+      fallbackPath: navigationState.fallbackPath,
+      currentPath: location.pathname
     });
 
-    // Se estamos numa página de projeto específico, voltar para o projeto principal
-    if (currentPath.includes('/projeto/') && (currentPath.includes('/orcamento') || currentPath.includes('/cronograma') || currentPath.includes('/assistente') || currentPath.includes('/documentos'))) {
-      const projectId = currentPath.split('/projeto/')[1].split('/')[0];
-      console.log('📍 Navegação para projeto principal:', projectId);
-      navigate(`/projeto/${projectId}`, { replace: true });
+    // Se estamos em um projeto, voltar para projetos
+    if (location.pathname.includes('/projeto/')) {
+      navigate('/projetos');
       return;
     }
 
-    // Se estamos na página principal do projeto, voltar para projetos
-    if (currentPath.match(/^\/projeto\/[^\/]+$/)) {
-      console.log('📍 Navegação para lista de projetos');
-      navigate('/projetos', { replace: true });
+    // Usar path anterior se disponível
+    if (navigationState.canGoBack && navigationState.previousPath) {
+      navigate(navigationState.previousPath);
       return;
     }
 
-    // Fallback seguro para /projetos
-    console.log('📍 Navegação segura para /projetos');
-    navigate('/projetos', { replace: true });
+    // Fallback para dashboard
+    console.log('📍 Usando fallback:', navigationState.fallbackPath);
+    navigate(navigationState.fallbackPath);
   }, [navigate, navigationState, location.pathname]);
 
   const navigateContextual = useCallback((path: string, projectId?: string) => {
     // Salvar contexto atual
-    const currentPath = location.pathname;
-    if (!currentPath.includes('/404') && !currentPath.includes('/error')) {
-      sessionStorage.setItem('contextualPreviousPath', currentPath);
-    }
+    sessionStorage.setItem('contextualPreviousPath', location.pathname);
     
-    console.log('🔄 Navegação contextual para:', path);
-    navigate(path, { replace: true });
+    // Navegar
+    navigate(path);
   }, [navigate, location.pathname]);
 
   const clearHistory = useCallback(() => {
-    console.log('🧹 Limpando histórico de navegação');
     sessionStorage.removeItem('contextualPreviousPath');
     setNavigationState(prev => ({
       ...prev,

@@ -62,7 +62,7 @@ export const useUploadHandlers = ({
         }
       }, 200);
 
-      console.log('📤 UPLOAD: Iniciando upload:', fileName);
+      console.log('📤 Iniciando upload:', fileName);
 
       // Upload do arquivo
       const { error: uploadError } = await supabase.storage
@@ -70,11 +70,11 @@ export const useUploadHandlers = ({
         .upload(fileName, file);
 
       if (uploadError) {
-        console.error('❌ UPLOAD: Erro no storage:', uploadError);
+        console.error('❌ Erro no storage:', uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
 
-      console.log('✅ UPLOAD: Arquivo enviado, processando...');
+      console.log('✅ Arquivo enviado, processando...');
       setProgress(90);
 
       // Processar projeto
@@ -94,7 +94,7 @@ export const useUploadHandlers = ({
         });
 
       if (processError) {
-        console.error('❌ UPLOAD: Erro no processamento:', processError);
+        console.error('❌ Erro no processamento:', processError);
         throw new Error(`Erro no processamento: ${processError.message}`);
       }
 
@@ -107,43 +107,28 @@ export const useUploadHandlers = ({
       setUploadComplete(true);
       stopProcessing();
       
-      console.log('🎉 UPLOAD: Concluído com sucesso:', data);
+      console.log('🎉 Upload concluído:', data);
       
       toast({
         title: "🎉 Upload concluído!",
         description: data.message || "Seu projeto foi analisado com sucesso.",
       });
 
-      // Garantir sincronização completa antes de navegar
-      console.log('🔄 UPLOAD: Aguardando processamento completo...');
-      
-      // Aguardar processamento completo
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Recarregar projetos do servidor
-      console.log('🔄 UPLOAD: Recarregando projetos...');
-      const updatedProjects = await loadUserProjects();
-      console.log('✅ UPLOAD: Projetos recarregados:', updatedProjects.length);
-      
-      // Aguardar mais tempo para garantir sincronização
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Salvar projeto como atual se disponível
-      if (data.project && updatedProjects.some(p => p.id === data.project.id)) {
-        console.log('✅ UPLOAD: Definindo projeto como atual:', data.project.name);
-        localStorage.setItem('maden_current_project', JSON.stringify({
-          id: data.project.id,
-          name: data.project.name,
-          timestamp: Date.now()
-        }));
+      // CORREÇÃO: Navegar diretamente para o projeto criado após 2 segundos
+      if (data.project?.id) {
+        console.log('🔄 Redirecionando para projeto:', data.project.id);
+        setTimeout(() => {
+          navigate(`/projeto/${data.project.id}`, { replace: true });
+        }, 2000);
+      } else {
+        // Fallback para projetos se não tiver ID do projeto
+        setTimeout(() => {
+          navigate('/projetos', { replace: true });
+        }, 2000);
       }
-      
-      // Navegar para a lista de projetos
-      console.log('📍 UPLOAD: Redirecionando para /projetos');
-      navigate('/projetos', { replace: true });
 
     } catch (error) {
-      console.error('💥 UPLOAD: Erro:', error);
+      console.error('💥 Erro no upload:', error);
       stopProcessing();
       
       let errorMessage = "Erro desconhecido";
@@ -166,7 +151,6 @@ export const useUploadHandlers = ({
 
   const handleAnalyzeExisting = () => {
     if (validatedProject) {
-      console.log('🔄 UPLOAD: Navegando para projeto existente:', validatedProject.id);
       navigate(`/projeto/${validatedProject.id}`);
     } else {
       toast({

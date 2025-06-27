@@ -49,51 +49,20 @@ export const useProjectState = () => {
 
   // Atualizar estado dos projetos
   const updateProjectsState = useCallback((updates: Partial<ProjectSyncState>) => {
-    setState(prev => {
-      const newState = { ...prev, ...updates };
-      
-      // Log para debug
-      if (updates.projects) {
-        console.log('📊 PROJECT_STATE: Atualizando projetos:', {
-          antes: prev.projects.length,
-          depois: updates.projects.length,
-          projetos: updates.projects.map(p => ({ id: p.id, name: p.name }))
-        });
-      }
-      
-      return newState;
-    });
+    setState(prev => ({ ...prev, ...updates }));
   }, []);
 
   // Obter projeto por ID
   const getProjectById = useCallback((projectId: string): Project | null => {
-    if (!projectId || !state.projects.length) {
-      debugLog('🔍 Buscando projeto por ID - sem projetos ou ID inválido', { projectId, projectsCount: state.projects.length });
-      return null;
-    }
-    
     const project = state.projects.find(p => p.id === projectId);
-    debugLog('🔍 Buscando projeto por ID', { 
-      projectId, 
-      found: !!project,
-      projectsAvailable: state.projects.map(p => p.id)
-    });
+    debugLog('🔍 Buscando projeto por ID', { projectId, found: !!project });
     return project || null;
   }, [state.projects, debugLog]);
 
   // Verificar se projeto existe
   const projectExists = useCallback((projectId: string): boolean => {
-    if (!projectId || !state.projects.length) {
-      debugLog('✅ Verificando existência - sem projetos ou ID inválido', { projectId, projectsCount: state.projects.length });
-      return false;
-    }
-    
     const exists = state.projects.some(p => p.id === projectId);
-    debugLog('✅ Verificando existência do projeto', { 
-      projectId, 
-      exists,
-      projectsAvailable: state.projects.map(p => p.id)
-    });
+    debugLog('✅ Verificando existência do projeto', { projectId, exists });
     return exists;
   }, [state.projects, debugLog]);
 

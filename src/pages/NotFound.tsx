@@ -8,7 +8,7 @@ import { useContextualNavigation } from "@/hooks/useContextualNavigation";
 
 const NotFound = () => {
   const location = useLocation();
-  const { goBack } = useContextualNavigation('/projetos');
+  const { goBack } = useContextualNavigation('/painel');
 
   useEffect(() => {
     console.error(
@@ -16,10 +16,6 @@ const NotFound = () => {
       location.pathname
     );
   }, [location.pathname]);
-
-  const handleGoHome = () => {
-    window.location.href = '/projetos';
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
@@ -33,7 +29,7 @@ const NotFound = () => {
           <h2 className="text-xl font-semibold text-gray-700 mb-4">Página não encontrada</h2>
           <p className="text-gray-600 mb-8 leading-relaxed">
             A página que você está procurando não existe ou foi movida. 
-            Vamos te redirecionar para seus projetos.
+            Verifique o endereço e tente novamente.
           </p>
           
           <div className="space-y-3">
@@ -46,12 +42,12 @@ const NotFound = () => {
             </Button>
             
             <Button 
-              onClick={handleGoHome}
+              onClick={() => window.location.href = '/painel'}
               variant="outline" 
               className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               <Home className="h-4 w-4 mr-2" />
-              Ver Meus Projetos
+              Ir para o Painel
             </Button>
           </div>
           
