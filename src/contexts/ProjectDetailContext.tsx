@@ -47,11 +47,21 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
       if (fetchError) {
         console.error('ProjectDetailProvider: Erro ao buscar projeto:', fetchError);
         setError(`Erro ao carregar projeto: ${fetchError.message}`);
+        toast({
+          title: "Erro ao carregar projeto",
+          description: "Não foi possível carregar os dados do projeto. Tente novamente.",
+          variant: "destructive",
+        });
         return;
       }
 
       if (!data) {
         setError('Projeto não encontrado');
+        toast({
+          title: "Projeto não encontrado",
+          description: "O projeto que você está tentando acessar não foi encontrado.",
+          variant: "destructive",
+        });
         return;
       }
 
