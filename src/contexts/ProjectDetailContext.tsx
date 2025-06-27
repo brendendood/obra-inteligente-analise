@@ -42,15 +42,11 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
         .from('projects')
         .select('*')
         .eq('id', projectId)
-        .single();
+        .maybeSingle();
 
       if (fetchError) {
         console.error('ProjectDetailProvider: Erro ao buscar projeto:', fetchError);
-        if (fetchError.code === 'PGRST116') {
-          setError('Projeto não encontrado');
-        } else {
-          setError(`Erro ao carregar projeto: ${fetchError.message}`);
-        }
+        setError(`Erro ao carregar projeto: ${fetchError.message}`);
         return;
       }
 
