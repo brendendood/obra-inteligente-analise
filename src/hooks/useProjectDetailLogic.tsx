@@ -5,19 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { generateProjectSchedule } from '@/utils/scheduleGenerator';
-
-interface Project {
-  id: string;
-  name: string;
-  file_path: string;
-  file_size?: number;
-  extracted_text?: string;
-  analysis_data?: any;
-  project_type?: string;
-  total_area?: number;
-  created_at: string;
-  updated_at: string;
-}
+import { Project } from '@/types/project';
 
 export const useProjectDetailLogic = () => {
   const { projectId } = useParams();
