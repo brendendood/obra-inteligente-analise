@@ -1,14 +1,13 @@
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Home, ArrowLeft } from "lucide-react";
-import { useContextualNavigation } from "@/hooks/useContextualNavigation";
+import { AlertTriangle, Home, ArrowLeft, FolderOpen } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
-  const { goBack } = useContextualNavigation('/painel');
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
@@ -16,6 +15,23 @@ const NotFound = () => {
       location.pathname
     );
   }, [location.pathname]);
+
+  const handleGoBack = () => {
+    // Se veio de uma rota de projeto, voltar para projetos
+    if (location.pathname.includes('/projeto/')) {
+      navigate('/projetos');
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const handleGoToProjects = () => {
+    navigate('/projetos');
+  };
+
+  const handleGoHome = () => {
+    navigate('/painel');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
@@ -34,7 +50,7 @@ const NotFound = () => {
           
           <div className="space-y-3">
             <Button 
-              onClick={goBack}
+              onClick={handleGoBack}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -42,9 +58,18 @@ const NotFound = () => {
             </Button>
             
             <Button 
-              onClick={() => window.location.href = '/painel'}
+              onClick={handleGoToProjects}
               variant="outline" 
               className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              <FolderOpen className="h-4 w-4 mr-2" />
+              Ver Projetos
+            </Button>
+            
+            <Button 
+              onClick={handleGoHome}
+              variant="ghost" 
+              className="w-full text-gray-600 hover:bg-gray-50"
             >
               <Home className="h-4 w-4 mr-2" />
               Ir para o Painel
