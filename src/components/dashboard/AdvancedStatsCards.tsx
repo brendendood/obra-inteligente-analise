@@ -67,20 +67,20 @@ export const AdvancedStatsCards = ({
       {advancedStats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="border border-gray-200 bg-white hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
+          <Card key={index} className="border border-gray-200 bg-white hover:shadow-md transition-shadow duration-200 min-h-[140px]">
+            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600 leading-none">
                 {stat.title}
               </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <Icon className={`h-4 w-4 ${stat.iconColor}`} />
+              <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${stat.bgColor} flex-shrink-0`}>
+                <Icon className={`h-5 w-5 ${stat.iconColor}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900 mb-1">
+              <div className="text-2xl font-bold text-gray-900 mb-2 leading-none h-8 flex items-center">
                 {stat.value}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground leading-tight">
                 {stat.description}
               </p>
             </CardContent>
