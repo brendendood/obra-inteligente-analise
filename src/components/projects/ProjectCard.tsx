@@ -103,6 +103,11 @@ const ProjectCard = ({
     setEditedName(project.name);
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(project);
+  };
+
   const getStatusBadge = (project: any) => {
     if (project.analysis_data) {
       if (isMobile) {
@@ -258,11 +263,11 @@ const ProjectCard = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                onClick={() => onDelete(project)}
+                onClick={handleDeleteClick}
                 className="flex items-center space-x-2 text-red-600 hover:bg-red-50 cursor-pointer transition-colors duration-200"
               >
                 <Trash2 className="h-4 w-4" />
-                <span>Excluir</span>
+                <span>Excluir Projeto</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
