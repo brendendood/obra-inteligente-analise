@@ -1,35 +1,10 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { 
-  Eye,
-  MoreVertical,
-  Calendar,
-  CheckCircle,
-  Clock,
-  GripVertical,
-  Trash2,
-  Edit,
-  BarChart3,
-  Check,
-  X,
-  Save
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import { ProjectCardHeader } from './ProjectCardHeader';
+import { ProjectCardStatus } from './ProjectCardStatus';
+import { ProjectCardActions } from './ProjectCardActions';
+import { ProjectCardContent } from './ProjectCardContent';
 
 interface ProjectCardProps {
   project: any;
@@ -52,104 +27,7 @@ const ProjectCard = ({
   onEdit,
   onUpdate 
 }: ProjectCardProps) => {
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(project.name);
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const handleSaveName = async () => {
-    if (!editedName.trim() || editedName === project.name) {
-      setIsEditing(false);
-      setEditedName(project.name);
-      return;
-    }
-
-    setIsUpdating(true);
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .update({ name: editedName.trim() })
-        .eq('id', project.id);
-
-      if (error) throw error;
-
-      // Atualizar o projeto localmente
-      const updatedProject = { ...project, name: editedName.trim() };
-      onUpdate?.(updatedProject);
-
-      toast({
-        title: "✅ Nome atualizado!",
-        description: "O nome do projeto foi alterado com sucesso.",
-      });
-
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Erro ao atualizar nome:', error);
-      toast({
-        title: "❌ Erro ao atualizar",
-        description: "Não foi possível alterar o nome do projeto.",
-        variant: "destructive",
-      });
-      setEditedName(project.name);
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditedName(project.name);
-  };
-
-  const getStatusBadge = (project: any) => {
-    if (project.analysis_data) {
-      if (isMobile) {
-        return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center justify-center w-6 h-6 bg-green-100 rounded-full border border-green-200">
-                <Check className="h-3 w-3 text-green-700" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Projeto processado</p>
-            </TooltipContent>
-          </Tooltip>
-        );
-      } else {
-        return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Processado
-          </Badge>
-        );
-      }
-    }
-    
-    if (isMobile) {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center justify-center w-6 h-6 bg-orange-100 rounded-full border border-orange-200">
-              <Clock className="h-3 w-3 text-orange-700" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Processando projeto</p>
-          </TooltipContent>
-        </Tooltip>
-      );
-    } else {
-      return (
-        <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-          <Clock className="h-3 w-3 mr-1" />
-          Processando
-        </Badge>
-      );
-    }
-  };
 
   return (
     <Card 
@@ -160,146 +38,24 @@ const ProjectCard = ({
       onDrop={(e) => onDrop(e, project)}
       className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-grab active:cursor-grabbing group hover:scale-[1.02] animate-fade-in relative h-full"
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-2 flex-1 min-w-0">
-            <GripVertical className="h-5 w-5 text-gray-400 mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-            <div className="flex-1 min-w-0">
-              {isEditing ? (
-                <div className="flex items-center space-x-2 mb-2">
-                  <Input
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSaveName();
-                      if (e.key === 'Escape') handleCancelEdit();
-                    }}
-                    className="text-sm font-medium"
-                    autoFocus
-                    disabled={isUpdating}
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleSaveName}
-                    disabled={isUpdating}
-                    className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                  >
-                    <Save className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleCancelEdit}
-                    disabled={isUpdating}
-                    className="h-8 w-8 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2 mb-2">
-                  <CardTitle className="text-base sm:text-lg text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200 flex-1">
-                    {project.name}
-                  </CardTitle>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setIsEditing(true)}
-                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Editar nome do projeto</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              )}
-              <div className="flex flex-wrap items-center gap-2">
-                {getStatusBadge(project)}
-                {project.project_type && (
-                  <Badge variant="outline" className="text-xs">
-                    {project.project_type}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-all duration-200 h-8 w-8 p-0 hover:bg-gray-100 absolute top-2 right-2"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreVertical className="h-4 w-4 text-gray-500" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-white border border-gray-200 shadow-lg">
-              <DropdownMenuItem 
-                onClick={() => navigate(`/projeto/${project.id}`)}
-                className="flex items-center space-x-2 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
-              >
-                <Eye className="h-4 w-4" />
-                <span>Abrir Projeto</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setIsEditing(true)}
-                className="flex items-center space-x-2 hover:bg-green-50 cursor-pointer transition-colors duration-200"
-              >
-                <Edit className="h-4 w-4" />
-                <span>Editar Nome</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => onDelete(project)}
-                className="flex items-center space-x-2 text-red-600 hover:bg-red-50 cursor-pointer transition-colors duration-200"
-              >
-                <Trash2 className="h-4 w-4" />
-                <span>Excluir</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardHeader>
+      <ProjectCardHeader 
+        project={project}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        onUpdate={onUpdate}
+      />
       
-      <CardContent>
-        <div className="space-y-3">
-          {project.total_area && (
-            <div className="text-sm text-gray-600 flex items-center space-x-1">
-              <BarChart3 className="h-4 w-4" />
-              <span className="font-medium">Área: {project.total_area}m²</span>
-            </div>
-          )}
-          
-          <div className="flex items-center text-sm text-gray-500">
-            <Calendar className="h-4 w-4 mr-2" />
-            {new Date(project.created_at).toLocaleDateString('pt-BR')}
-          </div>
-          
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                onClick={() => navigate(`/projeto/${project.id}`)}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
-                size="sm"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                Ver Projeto
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Acessar todas as ferramentas do projeto</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </CardContent>
+      <div className="px-6 pb-3">
+        <ProjectCardStatus project={project} />
+      </div>
+      
+      <ProjectCardContent project={project} />
+      
+      <ProjectCardActions 
+        project={project}
+        onDelete={onDelete}
+        onEdit={() => setIsEditing(true)}
+      />
     </Card>
   );
 };
