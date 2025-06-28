@@ -55,16 +55,9 @@ export const ChatInput = ({
         <Button
           onClick={sendMessage}
           disabled={!inputMessage.trim() || isLoading}
-          className="bg-blue-600 hover:bg-blue-700 h-20 w-20 p-0 flex-shrink-0 rounded-2xl hidden sm:flex"
+          className="bg-blue-600 hover:bg-blue-700 w-12 h-12 p-0 flex-shrink-0 rounded-xl flex items-center justify-center"
         >
-          <Send className="h-7 w-7" />
-        </Button>
-        <Button
-          onClick={sendMessage}
-          disabled={!inputMessage.trim() || isLoading}
-          className="bg-blue-600 hover:bg-blue-700 h-11 w-11 p-0 flex-shrink-0 rounded-xl sm:hidden"
-        >
-          <Send className="h-4 w-4" />
+          <Send className="h-5 w-5" />
         </Button>
       </div>
     </div>

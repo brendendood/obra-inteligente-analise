@@ -17,7 +17,12 @@ interface ChatMessagesProps {
 
 export const ChatMessages = ({ messages, isLoading }: ChatMessagesProps) => {
   return (
-    <div className="flex-1 p-4 overflow-y-auto scrollbar-hide">
+    <div className="flex-1 p-4 overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <style jsx>{`
+        div::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       <div className="space-y-4">
         {messages.length === 0 && <ChatEmptyState />}
 
