@@ -1,5 +1,4 @@
 
-
 export const useDefaultAvatar = () => {
   const getDefaultAvatar = (gender?: string) => {
     switch (gender) {
@@ -37,7 +36,7 @@ export const useDefaultAvatar = () => {
   return {
     getDefaultAvatar,
     getAvatarFallback,
-    getDefaultAvatarUrl
+    getDefaultAvatarUrl,
+    getEmojiAsSvg
   };
 };
-

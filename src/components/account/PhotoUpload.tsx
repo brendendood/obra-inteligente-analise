@@ -77,11 +77,6 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
     }
   };
 
-  const getEmojiAsSvg = (emoji: string) => {
-    const svg = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="70" text-anchor="middle" x="50">${emoji}</text></svg>`;
-    return svg;
-  };
-
   return (
     <div className="space-y-4">
       <Button 
