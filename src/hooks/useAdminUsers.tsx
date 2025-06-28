@@ -30,10 +30,24 @@ export function useAdminUsers() {
   const [filterPlan, setFilterPlan] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const mountedRef = useRef(true);
-  const initializedRef = useRef(false);
+  const loadedRef = useRef(false);
   const { toast } = useToast();
 
   const loadUsers = async () => {
+    // Evitar múltiplas cargas
+    if (loadedRef.current) {
+      console.log('📦 ADMIN USERS: Usando cache - dados já carregados');
+      return;
+    }
+
+    if (loading && users.length === 0) {
+      console.log('⏳ ADMIN USERS: Já carregando dados...');
+      return;
+    }
+
+    console.log('🔄 ADMIN USERS: Carregando usuários...');
+    setLoading(true);
+
     try {
       const { data, error } = await supabase
         .from('user_profiles')
@@ -42,24 +56,29 @@ export function useAdminUsers() {
           user_subscriptions(plan, status)
         `)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(50);
 
       if (!mountedRef.current) return;
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ ADMIN USERS: Erro ao carregar usuários:', error);
+        throw error;
+      }
 
       if (data) {
-        const usersWithFormattedData = data.map(user => ({
+        const processedUsers = data.map(user => ({
           ...user,
           subscription: Array.isArray(user.user_subscriptions) && user.user_subscriptions.length > 0 
             ? user.user_subscriptions[0] 
             : { plan: 'free', status: 'active' }
         }));
         
-        setUsers(usersWithFormattedData);
+        setUsers(processedUsers);
+        loadedRef.current = true; // Marca como carregado
+        console.log('✅ ADMIN USERS: Usuários carregados:', processedUsers.length);
       }
     } catch (error) {
-      console.error('❌ Erro ao carregar usuários:', error);
+      console.error('❌ ADMIN USERS: Erro ao carregar usuários:', error);
       if (mountedRef.current) {
         toast({
           title: "❌ Erro ao carregar usuários",
@@ -74,16 +93,14 @@ export function useAdminUsers() {
     }
   };
 
+  // Carregar apenas uma vez no mount
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-    
     loadUsers();
 
     return () => {
       mountedRef.current = false;
     };
-  }, []);
+  }, []); // Array vazio - executa apenas uma vez
 
   const updateUserTags = async (userId: string, tags: string[]) => {
     try {
@@ -99,6 +116,8 @@ export function useAdminUsers() {
         description: "Tags do usuário foram atualizadas com sucesso."
       });
 
+      // Recarregar dados
+      loadedRef.current = false;
       loadUsers();
     } catch (error) {
       console.error('Error updating tags:', error);
@@ -124,6 +143,8 @@ export function useAdminUsers() {
         description: `Plano do usuário alterado para ${plan.toUpperCase()}.`
       });
 
+      // Recarregar dados
+      loadedRef.current = false;
       loadUsers();
     } catch (error) {
       console.error('Error updating plan:', error);
@@ -135,7 +156,7 @@ export function useAdminUsers() {
     }
   };
 
-  // Filtros aplicados localmente
+  // Filtros aplicados localmente (sem re-renders)
   const filteredUsers = users.filter(user => {
     const matchesSearch = searchTerm === '' || 
       user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -157,6 +178,9 @@ export function useAdminUsers() {
     setFilterStatus,
     updateUserTags,
     updateUserPlan,
-    refetch: loadUsers
+    refetch: () => {
+      loadedRef.current = false;
+      loadUsers();
+    }
   };
 }

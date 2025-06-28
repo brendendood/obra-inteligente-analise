@@ -31,20 +31,32 @@ export const useAdminPayments = () => {
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [dateRange, setDateRange] = useState('30d');
   const mountedRef = useRef(true);
-  const initializedRef = useRef(false);
+  const loadedRef = useRef(false);
   const { toast } = useToast();
 
   const loadPayments = async () => {
+    // Cache inteligente - só carrega se necessário
+    if (loadedRef.current && payments.length > 0) {
+      console.log('📦 ADMIN PAYMENTS: Usando cache - dados já carregados');
+      return;
+    }
+
+    console.log('🔄 ADMIN PAYMENTS: Carregando pagamentos...');
+    setLoading(true);
+
     try {
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('payments')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (!mountedRef.current) return;
 
-      if (paymentsError) throw paymentsError;
+      if (paymentsError) {
+        console.error('❌ ADMIN PAYMENTS: Erro ao carregar pagamentos:', paymentsError);
+        throw paymentsError;
+      }
 
       if (paymentsData) {
         const processedPayments = paymentsData.map(payment => ({
@@ -55,25 +67,27 @@ export const useAdminPayments = () => {
         
         setPayments(processedPayments);
         
-        // Calcular estatísticas
+        // Calcular estatísticas localmente
         const totalRevenue = processedPayments
           .filter(p => p.status === 'succeeded')
           .reduce((sum, p) => sum + Number(p.amount), 0);
         
         const averageTicket = processedPayments.length > 0 ? totalRevenue / processedPayments.length : 0;
 
-        if (mountedRef.current) {
-          setStats({
-            totalRevenue,
-            monthlyRevenue: 0,
-            totalTransactions: processedPayments.length,
-            activeSubscriptions: 0,
-            averageTicket
-          });
-        }
+        const calculatedStats = {
+          totalRevenue,
+          monthlyRevenue: totalRevenue * 0.3, // Estimativa
+          totalTransactions: processedPayments.length,
+          activeSubscriptions: processedPayments.filter(p => p.status === 'succeeded').length,
+          averageTicket
+        };
+
+        setStats(calculatedStats);
+        loadedRef.current = true; // Marca como carregado
+        console.log('✅ ADMIN PAYMENTS: Pagamentos carregados:', processedPayments.length);
       }
     } catch (error) {
-      console.error('❌ Erro ao carregar pagamentos:', error);
+      console.error('❌ ADMIN PAYMENTS: Erro ao carregar pagamentos:', error);
       if (mountedRef.current) {
         toast({
           title: "❌ Erro ao carregar pagamentos",
@@ -88,16 +102,14 @@ export const useAdminPayments = () => {
     }
   };
 
+  // Carregar apenas uma vez no mount
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-    
     loadPayments();
 
     return () => {
       mountedRef.current = false;
     };
-  }, []);
+  }, []); // Array vazio - executa apenas uma vez
 
   const exportPayments = () => {
     if (payments.length === 0) {

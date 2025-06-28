@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,37 +24,63 @@ export const useAdminProjects = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
+  const mountedRef = useRef(true);
+  const loadedRef = useRef(false);
   const { toast } = useToast();
 
   const loadProjects = async () => {
+    // Cache inteligente - só carrega se necessário
+    if (loadedRef.current && projects.length > 0) {
+      console.log('📦 ADMIN PROJECTS: Usando cache - dados já carregados');
+      return;
+    }
+
+    console.log('🔄 ADMIN PROJECTS: Carregando projetos...');
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      
       const { data: projectsData, error } = await supabase
         .from('projects')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
 
+      if (!mountedRef.current) return;
+
       if (error) {
-        console.error('Error loading projects:', error);
+        console.error('❌ ADMIN PROJECTS: Erro ao carregar projetos:', error);
         throw error;
       }
 
       if (projectsData) {
         setProjects(projectsData);
+        loadedRef.current = true; // Marca como carregado
+        console.log('✅ ADMIN PROJECTS: Projetos carregados:', projectsData.length);
       }
     } catch (error) {
-      console.error('Error loading projects:', error);
-      toast({
-        title: "❌ Erro ao carregar projetos",
-        description: "Não foi possível carregar os projetos.",
-        variant: "destructive"
-      });
+      console.error('❌ ADMIN PROJECTS: Erro ao carregar projetos:', error);
+      if (mountedRef.current) {
+        toast({
+          title: "❌ Erro ao carregar projetos",
+          description: "Não foi possível carregar os projetos.",
+          variant: "destructive"
+        });
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   };
+
+  // Carregar apenas uma vez no mount
+  useEffect(() => {
+    loadProjects();
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []); // Array vazio - executa apenas uma vez
 
   const updateProjectStatus = async (projectId: string, newStatus: string) => {
     try {
@@ -65,6 +91,7 @@ export const useAdminProjects = () => {
 
       if (error) throw error;
 
+      // Atualizar estado local
       setProjects(prev => 
         prev.map(project => 
           project.id === projectId 
@@ -96,6 +123,7 @@ export const useAdminProjects = () => {
 
       if (error) throw error;
 
+      // Atualizar estado local
       setProjects(prev => prev.filter(project => project.id !== projectId));
 
       toast({
@@ -118,12 +146,7 @@ export const useAdminProjects = () => {
     setFilterType('');
   };
 
-  // Carregar dados apenas uma vez na montagem
-  useEffect(() => {
-    loadProjects();
-  }, []); // Dependência vazia
-
-  // Filtrar dados localmente
+  // Filtrar dados localmente (sem re-renders)
   const filteredProjects = projects.filter(project => {
     const matchesSearch = searchTerm === '' || 
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
