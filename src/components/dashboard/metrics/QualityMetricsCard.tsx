@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Award, CheckCircle, RefreshCw, Target } from 'lucide-react';
@@ -32,21 +31,46 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
     return 'Precisa Melhorar';
   };
 
-  const tooltipContent = `
-    **QUALIDADE DOS DADOS** - Como Interpretar:
-
-    • **QUALIDADE GERAL:** Média de todas as métricas. Excelente (+90%) | Boa (80-89%) | Regular (60-79%) | Precisa Melhorar (-60%).
-
-    • **COMPLETUDE:** Projetos com análise completa (orçamento + cronograma + documentação).
-
-    • **DADOS:** Qualidade das informações fornecidas. Dados melhores = análises mais precisas.
-
-    • **REVISÕES:** Projetos atualizados após análise inicial. Indica melhoria contínua.
-
-    • **PRECISÃO MÉDIA:** Confiabilidade das estimativas da IA. +80% = Muito confiável.
-
-    • **RECOMENDAÇÃO:** Sugestão automática para melhorar a qualidade geral do portfólio.
-  `;
+  const tooltipContent = (
+    <div className="space-y-3">
+      <div>
+        <strong className="text-gray-800 block mb-1">QUALIDADE DOS DADOS</strong>
+        <span className="text-sm">Como Interpretar:</span>
+      </div>
+      
+      <div className="space-y-2 text-sm">
+        <div>
+          <strong className="text-gray-800">• QUALIDADE GERAL:</strong>
+          <span className="ml-1">Média de todas as métricas. Excelente (+90%) | Boa (80-89%) | Regular (60-79%) | Precisa Melhorar (-60%).</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• COMPLETUDE:</strong>
+          <span className="ml-1">Projetos com análise completa (orçamento + cronograma + documentação).</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• DADOS:</strong>
+          <span className="ml-1">Qualidade das informações fornecidas. Dados melhores = análises mais precisas.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• REVISÕES:</strong>
+          <span className="ml-1">Projetos atualizados após análise inicial. Indica melhoria contínua.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• PRECISÃO MÉDIA:</strong>
+          <span className="ml-1">Confiabilidade das estimativas da IA. +80% = Muito confiável.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• RECOMENDAÇÃO:</strong>
+          <span className="ml-1">Sugestão automática para melhorar a qualidade geral do portfólio.</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">

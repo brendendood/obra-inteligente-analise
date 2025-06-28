@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/tooltip';
 
 interface InfoTooltipProps {
-  content: string;
+  content: string | React.ReactNode;
   className?: string;
 }
 
@@ -28,13 +28,17 @@ export const InfoTooltip = ({ content, className = '' }: InfoTooltipProps) => {
         <TooltipContent 
           side="top" 
           align="center"
-          className="max-w-md p-4 text-sm leading-relaxed bg-gray-100 text-gray-800 border border-gray-300 shadow-xl z-[9999]"
+          className="max-w-sm w-80 p-4 text-sm leading-relaxed bg-gray-50 text-gray-700 border border-gray-200 shadow-xl z-[9999]"
           sideOffset={12}
           avoidCollisions={true}
           collisionPadding={20}
         >
-          <div className="whitespace-pre-line max-h-96 overflow-y-auto">
-            {content}
+          <div className="max-h-96 overflow-y-auto space-y-2">
+            {typeof content === 'string' ? (
+              <div dangerouslySetInnerHTML={{ __html: content }} />
+            ) : (
+              content
+            )}
           </div>
         </TooltipContent>
       </Tooltip>

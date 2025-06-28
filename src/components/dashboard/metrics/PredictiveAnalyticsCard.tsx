@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Brain, AlertCircle, Calendar, Shield } from 'lucide-react';
@@ -34,19 +33,41 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
     return 'text-red-600';
   };
 
-  const tooltipContent = `
-    **ANÁLISE PREDITIVA** - Como Interpretar:
-
-    • **NÍVEL DE RISCO GERAL:** Avaliação baseada em complexidade e variação de custos. Baixo = Portfolio estável | Médio = Atenção | Alto = Revisão necessária.
-
-    • **PRAZOS 30D:** Projetos com deadlines críticos nos próximos 30 dias. 0 = Tranquilo | 1-2 = Atenção | +3 = Sobrecarga.
-
-    • **CUSTOS ALTO:** Projetos com orçamentos acima do padrão. Pode indicar especificações premium ou necessidade de revisão.
-
-    • **QUALIDADE:** Pontuação geral dos dados e análises. +80% = Excelente | 60-80% = Boa | -60% = Melhorar uploads.
-
-    • **RESUMO IA:** Análise automática do status geral com recomendações personalizadas.
-  `;
+  const tooltipContent = (
+    <div className="space-y-3">
+      <div>
+        <strong className="text-gray-800 block mb-1">ANÁLISE PREDITIVA</strong>
+        <span className="text-sm">Como Interpretar:</span>
+      </div>
+      
+      <div className="space-y-2 text-sm">
+        <div>
+          <strong className="text-gray-800">• NÍVEL DE RISCO GERAL:</strong>
+          <span className="ml-1">Avaliação baseada em complexidade e variação de custos. Baixo = Portfolio estável | Médio = Atenção | Alto = Revisão necessária.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• PRAZOS 30D:</strong>
+          <span className="ml-1">Projetos com deadlines críticos nos próximos 30 dias. 0 = Tranquilo | 1-2 = Atenção | +3 = Sobrecarga.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• CUSTOS ALTO:</strong>
+          <span className="ml-1">Projetos com orçamentos acima do padrão. Pode indicar especificações premium ou necessidade de revisão.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• QUALIDADE:</strong>
+          <span className="ml-1">Pontuação geral dos dados e análises. +80% = Excelente | 60-80% = Boa | -60% = Melhorar uploads.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• RESUMO IA:</strong>
+          <span className="ml-1">Análise automática do status geral com recomendações personalizadas.</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">

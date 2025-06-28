@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Clock, Zap, CheckCircle, AlertTriangle } from 'lucide-react';
@@ -25,19 +24,41 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
     return bottleneck === 'Análise Inicial' ? 'text-red-600' : 'text-yellow-600';
   };
 
-  const tooltipContent = `
-    **PERFORMANCE & EFICIÊNCIA** - Como Interpretar:
-
-    • **TEMPO MÉDIO:** Quanto tempo a IA leva para processar um projeto completo. Valores menores = melhor performance.
-
-    • **EFICIÊNCIA DE ANÁLISE:** Taxa de sucesso na primeira tentativa. +80% = Excelente | 60-80% = Boa | -60% = Melhorar qualidade dos dados.
-
-    • **DURAÇÃO MÉDIA DAS OBRAS:** Tempo previsto nos cronogramas gerados. Útil para planejar recursos.
-
-    • **NO PRAZO ENTREGUES:** Projetos processados dentro do tempo esperado. Indica confiabilidade do sistema.
-
-    • **STATUS DO FLUXO:** "Fluindo bem" = sem problemas | Nome da fase = gargalo identificado.
-  `;
+  const tooltipContent = (
+    <div className="space-y-3">
+      <div>
+        <strong className="text-gray-800 block mb-1">PERFORMANCE & EFICIÊNCIA</strong>
+        <span className="text-sm">Como Interpretar:</span>
+      </div>
+      
+      <div className="space-y-2 text-sm">
+        <div>
+          <strong className="text-gray-800">• TEMPO MÉDIO:</strong>
+          <span className="ml-1">Quanto tempo a IA leva para processar um projeto completo. Valores menores = melhor performance.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• EFICIÊNCIA DE ANÁLISE:</strong>
+          <span className="ml-1">Taxa de sucesso na primeira tentativa. +80% = Excelente | 60-80% = Boa | -60% = Melhorar qualidade dos dados.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• DURAÇÃO MÉDIA DAS OBRAS:</strong>
+          <span className="ml-1">Tempo previsto nos cronogramas gerados. Útil para planejar recursos.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• NO PRAZO ENTREGUES:</strong>
+          <span className="ml-1">Projetos processados dentro do tempo esperado. Indica confiabilidade do sistema.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• STATUS DO FLUXO:</strong>
+          <span className="ml-1">"Fluindo bem" = sem problemas | Nome da fase = gargalo identificado.</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">

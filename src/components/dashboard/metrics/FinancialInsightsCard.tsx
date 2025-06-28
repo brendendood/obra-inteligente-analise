@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { DollarSign, TrendingUp, TrendingDown, Target } from 'lucide-react';
@@ -38,19 +37,41 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
     return 'text-red-600';
   };
 
-  const tooltipContent = `
-    **ANÁLISE FINANCEIRA** - Como Interpretar:
-
-    • **INVESTIMENTO TOTAL:** Soma de todos os orçamentos dos seus projetos.
-
-    • **CUSTO MÉDIO/M²:** Valor médio por metro quadrado dos projetos com área definida. Use para comparar eficiência entre projetos similares.
-
-    • **VARIAÇÃO DE CUSTOS:** Diversidade dos custos dos projetos. Até 20% = Consistente | 20-40% = Moderada | +40% = Alta diversidade.
-
-    • **EFICIÊNCIA ORÇAMENTÁRIA:** Qualidade dos orçamentos gerados. +80% = Excelente | 60-80% = Boa | -60% = Melhorar dados de entrada.
-
-    • **PROJETOS DESTAQUE:** Comparação entre maior e menor investimento do portfólio.
-  `;
+  const tooltipContent = (
+    <div className="space-y-3">
+      <div>
+        <strong className="text-gray-800 block mb-1">ANÁLISE FINANCEIRA</strong>
+        <span className="text-sm">Como Interpretar:</span>
+      </div>
+      
+      <div className="space-y-2 text-sm">
+        <div>
+          <strong className="text-gray-800">• INVESTIMENTO TOTAL:</strong>
+          <span className="ml-1">Soma de todos os orçamentos dos seus projetos.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• CUSTO MÉDIO/M²:</strong>
+          <span className="ml-1">Valor médio por metro quadrado dos projetos com área definida. Use para comparar eficiência entre projetos similares.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• VARIAÇÃO DE CUSTOS:</strong>
+          <span className="ml-1">Diversidade dos custos dos projetos. Até 20% = Consistente | 20-40% = Moderada | +40% = Alta diversidade.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• EFICIÊNCIA ORÇAMENTÁRIA:</strong>
+          <span className="ml-1">Qualidade dos orçamentos gerados. +80% = Excelente | 60-80% = Boa | -60% = Melhorar dados de entrada.</span>
+        </div>
+        
+        <div>
+          <strong className="text-gray-800">• PROJETOS DESTAQUE:</strong>
+          <span className="ml-1">Comparação entre maior e menor investimento do portfólio.</span>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
