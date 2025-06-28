@@ -38,13 +38,8 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
     executeDelete,
   } = useProjectDeletion();
 
-  // Métricas avançadas
-  const {
-    avgCostPerSqm,
-    avgProjectDuration,
-    riskLevel,
-    monthlyProductivity
-  } = useAdvancedDashboardMetrics(projects);
+  // Métricas avançadas completas
+  const advancedMetrics = useAdvancedDashboardMetrics(projects);
 
   // Carregar projetos quando o dashboard carregar
   useEffect(() => {
@@ -69,12 +64,13 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
 
   return (
     <div className="flex flex-col space-y-8 w-full min-w-0">
-      {/* Grid Unificado de Estatísticas - Todos os 7 Cards */}
+      {/* Grid de Métricas Avançadas - Cards Organizados */}
       <DashboardStatsGrid 
         stats={stats}
-        avgCostPerSqm={avgCostPerSqm}
-        avgProjectDuration={avgProjectDuration}
-        riskLevel={riskLevel}
+        avgCostPerSqm={advancedMetrics.financial.avgCostPerSqm}
+        avgProjectDuration={advancedMetrics.performance.avgProjectDuration}
+        riskLevel={advancedMetrics.predictive.riskLevel}
+        advancedMetrics={advancedMetrics}
       />
       
       {/* Quick Actions Refinadas */}
@@ -89,9 +85,9 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
         />
       </div>
       
-      {/* Gráfico de Produtividade - Largura Total */}
+      {/* Gráfico de Produtividade Atualizado - Largura Total */}
       <div className="w-full">
-        <MonthlyProductivityChart data={monthlyProductivity} />
+        <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
       </div>
 
       {/* Dialog de Confirmação de Exclusão */}
