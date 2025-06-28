@@ -14,14 +14,14 @@ export function useAuth() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error('Erro ao obter sessão inicial:', error);
+          console.error('❌ AUTH: Erro ao obter sessão inicial:', error);
         } else {
           console.log('🔐 AUTH: Sessão inicial carregada:', session ? 'Autenticado' : 'Não autenticado');
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('Erro crítico na autenticação:', error);
+        console.error('💥 AUTH: Erro crítico na autenticação:', error);
       } finally {
         setLoading(false);
       }
@@ -29,7 +29,7 @@ export function useAuth() {
 
     // Configurar listener de mudanças de auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('🔐 AUTH: Evento de mudança:', event, session ? 'Autenticado' : 'Não autenticado');
         setSession(session);
         setUser(session?.user ?? null);
@@ -37,9 +37,21 @@ export function useAuth() {
         
         // Log específico para login/logout
         if (event === 'SIGNED_IN') {
-          console.log('✅ Login realizado com sucesso para:', session?.user?.email);
+          console.log('✅ LOGIN: Sucesso para:', session?.user?.email);
+          
+          // Verificar se é admin após login bem-sucedido
+          if (session?.user) {
+            try {
+              const { data: isAdmin, error } = await supabase.rpc('is_admin_user');
+              if (!error && isAdmin) {
+                console.log('👑 AUTH: Usuário admin detectado:', session.user.email);
+              }
+            } catch (error) {
+              console.error('⚠️ AUTH: Erro ao verificar status admin:', error);
+            }
+          }
         } else if (event === 'SIGNED_OUT') {
-          console.log('👋 Logout realizado');
+          console.log('👋 LOGOUT: Usuário desconectado');
         }
       }
     );

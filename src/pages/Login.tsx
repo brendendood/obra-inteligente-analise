@@ -43,11 +43,17 @@ const Login = () => {
       if (error) {
         console.error('❌ LOGIN: Erro no login:', error);
         
-        // Tratamento específico para credenciais inválidas
+        // Tratamento específico para diferentes tipos de erro
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "❌ Credenciais inválidas",
             description: "Email ou senha incorretos. Verifique seus dados e tente novamente.",
+            variant: "destructive",
+          });
+        } else if (error.message.includes('Email not confirmed')) {
+          toast({
+            title: "📧 Email não confirmado",
+            description: "Verifique sua caixa de entrada e confirme seu email.",
             variant: "destructive",
           });
         } else {
@@ -60,21 +66,35 @@ const Login = () => {
         return;
       }
 
-      console.log('✅ LOGIN: Login realizado com sucesso:', data.user?.email);
+      if (!data.user) {
+        throw new Error('Nenhuma informação de usuário retornada');
+      }
+
+      console.log('✅ LOGIN: Login realizado com sucesso:', data.user.email);
       
       toast({
         title: "✅ Login realizado!",
-        description: `Bem-vindo(a), ${data.user?.email}!`,
+        description: `Bem-vindo(a), ${data.user.email}!`,
       });
 
       // Verificar se é admin para redirecionar apropriadamente
-      const { data: adminCheck } = await supabase.rpc('is_admin_user');
-      
-      if (adminCheck) {
-        console.log('👑 LOGIN: Usuário admin detectado, redirecionando para admin panel');
-        navigate('/admin-panel');
-      } else {
-        console.log('👤 LOGIN: Usuário comum, redirecionando para painel');
+      try {
+        const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin_user');
+        
+        if (adminError) {
+          console.error('⚠️ LOGIN: Erro ao verificar status admin:', adminError);
+        }
+        
+        if (adminCheck) {
+          console.log('👑 LOGIN: Usuário admin detectado, redirecionando para admin panel');
+          navigate('/admin-panel');
+        } else {
+          console.log('👤 LOGIN: Usuário comum, redirecionando para painel');
+          navigate('/painel');
+        }
+      } catch (adminCheckError) {
+        console.error('💥 LOGIN: Erro crítico na verificação admin:', adminCheckError);
+        // Em caso de erro na verificação, redirecionar para painel normal
         navigate('/painel');
       }
 
@@ -153,6 +173,7 @@ const Login = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     required
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -172,11 +193,13 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-12 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     required
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -239,6 +262,7 @@ const Login = () => {
                   setPassword('admin123');
                 }}
                 className="mt-2 text-xs border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                disabled={isLoading}
               >
                 Usar credenciais admin
               </Button>
