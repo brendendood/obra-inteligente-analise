@@ -21,7 +21,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import AdminStatsCard from '@/components/admin/AdminStatsCard';
+import { AdminStatsCard } from '@/components/admin/AdminStatsCard';
 import UsersList from '@/components/admin/UsersList';
 import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
 
