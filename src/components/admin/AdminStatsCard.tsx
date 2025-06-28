@@ -7,11 +7,10 @@ interface AdminStatsCardProps {
   value: string | number;
   description?: string;
   icon: LucideIcon;
-  color: string;
-  bgColor: string;
   trend?: {
     value: number;
-    isPositive: boolean;
+    label: string;
+    positive: boolean;
   };
 }
 
@@ -20,8 +19,6 @@ export const AdminStatsCard = ({
   value,
   description,
   icon: Icon,
-  color,
-  bgColor,
   trend
 }: AdminStatsCardProps) => {
   return (
@@ -38,16 +35,16 @@ export const AdminStatsCard = ({
             )}
             {trend && (
               <div className={`flex items-center gap-1 mt-2 text-xs ${
-                trend.isPositive ? 'text-green-600' : 'text-red-600'
+                trend.positive ? 'text-green-600' : 'text-red-600'
               }`}>
-                <span>{trend.isPositive ? '↑' : '↓'}</span>
+                <span>{trend.positive ? '↑' : '↓'}</span>
                 <span>{Math.abs(trend.value)}%</span>
-                <span className="text-gray-500">vs. mês anterior</span>
+                <span className="text-gray-500">{trend.label}</span>
               </div>
             )}
           </div>
-          <div className={`p-3 rounded-lg ${bgColor}`}>
-            <Icon className={`h-6 w-6 ${color}`} />
+          <div className="p-3 rounded-lg bg-blue-50">
+            <Icon className="h-6 w-6 text-blue-600" />
           </div>
         </div>
       </CardContent>
