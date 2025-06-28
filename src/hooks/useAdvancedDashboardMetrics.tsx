@@ -15,17 +15,26 @@ interface AdvancedMetrics {
 
 export const useAdvancedDashboardMetrics = (projects: Project[]): AdvancedMetrics => {
   return useMemo(() => {
-    // Calcular custo médio por m²
+    console.log('📊 METRICS: Recalculando métricas do dashboard com', projects.length, 'projetos');
+    
+    // Recalcular custo médio por m² (exclui projetos deletados)
     const avgCostPerSqm = calculateAvgCostPerSqm(projects);
     
-    // Calcular duração média da obra
+    // Recalcular duração média da obra (exclui projetos deletados)
     const avgProjectDuration = calculateAvgProjectDuration(projects);
     
-    // Calcular nível de risco agregado
+    // Recalcular nível de risco agregado (baseado apenas em projetos ativos)
     const riskLevel = calculateRiskLevel(projects);
     
-    // Calcular produtividade mensal
+    // Recalcular produtividade mensal (apenas projetos existentes)
     const monthlyProductivity = calculateMonthlyProductivity(projects);
+
+    console.log('✅ METRICS: Métricas recalculadas:', {
+      projetos: projects.length,
+      custoMedio: avgCostPerSqm,
+      duracaoMedia: avgProjectDuration,
+      nivelRisco: riskLevel
+    });
 
     return {
       avgCostPerSqm,
@@ -33,7 +42,7 @@ export const useAdvancedDashboardMetrics = (projects: Project[]): AdvancedMetric
       riskLevel,
       monthlyProductivity
     };
-  }, [projects]);
+  }, [projects]); // Dependência direta dos projetos para recálculo automático
 };
 
 const calculateAvgCostPerSqm = (projects: Project[]): number | null => {
@@ -45,7 +54,10 @@ const calculateAvgCostPerSqm = (projects: Project[]): number | null => {
     project.total_area > 0
   );
 
-  if (projectsWithBudget.length === 0) return null;
+  if (projectsWithBudget.length === 0) {
+    console.log('💰 METRICS: Nenhum projeto com orçamento válido para cálculo de custo/m²');
+    return null;
+  }
 
   const totalCostPerSqm = projectsWithBudget.reduce((sum, project) => {
     const totalCost = project.analysis_data.budget.total_cost;
@@ -53,7 +65,9 @@ const calculateAvgCostPerSqm = (projects: Project[]): number | null => {
     return sum + (totalCost / area);
   }, 0);
 
-  return Math.round(totalCostPerSqm / projectsWithBudget.length);
+  const result = Math.round(totalCostPerSqm / projectsWithBudget.length);
+  console.log('💰 METRICS: Custo médio por m² recalculado:', result, 'com', projectsWithBudget.length, 'projetos');
+  return result;
 };
 
 const calculateAvgProjectDuration = (projects: Project[]): number | null => {
@@ -63,17 +77,25 @@ const calculateAvgProjectDuration = (projects: Project[]): number | null => {
     project.analysis_data.schedule.total_duration
   );
 
-  if (projectsWithSchedule.length === 0) return null;
+  if (projectsWithSchedule.length === 0) {
+    console.log('⏱️ METRICS: Nenhum projeto com cronograma válido para cálculo de duração');
+    return null;
+  }
 
   const totalDuration = projectsWithSchedule.reduce((sum, project) => {
     return sum + project.analysis_data.schedule.total_duration;
   }, 0);
 
-  return Math.round(totalDuration / projectsWithSchedule.length);
+  const result = Math.round(totalDuration / projectsWithSchedule.length);
+  console.log('⏱️ METRICS: Duração média recalculada:', result, 'dias com', projectsWithSchedule.length, 'projetos');
+  return result;
 };
 
 const calculateRiskLevel = (projects: Project[]): 'Baixo' | 'Médio' | 'Alto' => {
-  if (projects.length === 0) return 'Baixo';
+  if (projects.length === 0) {
+    console.log('⚠️ METRICS: Nenhum projeto para análise de risco - definindo como Baixo');
+    return 'Baixo';
+  }
 
   let riskScore = 0;
   
@@ -108,9 +130,12 @@ const calculateRiskLevel = (projects: Project[]): 'Baixo' | 'Médio' | 'Alto' =>
 
   const riskPercentage = (riskScore / (projects.length * 2)) * 100;
   
-  if (riskPercentage >= 60) return 'Alto';
-  if (riskPercentage >= 30) return 'Médio';
-  return 'Baixo';
+  let level: 'Baixo' | 'Médio' | 'Alto' = 'Baixo';
+  if (riskPercentage >= 60) level = 'Alto';
+  else if (riskPercentage >= 30) level = 'Médio';
+  
+  console.log('⚠️ METRICS: Nível de risco recalculado:', level, 'com score', riskScore, 'para', projects.length, 'projetos');
+  return level;
 };
 
 const calculateMonthlyProductivity = (projects: Project[]) => {
@@ -127,7 +152,6 @@ const calculateMonthlyProductivity = (projects: Project[]) => {
              createdDate.getFullYear() === date.getFullYear();
     }).length;
     
-    // Simular projetos finalizados baseado nos que têm análise completa
     const completed = projects.filter(project => {
       const createdDate = new Date(project.created_at);
       const isFromThisMonth = createdDate.getMonth() === date.getMonth() && 
@@ -142,5 +166,6 @@ const calculateMonthlyProductivity = (projects: Project[]) => {
     });
   }
   
+  console.log('📈 METRICS: Produtividade mensal recalculada para últimos 6 meses');
   return last6Months;
 };

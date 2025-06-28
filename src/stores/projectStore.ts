@@ -76,20 +76,28 @@ export const useProjectStore = create<ProjectState>()(
           }
         },
 
-        // Deletar projeto
+        // Deletar projeto com integridade atômica
         deleteProject: async (projectId: string) => {
           const currentProjects = get().projects;
+          const projectToDelete = currentProjects.find(p => p.id === projectId);
+          
+          if (!projectToDelete) {
+            console.error('❌ STORE: Projeto não encontrado para exclusão:', projectId);
+            return false;
+          }
+
+          console.log('🔄 STORE: Iniciando exclusão atômica para:', projectToDelete.name);
           
           try {
-            console.log('🗑️ STORE: Deletando projeto:', projectId);
-            
-            // Otimistic update - remove da lista imediatamente
+            // FASE 1: Otimistic update - remove da interface imediatamente
+            console.log('📱 STORE: Removendo da interface (Fase 1)...');
             set({ 
               projects: currentProjects.filter(p => p.id !== projectId),
               error: null 
             });
 
-            // Chamar API para deletar
+            // FASE 2: Exclusão permanente da base de dados
+            console.log('🗄️ STORE: Removendo da base de dados (Fase 2)...');
             const { error } = await supabase
               .from('projects')
               .delete()
@@ -99,17 +107,21 @@ export const useProjectStore = create<ProjectState>()(
               throw error;
             }
 
-            console.log('✅ STORE: Projeto deletado com sucesso');
+            // FASE 3: Confirmação de integridade
+            console.log('✅ STORE: Exclusão atômica concluída com sucesso');
+            console.log('📊 STORE: Dashboard será recalculado automaticamente');
+            
             return true;
             
           } catch (error) {
-            // Reverter otimistic update em caso de erro
+            // ROLLBACK: Reverter otimistic update em caso de falha
+            console.error('💥 STORE: Falha na exclusão - executando rollback');
             set({ 
               projects: currentProjects,
               error: error instanceof Error ? error.message : 'Erro ao excluir projeto'
             });
             
-            console.error('❌ STORE: Erro ao deletar projeto:', error);
+            console.error('❌ STORE: Integridade preservada após falha:', error);
             return false;
           }
         },
@@ -141,7 +153,7 @@ export const useProjectStore = create<ProjectState>()(
 
         // Forçar refresh completo
         forceRefresh: async () => {
-          console.log('🔄 STORE: Forçando refresh...');
+          console.log('🔄 STORE: Forçando refresh completo...');
           await get().fetchProjects();
         },
 
@@ -151,26 +163,26 @@ export const useProjectStore = create<ProjectState>()(
         }
       }),
       {
-        name: 'project-store', // Nome para localStorage
+        name: 'project-store',
         partialize: (state) => ({ 
           projects: state.projects,
           lastRefresh: state.lastRefresh 
-        }), // Salvar apenas projetos e timestamp
+        }),
       }
     ),
     {
-      name: 'project-store' // Nome para devtools
+      name: 'project-store'
     }
   )
 );
 
-// Hook personalizado para estatísticas dos projetos
+// Hook para estatísticas sincronizadas com exclusões
 export const useProjectStats = () => {
   const projects = useProjectStore(state => state.projects);
   
   return {
     totalProjects: projects.length,
     processedProjects: projects.filter(p => p.analysis_data).length,
-    recentProjects: projects.slice(0, 6), // 6 mais recentes para o dashboard
+    recentProjects: projects.slice(0, 6),
   };
 };

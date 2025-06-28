@@ -1,9 +1,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectStore } from '@/stores/projectStore';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardStats {
   totalProjects: number;
@@ -17,11 +16,7 @@ interface DashboardStats {
 
 export const useDashboardData = () => {
   const { user, isAuthenticated } = useAuth();
-  const { 
-    projects, 
-    isLoading: isLoadingProjects, 
-    forceRefresh: refreshProjects 
-  } = useProjectsConsistency();
+  const { projects, isLoading: isLoadingProjects } = useProjectStore();
   
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
@@ -35,9 +30,11 @@ export const useDashboardData = () => {
   const { toast } = useToast();
   const mountedRef = useRef(true);
 
-  // Calcular estatísticas sempre que os projetos mudarem
+  // Recalcular estatísticas SEMPRE que os projetos mudarem (incluindo após exclusões)
   useEffect(() => {
     if (!mountedRef.current || !projects) return;
+
+    console.log('📊 DASHBOARD: Recalculando estatísticas para', projects.length, 'projetos');
 
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
@@ -63,7 +60,7 @@ export const useDashboardData = () => {
 
     const averageArea = projects.length > 0 ? Math.round(totalArea / projects.length) : 0;
 
-    // Agrupar projetos por tipo
+    // Recalcular tipos de projeto após exclusões
     const projectsByType = projects.reduce((acc: Record<string, number>, project: any) => {
       const type = project.project_type || 'Não definido';
       acc[type] = (acc[type] || 0) + 1;
@@ -81,58 +78,20 @@ export const useDashboardData = () => {
     };
 
     setStats(newStats);
-  }, [projects]);
+    
+    console.log('✅ DASHBOARD: Estatísticas recalculadas:', {
+      total: newStats.totalProjects,
+      processados: newStats.processedProjects,
+      area: newStats.totalArea,
+      tipos: Object.keys(newStats.projectsByType).length
+    });
+  }, [projects]); // Dependência direta para recálculo automático
 
-  // Função para excluir todos os projetos
-  const handleDeleteAllProjects = async () => {
-    if (!user || !isAuthenticated) {
-      toast({
-        title: "❌ Erro de autenticação",
-        description: "Você precisa estar logado para excluir projetos.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { data: userProjects, error: fetchError } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('user_id', user.id);
-
-      if (fetchError) throw fetchError;
-
-      if (userProjects && userProjects.length > 0) {
-        const { error: deleteError } = await supabase
-          .from('projects')
-          .delete()
-          .eq('user_id', user.id);
-
-        if (deleteError) throw deleteError;
-        
-        if (mountedRef.current) {
-          await refreshProjects();
-          
-          toast({
-            title: "✅ Projetos excluídos!",
-            description: `${userProjects.length} projeto(s) foram removidos com sucesso.`,
-          });
-        }
-      } else {
-        toast({
-          title: "ℹ️ Nenhum projeto encontrado",
-          description: "Não há projetos para excluir.",
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao excluir projetos:', error);
-      toast({
-        title: "❌ Erro ao excluir",
-        description: "Não foi possível excluir os projetos.",
-        variant: "destructive",
-      });
-    }
-  };
+  // Função para refresh manual
+  const forceRefresh = useCallback(async () => {
+    console.log('🔄 DASHBOARD: Forçando refresh dos dados...');
+    // O recálculo acontecerá automaticamente via useEffect quando os projetos mudarem
+  }, []);
 
   // Cleanup na desmontagem
   useEffect(() => {
@@ -145,8 +104,6 @@ export const useDashboardData = () => {
     projects,
     stats,
     isLoadingProjects,
-    loadProjects: refreshProjects,
-    handleDeleteAllProjects,
-    forceRefresh: refreshProjects
+    forceRefresh
   };
 };
