@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ export const MyAccountDialog = ({ isOpen, onClose }: MyAccountDialogProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Estados do formulário de perfil
   const [profileData, setProfileData] = useState({
@@ -52,6 +53,91 @@ export const MyAccountDialog = ({ isOpen, onClose }: MyAccountDialogProps) => {
   });
 
   const [deactivatePassword, setDeactivatePassword] = useState('');
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "❌ Arquivo inválido",
+        description: "Por favor, selecione uma imagem válida.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validar tamanho (máximo 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "❌ Arquivo muito grande",
+        description: "A imagem deve ter no máximo 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Criar nome único para o arquivo
+      const fileName = `${user.id}/avatar-${Date.now()}.${file.type.split('/')[1]}`;
+
+      // Upload para o Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Obter URL pública da imagem
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Atualizar metadados do usuário
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: {
+          ...user.user_metadata,
+          avatar_url: publicUrl
+        }
+      });
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      // Atualizar estado local
+      setProfileData(prev => ({ ...prev, profilePicture: publicUrl }));
+
+      toast({
+        title: "📸 Foto atualizada",
+        description: "Sua foto de perfil foi alterada com sucesso.",
+      });
+    } catch (error) {
+      console.error('Error uploading photo:', error);
+      toast({
+        title: "❌ Erro no upload",
+        description: "Não foi possível alterar a foto. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+      // Limpar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleProfileUpdate = async () => {
     setIsLoading(true);
@@ -219,10 +305,27 @@ export const MyAccountDialog = ({ isOpen, onClose }: MyAccountDialogProps) => {
                   {user?.email?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <Button variant="outline" size="sm">
-                <Upload className="h-4 w-4 mr-2" />
-                Alterar Foto
-              </Button>
+              <div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handlePhotoClick}
+                  disabled={isLoading}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isLoading ? 'Enviando...' : 'Alterar Foto'}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  JPG, PNG ou GIF. Máximo 5MB.
+                </p>
+              </div>
             </div>
 
             <div className="space-y-4">
