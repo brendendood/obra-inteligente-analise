@@ -39,17 +39,17 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
   };
 
   const tooltipContent = `
-    ANÁLISE FINANCEIRA - Como Interpretar:
+    **ANÁLISE FINANCEIRA** - Como Interpretar:
 
-    • INVESTIMENTO TOTAL: Soma de todos os orçamentos dos seus projetos. Representa o capital total planejado para execução.
+    • **INVESTIMENTO TOTAL:** Soma de todos os orçamentos dos seus projetos.
 
-    • CUSTO MÉDIO/M²: Valor médio por metro quadrado calculado apenas dos projetos que possuem área definida. Use para comparar eficiência entre projetos similares.
+    • **CUSTO MÉDIO/M²:** Valor médio por metro quadrado dos projetos com área definida. Use para comparar eficiência entre projetos similares.
 
-    • VARIAÇÃO DE CUSTOS: Mostra o quanto seus projetos diferem em custo. Até 20% = Consistente | 20-40% = Moderada | +40% = Alta diversidade de projetos.
+    • **VARIAÇÃO DE CUSTOS:** Diversidade dos custos dos projetos. Até 20% = Consistente | 20-40% = Moderada | +40% = Alta diversidade.
 
-    • EFICIÊNCIA ORÇAMENTÁRIA: Qualidade dos dados dos orçamentos gerados. +80% = Excelente | 60-80% = Boa | -60% = Precisa melhorar dados de entrada.
+    • **EFICIÊNCIA ORÇAMENTÁRIA:** Qualidade dos orçamentos gerados. +80% = Excelente | 60-80% = Boa | -60% = Melhorar dados de entrada.
 
-    • PROJETOS DESTAQUE: Comparação entre maior e menor investimento para entender a amplitude do seu portfólio.
+    • **PROJETOS DESTAQUE:** Comparação entre maior e menor investimento do portfólio.
   `;
 
   return (

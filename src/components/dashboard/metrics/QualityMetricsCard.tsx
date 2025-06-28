@@ -33,19 +33,19 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
   };
 
   const tooltipContent = `
-    QUALIDADE DOS DADOS - Como Interpretar:
+    **QUALIDADE DOS DADOS** - Como Interpretar:
 
-    • QUALIDADE GERAL: Média de todas as métricas de qualidade. Excelente (+90%) | Boa (80-89%) | Regular (60-79%) | Precisa Melhorar (-60%).
+    • **QUALIDADE GERAL:** Média de todas as métricas. Excelente (+90%) | Boa (80-89%) | Regular (60-79%) | Precisa Melhorar (-60%).
 
-    • COMPLETUDE: Projetos com análise completa (orçamento + cronograma + documentação). Indica maturidade do portfólio.
+    • **COMPLETUDE:** Projetos com análise completa (orçamento + cronograma + documentação).
 
-    • DADOS: Qualidade das informações fornecidas (plantas, docs, especificações). Dados melhores = análises mais precisas.
+    • **DADOS:** Qualidade das informações fornecidas. Dados melhores = análises mais precisas.
 
-    • REVISÕES: Projetos atualizados após análise inicial. Indica melhoria contínua e refinamento dos processos.
+    • **REVISÕES:** Projetos atualizados após análise inicial. Indica melhoria contínua.
 
-    • PRECISÃO MÉDIA: Confiabilidade das estimativas da IA comparada com revisões posteriores. +80% = Muito confiável.
+    • **PRECISÃO MÉDIA:** Confiabilidade das estimativas da IA. +80% = Muito confiável.
 
-    • RECOMENDAÇÃO: Sugestão automática para melhorar a qualidade geral do seu portfólio.
+    • **RECOMENDAÇÃO:** Sugestão automática para melhorar a qualidade geral do portfólio.
   `;
 
   return (

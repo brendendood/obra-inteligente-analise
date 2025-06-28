@@ -26,17 +26,17 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
   };
 
   const tooltipContent = `
-    PERFORMANCE & EFICIÊNCIA - Como Interpretar:
+    **PERFORMANCE & EFICIÊNCIA** - Como Interpretar:
 
-    • TEMPO MÉDIO: Quanto tempo a IA leva para processar completamente um projeto, desde upload até orçamento final. Valores menores indicam melhor performance.
+    • **TEMPO MÉDIO:** Quanto tempo a IA leva para processar um projeto completo. Valores menores = melhor performance.
 
-    • EFICIÊNCIA DE ANÁLISE: Taxa de sucesso na primeira tentativa. +80% = Excelente | 60-80% = Boa | -60% = Precisa melhorar qualidade dos dados de entrada.
+    • **EFICIÊNCIA DE ANÁLISE:** Taxa de sucesso na primeira tentativa. +80% = Excelente | 60-80% = Boa | -60% = Melhorar qualidade dos dados.
 
-    • DURAÇÃO MÉDIA DAS OBRAS: Tempo previsto nos cronogramas gerados. Útil para planejar recursos e cronograma de outros projetos.
+    • **DURAÇÃO MÉDIA DAS OBRAS:** Tempo previsto nos cronogramas gerados. Útil para planejar recursos.
 
-    • NO PRAZO ENTREGUES: Projetos processados dentro do tempo esperado. Indica confiabilidade do sistema para seus planejamentos.
+    • **NO PRAZO ENTREGUES:** Projetos processados dentro do tempo esperado. Indica confiabilidade do sistema.
 
-    • STATUS DO FLUXO: Identifica gargalos no processo. "Fluindo bem" = sem problemas | Nome da fase = gargalo identificado que precisa atenção.
+    • **STATUS DO FLUXO:** "Fluindo bem" = sem problemas | Nome da fase = gargalo identificado.
   `;
 
   return (

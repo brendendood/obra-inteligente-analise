@@ -28,10 +28,12 @@ export const InfoTooltip = ({ content, className = '' }: InfoTooltipProps) => {
         <TooltipContent 
           side="top" 
           align="center"
-          className="max-w-sm p-4 text-sm leading-relaxed bg-gray-900 text-white border border-gray-700 shadow-lg"
-          sideOffset={8}
+          className="max-w-md p-4 text-sm leading-relaxed bg-gray-100 text-gray-800 border border-gray-300 shadow-xl z-[9999]"
+          sideOffset={12}
+          avoidCollisions={true}
+          collisionPadding={20}
         >
-          <div className="whitespace-pre-line">
+          <div className="whitespace-pre-line max-h-96 overflow-y-auto">
             {content}
           </div>
         </TooltipContent>

@@ -35,17 +35,17 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
   };
 
   const tooltipContent = `
-    ANÁLISE PREDITIVA - Como Interpretar:
+    **ANÁLISE PREDITIVA** - Como Interpretar:
 
-    • NÍVEL DE RISCO GERAL: Avaliação baseada em complexidade, variação de custos e prazos. Baixo = Portfolio estável | Médio = Atenção recomendada | Alto = Revisão necessária.
+    • **NÍVEL DE RISCO GERAL:** Avaliação baseada em complexidade e variação de custos. Baixo = Portfolio estável | Médio = Atenção | Alto = Revisão necessária.
 
-    • PRAZOS 30D: Projetos com deadlines críticos nos próximos 30 dias. 0 = Tranquilo | 1-2 = Atenção | +3 = Sobrecarga identificada.
+    • **PRAZOS 30D:** Projetos com deadlines críticos nos próximos 30 dias. 0 = Tranquilo | 1-2 = Atenção | +3 = Sobrecarga.
 
-    • CUSTOS ALTO: Projetos com orçamentos acima do padrão. Pode indicar especificações premium ou necessidade de revisão.
+    • **CUSTOS ALTO:** Projetos com orçamentos acima do padrão. Pode indicar especificações premium ou necessidade de revisão.
 
-    • QUALIDADE: Pontuação geral dos dados e análises. +80% = Excelente | 60-80% = Boa | -60% = Melhorar qualidade dos uploads.
+    • **QUALIDADE:** Pontuação geral dos dados e análises. +80% = Excelente | 60-80% = Boa | -60% = Melhorar uploads.
 
-    • RESUMO IA: Análise automática do status geral do portfólio com recomendações personalizadas baseadas nos seus dados.
+    • **RESUMO IA:** Análise automática do status geral com recomendações personalizadas.
   `;
 
   return (
