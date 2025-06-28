@@ -64,19 +64,10 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
 
   return (
     <div className="flex flex-col space-y-8 w-full min-w-0">
-      {/* Grid de Métricas Avançadas - Cards Organizados */}
-      <DashboardStatsGrid 
-        stats={stats}
-        avgCostPerSqm={advancedMetrics.financial.avgCostPerSqm}
-        avgProjectDuration={advancedMetrics.performance.avgProjectDuration}
-        riskLevel={advancedMetrics.predictive.riskLevel}
-        advancedMetrics={advancedMetrics}
-      />
-      
-      {/* Quick Actions Refinadas */}
+      {/* 1. AÇÕES RÁPIDAS - Primeiro lugar */}
       <QuickActions />
       
-      {/* Hub de Projetos Centralizado - Largura Total */}
+      {/* 2. HUB DE PROJETOS - Segundo lugar */}
       <div className="w-full">
         <EnhancedProjectsSection
           projects={projects}
@@ -85,7 +76,16 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
         />
       </div>
       
-      {/* Gráfico de Produtividade Atualizado - Largura Total */}
+      {/* 3. MÉTRICAS AVANÇADAS - Terceiro lugar */}
+      <DashboardStatsGrid 
+        stats={stats}
+        avgCostPerSqm={advancedMetrics.financial.avgCostPerSqm}
+        avgProjectDuration={advancedMetrics.performance.avgProjectDuration}
+        riskLevel={advancedMetrics.predictive.riskLevel}
+        advancedMetrics={advancedMetrics}
+      />
+      
+      {/* 4. GRÁFICO DE PRODUTIVIDADE - Por último */}
       <div className="w-full">
         <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
       </div>
