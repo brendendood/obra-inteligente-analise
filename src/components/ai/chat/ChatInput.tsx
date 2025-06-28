@@ -1,6 +1,5 @@
 
 import { useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
 
@@ -52,13 +51,13 @@ export const ChatInput = ({
             disabled={isLoading}
           />
         </div>
-        <Button
+        <button
           onClick={sendMessage}
           disabled={!inputMessage.trim() || isLoading}
-          className="bg-blue-600 hover:bg-blue-700 w-12 h-12 p-0 flex-shrink-0 rounded-xl flex items-center justify-center"
+          className="p-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Send className="h-5 w-5" />
-        </Button>
+          <Send className="h-5 w-5 text-blue-600" />
+        </button>
       </div>
     </div>
   );
