@@ -30,7 +30,7 @@ export function useAdminStats() {
       try {
         console.log('🔍 ADMIN: Verificando status admin para:', user.email);
         
-        // Verificar se é admin de forma simples - sem usar RLS
+        // Verificar se é admin usando a tabela admin_permissions
         const { data: adminCheck, error: adminError } = await supabase
           .from('admin_permissions')
           .select('*')
@@ -41,35 +41,40 @@ export function useAdminStats() {
         if (adminError) {
           console.error('❌ ADMIN: Erro ao verificar status admin:', adminError);
           setIsAdmin(false);
-        } else {
-          const isUserAdmin = adminCheck && adminCheck.length > 0;
-          console.log('🎯 ADMIN: Status verificado:', isUserAdmin ? 'É ADMIN' : 'NÃO É ADMIN');
-          setIsAdmin(isUserAdmin);
+          setLoading(false);
+          return;
+        }
+
+        const isUserAdmin = adminCheck && adminCheck.length > 0;
+        console.log('🎯 ADMIN: Status verificado:', isUserAdmin ? 'É ADMIN' : 'NÃO É ADMIN');
+        setIsAdmin(isUserAdmin);
+        
+        // Se for admin, carregar estatísticas básicas
+        if (isUserAdmin) {
+          console.log('📊 ADMIN: Carregando estatísticas...');
           
-          // Se for admin, carregar estatísticas usando a função
-          if (isUserAdmin) {
-            console.log('📊 ADMIN: Carregando estatísticas...');
-            
-            const { data: statsData, error: statsError } = await supabase.rpc('get_admin_dashboard_stats');
-            
-            if (statsError) {
-              console.error('❌ ADMIN: Erro ao carregar stats:', statsError);
-            } else if (statsData && statsData.length > 0) {
-              console.log('✅ ADMIN: Stats carregadas:', statsData[0]);
-              setStats(statsData[0] as AdminStats);
-            } else {
-              console.log('⚠️ ADMIN: Nenhuma estatística encontrada');
-              // Definir stats padrão se não houver dados
-              setStats({
-                total_users: 0,
-                total_projects: 0,
-                active_subscriptions: 0,
-                monthly_revenue: 0,
-                new_users_this_month: 0,
-                ai_usage_this_month: 0
-              });
-            }
-          }
+          // Carregar estatísticas de forma simples, sem usar a função RPC
+          const [usersResult, projectsResult, subscriptionsResult] = await Promise.allSettled([
+            supabase.from('user_profiles').select('*', { count: 'exact', head: true }),
+            supabase.from('projects').select('*', { count: 'exact', head: true }),
+            supabase.from('user_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active')
+          ]);
+
+          const totalUsers = usersResult.status === 'fulfilled' ? (usersResult.value.count || 0) : 0;
+          const totalProjects = projectsResult.status === 'fulfilled' ? (projectsResult.value.count || 0) : 0;
+          const activeSubscriptions = subscriptionsResult.status === 'fulfilled' ? (subscriptionsResult.value.count || 0) : 0;
+
+          const statsData = {
+            total_users: totalUsers,
+            total_projects: totalProjects,
+            active_subscriptions: activeSubscriptions,
+            monthly_revenue: 0, // Simplificado por enquanto
+            new_users_this_month: 0, // Simplificado por enquanto
+            ai_usage_this_month: 0 // Simplificado por enquanto
+          };
+
+          console.log('✅ ADMIN: Stats carregadas:', statsData);
+          setStats(statsData);
         }
       } catch (error) {
         console.error('💥 ADMIN: Erro crítico:', error);
@@ -80,20 +85,32 @@ export function useAdminStats() {
     };
 
     checkAdminAndLoadStats();
-  }, [isAuthenticated, user?.id]); // Simplificado para evitar re-renders
+  }, [isAuthenticated, user?.id]);
 
   const refetch = async () => {
     if (!isAdmin) return;
     
     setLoading(true);
     try {
-      const { data: statsData, error: statsError } = await supabase.rpc('get_admin_dashboard_stats');
-      
-      if (statsError) {
-        console.error('❌ ADMIN: Erro ao recarregar stats:', statsError);
-      } else if (statsData && statsData.length > 0) {
-        setStats(statsData[0] as AdminStats);
-      }
+      // Recarregar apenas as estatísticas básicas
+      const [usersResult, projectsResult, subscriptionsResult] = await Promise.allSettled([
+        supabase.from('user_profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('projects').select('*', { count: 'exact', head: true }),
+        supabase.from('user_subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active')
+      ]);
+
+      const totalUsers = usersResult.status === 'fulfilled' ? (usersResult.value.count || 0) : 0;
+      const totalProjects = projectsResult.status === 'fulfilled' ? (projectsResult.value.count || 0) : 0;
+      const activeSubscriptions = subscriptionsResult.status === 'fulfilled' ? (subscriptionsResult.value.count || 0) : 0;
+
+      setStats({
+        total_users: totalUsers,
+        total_projects: totalProjects,
+        active_subscriptions: activeSubscriptions,
+        monthly_revenue: 0,
+        new_users_this_month: 0,
+        ai_usage_this_month: 0
+      });
     } catch (error) {
       console.error('💥 ADMIN: Erro ao recarregar stats:', error);
     } finally {

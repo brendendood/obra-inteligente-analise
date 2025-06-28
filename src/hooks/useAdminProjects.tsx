@@ -6,16 +6,14 @@ import { useToast } from '@/hooks/use-toast';
 interface ProjectData {
   id: string;
   name: string;
-  user_id: string;
+  city: string;
+  state: string;
   project_type: string;
   project_status: string;
   total_area: number;
   estimated_budget: number;
-  city: string;
-  state: string;
   created_at: string;
-  updated_at: string;
-  user_name?: string;
+  user_id: string;
 }
 
 export const useAdminProjects = () => {
@@ -30,55 +28,25 @@ export const useAdminProjects = () => {
     try {
       setLoading(true);
       
-      let query = supabase
+      const { data: projectsData, error } = await supabase
         .from('projects')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-      if (searchTerm) {
-        query = query.or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`);
+      if (error) {
+        console.error('Error loading projects:', error);
+        throw error;
       }
-
-      if (filterStatus) {
-        query = query.eq('project_status', filterStatus);
-      }
-
-      if (filterType) {
-        query = query.eq('project_type', filterType);
-      }
-
-      const { data: projectsData, error: projectsError } = await query;
-
-      if (projectsError) throw projectsError;
 
       if (projectsData) {
-        const userIds = [...new Set(projectsData.map(p => p.user_id))];
-        
-        const { data: usersData, error: usersError } = await supabase
-          .from('user_profiles')
-          .select('user_id, full_name')
-          .in('user_id', userIds);
-
-        if (usersError) {
-          console.error('Error loading user profiles:', usersError);
-        }
-
-        const projectsWithUserInfo = projectsData.map(project => {
-          const userProfile = usersData?.find(u => u.user_id === project.user_id);
-          
-          return {
-            ...project,
-            user_name: userProfile?.full_name || 'N/A'
-          };
-        });
-
-        setProjects(projectsWithUserInfo);
+        setProjects(projectsData);
       }
     } catch (error) {
       console.error('Error loading projects:', error);
       toast({
         title: "❌ Erro ao carregar projetos",
-        description: "Não foi possível carregar a lista de projetos.",
+        description: "Não foi possível carregar os projetos.",
         variant: "destructive"
       });
     } finally {
@@ -90,22 +58,25 @@ export const useAdminProjects = () => {
     try {
       const { error } = await supabase
         .from('projects')
-        .update({ 
-          project_status: newStatus,
-          updated_at: new Date().toISOString()
-        })
+        .update({ project_status: newStatus })
         .eq('id', projectId);
 
       if (error) throw error;
 
+      setProjects(prev => 
+        prev.map(project => 
+          project.id === projectId 
+            ? { ...project, project_status: newStatus }
+            : project
+        )
+      );
+
       toast({
         title: "✅ Status atualizado",
-        description: "Status do projeto foi atualizado com sucesso."
+        description: "Status do projeto atualizado com sucesso.",
       });
-
-      loadProjects();
     } catch (error) {
-      console.error('Error updating project:', error);
+      console.error('Error updating project status:', error);
       toast({
         title: "❌ Erro ao atualizar status",
         description: "Não foi possível atualizar o status do projeto.",
@@ -115,10 +86,6 @@ export const useAdminProjects = () => {
   };
 
   const deleteProject = async (projectId: string) => {
-    if (!confirm('Tem certeza que deseja deletar este projeto? Esta ação não pode ser desfeita.')) {
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from('projects')
@@ -127,17 +94,17 @@ export const useAdminProjects = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "✅ Projeto deletado",
-        description: "Projeto foi removido com sucesso."
-      });
+      setProjects(prev => prev.filter(project => project.id !== projectId));
 
-      loadProjects();
+      toast({
+        title: "✅ Projeto excluído",
+        description: "Projeto excluído com sucesso.",
+      });
     } catch (error) {
       console.error('Error deleting project:', error);
       toast({
-        title: "❌ Erro ao deletar projeto",
-        description: "Não foi possível deletar o projeto.",
+        title: "❌ Erro ao excluir projeto",
+        description: "Não foi possível excluir o projeto.",
         variant: "destructive"
       });
     }
@@ -149,12 +116,24 @@ export const useAdminProjects = () => {
     setFilterType('');
   };
 
+  // Carregar dados apenas uma vez na montagem
   useEffect(() => {
     loadProjects();
-  }, [searchTerm, filterStatus, filterType]);
+  }, []); // Dependência vazia
+
+  // Filtrar dados localmente
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = searchTerm === '' || 
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.city?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === '' || project.project_status === filterStatus;
+    const matchesType = filterType === '' || project.project_type === filterType;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
 
   return {
-    projects,
+    projects: filteredProjects,
     loading,
     searchTerm,
     setSearchTerm,

@@ -36,88 +36,50 @@ export const useAdminPayments = () => {
     try {
       setLoading(true);
       
-      let query = supabase
+      // Simplificar a consulta inicial
+      const { data: paymentsData, error: paymentsError } = await supabase
         .from('payments')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(100);
+        .limit(50);
 
-      if (filterStatus) {
-        query = query.eq('status', filterStatus);
+      if (paymentsError) {
+        console.error('Error loading payments:', paymentsError);
+        throw paymentsError;
       }
 
-      const { data: paymentsData, error: paymentsError } = await query;
-
-      if (paymentsError) throw paymentsError;
-
       if (paymentsData) {
-        const userIds = [...new Set(paymentsData.map(p => p.user_id))];
+        // Processar dados básicos primeiro
+        const processedPayments = paymentsData.map(payment => ({
+          ...payment,
+          user_email: payment.user_id || 'N/A',
+          plan: 'free'
+        }));
         
-        const { data: usersData, error: usersError } = await supabase
-          .from('user_profiles')
-          .select('user_id, full_name')
-          .in('user_id', userIds);
-
-        if (usersError) {
-          console.error('Error loading user profiles:', usersError);
-        }
-
-        const { data: subscriptionsData, error: subscriptionsError } = await supabase
-          .from('user_subscriptions')
-          .select('user_id, plan')
-          .in('user_id', userIds);
-
-        if (subscriptionsError) {
-          console.error('Error loading subscriptions:', subscriptionsError);
-        }
-
-        const paymentsWithUserInfo = paymentsData.map(payment => {
-          const userProfile = usersData?.find(u => u.user_id === payment.user_id);
-          const subscription = subscriptionsData?.find(s => s.user_id === payment.user_id);
-          
-          return {
-            ...payment,
-            user_email: userProfile?.full_name || 'N/A',
-            plan: subscription?.plan || 'free'
-          };
-        });
+        setPayments(processedPayments);
         
-        setPayments(paymentsWithUserInfo);
-        
-        // Calculate stats
-        const totalRevenue = paymentsWithUserInfo
+        // Calcular estatísticas básicas
+        const totalRevenue = processedPayments
           .filter(p => p.status === 'succeeded')
           .reduce((sum, p) => sum + Number(p.amount), 0);
         
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        
-        const monthlyRevenue = paymentsWithUserInfo
+        const monthlyRevenue = processedPayments
           .filter(p => {
             const paymentDate = new Date(p.created_at);
+            const now = new Date();
             return p.status === 'succeeded' &&
-                   paymentDate.getMonth() === currentMonth &&
-                   paymentDate.getFullYear() === currentYear;
+                   paymentDate.getMonth() === now.getMonth() &&
+                   paymentDate.getFullYear() === now.getFullYear();
           })
           .reduce((sum, p) => sum + Number(p.amount), 0);
 
-        const { data: activeSubscriptions, error: subsError } = await supabase
-          .from('user_subscriptions')
-          .select('*')
-          .eq('status', 'active');
-
-        if (subsError) {
-          console.error('Error loading active subscriptions:', subsError);
-        }
-
-        const activeSubsCount = activeSubscriptions?.length || 0;
-        const averageTicket = totalRevenue / (paymentsWithUserInfo.length || 1);
+        const averageTicket = processedPayments.length > 0 ? totalRevenue / processedPayments.length : 0;
 
         setStats({
           totalRevenue,
           monthlyRevenue,
-          totalTransactions: paymentsWithUserInfo.length,
-          activeSubscriptions: activeSubsCount,
+          totalTransactions: processedPayments.length,
+          activeSubscriptions: 0, // Será carregado separadamente se necessário
           averageTicket
         });
       }
@@ -134,10 +96,19 @@ export const useAdminPayments = () => {
   };
 
   const exportPayments = () => {
+    if (payments.length === 0) {
+      toast({
+        title: "⚠️ Nenhum dado para exportar",
+        description: "Não há pagamentos para exportar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const csvContent = "data:text/csv;charset=utf-8," + 
       "ID,Usuário,Valor,Moeda,Status,Método,Data,Plano\n" +
       payments.map(p => 
-        `${p.id},${p.user_email},${p.amount},${p.currency},${p.status},${p.payment_method},${p.created_at},${p.plan}`
+        `${p.id},${p.user_email},${p.amount},${p.currency},${p.status},${p.payment_method || 'N/A'},${p.created_at},${p.plan}`
       ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -152,14 +123,25 @@ export const useAdminPayments = () => {
   const clearFilters = () => {
     setSearchTerm('');
     setFilterStatus('');
+    setDateRange('30d');
   };
 
+  // Carregar dados apenas uma vez na montagem
   useEffect(() => {
     loadPayments();
-  }, [searchTerm, filterStatus, dateRange]);
+  }, []); // Dependência vazia para carregar apenas uma vez
+
+  // Filtrar dados localmente para evitar re-consultas
+  const filteredPayments = payments.filter(payment => {
+    const matchesSearch = searchTerm === '' || 
+      payment.user_email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === '' || payment.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return {
-    payments,
+    payments: filteredPayments,
     stats,
     loading,
     searchTerm,
