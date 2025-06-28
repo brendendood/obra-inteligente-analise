@@ -178,9 +178,9 @@ export const ModernAIChat = () => {
           <Button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isLoading}
-            className="bg-blue-600 hover:bg-blue-700 h-14 w-14 p-0 flex-shrink-0 hidden sm:flex"
+            className="bg-blue-600 hover:bg-blue-700 h-16 w-16 p-0 flex-shrink-0 hidden sm:flex"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-6 w-6" />
           </Button>
           <Button
             onClick={sendMessage}
