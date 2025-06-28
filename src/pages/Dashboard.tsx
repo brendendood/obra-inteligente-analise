@@ -1,35 +1,24 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { SmartLoading } from '@/components/ui/smart-loading';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import DashboardContent from '@/components/dashboard/DashboardContent';
-import { useProjectStateManager } from '@/hooks/useProjectStateManager';
 import { useProjectStore } from '@/stores/projectStore';
 import { SmartGreeting } from '@/components/dashboard/SmartGreeting';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { preferences, addRecentProject } = useUserPreferences();
   
-  // Estado do Zustand
+  // ÚNICO ponto de carregamento de projetos - apenas o Zustand store
   const { projects, isLoading: isLoadingProjects, fetchProjects } = useProjectStore();
   
-  // Usar o novo hook para gerenciamento de estado
-  const { validateCurrentProject } = useProjectStateManager({
-    autoLoadFromUrl: false, // Dashboard não precisa carregar projeto específico
-    validateOnMount: true
-  });
-  
-  const {
-    stats,
-    forceRefresh
-  } = useDashboardData();
+  const { stats, forceRefresh } = useDashboardData();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -38,20 +27,13 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Carregar projetos do Zustand quando dashboard carregar 
+  // ÚNICO useEffect para carregar projetos - apenas uma vez
   useEffect(() => {
-    if (isAuthenticated && !authLoading) {
-      console.log('🏠 DASHBOARD: Inicializando carregamento de projetos...');
+    if (isAuthenticated && !authLoading && projects.length === 0 && !isLoadingProjects) {
+      console.log('🏠 DASHBOARD: Carregando projetos pela primeira vez...');
       fetchProjects();
     }
-  }, [isAuthenticated, authLoading, fetchProjects]);
-
-  // Validar projeto atual quando dashboard carregar
-  useEffect(() => {
-    if (!isLoadingProjects && projects.length > 0) {
-      validateCurrentProject();
-    }
-  }, [isLoadingProjects, projects.length, validateCurrentProject]);
+  }, [isAuthenticated, authLoading, fetchProjects, projects.length, isLoadingProjects]);
 
   const isInitialLoading = authLoading;
 
@@ -102,7 +84,7 @@ const Dashboard = () => {
         <div className="w-full">
           <DashboardContent
             stats={stats}
-            projects={projects} // Passando os projetos do Zustand
+            projects={projects}
             isDataLoading={isLoadingProjects}
           />
         </div>

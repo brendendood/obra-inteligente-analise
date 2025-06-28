@@ -11,20 +11,13 @@ import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics
 
 interface DashboardContentProps {
   stats: any;
-  projects: any[]; // Mantido para compatibilidade, mas não usado
-  isDataLoading: boolean; // Mantido para compatibilidade, mas não usado
+  projects: any[];
+  isDataLoading: boolean;
 }
 
 const DashboardContent = ({ stats }: DashboardContentProps) => {
-  // Estado do Zustand
-  const { 
-    projects, 
-    isLoading, 
-    error, 
-    fetchProjects, 
-    forceRefresh,
-    clearError 
-  } = useProjectStore();
+  // Usar apenas os dados do Zustand - SEM fazer novas requisições
+  const { projects, isLoading, error, clearError } = useProjectStore();
   
   // Estatísticas dos projetos
   const { recentProjects } = useProjectStats();
@@ -41,12 +34,6 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
   // Métricas avançadas completas
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
 
-  // Carregar projetos quando o dashboard carregar
-  useEffect(() => {
-    console.log('🏠 DASHBOARD: Carregando projetos...');
-    fetchProjects();
-  }, [fetchProjects]);
-
   // Limpar erro automaticamente
   useEffect(() => {
     if (error) {
@@ -56,11 +43,6 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
       return () => clearTimeout(timer);
     }
   }, [error, clearError]);
-
-  const handleRefresh = async () => {
-    console.log('🔄 DASHBOARD: Atualizando projetos...');
-    await forceRefresh();
-  };
 
   return (
     <div className="flex flex-col space-y-8 w-full min-w-0">

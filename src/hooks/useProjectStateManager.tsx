@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useProject } from '@/contexts/ProjectContext';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectStore } from '@/stores/projectStore';
 import { useParams } from 'react-router-dom';
 import { Project } from '@/types/project';
 
@@ -14,7 +14,7 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
   const { autoLoadFromUrl = true, validateOnMount = true } = options;
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProject, projectExists, forceRefresh } = useProjectsConsistency();
+  const { projects, getProjectById } = useProjectStore();
 
   // Sincronizar projeto atual com URL
   const syncProjectWithUrl = useCallback(async () => {
@@ -28,26 +28,16 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
       return;
     }
 
-    // Verificar se projeto existe
-    if (!projectExists(projectId)) {
-      console.warn('⚠️ STATE MANAGER: Projeto não encontrado, forçando refresh');
-      await forceRefresh();
-      
-      // Verificar novamente após refresh
-      if (!projectExists(projectId)) {
-        console.error('❌ STATE MANAGER: Projeto não existe após refresh');
-        setCurrentProject(null);
-        return;
-      }
-    }
-
-    // Carregar projeto
-    const project = getProject(projectId);
+    // Obter projeto do Zustand store
+    const project = getProjectById(projectId);
     if (project) {
       console.log('✅ STATE MANAGER: Projeto carregado:', project.name);
       setCurrentProject(project);
+    } else {
+      console.error('❌ STATE MANAGER: Projeto não encontrado');
+      setCurrentProject(null);
     }
-  }, [projectId, currentProject, projectExists, getProject, setCurrentProject, forceRefresh, autoLoadFromUrl]);
+  }, [projectId, currentProject, getProjectById, setCurrentProject, autoLoadFromUrl]);
 
   // Validar consistência do projeto atual
   const validateCurrentProject = useCallback(() => {
@@ -56,21 +46,21 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
     console.log('🔍 STATE MANAGER: Validando projeto atual:', currentProject.name);
 
     // Verificar se projeto ainda existe
-    if (!projectExists(currentProject.id)) {
+    const projectExists = getProjectById(currentProject.id);
+    if (!projectExists) {
       console.warn('⚠️ STATE MANAGER: Projeto atual não existe mais');
       setCurrentProject(null);
       return false;
     }
 
     // Verificar se dados estão atualizados
-    const latestProject = getProject(currentProject.id);
-    if (latestProject && latestProject.updated_at !== currentProject.updated_at) {
+    if (projectExists && projectExists.updated_at !== currentProject.updated_at) {
       console.log('🔄 STATE MANAGER: Atualizando projeto com dados mais recentes');
-      setCurrentProject(latestProject);
+      setCurrentProject(projectExists);
     }
 
     return true;
-  }, [currentProject, projectExists, getProject, setCurrentProject, validateOnMount]);
+  }, [currentProject, getProjectById, setCurrentProject, validateOnMount]);
 
   // Auto-sync na montagem e mudanças de URL
   useEffect(() => {
@@ -86,16 +76,15 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
     if (!currentProject) return null;
 
     console.log('🔄 STATE MANAGER: Atualizando projeto atual');
-    await forceRefresh();
     
-    const updatedProject = getProject(currentProject.id);
+    const updatedProject = getProjectById(currentProject.id);
     if (updatedProject) {
       setCurrentProject(updatedProject);
       return updatedProject;
     }
     
     return null;
-  }, [currentProject, forceRefresh, getProject, setCurrentProject]);
+  }, [currentProject, getProjectById, setCurrentProject]);
 
   const clearCurrentProject = useCallback(() => {
     console.log('🧹 STATE MANAGER: Limpando projeto atual');
@@ -105,7 +94,7 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
   return {
     currentProject,
     isProjectLoaded: !!currentProject,
-    isProjectValid: currentProject ? projectExists(currentProject.id) : false,
+    isProjectValid: currentProject ? !!getProjectById(currentProject.id) : false,
     syncProjectWithUrl,
     validateCurrentProject,
     refreshCurrentProject,

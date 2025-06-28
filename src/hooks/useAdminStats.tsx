@@ -19,11 +19,15 @@ export function useAdminStats() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAdminAndLoadStats = async () => {
       if (!isAuthenticated || !user) {
         console.log('🔒 ADMIN: Usuário não autenticado');
-        setIsAdmin(false);
-        setLoading(false);
+        if (mounted) {
+          setIsAdmin(false);
+          setLoading(false);
+        }
         return;
       }
 
@@ -40,13 +44,18 @@ export function useAdminStats() {
         
         if (adminError) {
           console.error('❌ ADMIN: Erro ao verificar status admin:', adminError);
-          setIsAdmin(false);
-          setLoading(false);
+          if (mounted) {
+            setIsAdmin(false);
+            setLoading(false);
+          }
           return;
         }
 
         const isUserAdmin = adminCheck && adminCheck.length > 0;
         console.log('🎯 ADMIN: Status verificado:', isUserAdmin ? 'É ADMIN' : 'NÃO É ADMIN');
+        
+        if (!mounted) return;
+        
         setIsAdmin(isUserAdmin);
         
         // Se for admin, carregar estatísticas básicas
@@ -74,17 +83,27 @@ export function useAdminStats() {
           };
 
           console.log('✅ ADMIN: Stats carregadas:', statsData);
-          setStats(statsData);
+          if (mounted) {
+            setStats(statsData);
+          }
         }
       } catch (error) {
         console.error('💥 ADMIN: Erro crítico:', error);
-        setIsAdmin(false);
+        if (mounted) {
+          setIsAdmin(false);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     checkAdminAndLoadStats();
+
+    return () => {
+      mounted = false;
+    };
   }, [isAuthenticated, user?.id]);
 
   const refetch = async () => {

@@ -5,7 +5,7 @@ import { Project, ProjectContextType } from '@/types/project';
 import { useProjectStorage } from '@/hooks/useProjectStorage';
 import { useProjectUpload } from '@/hooks/useProjectUpload';
 import { useProjectValidation } from '@/hooks/useProjectValidation';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectStore } from '@/stores/projectStore';
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
@@ -16,7 +16,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   
   const { saveProjectToStorage, getProjectFromStorage, clearProjectFromStorage } = useProjectStorage();
   const { validateProject } = useProjectValidation();
-  const { projects: allProjects, forceRefresh: refreshAllProjects } = useProjectsConsistency();
+  const { projects: allProjects } = useProjectStore();
 
   const clearAllProjects = useCallback(() => {
     console.log('🧹 PROJECT CONTEXT: Limpando todos os projetos');
@@ -34,7 +34,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 
   // Validar projeto salvo quando auth estiver pronto
   useEffect(() => {
-    const validateSavedProject = async () => {
+    const validateSavedProject = () => {
       console.log('🔍 PROJECT CONTEXT: Validando projeto salvo', { loading, isAuthenticated, userId: user?.id });
       
       if (loading) return;
@@ -73,10 +73,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, [loading, isAuthenticated, user?.id, allProjects, getProjectFromStorage, clearAllProjects, saveProjectToStorage]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
-    console.log('📋 PROJECT CONTEXT: Carregando projetos do usuário');
-    
-    // Forçar refresh dos projetos para garantir dados atualizados
-    await refreshAllProjects();
+    console.log('📋 PROJECT CONTEXT: Retornando projetos do Zustand store');
     
     if (!allProjects || allProjects.length === 0) {
       console.log('📭 PROJECT CONTEXT: Nenhum projeto encontrado');
@@ -100,7 +97,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
     
     return allProjects;
-  }, [currentProject, setCurrentProject, clearAllProjects, allProjects, refreshAllProjects]);
+  }, [currentProject, setCurrentProject, clearAllProjects, allProjects]);
 
   return (
     <ProjectContext.Provider value={{
