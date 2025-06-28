@@ -53,6 +53,13 @@ export const AdminUsersManagement = () => {
     }
   };
 
+  const handlePlanChange = (userId: string, newPlan: string) => {
+    // Validar se o plano é um dos valores permitidos
+    if (newPlan === 'free' || newPlan === 'pro' || newPlan === 'enterprise') {
+      updateUserPlan(userId, newPlan);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -236,7 +243,7 @@ export const AdminUsersManagement = () => {
                   
                   <Select 
                     value={user.subscription?.plan || 'free'}
-                    onValueChange={(plan) => updateUserPlan(user.user_id, plan)}
+                    onValueChange={(plan) => handlePlanChange(user.user_id, plan)}
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />
