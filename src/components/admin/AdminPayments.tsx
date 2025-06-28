@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -43,36 +42,55 @@ export const AdminPayments = () => {
     try {
       setLoading(true);
       
-      // Carregar pagamentos com informações do usuário
+      // Carregar pagamentos básicos primeiro
       let query = supabase
         .from('payments')
-        .select(`
-          *,
-          user_profiles!inner(full_name),
-          user_subscriptions(plan)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
-
-      if (searchTerm) {
-        // Buscar por email ou ID
-        query = query.or(`user_id.eq.${searchTerm}`);
-      }
 
       if (filterStatus) {
         query = query.eq('status', filterStatus);
       }
 
-      const { data, error } = await query;
+      const { data: paymentsData, error: paymentsError } = await query;
 
-      if (error) throw error;
+      if (paymentsError) throw paymentsError;
 
-      if (data) {
-        const paymentsWithUserInfo = data.map(payment => ({
-          ...payment,
-          user_email: payment.user_profiles?.full_name || 'N/A',
-          plan: payment.user_subscriptions?.[0]?.plan || 'free'
-        }));
+      if (paymentsData) {
+        // Buscar informações dos usuários separadamente
+        const userIds = [...new Set(paymentsData.map(p => p.user_id))];
+        
+        const { data: usersData, error: usersError } = await supabase
+          .from('user_profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
+
+        if (usersError) {
+          console.error('Error loading user profiles:', usersError);
+        }
+
+        // Buscar assinaturas dos usuários
+        const { data: subscriptionsData, error: subscriptionsError } = await supabase
+          .from('user_subscriptions')
+          .select('user_id, plan')
+          .in('user_id', userIds);
+
+        if (subscriptionsError) {
+          console.error('Error loading subscriptions:', subscriptionsError);
+        }
+
+        // Combinar os dados
+        const paymentsWithUserInfo = paymentsData.map(payment => {
+          const userProfile = usersData?.find(u => u.user_id === payment.user_id);
+          const subscription = subscriptionsData?.find(s => s.user_id === payment.user_id);
+          
+          return {
+            ...payment,
+            user_email: userProfile?.full_name || 'N/A',
+            plan: subscription?.plan || 'free'
+          };
+        });
         
         setPayments(paymentsWithUserInfo);
         
@@ -94,19 +112,23 @@ export const AdminPayments = () => {
           .reduce((sum, p) => sum + Number(p.amount), 0);
 
         // Carregar assinaturas ativas
-        const { data: subscriptions } = await supabase
+        const { data: activeSubscriptions, error: subsError } = await supabase
           .from('user_subscriptions')
           .select('*')
           .eq('status', 'active');
 
-        const activeSubscriptions = subscriptions?.length || 0;
+        if (subsError) {
+          console.error('Error loading active subscriptions:', subsError);
+        }
+
+        const activeSubsCount = activeSubscriptions?.length || 0;
         const averageTicket = totalRevenue / (paymentsWithUserInfo.length || 1);
 
         setStats({
           totalRevenue,
           monthlyRevenue,
           totalTransactions: paymentsWithUserInfo.length,
-          activeSubscriptions,
+          activeSubscriptions: activeSubsCount,
           averageTicket
         });
       }

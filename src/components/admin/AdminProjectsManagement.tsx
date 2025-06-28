@@ -22,7 +22,7 @@ interface ProjectData {
   state: string;
   created_at: string;
   updated_at: string;
-  user_email?: string;
+  user_name?: string;
 }
 
 export const AdminProjectsManagement = () => {
@@ -37,12 +37,10 @@ export const AdminProjectsManagement = () => {
     try {
       setLoading(true);
       
+      // Carregar projetos básicos primeiro
       let query = supabase
         .from('projects')
-        .select(`
-          *,
-          user_profiles!inner(full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (searchTerm) {
@@ -57,15 +55,34 @@ export const AdminProjectsManagement = () => {
         query = query.eq('project_type', filterType);
       }
 
-      const { data, error } = await query;
+      const { data: projectsData, error: projectsError } = await query;
 
-      if (error) throw error;
+      if (projectsError) throw projectsError;
 
-      if (data) {
-        setProjects(data.map(project => ({
-          ...project,
-          user_email: project.user_profiles?.full_name || 'N/A'
-        })));
+      if (projectsData) {
+        // Buscar informações dos usuários separadamente
+        const userIds = [...new Set(projectsData.map(p => p.user_id))];
+        
+        const { data: usersData, error: usersError } = await supabase
+          .from('user_profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
+
+        if (usersError) {
+          console.error('Error loading user profiles:', usersError);
+        }
+
+        // Combinar os dados
+        const projectsWithUserInfo = projectsData.map(project => {
+          const userProfile = usersData?.find(u => u.user_id === project.user_id);
+          
+          return {
+            ...project,
+            user_name: userProfile?.full_name || 'N/A'
+          };
+        });
+
+        setProjects(projectsWithUserInfo);
       }
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -249,7 +266,7 @@ export const AdminProjectsManagement = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-gray-400" />
-                      {project.user_email}
+                      {project.user_name}
                     </div>
                   </TableCell>
                   <TableCell>
