@@ -15,9 +15,8 @@ const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   
-  // ÚNICO ponto de carregamento de projetos - apenas o Zustand store
-  const { projects, isLoading: isLoadingProjects } = useProjectStore();
-  
+  // CACHE INTELIGENTE: Usa o store otimizado
+  const { projects, isLoading: isLoadingProjects, fetchProjects } = useProjectStore();
   const { stats } = useDashboardData();
 
   useEffect(() => {
@@ -27,9 +26,16 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  const isInitialLoading = authLoading;
+  // CARREGAMENTO INTELIGENTE: Só carrega se necessário
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      console.log('🎯 DASHBOARD: Usuário autenticado, iniciando carga inteligente...');
+      fetchProjects(); // Cache inteligente não fará chamada desnecessária
+    }
+  }, [isAuthenticated, authLoading, fetchProjects]);
 
-  if (isInitialLoading) {
+  // Loading state simplificado
+  if (authLoading) {
     return <DashboardLoadingState />;
   }
 
@@ -52,7 +58,7 @@ const Dashboard = () => {
           />
         </div>
         
-        {/* Header clean e minimalista com saudação inteligente */}
+        {/* Header limpo */}
         <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="min-w-0 flex-1">
@@ -64,7 +70,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Conteúdo principal - Layout vertical linear */}
+        {/* Conteúdo principal */}
         <div className="w-full">
           <DashboardContent
             stats={stats}

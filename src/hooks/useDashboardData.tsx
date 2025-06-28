@@ -13,7 +13,7 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { projects, isLoading: isLoadingProjects, fetchProjects } = useProjectStore();
+  const { projects, isLoading: isLoadingProjects } = useProjectStore();
   const mountedRef = useRef(true);
   
   const [stats, setStats] = useState<DashboardStats>({
@@ -26,9 +26,11 @@ export const useDashboardData = () => {
     projectsByType: {}
   });
 
-  // Recalcular estatísticas SEMPRE que os projetos mudarem
+  // Recalcula stats apenas quando projetos mudam (sem loops)
   useEffect(() => {
     if (!projects || !mountedRef.current) return;
+
+    console.log('📊 DASHBOARD: Recalculando estatísticas para', projects.length, 'projetos');
 
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
@@ -38,17 +40,17 @@ export const useDashboardData = () => {
       project.analysis_data && Object.keys(project.analysis_data).length > 0
     ).length;
 
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
     const recentProjects = projects.filter((project: any) => {
       const createdAt = new Date(project.created_at);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
       return createdAt >= weekAgo;
     }).length;
 
     const monthlyProjects = projects.filter((project: any) => {
       const createdAt = new Date(project.created_at);
-      const monthAgo = new Date();
-      monthAgo.setDate(monthAgo.getDate() - 30);
       return createdAt >= monthAgo;
     }).length;
 
@@ -71,7 +73,8 @@ export const useDashboardData = () => {
     };
 
     setStats(newStats);
-  }, [projects]);
+    console.log('✅ DASHBOARD: Estatísticas recalculadas com sucesso');
+  }, [projects]); // Depende apenas de projects
 
   useEffect(() => {
     return () => {
@@ -82,7 +85,6 @@ export const useDashboardData = () => {
   return {
     projects,
     stats,
-    isLoadingProjects,
-    forceRefresh: fetchProjects
+    isLoadingProjects
   };
 };

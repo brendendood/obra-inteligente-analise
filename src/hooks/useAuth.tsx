@@ -8,54 +8,74 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
+  const authInitializedRef = useRef(false);
   const subscriptionRef = useRef<any>(null);
 
   useEffect(() => {
-    const initAuth = async () => {
+    // Prevenir múltiplas inicializações
+    if (authInitializedRef.current) return;
+    authInitializedRef.current = true;
+
+    let timeoutId: NodeJS.Timeout;
+
+    const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // PASSO 1: Configurar listener PRIMEIRO
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          (event, session) => {
+            console.log('🔄 AUTH: State change event:', event);
+            
+            if (!mountedRef.current) return;
+            
+            // Debounce para evitar updates excessivos
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              if (mountedRef.current) {
+                setSession(session);
+                setUser(session?.user ?? null);
+                setLoading(false);
+              }
+            }, 100);
+          }
+        );
+        
+        subscriptionRef.current = subscription;
+        
+        // PASSO 2: Verificar sessão existente DEPOIS do listener
+        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
         
         if (!mountedRef.current) return;
         
         if (error) {
-          console.error('❌ AUTH: Erro ao obter sessão:', error);
-        } else {
-          setSession(session);
-          setUser(session?.user ?? null);
+          console.error('❌ AUTH: Erro ao verificar sessão:', error);
         }
+        
+        // Update inicial sem conflitar com o listener
+        setSession(existingSession);
+        setUser(existingSession?.user ?? null);
+        setLoading(false);
+        
+        console.log('✅ AUTH: Inicialização concluída');
+        
       } catch (error) {
-        console.error('💥 AUTH: Erro crítico:', error);
-      } finally {
+        console.error('💥 AUTH: Erro crítico na inicialização:', error);
         if (mountedRef.current) {
           setLoading(false);
         }
       }
     };
 
-    const setupAuthListener = () => {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (!mountedRef.current) return;
-          
-          setSession(session);
-          setUser(session?.user ?? null);
-          setLoading(false);
-        }
-      );
-      
-      subscriptionRef.current = subscription;
-    };
-
-    initAuth();
-    setupAuthListener();
+    initializeAuth();
 
     return () => {
       mountedRef.current = false;
-      if (subscriptionRef.current && typeof subscriptionRef.current.unsubscribe === 'function') {
+      clearTimeout(timeoutId);
+      
+      if (subscriptionRef.current?.unsubscribe) {
         subscriptionRef.current.unsubscribe();
       }
     };
-  }, []);
+  }, []); // Array vazio - executa apenas uma vez
 
   const isAuthenticated = !!user && !!session;
 

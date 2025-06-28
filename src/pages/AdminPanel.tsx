@@ -28,7 +28,9 @@ const AdminPanel = () => {
   const { isAdmin, loading: adminLoading } = useAdminStats();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Carregamento
+  console.log('🔄 ADMIN PANEL: Renderizando...', { authLoading, adminLoading, isAuthenticated, isAdmin });
+
+  // Loading otimizado
   if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -40,12 +42,14 @@ const AdminPanel = () => {
     );
   }
 
-  // Redirecionamentos
+  // Redirecionamentos otimizados
   if (!isAuthenticated) {
+    console.log('🔒 ADMIN PANEL: Não autenticado, redirecionando para login');
     return <Navigate to="/login" replace />;
   }
 
   if (!isAdmin) {
+    console.log('❌ ADMIN PANEL: Usuário não é admin');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="w-full max-w-md">
@@ -65,6 +69,8 @@ const AdminPanel = () => {
       </div>
     );
   }
+
+  console.log('✅ ADMIN PANEL: Usuário admin confirmado, renderizando painel');
 
   const tabItems = [
     {
@@ -107,7 +113,7 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header fixo */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -141,7 +147,7 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Conteúdo principal otimizado */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8">
