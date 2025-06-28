@@ -25,24 +25,35 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
     return bottleneck === 'Análise Inicial' ? 'text-red-600' : 'text-yellow-600';
   };
 
+  const tooltipContent = `
+    PERFORMANCE & EFICIÊNCIA - Como Interpretar:
+
+    • TEMPO MÉDIO: Quanto tempo a IA leva para processar completamente um projeto, desde upload até orçamento final. Valores menores indicam melhor performance.
+
+    • EFICIÊNCIA DE ANÁLISE: Taxa de sucesso na primeira tentativa. +80% = Excelente | 60-80% = Boa | -60% = Precisa melhorar qualidade dos dados de entrada.
+
+    • DURAÇÃO MÉDIA DAS OBRAS: Tempo previsto nos cronogramas gerados. Útil para planejar recursos e cronograma de outros projetos.
+
+    • NO PRAZO ENTREGUES: Projetos processados dentro do tempo esperado. Indica confiabilidade do sistema para seus planejamentos.
+
+    • STATUS DO FLUXO: Identifica gargalos no processo. "Fluindo bem" = sem problemas | Nome da fase = gargalo identificado que precisa atenção.
+  `;
+
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <Zap className="h-5 w-5 text-blue-600" />
           <span>Performance & Eficiência</span>
-          <InfoTooltip content="Métricas de desempenho temporal e eficiência operacional dos seus processos de análise e gestão de projetos" />
+          <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
           {/* Tempo Médio de Processamento */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className="text-2xl font-bold text-blue-600">
-                {performance.avgProcessingTime ? `${performance.avgProcessingTime}h` : 'N/D'}
-              </div>
-              <InfoTooltip content="Tempo médio que a IA leva para processar e analisar completamente um projeto, desde o upload até a geração do orçamento." />
+            <div className="text-2xl font-bold text-blue-600 mb-2">
+              {performance.avgProcessingTime ? `${performance.avgProcessingTime}h` : 'N/D'}
             </div>
             <div className="text-sm text-gray-600">Tempo Médio</div>
             <div className="text-xs text-gray-500">de processamento</div>
@@ -50,11 +61,8 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
 
           {/* Eficiência de Processamento */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getEfficiencyColor(performance.processingEfficiency)}`}>
-                {performance.processingEfficiency}%
-              </div>
-              <InfoTooltip content="Percentual de projetos processados com sucesso na primeira tentativa. Acima de 80% indica alta eficiência do sistema." />
+            <div className={`text-2xl font-bold ${getEfficiencyColor(performance.processingEfficiency)} mb-2`}>
+              {performance.processingEfficiency}%
             </div>
             <div className="text-sm text-gray-600">Eficiência</div>
             <div className="text-xs text-gray-500">de análise</div>
@@ -62,11 +70,8 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
 
           {/* Duração Média de Obra */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className="text-2xl font-bold text-blue-600">
-                {performance.avgProjectDuration ? `${performance.avgProjectDuration}d` : 'N/D'}
-              </div>
-              <InfoTooltip content="Duração média prevista para execução das obras baseada nos cronogramas gerados. Útil para planejamento de recursos." />
+            <div className="text-2xl font-bold text-blue-600 mb-2">
+              {performance.avgProjectDuration ? `${performance.avgProjectDuration}d` : 'N/D'}
             </div>
             <div className="text-sm text-gray-600">Duração Média</div>
             <div className="text-xs text-gray-500">das obras</div>
@@ -74,11 +79,8 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
 
           {/* Taxa de Entrega no Prazo */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getEfficiencyColor(performance.onTimeDeliveryRate)}`}>
-                {performance.onTimeDeliveryRate}%
-              </div>
-              <InfoTooltip content="Percentual de projetos que foram processados dentro do prazo esperado. Indica a confiabilidade do sistema para planejamento." />
+            <div className={`text-2xl font-bold ${getEfficiencyColor(performance.onTimeDeliveryRate)} mb-2`}>
+              {performance.onTimeDeliveryRate}%
             </div>
             <div className="text-sm text-gray-600">No Prazo</div>
             <div className="text-xs text-gray-500">entregues</div>
@@ -97,7 +99,6 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
               <span className="text-sm font-medium text-gray-700">
                 Status do Fluxo
               </span>
-              <InfoTooltip content="Identifica se há alguma etapa do processo que está causando atrasos ou se o fluxo está funcionando normalmente." />
             </div>
             <div className="text-right">
               <div className={`text-sm font-medium ${getBottleneckColor(performance.bottleneckPhase)}`}>

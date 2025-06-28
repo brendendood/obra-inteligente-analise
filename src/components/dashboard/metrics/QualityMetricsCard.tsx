@@ -32,13 +32,29 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
     return 'Precisa Melhorar';
   };
 
+  const tooltipContent = `
+    QUALIDADE DOS DADOS - Como Interpretar:
+
+    • QUALIDADE GERAL: Média de todas as métricas de qualidade. Excelente (+90%) | Boa (80-89%) | Regular (60-79%) | Precisa Melhorar (-60%).
+
+    • COMPLETUDE: Projetos com análise completa (orçamento + cronograma + documentação). Indica maturidade do portfólio.
+
+    • DADOS: Qualidade das informações fornecidas (plantas, docs, especificações). Dados melhores = análises mais precisas.
+
+    • REVISÕES: Projetos atualizados após análise inicial. Indica melhoria contínua e refinamento dos processos.
+
+    • PRECISÃO MÉDIA: Confiabilidade das estimativas da IA comparada com revisões posteriores. +80% = Muito confiável.
+
+    • RECOMENDAÇÃO: Sugestão automática para melhorar a qualidade geral do seu portfólio.
+  `;
+
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <Award className="h-5 w-5 text-orange-600" />
           <span>Qualidade dos Dados</span>
-          <InfoTooltip content="Métricas de qualidade e completude dos dados dos seus projetos para avaliar a confiabilidade das análises" />
+          <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -47,10 +63,7 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Target className="h-5 w-5 text-orange-600" />
-              <div className="flex items-center space-x-1">
-                <span className="font-medium text-gray-700">Qualidade Geral</span>
-                <InfoTooltip content="Avaliação geral baseada na completude, precisão e consistência dos dados em todos os seus projetos." />
-              </div>
+              <span className="font-medium text-gray-700">Qualidade Geral</span>
             </div>
             <div className="text-right">
               <div className={`text-2xl font-bold ${getQualityColor(quality.avgAccuracy)}`}>
@@ -66,11 +79,8 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
         <div className="grid grid-cols-2 gap-4">
           {/* Taxa de Completude */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getQualityColor(quality.completionRate)}`}>
-                {quality.completionRate}%
-              </div>
-              <InfoTooltip content="Percentual de projetos com análise completa (orçamento, cronograma e documentação). Indica a maturidade do seu portfólio." />
+            <div className={`text-2xl font-bold ${getQualityColor(quality.completionRate)} mb-2`}>
+              {quality.completionRate}%
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
               <CheckCircle className="h-3 w-3 text-green-500" />
@@ -81,11 +91,8 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
 
           {/* Qualidade dos Dados */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getQualityColor(quality.dataQualityScore)}`}>
-                {quality.dataQualityScore}%
-              </div>
-              <InfoTooltip content="Avalia a qualidade das informações fornecidas (plantas, documentos, especificações). Dados de alta qualidade geram análises mais precisas." />
+            <div className={`text-2xl font-bold ${getQualityColor(quality.dataQualityScore)} mb-2`}>
+              {quality.dataQualityScore}%
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
               <Award className="h-3 w-3 text-orange-500" />
@@ -96,11 +103,8 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
 
           {/* Taxa de Revisão */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getQualityColor(quality.revisionRate)}`}>
-                {quality.revisionRate}%
-              </div>
-              <InfoTooltip content="Percentual de projetos que foram revisados ou atualizados após a análise inicial. Indica melhoria contínua dos processos." />
+            <div className={`text-2xl font-bold ${getQualityColor(quality.revisionRate)} mb-2`}>
+              {quality.revisionRate}%
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
               <RefreshCw className="h-3 w-3 text-blue-500" />
@@ -111,11 +115,8 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
 
           {/* Precisão Média */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getQualityColor(quality.avgAccuracy)}`}>
-                {quality.avgAccuracy}%
-              </div>
-              <InfoTooltip content="Precisão média das estimativas da IA comparada com valores reais ou revisões posteriores. Indica confiabilidade do sistema." />
+            <div className={`text-2xl font-bold ${getQualityColor(quality.avgAccuracy)} mb-2`}>
+              {quality.avgAccuracy}%
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
               <Target className="h-3 w-3 text-purple-500" />
@@ -127,28 +128,25 @@ export const QualityMetricsCard = ({ quality }: QualityMetricsCardProps) => {
 
         {/* Recomendações */}
         <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-          <div className="flex items-start space-x-2">
-            <div className="text-sm text-gray-700">
-              <span className="font-medium">Recomendação:</span>
-              {quality.avgAccuracy >= 80 ? (
-                <span className="text-green-600 ml-1">
-                  Excelente qualidade! Mantenha o padrão.
-                </span>
-              ) : quality.completionRate < 50 ? (
-                <span className="text-red-600 ml-1">
-                  Foque em completar mais análises de projetos.
-                </span>
-              ) : quality.dataQualityScore < 60 ? (
-                <span className="text-yellow-600 ml-1">
-                  Melhore o preenchimento de dados dos projetos.
-                </span>
-              ) : (
-                <span className="text-blue-600 ml-1">
-                  Continue aprimorando a qualidade dos dados.
-                </span>
-              )}
-            </div>
-            <InfoTooltip content="Sugestão automática da IA para melhorar a qualidade geral do seu portfólio de projetos." />
+          <div className="text-sm text-gray-700">
+            <span className="font-medium">Recomendação:</span>
+            {quality.avgAccuracy >= 80 ? (
+              <span className="text-green-600 ml-1">
+                Excelente qualidade! Mantenha o padrão.
+              </span>
+            ) : quality.completionRate < 50 ? (
+              <span className="text-red-600 ml-1">
+                Foque em completar mais análises de projetos.
+              </span>
+            ) : quality.dataQualityScore < 60 ? (
+              <span className="text-yellow-600 ml-1">
+                Melhore o preenchimento de dados dos projetos.
+              </span>
+            ) : (
+              <span className="text-blue-600 ml-1">
+                Continue aprimorando a qualidade dos dados.
+              </span>
+            )}
           </div>
         </div>
       </CardContent>

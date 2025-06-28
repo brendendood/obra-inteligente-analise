@@ -38,46 +38,51 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
     return 'text-red-600';
   };
 
+  const tooltipContent = `
+    ANÁLISE FINANCEIRA - Como Interpretar:
+
+    • INVESTIMENTO TOTAL: Soma de todos os orçamentos dos seus projetos. Representa o capital total planejado para execução.
+
+    • CUSTO MÉDIO/M²: Valor médio por metro quadrado calculado apenas dos projetos que possuem área definida. Use para comparar eficiência entre projetos similares.
+
+    • VARIAÇÃO DE CUSTOS: Mostra o quanto seus projetos diferem em custo. Até 20% = Consistente | 20-40% = Moderada | +40% = Alta diversidade de projetos.
+
+    • EFICIÊNCIA ORÇAMENTÁRIA: Qualidade dos dados dos orçamentos gerados. +80% = Excelente | 60-80% = Boa | -60% = Precisa melhorar dados de entrada.
+
+    • PROJETOS DESTAQUE: Comparação entre maior e menor investimento para entender a amplitude do seu portfólio.
+  `;
+
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <DollarSign className="h-5 w-5 text-green-600" />
           <span>Análise Financeira</span>
-          <InfoTooltip content="Métricas financeiras detalhadas baseadas nos orçamentos gerados pela IA para seus projetos" />
+          <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
           {/* Investimento Total */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className="text-2xl font-bold text-green-600">
-                {formatCurrency(financial.totalInvestment)}
-              </div>
-              <InfoTooltip content="Soma de todos os valores orçados nos seus projetos. Representa o investimento total planejado." />
+            <div className="text-2xl font-bold text-green-600 mb-2">
+              {formatCurrency(financial.totalInvestment)}
             </div>
             <div className="text-sm text-gray-600">Investimento Total</div>
           </div>
 
           {/* Custo Médio por m² */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className="text-2xl font-bold text-green-600">
-                {financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
-              </div>
-              <InfoTooltip content="Custo médio por metro quadrado calculado com base nos projetos que possuem área definida. Útil para comparar eficiência de investimento." />
+            <div className="text-2xl font-bold text-green-600 mb-2">
+              {financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
             </div>
             <div className="text-sm text-gray-600">Custo Médio/m²</div>
           </div>
 
           {/* Variação de Custos */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getCostVariationColor(financial.costVariation)}`}>
-                {financial.costVariation ? `${financial.costVariation}%` : 'N/D'}
-              </div>
-              <InfoTooltip content="Percentual de variação entre os custos dos projetos. Valores baixos indicam consistência nos orçamentos. Acima de 40% pode indicar projetos muito diversos." />
+            <div className={`text-2xl font-bold ${getCostVariationColor(financial.costVariation)} mb-2`}>
+              {financial.costVariation ? `${financial.costVariation}%` : 'N/D'}
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
               {financial.costVariation && financial.costVariation > 30 ? (
@@ -91,11 +96,8 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
 
           {/* Eficiência Orçamentária */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-2xl font-bold ${getEfficiencyColor(financial.budgetEfficiency)}`}>
-                {financial.budgetEfficiency ? `${financial.budgetEfficiency}%` : 'N/D'}
-              </div>
-              <InfoTooltip content="Eficiência média dos orçamentos baseada na completude dos dados e precisão das estimativas. Acima de 80% indica alta qualidade orçamentária." />
+            <div className={`text-2xl font-bold ${getEfficiencyColor(financial.budgetEfficiency)} mb-2`}>
+              {financial.budgetEfficiency ? `${financial.budgetEfficiency}%` : 'N/D'}
             </div>
             <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
               <Target className="h-3 w-3 text-blue-500" />
@@ -107,10 +109,7 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
         {/* Projetos Destaque */}
         {(financial.highestCostProject || financial.lowestCostProject) && (
           <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center space-x-2 mb-2">
-              <h4 className="text-sm font-medium text-gray-700">Projetos Destaque</h4>
-              <InfoTooltip content="Comparação entre o projeto de maior e menor investimento do seu portfólio para análise de amplitude de valores." />
-            </div>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Projetos Destaque</h4>
             <div className="space-y-2 text-xs">
               {financial.highestCostProject && (
                 <div className="flex justify-between items-center">

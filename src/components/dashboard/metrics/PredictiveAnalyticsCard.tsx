@@ -34,13 +34,27 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
     return 'text-red-600';
   };
 
+  const tooltipContent = `
+    ANÁLISE PREDITIVA - Como Interpretar:
+
+    • NÍVEL DE RISCO GERAL: Avaliação baseada em complexidade, variação de custos e prazos. Baixo = Portfolio estável | Médio = Atenção recomendada | Alto = Revisão necessária.
+
+    • PRAZOS 30D: Projetos com deadlines críticos nos próximos 30 dias. 0 = Tranquilo | 1-2 = Atenção | +3 = Sobrecarga identificada.
+
+    • CUSTOS ALTO: Projetos com orçamentos acima do padrão. Pode indicar especificações premium ou necessidade de revisão.
+
+    • QUALIDADE: Pontuação geral dos dados e análises. +80% = Excelente | 60-80% = Boa | -60% = Melhorar qualidade dos uploads.
+
+    • RESUMO IA: Análise automática do status geral do portfólio com recomendações personalizadas baseadas nos seus dados.
+  `;
+
   return (
     <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <Brain className="h-5 w-5 text-purple-600" />
           <span>Análise Preditiva</span>
-          <InfoTooltip content="Insights inteligentes e alertas baseados em padrões identificados nos seus projetos pela IA" />
+          <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -49,10 +63,7 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <Shield className="h-5 w-5" />
-              <div className="flex items-center space-x-1">
-                <span className="font-medium">Nível de Risco Geral</span>
-                <InfoTooltip content="Avaliação geral do risco baseada em fatores como complexidade dos projetos, variação de custos e prazo de execução." />
-              </div>
+              <span className="font-medium">Nível de Risco Geral</span>
             </div>
             <span className="text-xl font-bold">{predictive.riskLevel}</span>
           </div>
@@ -78,11 +89,8 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
         <div className="grid grid-cols-3 gap-3">
           {/* Prazos Próximos */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-xl font-bold ${getAlertColor(predictive.upcomingDeadlines)}`}>
-                {predictive.upcomingDeadlines}
-              </div>
-              <InfoTooltip content="Número de projetos com prazos críticos nos próximos 30 dias que precisam de atenção especial." />
+            <div className={`text-xl font-bold ${getAlertColor(predictive.upcomingDeadlines)} mb-2`}>
+              {predictive.upcomingDeadlines}
             </div>
             <div className="text-xs text-gray-600 flex items-center justify-center space-x-1">
               <Calendar className="h-3 w-3" />
@@ -92,11 +100,8 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
 
           {/* Alertas Orçamentários */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-xl font-bold ${getAlertColor(predictive.budgetAlerts)}`}>
-                {predictive.budgetAlerts}
-              </div>
-              <InfoTooltip content="Projetos com custos acima do padrão que podem indicar necessidade de revisão orçamentária." />
+            <div className={`text-xl font-bold ${getAlertColor(predictive.budgetAlerts)} mb-2`}>
+              {predictive.budgetAlerts}
             </div>
             <div className="text-xs text-gray-600 flex items-center justify-center space-x-1">
               <AlertCircle className="h-3 w-3" />
@@ -106,11 +111,8 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
 
           {/* Score de Qualidade */}
           <div className="text-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="flex items-center justify-center space-x-1 mb-2">
-              <div className={`text-xl font-bold ${getQualityColor(predictive.qualityScore)}`}>
-                {predictive.qualityScore}%
-              </div>
-              <InfoTooltip content="Pontuação geral da qualidade dos dados e análises dos seus projetos. Acima de 80% indica excelente qualidade." />
+            <div className={`text-xl font-bold ${getQualityColor(predictive.qualityScore)} mb-2`}>
+              {predictive.qualityScore}%
             </div>
             <div className="text-xs text-gray-600">
               Qualidade
@@ -120,24 +122,21 @@ export const PredictiveAnalyticsCard = ({ predictive }: PredictiveAnalyticsCardP
 
         {/* Resumo Inteligente */}
         <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
-          <div className="flex items-start space-x-2">
-            <div className="text-sm text-gray-700">
-              <span className="font-medium">Resumo IA:</span> 
-              {predictive.riskLevel === 'Baixo' && predictive.qualityScore >= 80 ? (
-                <span className="text-green-600 ml-1">
-                  Portfólio bem estruturado, continue assim!
-                </span>
-              ) : predictive.riskLevel === 'Alto' || predictive.budgetAlerts > 2 ? (
-                <span className="text-red-600 ml-1">
-                  Atenção necessária - revise projetos em risco.
-                </span>
-              ) : (
-                <span className="text-yellow-600 ml-1">
-                  Desempenho moderado, há espaço para melhorias.
-                </span>
-              )}
-            </div>
-            <InfoTooltip content="Resumo automático gerado pela IA com base na análise completa do seu portfólio de projetos." />
+          <div className="text-sm text-gray-700">
+            <span className="font-medium">Resumo IA:</span> 
+            {predictive.riskLevel === 'Baixo' && predictive.qualityScore >= 80 ? (
+              <span className="text-green-600 ml-1">
+                Portfólio bem estruturado, continue assim!
+              </span>
+            ) : predictive.riskLevel === 'Alto' || predictive.budgetAlerts > 2 ? (
+              <span className="text-red-600 ml-1">
+                Atenção necessária - revise projetos em risco.
+              </span>
+            ) : (
+              <span className="text-yellow-600 ml-1">
+                Desempenho moderado, há espaço para melhorias.
+              </span>
+            )}
           </div>
         </div>
       </CardContent>
