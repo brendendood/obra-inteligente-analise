@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 
 interface PhotoUploadProps {
   onPhotoUpdate: (newPhotoUrl: string) => void;
@@ -14,15 +15,15 @@ interface PhotoUploadProps {
 
 const DEFAULT_AVATARS = {
   male: {
-    url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=male-engineer&backgroundColor=b6e3f4&clothingColor=3c4858&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=shortHairShortFlat&facialHairType=light',
+    emoji: '👨‍💼',
     label: 'Avatar Masculino'
   },
   female: {
-    url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=female-architect&backgroundColor=fde2e4&clothingColor=94a3b8&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=longHairStraight',
+    emoji: '👩‍💼',
     label: 'Avatar Feminino'
   },
   neutral: {
-    url: 'https://api.dicebear.com/7.x/bottts/svg?seed=construction-pro&backgroundColor=e0f2fe&colorful=true&mood=happy',
+    emoji: '🤖',
     label: 'Avatar Neutro'
   }
 };
@@ -32,15 +33,17 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
   const { toast } = useToast();
   const [showAvatars, setShowAvatars] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const { getEmojiAsSvg } = useDefaultAvatar();
 
   const currentAvatar = user?.user_metadata?.avatar_url || '';
   const userGender = user?.user_metadata?.gender || 'neutral';
 
-  const handleAvatarSelect = async (avatarUrl: string) => {
+  const handleAvatarSelect = async (emoji: string) => {
     if (!user) return;
 
     setIsLoading(true);
-    setSelectedAvatar(avatarUrl);
+    const avatarUrl = getEmojiAsSvg(emoji);
+    setSelectedAvatar(emoji);
     
     try {
       const { supabase } = await import('@/integrations/supabase/client');
@@ -74,6 +77,11 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
     }
   };
 
+  const getEmojiAsSvg = (emoji: string) => {
+    const svg = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="70" text-anchor="middle" x="50">${emoji}</text></svg>`;
+    return svg;
+  };
+
   return (
     <div className="space-y-4">
       <Button 
@@ -87,39 +95,39 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
 
       {showAvatars && (
         <div className="border rounded-lg p-4 space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">Escolha seu avatar ilustrado:</h4>
+          <h4 className="text-sm font-medium text-gray-700">Escolha seu avatar fofo:</h4>
           <div className="flex gap-4 justify-center">
-            {Object.entries(DEFAULT_AVATARS).map(([key, avatar]) => (
-              <button
-                key={key}
-                onClick={() => handleAvatarSelect(avatar.url)}
-                disabled={isLoading}
-                className="relative group flex flex-col items-center space-y-2"
-              >
-                <Avatar className="h-16 w-16 border-2 border-gray-200 group-hover:border-blue-400 transition-colors">
-                  <AvatarImage src={avatar.url} />
-                  <AvatarFallback className="bg-gray-100">
-                    {key.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <span className="text-xs text-gray-600">{avatar.label}</span>
-                
-                {/* Indicador de seleção */}
-                {currentAvatar === avatar.url && (
-                  <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1">
-                    <Check className="h-3 w-3 text-white" />
+            {Object.entries(DEFAULT_AVATARS).map(([key, avatar]) => {
+              const avatarUrl = getEmojiAsSvg(avatar.emoji);
+              return (
+                <button
+                  key={key}
+                  onClick={() => handleAvatarSelect(avatar.emoji)}
+                  disabled={isLoading}
+                  className="relative group flex flex-col items-center space-y-2"
+                >
+                  <div className="h-16 w-16 border-2 border-gray-200 group-hover:border-blue-400 transition-colors rounded-full flex items-center justify-center bg-white text-4xl">
+                    {avatar.emoji}
                   </div>
-                )}
-                
-                {/* Loading para o avatar sendo selecionado */}
-                {selectedAvatar === avatar.url && isLoading && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                )}
-              </button>
-            ))}
+                  
+                  <span className="text-xs text-gray-600">{avatar.label}</span>
+                  
+                  {/* Indicador de seleção */}
+                  {currentAvatar === avatarUrl && (
+                    <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1">
+                      <Check className="h-3 w-3 text-white" />
+                    </div>
+                  )}
+                  
+                  {/* Loading para o avatar sendo selecionado */}
+                  {selectedAvatar === avatar.emoji && isLoading && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
           </div>
           
           <Button 
@@ -134,7 +142,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
       )}
 
       <p className="text-xs text-gray-500">
-        Avatares ilustrados profissionais para seu perfil na construção civil.
+        Avatares fofos para seu perfil profissional.
       </p>
     </div>
   );

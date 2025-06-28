@@ -17,10 +17,10 @@ interface ProfileTabProps {
 export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const { getDefaultAvatar, getAvatarFallback } = useDefaultAvatar();
+  const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
   
   const userGender = user?.user_metadata?.gender;
-  const defaultAvatar = getDefaultAvatar(userGender);
+  const defaultAvatar = getDefaultAvatarUrl(userGender);
   
   const [profileData, setProfileData] = useState({
     fullName: user?.user_metadata?.full_name || '',

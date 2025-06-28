@@ -15,7 +15,7 @@ export const HeaderAuthActions = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
-  const { getDefaultAvatar, getAvatarFallback } = useDefaultAvatar();
+  const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
 
   const handleLogout = async () => {
     try {
@@ -57,7 +57,7 @@ export const HeaderAuthActions = () => {
   }
 
   const userGender = user?.user_metadata?.gender;
-  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatar(userGender);
+  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
 
   return (
     <>

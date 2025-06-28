@@ -1,29 +1,43 @@
 
+
 export const useDefaultAvatar = () => {
   const getDefaultAvatar = (gender?: string) => {
     switch (gender) {
       case 'male':
-        return 'https://api.dicebear.com/7.x/avataaars/svg?seed=male-engineer&backgroundColor=b6e3f4&clothingColor=3c4858&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=shortHairShortFlat&facialHairType=light';
+        return '👨‍💼'; // Emoji masculino profissional
       case 'female':
-        return 'https://api.dicebear.com/7.x/avataaars/svg?seed=female-architect&backgroundColor=fde2e4&clothingColor=94a3b8&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=longHairStraight';
+        return '👩‍💼'; // Emoji feminino profissional  
       default:
-        return 'https://api.dicebear.com/7.x/bottts/svg?seed=construction-pro&backgroundColor=e0f2fe&colorful=true&mood=happy';
+        return '🤖'; // Emoji neutro/robô
     }
   };
 
   const getAvatarFallback = (gender?: string) => {
     switch (gender) {
       case 'male':
-        return 'M';
+        return '👨‍💼';
       case 'female':
-        return 'F';
+        return '👩‍💼';
       default:
-        return '?';
+        return '🤖';
     }
+  };
+
+  // Função para renderizar emoji como imagem SVG
+  const getEmojiAsSvg = (emoji: string) => {
+    const svg = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="70" font-size="70" text-anchor="middle" x="50">${emoji}</text></svg>`;
+    return svg;
+  };
+
+  const getDefaultAvatarUrl = (gender?: string) => {
+    const emoji = getDefaultAvatar(gender);
+    return getEmojiAsSvg(emoji);
   };
 
   return {
     getDefaultAvatar,
-    getAvatarFallback
+    getAvatarFallback,
+    getDefaultAvatarUrl
   };
 };
+
