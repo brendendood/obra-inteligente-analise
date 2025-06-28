@@ -68,7 +68,7 @@ export const AppSidebar = () => {
   // Determinar se estamos numa área de projeto
   const isInProject = projectId && currentProject;
 
-  // Menu items para navegação geral (sem "Projetos", apenas Dashboard e Upload)
+  // Menu items para navegação geral (sem "Projetos", apenas Dashboard, Upload e Assistente)
   const generalMenuItems = [
     { 
       icon: LayoutDashboard, 
@@ -81,6 +81,12 @@ export const AppSidebar = () => {
       label: 'Upload', 
       path: '/upload',
       color: 'text-purple-600'
+    },
+    { 
+      icon: Bot, 
+      label: 'Assistente', 
+      path: '/ia',
+      color: 'text-orange-600'
     }
   ];
 
@@ -186,25 +192,6 @@ export const AppSidebar = () => {
                 })}
               </SidebarMenu>
             </SidebarGroupContent>
-          </SidebarGroup>
-
-          {/* Botão Assistente IA - Destaque especial no meio */}
-          <SidebarGroup>
-            <div className="px-4 py-2">
-              <Button
-                onClick={() => handleNavigation('/ia')}
-                className={`
-                  w-full h-14 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3
-                  ${isActive('/ia')
-                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg transform scale-105'
-                    : 'bg-gradient-to-r from-orange-400 to-red-400 text-white hover:from-orange-500 hover:to-red-500 hover:shadow-lg hover:scale-105'
-                  }
-                `}
-              >
-                <Bot className="h-6 w-6" />
-                <span className="font-semibold">Assistente IA</span>
-              </Button>
-            </div>
           </SidebarGroup>
         </SidebarContent>
 
