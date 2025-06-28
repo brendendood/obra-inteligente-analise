@@ -13,16 +13,23 @@ interface PhotoUploadProps {
 }
 
 const PRESET_AVATARS = [
-  'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=150&h=150&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=150&h=150&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=150&h=150&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1501286353178-1ec881214838?w=150&h=150&fit=crop&crop=face',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=1',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=2',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=3',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=4',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=5',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=6'
+  // Arquitetura moderna e profissional
+  'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1431576901776-e539bd916ba2?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1459767129954-1b1c1f9b9ace?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1460574283810-2aab119d8511?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1439337153520-7082a56a81f4?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1497604401993-f2e922e5cb0a?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1494891848038-7bd202a2afeb?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1551038247-3d9af20df552?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1524230572899-a752b3835840?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1433832597046-4f10e10ac764?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1493397212122-2b85dda8106b?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=150&h=150&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1492321936769-b49830bc1d1e?w=150&h=150&fit=crop&crop=face'
 ];
 
 export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUploadProps) => {
@@ -85,7 +92,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
       {showAvatars && (
         <div className="border rounded-lg p-4 space-y-3">
           <h4 className="text-sm font-medium text-gray-700">Escolha seu avatar:</h4>
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-4 gap-3 max-h-64 overflow-y-auto">
             {PRESET_AVATARS.map((avatarUrl, index) => (
               <button
                 key={index}
@@ -93,7 +100,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
                 disabled={isLoading}
                 className="relative group"
               >
-                <Avatar className="h-12 w-12 border-2 border-gray-200 group-hover:border-blue-400 transition-colors">
+                <Avatar className="h-16 w-16 border-2 border-gray-200 group-hover:border-blue-400 transition-colors">
                   <AvatarImage src={avatarUrl} />
                   <AvatarFallback className="bg-gray-100">
                     {index + 1}
@@ -129,7 +136,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
       )}
 
       <p className="text-xs text-gray-500">
-        Escolha um dos avatares disponíveis para personalizar seu perfil.
+        Escolha um dos avatares de arquitetura e construção para personalizar seu perfil.
       </p>
     </div>
   );
