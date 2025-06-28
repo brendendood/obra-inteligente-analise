@@ -8,9 +8,7 @@ import {
   FolderOpen, 
   Plus, 
   Search, 
-  Filter,
-  ChevronLeft,
-  ChevronRight
+  Filter
 } from 'lucide-react';
 import {
   Select,
@@ -28,7 +26,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Project } from '@/types/project';
-import DashboardRecentProjects from './DashboardRecentProjects';
+import { SimpleProjectCard } from './SimpleProjectCard';
 
 interface EnhancedProjectsSectionProps {
   projects: Project[];
@@ -83,8 +81,49 @@ export const EnhancedProjectsSection = ({
     setCurrentPage(page);
   };
 
+  if (isLoading && projects.length === 0) {
+    return (
+      <Card className="border border-gray-200 bg-white w-full">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-24 bg-gray-200 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (projects.length === 0) {
+    return (
+      <Card className="border border-gray-200 bg-white w-full">
+        <CardContent className="p-12 text-center">
+          <div className="bg-gray-50 rounded-2xl p-8 border-2 border-dashed border-gray-200">
+            <FolderOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Nenhum projeto ainda
+            </h3>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">
+              Comece criando seu primeiro projeto. Faça upload de plantas, documentos ou dados do seu projeto.
+            </p>
+            <Button 
+              onClick={() => navigate('/upload')}
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Criar Primeiro Projeto
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="border border-gray-200 bg-white w-full min-w-0">
+    <Card className="border border-gray-200 bg-white w-full">
       <CardHeader className="pb-4">
         <div className="flex flex-col space-y-4">
           {/* Header com título e botão */}
@@ -135,13 +174,17 @@ export const EnhancedProjectsSection = ({
         </div>
       </CardHeader>
       
-      <CardContent className="w-full min-w-0">
+      <CardContent className="w-full">
         {/* Lista de projetos */}
-        <DashboardRecentProjects
-          projects={paginatedProjects}
-          isLoading={isLoading}
-          onDeleteProject={onDeleteProject}
-        />
+        <div className="space-y-4">
+          {paginatedProjects.map((project) => (
+            <SimpleProjectCard
+              key={project.id}
+              project={project}
+              onDeleteProject={onDeleteProject}
+            />
+          ))}
+        </div>
         
         {/* Paginação */}
         {totalPages > 1 && (

@@ -1,3 +1,4 @@
+
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -14,7 +15,6 @@ import {
 } from '@/components/ui/sidebar';
 import { 
   LayoutDashboard, 
-  FolderOpen, 
   Plus, 
   Bot, 
   Calculator, 
@@ -57,26 +57,20 @@ export const AppSidebar = () => {
     navigateContextual(path, projectId);
   };
 
-  const handleBackToProjects = () => {
-    navigateContextual('/projetos');
+  const handleBackToDashboard = () => {
+    navigateContextual('/painel');
   };
 
   // Determinar se estamos numa área de projeto
   const isInProject = projectId && currentProject;
 
-  // Menu items para navegação geral
+  // Menu items para navegação geral (sem "Projetos")
   const generalMenuItems = [
     { 
       icon: LayoutDashboard, 
       label: 'Dashboard', 
       path: '/painel',
       color: 'text-blue-600'
-    },
-    { 
-      icon: FolderOpen, 
-      label: 'Projetos', 
-      path: '/projetos',
-      color: 'text-green-600'
     },
     { 
       icon: Plus, 
@@ -86,7 +80,7 @@ export const AppSidebar = () => {
     }
   ];
 
-  // Menu items para área do projeto - ATUALIZADO com nova rota da IA
+  // Menu items para área do projeto
   const projectMenuItems = [
     { 
       icon: FileText, 
@@ -142,11 +136,11 @@ export const AppSidebar = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleBackToProjects}
+                onClick={handleBackToDashboard}
                 className="w-full justify-start mb-2 text-blue-700 hover:bg-blue-100"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar para Projetos
+                Voltar para Dashboard
               </Button>
               <div className="flex items-center space-x-2 px-2">
                 <Building2 className="h-4 w-4 text-blue-600" />

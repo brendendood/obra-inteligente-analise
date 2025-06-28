@@ -13,7 +13,6 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Projects from "./pages/Projects";
 import Upload from "./pages/Upload";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -105,16 +104,9 @@ const App = () => {
                 </ProtectedRoute>
               } />
               
-              <Route path="/projetos" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
-                    <Projects />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
-              
-              {/* Manter compatibilidade com /obras redirecionando para /projetos */}
-              <Route path="/obras" element={<Navigate to="/projetos" replace />} />
+              {/* Redirecionamento de rotas antigas */}
+              <Route path="/projetos" element={<Navigate to="/painel" replace />} />
+              <Route path="/obras" element={<Navigate to="/painel" replace />} />
               
               <Route path="/upload" element={
                 <ProtectedRoute>
@@ -150,10 +142,6 @@ const App = () => {
               }>
                 <Route index element={<ProjectSpecificAssistant />} />
               </Route>
-
-              {/* Redirecionar rotas antigas */}
-              <Route path="/assistente" element={<NotFound />} />
-              <Route path="/projeto/:projectId/assistente" element={<Navigate to="/projeto/:projectId/assistente" replace />} />
 
               {/* Rota 404 */}
               <Route path="*" element={<NotFound />} />
