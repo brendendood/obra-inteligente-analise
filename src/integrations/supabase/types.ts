@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action_type: string
+          admin_user_id: string | null
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          target_id: string | null
+          target_type: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          target_id?: string | null
+          target_type?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      admin_permissions: {
+        Row: {
+          active: boolean | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["admin_role"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -35,6 +101,136 @@ export type Database = {
           last_login?: string | null
         }
         Relationships: []
+      }
+      ai_usage_metrics: {
+        Row: {
+          cost_usd: number | null
+          created_at: string
+          feature_type: string
+          feedback_text: string | null
+          id: string
+          project_id: string | null
+          response_rating: number | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_usd?: number | null
+          created_at?: string
+          feature_type: string
+          feedback_text?: string | null
+          id?: string
+          project_id?: string | null
+          response_rating?: number | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_usd?: number | null
+          created_at?: string
+          feature_type?: string
+          feedback_text?: string | null
+          id?: string
+          project_id?: string | null
+          response_rating?: number | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_metrics_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          active: boolean | null
+          code: string
+          created_at: string
+          current_uses: number | null
+          discount_type: string | null
+          discount_value: number
+          id: string
+          max_uses: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          code: string
+          created_at?: string
+          current_uses?: number | null
+          discount_type?: string | null
+          discount_value: number
+          id?: string
+          max_uses?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          code?: string
+          created_at?: string
+          current_uses?: number | null
+          discount_type?: string | null
+          discount_value?: number
+          id?: string
+          max_uses?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          invoice_url: string | null
+          payment_method: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          subscription_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_url?: string | null
+          payment_method?: string | null
+          status: string
+          stripe_payment_intent_id?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          invoice_url?: string | null
+          payment_method?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_analyses: {
         Row: {
@@ -153,42 +349,192 @@ export type Database = {
       projects: {
         Row: {
           analysis_data: Json | null
+          city: string | null
+          country: string | null
           created_at: string
+          estimated_budget: number | null
           extracted_text: string | null
           file_path: string
           file_size: number | null
           id: string
           name: string
+          project_status: string | null
           project_type: string | null
+          state: string | null
           total_area: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           analysis_data?: Json | null
+          city?: string | null
+          country?: string | null
           created_at?: string
+          estimated_budget?: number | null
           extracted_text?: string | null
           file_path: string
           file_size?: number | null
           id?: string
           name: string
+          project_status?: string | null
           project_type?: string | null
+          state?: string | null
           total_area?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           analysis_data?: Json | null
+          city?: string | null
+          country?: string | null
           created_at?: string
+          estimated_budget?: number | null
           extracted_text?: string | null
           file_path?: string
           file_size?: number | null
           id?: string
           name?: string
+          project_status?: string | null
           project_type?: string | null
+          state?: string | null
           total_area?: number | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_analytics: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: Database["public"]["Enums"]["user_event_type"]
+          id: string
+          ip_address: unknown | null
+          page_url: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: Database["public"]["Enums"]["user_event_type"]
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: Database["public"]["Enums"]["user_event_type"]
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          city: string | null
+          company: string | null
+          country: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          referrer: string | null
+          sector: string | null
+          state: string | null
+          tags: string[] | null
+          updated_at: string
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          referrer?: string | null
+          sector?: string | null
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          country?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          referrer?: string | null
+          sector?: string | null
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan: Database["public"]["Enums"]["subscription_plan"]
+          status: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan?: Database["public"]["Enums"]["subscription_plan"]
+          status?: Database["public"]["Enums"]["subscription_status"]
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -197,6 +543,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_users: number
+          total_projects: number
+          active_subscriptions: number
+          monthly_revenue: number
+          new_users_this_month: number
+          ai_usage_this_month: number
+        }[]
+      }
       get_admin_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -211,9 +568,26 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      admin_role: "super_admin" | "marketing" | "financial" | "support"
+      subscription_plan: "free" | "pro" | "enterprise"
+      subscription_status: "active" | "canceled" | "past_due" | "trialing"
+      user_event_type:
+        | "signup"
+        | "login"
+        | "logout"
+        | "project_created"
+        | "file_uploaded"
+        | "ai_used"
+        | "plan_upgraded"
+        | "plan_downgraded"
+        | "payment_success"
+        | "payment_failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -328,6 +702,22 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_role: ["super_admin", "marketing", "financial", "support"],
+      subscription_plan: ["free", "pro", "enterprise"],
+      subscription_status: ["active", "canceled", "past_due", "trialing"],
+      user_event_type: [
+        "signup",
+        "login",
+        "logout",
+        "project_created",
+        "file_uploaded",
+        "ai_used",
+        "plan_upgraded",
+        "plan_downgraded",
+        "payment_success",
+        "payment_failed",
+      ],
+    },
   },
 } as const

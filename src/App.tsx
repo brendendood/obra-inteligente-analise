@@ -18,6 +18,7 @@ import Assistant from "./pages/Assistant";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 // Layout e páginas do projeto específico
@@ -95,6 +96,13 @@ const App = () => {
               <Route path="/termos" element={<Terms />} />
               <Route path="/politica" element={<Privacy />} />
               <Route path="/admin" element={<Admin />} />
+              
+              {/* Nova rota para o painel administrativo completo */}
+              <Route path="/admin-panel" element={
+                <ProtectedRoute>
+                  <AdminPanel />
+                </ProtectedRoute>
+              } />
               
               {/* Rotas protegidas com ProjectProvider */}
               <Route path="/painel" element={
