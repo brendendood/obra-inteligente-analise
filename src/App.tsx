@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
+import Assistant from "./pages/Assistant";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Admin from "./pages/Admin";
@@ -112,6 +113,15 @@ const App = () => {
                 <ProtectedRoute>
                   <ProjectProvider>
                     <Upload />
+                  </ProjectProvider>
+                </ProtectedRoute>
+              } />
+              
+              {/* Nova rota para Assistente IA */}
+              <Route path="/ia" element={
+                <ProtectedRoute>
+                  <ProjectProvider>
+                    <Assistant />
                   </ProjectProvider>
                 </ProtectedRoute>
               } />
