@@ -2,14 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectStore } from '@/stores/projectStore';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { AppLayout } from '@/components/layout/AppLayout';
 
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProject, projectExists } = useProjectsConsistency();
+  const { getProjectById } = useProjectStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,26 +21,19 @@ export const useProjectLoader = () => {
       }
 
       try {
-        if (!projectExists(projectId)) {
-          // Aguardar um pouco para os projetos carregarem
-          setTimeout(() => {
-            if (projectExists(projectId)) {
-              const project = getProject(projectId);
-              if (project) {
-                setCurrentProject(project);
-                setError(null);
-              }
-            }
-          }, 1000);
-          
-          setLoading(false);
-          return;
-        }
-
-        const project = getProject(projectId);
+        const project = getProjectById(projectId);
         if (project) {
           setCurrentProject(project);
           setError(null);
+        } else {
+          // Aguardar um pouco para os projetos carregarem
+          setTimeout(() => {
+            const retryProject = getProjectById(projectId);
+            if (retryProject) {
+              setCurrentProject(retryProject);
+              setError(null);
+            }
+          }, 1000);
         }
       } catch (err) {
         console.error('Erro ao carregar projeto:', err);
@@ -50,7 +43,7 @@ export const useProjectLoader = () => {
     };
 
     loadProject();
-  }, [projectId, projectExists, getProject, setCurrentProject]);
+  }, [projectId, getProjectById, setCurrentProject]);
 
   // Loading Component otimizado
   const LoadingComponent = () => (

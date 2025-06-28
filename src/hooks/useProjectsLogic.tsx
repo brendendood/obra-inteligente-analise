@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectStore } from '@/stores/projectStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
@@ -12,8 +12,8 @@ export const useProjectsLogic = () => {
   const { 
     projects, 
     isLoading, 
-    forceRefresh: refreshProjects 
-  } = useProjectsConsistency();
+    fetchProjects 
+  } = useProjectStore();
   
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +80,7 @@ export const useProjectsLogic = () => {
   const updateProject = (updatedProject: any) => {
     console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
     // Forçar refresh para garantir consistência
-    refreshProjects();
+    fetchProjects();
   };
 
   const handleDeleteProject = async (projectId: string) => {
@@ -95,7 +95,7 @@ export const useProjectsLogic = () => {
       if (error) throw error;
 
       // Forçar refresh após exclusão
-      await refreshProjects();
+      await fetchProjects();
       
       setDeleteProject(null);
 

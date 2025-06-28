@@ -1,13 +1,13 @@
 
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProjectsConsistency } from '@/hooks/useProjectsConsistency';
+import { useProjectStore } from '@/stores/projectStore';
 import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/hooks/use-toast';
 
 export const useOptimizedProjectNavigation = () => {
   const navigate = useNavigate();
-  const { projectExists, getProject } = useProjectsConsistency();
+  const { getProjectById } = useProjectStore();
   const { setCurrentProject } = useProject();
   const { toast } = useToast();
 
@@ -17,21 +17,15 @@ export const useOptimizedProjectNavigation = () => {
   ) => {
     console.log('🚀 NAVEGAÇÃO OTIMIZADA: Iniciando navegação para projeto', { projectId, section });
     
-    // Verificar se o projeto existe no cache
-    if (!projectExists(projectId)) {
-      console.error('❌ NAVEGAÇÃO: Projeto não encontrado no cache:', projectId);
+    // Verificar se o projeto existe no store
+    const project = getProjectById(projectId);
+    if (!project) {
+      console.error('❌ NAVEGAÇÃO: Projeto não encontrado:', projectId);
       toast({
         title: "❌ Projeto não encontrado",
         description: "O projeto pode ter sido removido ou você não tem acesso.",
         variant: "destructive"
       });
-      navigate('/projetos');
-      return false;
-    }
-
-    const project = getProject(projectId);
-    if (!project) {
-      console.error('❌ NAVEGAÇÃO: Erro ao obter projeto:', projectId);
       navigate('/projetos');
       return false;
     }
@@ -58,7 +52,7 @@ export const useOptimizedProjectNavigation = () => {
     console.log('📍 NAVEGAÇÃO: Redirecionando para:', targetPath);
     navigate(targetPath);
     return true;
-  }, [projectExists, getProject, setCurrentProject, navigate, toast]);
+  }, [getProjectById, setCurrentProject, navigate, toast]);
 
   const quickNavigateToSection = useCallback((
     projectId: string,
