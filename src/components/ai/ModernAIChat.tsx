@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,7 +18,6 @@ export const ModernAIChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showSendButton, setShowSendButton] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -36,9 +36,6 @@ export const ModernAIChat = () => {
       textareaRef.current.style.height = 'auto';
       const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
       textareaRef.current.style.height = newHeight + 'px';
-      
-      // Hide send button when textarea expands beyond initial height (44px)
-      setShowSendButton(newHeight <= 44);
     }
   };
 
@@ -102,8 +99,8 @@ export const ModernAIChat = () => {
         </div>
       </div>
 
-      {/* Chat Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+      {/* Chat Area - sem barra de rolagem */}
+      <div className="flex-1 p-4 overflow-y-auto scrollbar-hide">
         <div className="space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-8">
@@ -163,7 +160,7 @@ export const ModernAIChat = () => {
 
           {isLoading && <AITypingIndicator />}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Input Area */}
       <div className="flex-shrink-0 p-4 border-t border-gray-100">
@@ -179,19 +176,17 @@ export const ModernAIChat = () => {
               disabled={isLoading}
             />
           </div>
-          {showSendButton && (
-            <Button
-              onClick={sendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              className="bg-blue-600 hover:bg-blue-700 h-20 w-20 p-0 flex-shrink-0 rounded-2xl hidden sm:flex"
-            >
-              <Send className="h-7 w-7" />
-            </Button>
-          )}
           <Button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isLoading}
-            className="bg-blue-600 hover:bg-blue-700 h-11 w-11 p-0 flex-shrink-0 sm:hidden"
+            className="bg-blue-600 hover:bg-blue-700 h-20 w-20 p-0 flex-shrink-0 rounded-2xl hidden sm:flex"
+          >
+            <Send className="h-7 w-7" />
+          </Button>
+          <Button
+            onClick={sendMessage}
+            disabled={!inputMessage.trim() || isLoading}
+            className="bg-blue-600 hover:bg-blue-700 h-11 w-11 p-0 flex-shrink-0 rounded-xl sm:hidden"
           >
             <Send className="h-4 w-4" />
           </Button>
