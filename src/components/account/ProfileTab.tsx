@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,11 +23,23 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
   const defaultAvatar = getDefaultAvatarUrl(userGender);
   
   const [profileData, setProfileData] = useState({
-    fullName: user?.user_metadata?.full_name || '',
-    cargo: user?.user_metadata?.cargo || '',
-    empresa: user?.user_metadata?.empresa || '',
-    profilePicture: user?.user_metadata?.avatar_url || defaultAvatar
+    fullName: '',
+    cargo: '',
+    empresa: '',
+    profilePicture: defaultAvatar
   });
+
+  // Carregar dados do usuário quando o componente é montado
+  useEffect(() => {
+    if (user?.user_metadata) {
+      setProfileData({
+        fullName: user.user_metadata.full_name || '',
+        cargo: user.user_metadata.cargo || '',
+        empresa: user.user_metadata.empresa || '',
+        profilePicture: user.user_metadata.avatar_url || defaultAvatar
+      });
+    }
+  }, [user, defaultAvatar]);
 
   const handleProfileUpdate = async () => {
     setIsLoading(true);
@@ -39,7 +51,8 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
           full_name: profileData.fullName,
           cargo: profileData.cargo,
           empresa: profileData.empresa,
-          avatar_url: profileData.profilePicture
+          avatar_url: profileData.profilePicture,
+          gender: userGender // Manter o gênero atual
         }
       });
 

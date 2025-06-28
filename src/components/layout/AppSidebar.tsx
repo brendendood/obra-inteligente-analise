@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Sidebar,
   SidebarContent,
@@ -32,6 +32,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
+import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 
 export const AppSidebar = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ export const AppSidebar = () => {
   const { toast } = useToast();
   const { navigateContextual, clearHistory } = useContextualNavigation();
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+  const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
 
   const handleLogout = async () => {
     try {
@@ -127,6 +129,9 @@ export const AppSidebar = () => {
   const isActive = (path: string) => location.pathname === path;
   const menuItems = isInProject ? projectMenuItems : generalMenuItems;
 
+  const userGender = user?.user_metadata?.gender;
+  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
+
   return (
     <>
       <Sidebar className="border-r">
@@ -210,8 +215,9 @@ export const AppSidebar = () => {
             {/* User Info */}
             <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
               <Avatar className="h-10 w-10">
+                <AvatarImage src={avatarUrl} />
                 <AvatarFallback className="bg-blue-600 text-white">
-                  {user?.email?.charAt(0).toUpperCase()}
+                  {getAvatarFallback(userGender)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
