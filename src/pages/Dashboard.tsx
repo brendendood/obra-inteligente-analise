@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,6 +10,7 @@ import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState'
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useProjectStateManager } from '@/hooks/useProjectStateManager';
 import { useProjectStore } from '@/stores/projectStore';
+import { SmartGreeting } from '@/components/dashboard/SmartGreeting';
 
 const Dashboard = () => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
@@ -64,7 +64,6 @@ const Dashboard = () => {
   }
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário';
-  const greeting = new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite';
 
   return (
     <AppLayout>
@@ -79,13 +78,11 @@ const Dashboard = () => {
           />
         </div>
         
-        {/* Header clean e minimalista */}
+        {/* Header clean e minimalista com saudação inteligente */}
         <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 truncate">
-                {greeting}, {userName}
-              </h1>
+              <SmartGreeting userName={userName} />
               <p className="text-base sm:text-lg text-gray-600">
                 Gerencie seus projetos de construção com IA
               </p>
