@@ -14,12 +14,6 @@ interface AppLayoutProps {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { isAuthenticated, loading } = useAuth();
   const isMobile = useIsMobile();
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-
-  // Controlar estado do sidebar baseado no tamanho da tela
-  useEffect(() => {
-    setSidebarOpen(!isMobile);
-  }, [isMobile]);
 
   if (loading) {
     return (
@@ -37,21 +31,15 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <SidebarProvider 
-      open={sidebarOpen} 
-      onOpenChange={setSidebarOpen}
-    >
+    <SidebarProvider defaultOpen={!isMobile}>
       <div className="min-h-screen flex w-full bg-gray-50/30">
-        {/* Sidebar Fixo */}
-        <AppSidebar />
+        {/* Sidebar - Fixo no desktop, oculto no mobile */}
+        {!isMobile && <AppSidebar />}
         
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 w-full">
-          {/* Header Fixo - Passa controle do sidebar */}
-          <Header 
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-          />
+          {/* Header sem controle de sidebar */}
+          <Header />
           
           {/* Content Area com Scroll */}
           <main className="flex-1 overflow-auto w-full min-w-0">
@@ -61,14 +49,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </main>
         </div>
       </div>
-      
-      {/* Overlay para Mobile quando Sidebar está aberto */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </SidebarProvider>
   );
 };

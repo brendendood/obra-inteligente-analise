@@ -31,7 +31,7 @@ export const SidebarNavigation = () => {
   // Determinar se estamos numa área de projeto
   const isInProject = projectId && currentProject;
 
-  // Menu items para navegação geral (sem "Projetos", apenas Dashboard, Upload e Assistente)
+  // Menu items para navegação geral
   const generalMenuItems = [
     { 
       icon: LayoutDashboard, 
@@ -53,7 +53,7 @@ export const SidebarNavigation = () => {
     }
   ];
 
-  // Menu items para área do projeto
+  // Menu items para área do projeto - ROTA CORRIGIDA
   const projectMenuItems = [
     { 
       icon: FileText, 
@@ -76,7 +76,7 @@ export const SidebarNavigation = () => {
     { 
       icon: Bot, 
       label: 'Assistente IA', 
-      path: `/ia/${projectId}`,
+      path: `/projeto/${projectId}/assistente`,
       color: 'text-orange-600'
     },
     { 
