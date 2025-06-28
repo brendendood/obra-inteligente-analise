@@ -17,6 +17,7 @@ export const ProjectContextHeader = ({ isInProject }: ProjectContextHeaderProps)
     navigateContextual('/painel');
   };
 
+  // Verificação de segurança: só renderiza se estiver em projeto E tiver projeto atual
   if (!isInProject || !currentProject) {
     return null;
   }

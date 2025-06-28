@@ -88,82 +88,75 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              {/* Rotas públicas */}
-              <Route path="/" element={<LandingPageWrapper />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Signup />} />
-              <Route path="/termos" element={<Terms />} />
-              <Route path="/politica" element={<Privacy />} />
-              <Route path="/admin" element={<Admin />} />
-              
-              {/* Nova rota para o painel administrativo completo */}
-              <Route path="/admin-panel" element={
-                <ProtectedRoute>
-                  <AdminPanel />
-                </ProtectedRoute>
-              } />
-              
-              {/* Rotas protegidas com ProjectProvider */}
-              <Route path="/painel" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
+            {/* ProjectProvider agora engloba TODAS as rotas protegidas */}
+            <ProjectProvider>
+              <Routes>
+                {/* Rotas públicas - SEM ProjectProvider */}
+                <Route path="/" element={<LandingPageWrapper />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/cadastro" element={<Signup />} />
+                <Route path="/termos" element={<Terms />} />
+                <Route path="/politica" element={<Privacy />} />
+                <Route path="/admin" element={<Admin />} />
+                
+                {/* Nova rota para o painel administrativo completo */}
+                <Route path="/admin-panel" element={
+                  <ProtectedRoute>
+                    <AdminPanel />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Rotas protegidas - TODAS com ProjectProvider disponível */}
+                <Route path="/painel" element={
+                  <ProtectedRoute>
                     <Dashboard />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
-              
-              {/* Redirecionamento de rotas antigas */}
-              <Route path="/projetos" element={<Navigate to="/painel" replace />} />
-              <Route path="/obras" element={<Navigate to="/painel" replace />} />
-              
-              <Route path="/upload" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Redirecionamento de rotas antigas */}
+                <Route path="/projetos" element={<Navigate to="/painel" replace />} />
+                <Route path="/obras" element={<Navigate to="/painel" replace />} />
+                
+                <Route path="/upload" element={
+                  <ProtectedRoute>
                     <Upload />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
-              
-              {/* Nova rota para Assistente IA */}
-              <Route path="/ia" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Nova rota para Assistente IA */}
+                <Route path="/ia" element={
+                  <ProtectedRoute>
                     <Assistant />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              } />
-              
-              {/* Layout Routes para projetos específicos */}
-              <Route path="/projeto/:projectId" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Layout Routes para projetos específicos */}
+                <Route path="/projeto/:projectId" element={
+                  <ProtectedRoute>
                     <ProjectSpecificLayout />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              }>
-                {/* Rotas filhas aninhadas */}
-                <Route index element={<ProjectSpecificOverview />} />
-                <Route path="orcamento" element={<ProjectSpecificBudget />} />
-                <Route path="cronograma" element={<ProjectSpecificSchedule />} />
-                <Route path="assistente" element={<ProjectSpecificAssistant />} />
-                <Route path="documentos" element={<ProjectSpecificDocumentsPage />} />
-              </Route>
-              
-              {/* Rota especializada para IA (mantendo compatibilidade) */}
-              <Route path="/ia/:projectId" element={
-                <ProtectedRoute>
-                  <ProjectProvider>
+                  </ProtectedRoute>
+                }>
+                  {/* Rotas filhas aninhadas */}
+                  <Route index element={<ProjectSpecificOverview />} />
+                  <Route path="orcamento" element={<ProjectSpecificBudget />} />
+                  <Route path="cronograma" element={<ProjectSpecificSchedule />} />
+                  <Route path="assistente" element={<ProjectSpecificAssistant />} />
+                  <Route path="documentos" element={<ProjectSpecificDocumentsPage />} />
+                </Route>
+                
+                {/* Rota especializada para IA (mantendo compatibilidade) */}
+                <Route path="/ia/:projectId" element={
+                  <ProtectedRoute>
                     <ProjectSpecificLayout />
-                  </ProjectProvider>
-                </ProtectedRoute>
-              }>
-                <Route index element={<ProjectSpecificAssistant />} />
-              </Route>
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<ProjectSpecificAssistant />} />
+                </Route>
 
-              {/* Rota 404 */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                {/* Rota 404 */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ProjectProvider>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

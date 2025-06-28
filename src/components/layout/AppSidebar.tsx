@@ -15,8 +15,8 @@ export const AppSidebar = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
 
-  // Determinar se estamos numa área de projeto
-  const isInProject = Boolean(projectId && currentProject);
+  // Determinar se estamos numa área de projeto com verificação de segurança
+  const isInProject = Boolean(projectId && currentProject && currentProject.id === projectId);
 
   return (
     <Sidebar className="border-r">
@@ -30,7 +30,7 @@ export const AppSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Project Context Header */}
+        {/* Project Context Header - com verificação de segurança */}
         <ProjectContextHeader isInProject={isInProject} />
 
         {/* Navigation Menu */}

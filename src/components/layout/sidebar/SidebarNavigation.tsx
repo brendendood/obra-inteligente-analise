@@ -28,8 +28,8 @@ export const SidebarNavigation = () => {
     navigateContextual(path, projectId);
   };
 
-  // Determinar se estamos numa área de projeto
-  const isInProject = projectId && currentProject;
+  // Determinar se estamos numa área de projeto com verificação de segurança
+  const isInProject = Boolean(projectId && currentProject && currentProject.id === projectId);
 
   // Menu items para navegação geral
   const generalMenuItems = [
@@ -53,8 +53,8 @@ export const SidebarNavigation = () => {
     }
   ];
 
-  // Menu items para área do projeto - ROTA CORRIGIDA
-  const projectMenuItems = [
+  // Menu items para área do projeto - só se tiver projeto válido
+  const projectMenuItems = isInProject ? [
     { 
       icon: FileText, 
       label: 'Visão Geral', 
@@ -85,7 +85,7 @@ export const SidebarNavigation = () => {
       path: `/projeto/${projectId}/documentos`,
       color: 'text-teal-600'
     }
-  ];
+  ] : [];
 
   const isActive = (path: string) => location.pathname === path;
   const menuItems = isInProject ? projectMenuItems : generalMenuItems;
