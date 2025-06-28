@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 interface ProjectData {
   id: string;
   name: string;
+  user_id: string;
   city: string;
   state: string;
   project_type: string;
@@ -13,7 +14,8 @@ interface ProjectData {
   total_area: number;
   estimated_budget: number;
   created_at: string;
-  user_id: string;
+  updated_at: string;
+  user_name?: string;
 }
 
 export const useAdminProjects = () => {
