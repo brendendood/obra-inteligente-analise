@@ -16,7 +16,7 @@ export const AppSidebar = () => {
   const { currentProject } = useProject();
 
   // Determinar se estamos numa área de projeto
-  const isInProject = projectId && currentProject;
+  const isInProject = Boolean(projectId && currentProject);
 
   return (
     <Sidebar className="border-r">
