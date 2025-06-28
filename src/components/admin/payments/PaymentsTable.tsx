@@ -1,8 +1,8 @@
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, CreditCard } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CreditCard, Calendar, User, DollarSign } from 'lucide-react';
 
 interface PaymentData {
   id: string;
@@ -40,37 +40,66 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
     }
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (amount: number, currency: string = 'BRL') => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
-    }).format(value);
+      currency: currency
+    }).format(amount);
   };
+
+  if (payments.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-12 text-center">
+          <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pagamento encontrado</h3>
+          <p className="text-gray-500">
+            Não há pagamentos que correspondam aos filtros aplicados.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
+      <CardHeader>
+        <CardTitle>Histórico de Pagamentos</CardTitle>
+      </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
+              <TableHead>ID do Pagamento</TableHead>
               <TableHead>Usuário</TableHead>
               <TableHead>Valor</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Método</TableHead>
               <TableHead>Plano</TableHead>
+              <TableHead>Método</TableHead>
               <TableHead>Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {payments.map((payment) => (
               <TableRow key={payment.id}>
-                <TableCell className="font-mono text-xs">
-                  {payment.id.slice(0, 8)}...
+                <TableCell>
+                  <div className="font-mono text-sm">
+                    {payment.id.slice(0, 8)}...
+                  </div>
                 </TableCell>
-                <TableCell>{payment.user_email}</TableCell>
-                <TableCell className="font-semibold">
-                  {formatCurrency(Number(payment.amount))}
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm">
+                      {payment.user_email || payment.user_id.slice(0, 8) + '...'}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1 font-medium">
+                    <DollarSign className="h-4 w-4 text-gray-400" />
+                    {formatCurrency(payment.amount, payment.currency)}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(payment.status)}>
@@ -78,18 +107,21 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">
-                    {payment.payment_method || 'N/A'}
-                  </Badge>
-                </TableCell>
-                <TableCell>
                   <Badge className={getPlanColor(payment.plan || 'free')}>
-                    {payment.plan || 'free'}
+                    {(payment.plan || 'free').toUpperCase()}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-gray-400" />
+                    <span className="text-sm capitalize">
+                      {payment.payment_method || 'N/A'}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Calendar className="h-4 w-4" />
                     {new Date(payment.created_at).toLocaleDateString('pt-BR')}
                   </div>
                 </TableCell>
@@ -97,13 +129,6 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
             ))}
           </TableBody>
         </Table>
-
-        {payments.length === 0 && (
-          <div className="text-center py-12">
-            <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Nenhum pagamento encontrado.</p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

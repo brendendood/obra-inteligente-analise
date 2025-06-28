@@ -2,143 +2,118 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { Brain, MessageSquare, ThumbsUp, ThumbsDown, Zap, DollarSign, Users, TrendingUp } from 'lucide-react';
+import { Brain, TrendingUp, MessageSquare, ThumbsUp, ThumbsDown, Zap, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-interface AIMetrics {
-  totalUsage: number;
-  monthlyUsage: number;
+interface AIMetric {
+  id: string;
+  user_id: string;
+  project_id: string;
+  feature_type: string;
+  tokens_used: number;
+  cost_usd: number;
+  response_rating: number | null;
+  feedback_text: string | null;
+  created_at: string;
+}
+
+interface AIStats {
+  totalInteractions: number;
+  totalTokens: number;
   totalCost: number;
-  monthlyCost: number;
-  avgResponseTime: number;
-  positiveRating: number;
-  negativeRating: number;
-  topFeatures: Array<{ feature: string; usage: number }>;
-  dailyUsage: Array<{ date: string; usage: number; cost: number }>;
-  userEngagement: Array<{ user_id: string; total_usage: number; avg_rating: number }>;
+  avgRating: number;
+  topFeatures: Array<{ feature: string; count: number; cost: number }>;
+  dailyUsage: Array<{ date: string; interactions: number; tokens: number; cost: number }>;
 }
 
 export const AdminAIMetrics = () => {
-  const [metrics, setMetrics] = useState<AIMetrics | null>(null);
+  const [metrics, setMetrics] = useState<AIMetric[]>([]);
+  const [stats, setStats] = useState<AIStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d');
+  const { toast } = useToast();
 
   const loadAIMetrics = async () => {
     try {
       setLoading(true);
       
-      // Carregar dados de uso de IA
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const daysAgo = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+      const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
       
-      const { data: aiUsageData } = await supabase
+      const { data: metricsData, error } = await supabase
         .from('ai_usage_metrics')
         .select('*')
-        .gte('created_at', thirtyDaysAgo)
-        .order('created_at');
+        .gte('created_at', startDate)
+        .order('created_at', { ascending: false });
 
-      if (aiUsageData && aiUsageData.length > 0) {
-        // Calcular métricas totais
-        const totalUsage = aiUsageData.length;
-        const totalCost = aiUsageData.reduce((sum, usage) => sum + (Number(usage.cost_usd) || 0), 0);
+      if (error) throw error;
+
+      if (metricsData) {
+        setMetrics(metricsData);
         
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+        // Calcular estatísticas
+        const totalInteractions = metricsData.length;
+        const totalTokens = metricsData.reduce((sum, m) => sum + (m.tokens_used || 0), 0);
+        const totalCost = metricsData.reduce((sum, m) => sum + (Number(m.cost_usd) || 0), 0);
         
-        const monthlyData = aiUsageData.filter(usage => {
-          const usageDate = new Date(usage.created_at);
-          return usageDate.getMonth() === currentMonth && usageDate.getFullYear() === currentYear;
-        });
-        
-        const monthlyUsage = monthlyData.length;
-        const monthlyCost = monthlyData.reduce((sum, usage) => sum + (Number(usage.cost_usd) || 0), 0);
-        
-        // Calcular ratings
-        const ratingsData = aiUsageData.filter(usage => usage.response_rating !== null);
-        const positiveRating = ratingsData.filter(usage => usage.response_rating === 1).length;
-        const negativeRating = ratingsData.filter(usage => usage.response_rating === -1).length;
-        
-        // Agrupar por feature
-        const featureUsage = aiUsageData.reduce((acc, usage) => {
-          const feature = usage.feature_type || 'Não especificado';
-          acc[feature] = (acc[feature] || 0) + 1;
+        const ratingsData = metricsData.filter(m => m.response_rating !== null);
+        const avgRating = ratingsData.length > 0 
+          ? ratingsData.reduce((sum, m) => sum + (m.response_rating || 0), 0) / ratingsData.length 
+          : 0;
+
+        // Features mais usadas
+        const featureStats = metricsData.reduce((acc, m) => {
+          const feature = m.feature_type || 'unknown';
+          if (!acc[feature]) {
+            acc[feature] = { count: 0, cost: 0 };
+          }
+          acc[feature].count++;
+          acc[feature].cost += Number(m.cost_usd) || 0;
           return acc;
-        }, {} as Record<string, number>);
-        
-        const topFeatures = Object.entries(featureUsage)
-          .map(([feature, usage]) => ({ feature, usage }))
-          .sort((a, b) => b.usage - a.usage)
-          .slice(0, 5);
-        
-        // Uso diário nos últimos 30 dias
-        const dailyUsage = Array.from({ length: 30 }, (_, i) => {
-          const date = new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000);
-          const dateStr = date.toISOString().split('T')[0];
-          
-          const dayUsage = aiUsageData.filter(usage => 
-            usage.created_at.startsWith(dateStr)
-          );
-          
-          return {
-            date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-            usage: dayUsage.length,
-            cost: dayUsage.reduce((sum, usage) => sum + (Number(usage.cost_usd) || 0), 0)
-          };
-        });
-        
-        // Engajamento por usuário
-        const userEngagement = Object.entries(
-          aiUsageData.reduce((acc, usage) => {
-            const userId = usage.user_id;
-            if (!acc[userId]) {
-              acc[userId] = { total: 0, ratings: [] };
-            }
-            acc[userId].total++;
-            if (usage.response_rating !== null) {
-              acc[userId].ratings.push(usage.response_rating);
-            }
-            return acc;
-          }, {} as Record<string, { total: number; ratings: number[] }>)
-        )
-        .map(([user_id, data]) => ({
-          user_id: user_id.slice(0, 8) + '...',
-          total_usage: data.total,
-          avg_rating: data.ratings.length > 0 
-            ? data.ratings.reduce((sum, r) => sum + r, 0) / data.ratings.length 
-            : 0
-        }))
-        .sort((a, b) => b.total_usage - a.total_usage)
-        .slice(0, 10);
+        }, {} as Record<string, { count: number; cost: number }>);
 
-        setMetrics({
-          totalUsage,
-          monthlyUsage,
+        const topFeatures = Object.entries(featureStats)
+          .map(([feature, data]) => ({ feature, ...data }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 5);
+
+        // Uso diário
+        const dailyStats = metricsData.reduce((acc, m) => {
+          const date = new Date(m.created_at).toISOString().split('T')[0];
+          if (!acc[date]) {
+            acc[date] = { interactions: 0, tokens: 0, cost: 0 };
+          }
+          acc[date].interactions++;
+          acc[date].tokens += m.tokens_used || 0;
+          acc[date].cost += Number(m.cost_usd) || 0;
+          return acc;
+        }, {} as Record<string, { interactions: number; tokens: number; cost: number }>);
+
+        const dailyUsage = Object.entries(dailyStats)
+          .map(([date, data]) => ({ date: new Date(date).toLocaleDateString('pt-BR'), ...data }))
+          .sort((a, b) => new Date(a.date.split('/').reverse().join('-')).getTime() - new Date(b.date.split('/').reverse().join('-')).getTime())
+          .slice(-14); // Últimos 14 dias
+
+        setStats({
+          totalInteractions,
+          totalTokens,
           totalCost,
-          monthlyCost,
-          avgResponseTime: 1.2, // Mock data
-          positiveRating,
-          negativeRating,
+          avgRating,
           topFeatures,
-          dailyUsage,
-          userEngagement
-        });
-      } else {
-        // Dados mock se não houver dados reais
-        setMetrics({
-          totalUsage: 0,
-          monthlyUsage: 0,
-          totalCost: 0,
-          monthlyCost: 0,
-          avgResponseTime: 0,
-          positiveRating: 0,
-          negativeRating: 0,
-          topFeatures: [],
-          dailyUsage: [],
-          userEngagement: []
+          dailyUsage
         });
       }
     } catch (error) {
-      console.error('Error loading AI metrics:', error);
+      console.error('Erro ao carregar métricas de IA:', error);
+      toast({
+        title: "❌ Erro",
+        description: "Não foi possível carregar as métricas de IA.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -148,26 +123,31 @@ export const AdminAIMetrics = () => {
     loadAIMetrics();
   }, [timeRange]);
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(value);
+  const getRatingColor = (rating: number | null) => {
+    if (rating === null) return 'bg-gray-100 text-gray-800';
+    if (rating === 1) return 'bg-green-100 text-green-800';
+    if (rating === -1) return 'bg-red-100 text-red-800';
+    return 'bg-yellow-100 text-yellow-800';
+  };
+
+  const getRatingIcon = (rating: number | null) => {
+    if (rating === 1) return <ThumbsUp className="h-3 w-3" />;
+    if (rating === -1) return <ThumbsDown className="h-3 w-3" />;
+    return <MessageSquare className="h-3 w-3" />;
   };
 
   if (loading) {
     return (
       <div className="space-y-6">
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardHeader>
-              <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            </CardHeader>
-            <CardContent>
-              <div className="h-32 bg-gray-200 rounded"></div>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-16 bg-gray-200 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
@@ -175,24 +155,40 @@ export const AdminAIMetrics = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Métricas de IA</h1>
-        <p className="text-gray-600 mt-2">Análise de uso e performance da inteligência artificial</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Métricas de IA</h1>
+          <p className="text-gray-600 mt-1">Análise do uso e performance da IA</p>
+        </div>
+        
+        <div className="flex gap-2">
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">7 dias</SelectItem>
+              <SelectItem value="30d">30 dias</SelectItem>
+              <SelectItem value="90d">90 dias</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={loadAIMetrics} variant="outline">
+            Atualizar
+          </Button>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      {metrics && (
+      {/* Stats Cards */}
+      {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total de Interações</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {metrics.totalUsage.toLocaleString()}
-                  </p>
+                  <p className="text-2xl font-bold text-blue-600">{stats.totalInteractions.toLocaleString()}</p>
                 </div>
-                <MessageSquare className="h-8 w-8 text-blue-600" />
+                <Brain className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
@@ -201,12 +197,10 @@ export const AdminAIMetrics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Interações Mensais</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {metrics.monthlyUsage.toLocaleString()}
-                  </p>
+                  <p className="text-sm text-gray-600">Tokens Utilizados</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.totalTokens.toLocaleString()}</p>
                 </div>
-                <TrendingUp className="h-8 w-8 text-green-600" />
+                <Zap className="h-8 w-8 text-green-600" />
               </div>
             </CardContent>
           </Card>
@@ -216,11 +210,11 @@ export const AdminAIMetrics = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Custo Total</p>
-                  <p className="text-2xl font-bold text-red-600">
-                    {formatCurrency(metrics.totalCost)}
+                  <p className="text-2xl font-bold text-purple-600">
+                    ${stats.totalCost.toFixed(2)}
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-red-600" />
+                <Target className="h-8 w-8 text-purple-600" />
               </div>
             </CardContent>
           </Card>
@@ -229,144 +223,98 @@ export const AdminAIMetrics = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Tempo Médio</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {metrics.avgResponseTime}s
+                  <p className="text-sm text-gray-600">Avaliação Média</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {stats.avgRating.toFixed(1)}/5
                   </p>
                 </div>
-                <Zap className="h-8 w-8 text-purple-600" />
+                <TrendingUp className="h-8 w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
         </div>
       )}
 
-      {/* Usage Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              Uso Diário de IA
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={metrics?.dailyUsage}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="usage" stroke="#8884d8" name="Interações" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Charts */}
+      {stats && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Uso Diário de IA</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={stats.dailyUsage}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="interactions" stroke="#8884d8" name="Interações" />
+                  <Line type="monotone" dataKey="tokens" stroke="#82ca9d" name="Tokens" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Features Mais Usadas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={metrics?.topFeatures}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="feature" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="usage" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Features Mais Utilizadas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={stats.topFeatures}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="feature" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#8884d8" name="Usos" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
-      {/* Ratings and Engagement */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Avaliações dos Usuários</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ThumbsUp className="h-5 w-5 text-green-600" />
-                  <span>Avaliações Positivas</span>
-                </div>
-                <Badge className="bg-green-100 text-green-800">
-                  {metrics?.positiveRating || 0}
-                </Badge>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ThumbsDown className="h-5 w-5 text-red-600" />
-                  <span>Avaliações Negativas</span>
-                </div>
-                <Badge className="bg-red-100 text-red-800">
-                  {metrics?.negativeRating || 0}
-                </Badge>
-              </div>
-
-              <div className="pt-4">
-                <div className="text-sm text-gray-600 mb-2">Taxa de Satisfação</div>
-                <div className="text-2xl font-bold text-blue-600">
-                  {metrics && (metrics.positiveRating + metrics.negativeRating) > 0
-                    ? Math.round((metrics.positiveRating / (metrics.positiveRating + metrics.negativeRating)) * 100)
-                    : 0}%
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Top Usuários Ativos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {metrics?.userEngagement.map((user, index) => (
-                <div key={user.user_id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline">{index + 1}</Badge>
-                    <span className="font-mono text-sm">{user.user_id}</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold">{user.total_usage} interações</div>
-                    <div className="text-xs text-gray-500">
-                      Rating: {user.avg_rating.toFixed(1)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Cost Analysis */}
+      {/* Recent Interactions */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
-            Análise de Custos
-          </CardTitle>
+          <CardTitle>Interações Recentes</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={metrics?.dailyUsage}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="cost" stroke="#ff7300" name="Custo (USD)" />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="space-y-4">
+            {metrics.slice(0, 10).map((metric) => (
+              <div key={metric.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="outline">{metric.feature_type}</Badge>
+                    {metric.response_rating !== null && (
+                      <Badge className={getRatingColor(metric.response_rating)}>
+                        {getRatingIcon(metric.response_rating)}
+                        {metric.response_rating === 1 ? 'Positiva' : metric.response_rating === -1 ? 'Negativa' : 'Neutra'}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {metric.tokens_used} tokens • ${Number(metric.cost_usd).toFixed(4)}
+                  </div>
+                  {metric.feedback_text && (
+                    <div className="text-sm text-gray-500 mt-1 italic">
+                      "{metric.feedback_text}"
+                    </div>
+                  )}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(metric.created_at).toLocaleString('pt-BR')}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {metrics.length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              Nenhuma métrica de IA encontrada no período selecionado.
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -1,17 +1,17 @@
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, RotateCcw } from 'lucide-react';
 
 interface PaymentsFiltersProps {
   searchTerm: string;
-  setSearchTerm: (term: string) => void;
+  setSearchTerm: (value: string) => void;
   filterStatus: string;
-  setFilterStatus: (status: string) => void;
+  setFilterStatus: (value: string) => void;
   dateRange: string;
-  setDateRange: (range: string) => void;
+  setDateRange: (value: string) => void;
   onClearFilters: () => void;
 }
 
@@ -29,7 +29,7 @@ export const PaymentsFilters = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Filter className="h-5 w-5" />
-          Filtros
+          Filtros de Pesquisa
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -37,15 +37,16 @@ export const PaymentsFilters = ({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Buscar por usuário..."
+              placeholder="Buscar por usuário ou ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
+          
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger>
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Todos os status</SelectItem>
@@ -55,6 +56,7 @@ export const PaymentsFilters = ({
               <SelectItem value="canceled">Cancelado</SelectItem>
             </SelectContent>
           </Select>
+
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger>
               <SelectValue placeholder="Período" />
@@ -66,10 +68,13 @@ export const PaymentsFilters = ({
               <SelectItem value="1y">Último ano</SelectItem>
             </SelectContent>
           </Select>
+
           <Button 
             variant="outline" 
             onClick={onClearFilters}
+            className="flex items-center gap-2"
           >
+            <RotateCcw className="h-4 w-4" />
             Limpar Filtros
           </Button>
         </div>
