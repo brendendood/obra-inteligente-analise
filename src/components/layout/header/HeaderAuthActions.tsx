@@ -8,12 +8,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
+import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 
 export const HeaderAuthActions = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const { getDefaultAvatar, getAvatarFallback } = useDefaultAvatar();
 
   const handleLogout = async () => {
     try {
@@ -54,6 +56,9 @@ export const HeaderAuthActions = () => {
     );
   }
 
+  const userGender = user?.user_metadata?.gender;
+  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatar(userGender);
+
   return (
     <>
       <button
@@ -61,9 +66,9 @@ export const HeaderAuthActions = () => {
         className="flex items-center space-x-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
       >
         <Avatar className="h-6 w-6">
-          <AvatarImage src={user?.user_metadata?.avatar_url} />
+          <AvatarImage src={avatarUrl} />
           <AvatarFallback className="bg-blue-600 text-white text-xs">
-            <User className="h-3 w-3" />
+            {getAvatarFallback(userGender)}
           </AvatarFallback>
         </Avatar>
         <span className="max-w-32 truncate">

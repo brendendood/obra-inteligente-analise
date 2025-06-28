@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,13 +11,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { GenderSelect } from '@/components/account/GenderSelect';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    gender: ''
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,6 +31,24 @@ const Signup = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleGenderChange = (value: string) => {
+    setFormData({
+      ...formData,
+      gender: value
+    });
+  };
+
+  const getDefaultAvatar = (gender: string) => {
+    switch (gender) {
+      case 'male':
+        return 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face';
+      case 'female':
+        return 'https://images.unsplash.com/photo-1494790108755-2616c047c7e1?w=150&h=150&fit=crop&crop=face';
+      default:
+        return 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face';
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -60,6 +81,15 @@ const Signup = () => {
       return;
     }
 
+    if (!formData.gender) {
+      toast({
+        title: "❌ Selecione o gênero",
+        description: "Por favor, selecione seu gênero para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -69,7 +99,9 @@ const Signup = () => {
         options: {
           emailRedirectTo: `${window.location.origin}/painel`,
           data: {
-            full_name: formData.name
+            full_name: formData.name,
+            gender: formData.gender,
+            avatar_url: getDefaultAvatar(formData.gender)
           }
         }
       });
@@ -190,6 +222,11 @@ const Signup = () => {
                     />
                   </div>
                 </div>
+
+                <GenderSelect 
+                  value={formData.gender}
+                  onValueChange={handleGenderChange}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Senha</Label>

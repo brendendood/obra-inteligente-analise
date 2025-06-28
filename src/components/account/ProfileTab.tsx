@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Upload } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { PhotoUpload } from './PhotoUpload';
+import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 
 interface ProfileTabProps {
   isLoading: boolean;
@@ -17,12 +17,16 @@ interface ProfileTabProps {
 export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { getDefaultAvatar, getAvatarFallback } = useDefaultAvatar();
+  
+  const userGender = user?.user_metadata?.gender;
+  const defaultAvatar = getDefaultAvatar(userGender);
   
   const [profileData, setProfileData] = useState({
     fullName: user?.user_metadata?.full_name || '',
     cargo: user?.user_metadata?.cargo || '',
     empresa: user?.user_metadata?.empresa || '',
-    profilePicture: user?.user_metadata?.avatar_url || ''
+    profilePicture: user?.user_metadata?.avatar_url || defaultAvatar
   });
 
   const handleProfileUpdate = async () => {
@@ -66,7 +70,7 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
         <Avatar className="h-20 w-20">
           <AvatarImage src={profileData.profilePicture} />
           <AvatarFallback className="bg-blue-600 text-white text-xl">
-            {user?.email?.charAt(0).toUpperCase()}
+            {getAvatarFallback(userGender)}
           </AvatarFallback>
         </Avatar>
         <PhotoUpload 

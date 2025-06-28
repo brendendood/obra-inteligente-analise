@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
+import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 
 interface HeaderMobileMenuProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const { getDefaultAvatar, getAvatarFallback } = useDefaultAvatar();
 
   const handleLogout = async () => {
     try {
@@ -41,6 +43,9 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
 
   if (!isOpen) return null;
 
+  const userGender = user?.user_metadata?.gender;
+  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatar(userGender);
+
   return (
     <>
       <div className="md:hidden border-t border-slate-200 py-4 animate-fade-in">
@@ -55,9 +60,9 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
                 className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-slate-600 border-t border-slate-200 mt-2 pt-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.user_metadata?.avatar_url} />
+                  <AvatarImage src={avatarUrl} />
                   <AvatarFallback className="bg-blue-600 text-white text-xs">
-                    <User className="h-4 w-4" />
+                    {getAvatarFallback(userGender)}
                   </AvatarFallback>
                 </Avatar>
                 <span>
