@@ -101,11 +101,15 @@ export function useAdmin() {
     if (!isAdmin || userRole !== 'super_admin') return false;
 
     try {
-      // Buscar o usuário pelo email
-      const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(email);
+      // Buscar o usuário pelo email na tabela user_profiles
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('user_id')
+        .ilike('full_name', `%${email}%`)
+        .single();
       
-      if (userError || !userData.user) {
-        console.error('User not found:', userError);
+      if (profileError || !profileData) {
+        console.error('User not found:', profileError);
         return false;
       }
 
@@ -113,7 +117,7 @@ export function useAdmin() {
       const { error: permError } = await supabase
         .from('admin_permissions')
         .insert({
-          user_id: userData.user.id,
+          user_id: profileData.user_id,
           role: role,
           granted_by: user?.id,
           active: true
@@ -132,7 +136,7 @@ export function useAdmin() {
         admin_user_id: user?.id,
         action_type: 'admin_created',
         target_type: 'user',
-        target_id: userData.user.id,
+        target_id: profileData.user_id,
         new_values: { role, email }
       });
 

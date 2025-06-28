@@ -6,14 +6,14 @@ import { useToast } from '@/hooks/use-toast';
 interface UserProfile {
   id: string;
   user_id: string;
-  full_name: string;
-  company: string;
-  phone: string;
-  city: string;
-  state: string;
-  country: string;
-  sector: string;
-  tags: string[];
+  full_name: string | null;
+  company: string | null;
+  phone: string | null;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  sector: string | null;
+  tags: string[] | null;
   created_at: string;
   updated_at: string;
   email?: string;
@@ -39,7 +39,7 @@ export function useAdminUsers() {
         .from('user_profiles')
         .select(`
           *,
-          user_subscriptions!inner(plan, status)
+          user_subscriptions(plan, status)
         `)
         .order('created_at', { ascending: false });
 
@@ -53,25 +53,18 @@ export function useAdminUsers() {
         throw error;
       }
 
-      // Buscar emails dos usuários do auth.users
       if (data && data.length > 0) {
-        const userIds = data.map(user => user.user_id);
-        const { data: authUsers, error: authError } = await supabase.auth.admin.getUsersById(userIds);
+        // Transformar os dados para o formato esperado
+        const usersWithFormattedData = data.map(user => ({
+          ...user,
+          subscription: Array.isArray(user.user_subscriptions) && user.user_subscriptions.length > 0 
+            ? user.user_subscriptions[0] 
+            : { plan: 'free', status: 'active' }
+        }));
         
-        if (!authError && authUsers) {
-          const usersWithEmail = data.map(user => ({
-            ...user,
-            email: authUsers.find(au => au.id === user.user_id)?.email || '',
-            subscription: user.user_subscriptions?.[0] || { plan: 'free', status: 'active' }
-          }));
-          
-          setUsers(usersWithEmail);
-        } else {
-          setUsers(data.map(user => ({
-            ...user,
-            subscription: user.user_subscriptions?.[0] || { plan: 'free', status: 'active' }
-          })));
-        }
+        setUsers(usersWithFormattedData);
+      } else {
+        setUsers([]);
       }
     } catch (error) {
       console.error('Error loading users:', error);
@@ -110,7 +103,7 @@ export function useAdminUsers() {
     }
   };
 
-  const updateUserPlan = async (userId: string, plan: string) => {
+  const updateUserPlan = async (userId: string, plan: 'free' | 'pro' | 'enterprise') => {
     try {
       const { error } = await supabase
         .from('user_subscriptions')
