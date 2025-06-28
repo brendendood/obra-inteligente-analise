@@ -14,15 +14,15 @@ interface PhotoUploadProps {
 
 const DEFAULT_AVATARS = {
   male: {
-    url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face',
+    url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=male-engineer&backgroundColor=b6e3f4&clothingColor=3c4858&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=shortHairShortFlat&facialHairType=light',
     label: 'Avatar Masculino'
   },
   female: {
-    url: 'https://images.unsplash.com/photo-1494790108755-2616c047c7e1?w=150&h=150&fit=crop&crop=face',
+    url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=female-architect&backgroundColor=fde2e4&clothingColor=94a3b8&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=longHairStraight',
     label: 'Avatar Feminino'
   },
   neutral: {
-    url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    url: 'https://api.dicebear.com/7.x/bottts/svg?seed=construction-pro&backgroundColor=e0f2fe&colorful=true&mood=happy',
     label: 'Avatar Neutro'
   }
 };
@@ -87,7 +87,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
 
       {showAvatars && (
         <div className="border rounded-lg p-4 space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">Escolha seu avatar:</h4>
+          <h4 className="text-sm font-medium text-gray-700">Escolha seu avatar ilustrado:</h4>
           <div className="flex gap-4 justify-center">
             {Object.entries(DEFAULT_AVATARS).map(([key, avatar]) => (
               <button
@@ -134,7 +134,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
       )}
 
       <p className="text-xs text-gray-500">
-        Escolha entre os avatares disponíveis baseados no seu perfil.
+        Avatares ilustrados profissionais para seu perfil na construção civil.
       </p>
     </div>
   );

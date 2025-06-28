@@ -3,11 +3,11 @@ export const useDefaultAvatar = () => {
   const getDefaultAvatar = (gender?: string) => {
     switch (gender) {
       case 'male':
-        return 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face';
+        return 'https://api.dicebear.com/7.x/avataaars/svg?seed=male-engineer&backgroundColor=b6e3f4&clothingColor=3c4858&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=shortHairShortFlat&facialHairType=light';
       case 'female':
-        return 'https://images.unsplash.com/photo-1494790108755-2616c047c7e1?w=150&h=150&fit=crop&crop=face';
+        return 'https://api.dicebear.com/7.x/avataaars/svg?seed=female-architect&backgroundColor=fde2e4&clothingColor=94a3b8&eyebrowType=default&eyeType=default&mouthType=smile&skinColor=light&topType=longHairStraight';
       default:
-        return 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face';
+        return 'https://api.dicebear.com/7.x/bottts/svg?seed=construction-pro&backgroundColor=e0f2fe&colorful=true&mood=happy';
     }
   };
 
