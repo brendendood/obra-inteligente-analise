@@ -79,8 +79,8 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
     {
       title: 'Assistente IA',
       icon: Brain,
-      path: '/assistente',
-      isActive: location.pathname === '/assistente'
+      path: '/ia',
+      isActive: location.pathname === '/ia'
     }
   ];
 
@@ -107,8 +107,8 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
     {
       title: 'IA do Projeto',
       icon: Brain,
-      path: `/projeto/${projectId}/ia`,
-      isActive: location.pathname === `/projeto/${projectId}/ia`
+      path: `/projeto/${projectId}/assistente`,
+      isActive: location.pathname === `/projeto/${projectId}/assistente`
     },
     {
       title: 'Documentos',
