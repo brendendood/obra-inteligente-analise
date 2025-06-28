@@ -40,15 +40,15 @@ export const ChatInput = ({
 
   return (
     <div className="flex-shrink-0 p-4 border-t border-gray-100">
-      <div className="flex items-end space-x-3">
-        <div className="flex-1 relative">
+      <div className="flex items-end gap-3">
+        <div className="flex-1 min-w-0">
           <Textarea
             ref={textareaRef}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Pergunte algo sobre arquitetura ou engenharia civil..."
-            className="resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500 pr-12 min-h-[44px] max-h-[200px]"
+            className="resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-h-[44px] max-h-[200px] w-full"
             disabled={isLoading}
           />
         </div>
