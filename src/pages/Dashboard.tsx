@@ -16,9 +16,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   
   // ÚNICO ponto de carregamento de projetos - apenas o Zustand store
-  const { projects, isLoading: isLoadingProjects, fetchProjects } = useProjectStore();
+  const { projects, isLoading: isLoadingProjects } = useProjectStore();
   
-  const { stats, forceRefresh } = useDashboardData();
+  const { stats } = useDashboardData();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -26,14 +26,6 @@ const Dashboard = () => {
       return;
     }
   }, [isAuthenticated, authLoading, navigate]);
-
-  // ÚNICO useEffect para carregar projetos - apenas uma vez
-  useEffect(() => {
-    if (isAuthenticated && !authLoading && projects.length === 0 && !isLoadingProjects) {
-      console.log('🏠 DASHBOARD: Carregando projetos pela primeira vez...');
-      fetchProjects();
-    }
-  }, [isAuthenticated, authLoading, fetchProjects, projects.length, isLoadingProjects]);
 
   const isInitialLoading = authLoading;
 
@@ -69,14 +61,6 @@ const Dashboard = () => {
                 Gerencie seus projetos de construção com IA
               </p>
             </div>
-            {!isLoadingProjects && (
-              <button
-                onClick={forceRefresh}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium flex-shrink-0"
-              >
-                Atualizar
-              </button>
-            )}
           </div>
         </div>
 

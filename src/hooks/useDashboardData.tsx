@@ -1,6 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useState, useEffect, useRef } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 
 interface DashboardStats {
@@ -14,8 +13,8 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { user, isAuthenticated } = useAuth();
-  const { projects, isLoading: isLoadingProjects, forceRefresh } = useProjectStore();
+  const { projects, isLoading: isLoadingProjects, fetchProjects } = useProjectStore();
+  const mountedRef = useRef(true);
   
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
@@ -29,9 +28,7 @@ export const useDashboardData = () => {
 
   // Recalcular estatísticas SEMPRE que os projetos mudarem
   useEffect(() => {
-    if (!projects) return;
-
-    console.log('📊 DASHBOARD: Recalculando estatísticas para', projects.length, 'projetos');
+    if (!projects || !mountedRef.current) return;
 
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
@@ -74,19 +71,18 @@ export const useDashboardData = () => {
     };
 
     setStats(newStats);
-    
-    console.log('✅ DASHBOARD: Estatísticas recalculadas:', {
-      total: newStats.totalProjects,
-      processados: newStats.processedProjects,
-      area: newStats.totalArea,
-      tipos: Object.keys(newStats.projectsByType).length
-    });
   }, [projects]);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   return {
     projects,
     stats,
     isLoadingProjects,
-    forceRefresh
+    forceRefresh: fetchProjects
   };
 };

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,18 +30,23 @@ export const useAdminPayments = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [dateRange, setDateRange] = useState('30d');
+  const mountedRef = useRef(true);
+  const hasInitialized = useRef(false);
   const { toast } = useToast();
 
   const loadPayments = async () => {
+    if (!mountedRef.current) return;
+    
     try {
       setLoading(true);
       
-      // Simplificar a consulta inicial
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('payments')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
+
+      if (!mountedRef.current) return;
 
       if (paymentsError) {
         console.error('Error loading payments:', paymentsError);
@@ -49,7 +54,6 @@ export const useAdminPayments = () => {
       }
 
       if (paymentsData) {
-        // Processar dados básicos primeiro
         const processedPayments = paymentsData.map(payment => ({
           ...payment,
           user_email: payment.user_id || 'N/A',
@@ -75,25 +79,43 @@ export const useAdminPayments = () => {
 
         const averageTicket = processedPayments.length > 0 ? totalRevenue / processedPayments.length : 0;
 
-        setStats({
-          totalRevenue,
-          monthlyRevenue,
-          totalTransactions: processedPayments.length,
-          activeSubscriptions: 0, // Será carregado separadamente se necessário
-          averageTicket
-        });
+        if (mountedRef.current) {
+          setStats({
+            totalRevenue,
+            monthlyRevenue,
+            totalTransactions: processedPayments.length,
+            activeSubscriptions: 0,
+            averageTicket
+          });
+        }
       }
     } catch (error) {
       console.error('Error loading payments:', error);
-      toast({
-        title: "❌ Erro ao carregar pagamentos",
-        description: "Não foi possível carregar os dados de pagamento.",
-        variant: "destructive"
-      });
+      if (mountedRef.current) {
+        toast({
+          title: "❌ Erro ao carregar pagamentos",
+          description: "Não foi possível carregar os dados de pagamento.",
+          variant: "destructive"
+        });
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   };
+
+  // Carregar dados apenas uma vez na montagem
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+    
+    loadPayments();
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []); // Dependência vazia para carregar apenas uma vez
 
   const exportPayments = () => {
     if (payments.length === 0) {
@@ -125,11 +147,6 @@ export const useAdminPayments = () => {
     setFilterStatus('');
     setDateRange('30d');
   };
-
-  // Carregar dados apenas uma vez na montagem
-  useEffect(() => {
-    loadPayments();
-  }, []); // Dependência vazia para carregar apenas uma vez
 
   // Filtrar dados localmente para evitar re-consultas
   const filteredPayments = payments.filter(payment => {

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,9 +29,13 @@ export function useAdminUsers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlan, setFilterPlan] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
+  const mountedRef = useRef(true);
+  const hasInitialized = useRef(false);
   const { toast } = useToast();
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
+    if (!mountedRef.current) return;
+    
     try {
       setLoading(true);
       
@@ -49,12 +53,13 @@ export function useAdminUsers() {
 
       const { data, error } = await query;
 
+      if (!mountedRef.current) return;
+
       if (error) {
         throw error;
       }
 
       if (data && data.length > 0) {
-        // Transformar os dados para o formato esperado
         const usersWithFormattedData = data.map(user => ({
           ...user,
           subscription: Array.isArray(user.user_subscriptions) && user.user_subscriptions.length > 0 
@@ -68,15 +73,44 @@ export function useAdminUsers() {
       }
     } catch (error) {
       console.error('Error loading users:', error);
-      toast({
-        title: "❌ Erro ao carregar usuários",
-        description: "Não foi possível carregar a lista de usuários.",
-        variant: "destructive"
-      });
+      if (mountedRef.current) {
+        toast({
+          title: "❌ Erro ao carregar usuários",
+          description: "Não foi possível carregar a lista de usuários.",
+          variant: "destructive"
+        });
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [searchTerm, toast]);
+
+  // Carregar usuarios apenas uma vez na montagem
+  useEffect(() => {
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+    
+    loadUsers();
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []); // Dependência vazia - carregar apenas uma vez
+
+  // Debounce para search term
+  useEffect(() => {
+    if (!hasInitialized.current) return;
+    
+    const timeoutId = setTimeout(() => {
+      if (mountedRef.current) {
+        loadUsers();
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, loadUsers]);
 
   const updateUserTags = async (userId: string, tags: string[]) => {
     try {
@@ -112,14 +146,6 @@ export function useAdminUsers() {
 
       if (error) throw error;
 
-      // Log da ação
-      await supabase.from('admin_audit_logs').insert({
-        action_type: 'plan_changed',
-        target_type: 'user',
-        target_id: userId,
-        new_values: { plan }
-      });
-
       toast({
         title: "✅ Plano atualizado",
         description: `Plano do usuário alterado para ${plan.toUpperCase()}.`
@@ -135,10 +161,6 @@ export function useAdminUsers() {
       });
     }
   };
-
-  useEffect(() => {
-    loadUsers();
-  }, [searchTerm, filterPlan, filterStatus]);
 
   return {
     users,
