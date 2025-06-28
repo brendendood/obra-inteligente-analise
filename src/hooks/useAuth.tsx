@@ -8,25 +8,23 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
+  const subscriptionRef = useRef<any>(null);
 
   useEffect(() => {
-    let authSubscription: any = null;
-
     const initAuth = async () => {
       try {
-        // Verificar sessão inicial apenas uma vez
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mountedRef.current) return;
         
         if (error) {
-          console.error('❌ AUTH: Erro ao obter sessão inicial:', error);
+          console.error('❌ AUTH: Erro ao obter sessão:', error);
         } else {
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        console.error('💥 AUTH: Erro crítico na autenticação:', error);
+        console.error('💥 AUTH: Erro crítico:', error);
       } finally {
         if (mountedRef.current) {
           setLoading(false);
@@ -34,24 +32,18 @@ export function useAuth() {
       }
     };
 
-    // Configurar listener de mudanças de auth (apenas uma vez)
     const setupAuthListener = () => {
-      authSubscription = supabase.auth.onAuthStateChange(
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           if (!mountedRef.current) return;
           
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
-          
-          // Log apenas para eventos importantes
-          if (event === 'SIGNED_IN') {
-            console.log('✅ LOGIN: Sucesso para:', session?.user?.email);
-          } else if (event === 'SIGNED_OUT') {
-            console.log('👋 LOGOUT: Usuário desconectado');
-          }
         }
       );
+      
+      subscriptionRef.current = subscription;
     };
 
     initAuth();
@@ -59,11 +51,11 @@ export function useAuth() {
 
     return () => {
       mountedRef.current = false;
-      if (authSubscription) {
-        authSubscription.subscription.unsubscribe();
+      if (subscriptionRef.current && typeof subscriptionRef.current.unsubscribe === 'function') {
+        subscriptionRef.current.unsubscribe();
       }
     };
-  }, []); // Dependência vazia - executar apenas uma vez
+  }, []);
 
   const isAuthenticated = !!user && !!session;
 

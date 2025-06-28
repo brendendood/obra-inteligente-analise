@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,36 +30,25 @@ export function useAdminUsers() {
   const [filterPlan, setFilterPlan] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
   const mountedRef = useRef(true);
-  const hasInitialized = useRef(false);
+  const initializedRef = useRef(false);
   const { toast } = useToast();
 
-  const loadUsers = useCallback(async () => {
-    if (!mountedRef.current) return;
-    
+  const loadUsers = async () => {
     try {
-      setLoading(true);
-      
-      let query = supabase
+      const { data, error } = await supabase
         .from('user_profiles')
         .select(`
           *,
           user_subscriptions(plan, status)
         `)
-        .order('created_at', { ascending: false });
-
-      if (searchTerm) {
-        query = query.or(`full_name.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`);
-      }
-
-      const { data, error } = await query;
+        .order('created_at', { ascending: false })
+        .limit(100);
 
       if (!mountedRef.current) return;
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      if (data && data.length > 0) {
+      if (data) {
         const usersWithFormattedData = data.map(user => ({
           ...user,
           subscription: Array.isArray(user.user_subscriptions) && user.user_subscriptions.length > 0 
@@ -68,11 +57,9 @@ export function useAdminUsers() {
         }));
         
         setUsers(usersWithFormattedData);
-      } else {
-        setUsers([]);
       }
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error('❌ Erro ao carregar usuários:', error);
       if (mountedRef.current) {
         toast({
           title: "❌ Erro ao carregar usuários",
@@ -85,32 +72,18 @@ export function useAdminUsers() {
         setLoading(false);
       }
     }
-  }, [searchTerm, toast]);
+  };
 
-  // Carregar usuarios apenas uma vez na montagem
   useEffect(() => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
+    if (initializedRef.current) return;
+    initializedRef.current = true;
     
     loadUsers();
 
     return () => {
       mountedRef.current = false;
     };
-  }, []); // Dependência vazia - carregar apenas uma vez
-
-  // Debounce para search term
-  useEffect(() => {
-    if (!hasInitialized.current) return;
-    
-    const timeoutId = setTimeout(() => {
-      if (mountedRef.current) {
-        loadUsers();
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm, loadUsers]);
+  }, []);
 
   const updateUserTags = async (userId: string, tags: string[]) => {
     try {
@@ -162,8 +135,19 @@ export function useAdminUsers() {
     }
   };
 
+  // Filtros aplicados localmente
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = searchTerm === '' || 
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.company?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesPlan = filterPlan === '' || user.subscription?.plan === filterPlan;
+    const matchesStatus = filterStatus === '' || user.subscription?.status === filterStatus;
+    
+    return matchesSearch && matchesPlan && matchesStatus;
+  });
+
   return {
-    users,
+    users: filteredUsers,
     loading,
     searchTerm,
     setSearchTerm,

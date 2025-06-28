@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,6 @@ import {
   FolderOpen, 
   BarChart3, 
   CreditCard, 
-  Settings,
   Shield,
   Brain
 } from 'lucide-react';
@@ -29,24 +28,23 @@ const AdminPanel = () => {
   const { isAdmin, loading: adminLoading } = useAdminStats();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  // Loading state
+  // Carregamento
   if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verificando permissões administrativas...</p>
+          <p className="text-gray-600">Carregando painel administrativo...</p>
         </div>
       </div>
     );
   }
 
-  // Redirect if not authenticated
+  // Redirecionamentos
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // Redirect if not admin
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

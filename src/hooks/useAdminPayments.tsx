@@ -31,15 +31,11 @@ export const useAdminPayments = () => {
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [dateRange, setDateRange] = useState('30d');
   const mountedRef = useRef(true);
-  const hasInitialized = useRef(false);
+  const initializedRef = useRef(false);
   const { toast } = useToast();
 
   const loadPayments = async () => {
-    if (!mountedRef.current) return;
-    
     try {
-      setLoading(true);
-      
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('payments')
         .select('*')
@@ -48,10 +44,7 @@ export const useAdminPayments = () => {
 
       if (!mountedRef.current) return;
 
-      if (paymentsError) {
-        console.error('Error loading payments:', paymentsError);
-        throw paymentsError;
-      }
+      if (paymentsError) throw paymentsError;
 
       if (paymentsData) {
         const processedPayments = paymentsData.map(payment => ({
@@ -62,27 +55,17 @@ export const useAdminPayments = () => {
         
         setPayments(processedPayments);
         
-        // Calcular estatísticas básicas
+        // Calcular estatísticas
         const totalRevenue = processedPayments
           .filter(p => p.status === 'succeeded')
           .reduce((sum, p) => sum + Number(p.amount), 0);
         
-        const monthlyRevenue = processedPayments
-          .filter(p => {
-            const paymentDate = new Date(p.created_at);
-            const now = new Date();
-            return p.status === 'succeeded' &&
-                   paymentDate.getMonth() === now.getMonth() &&
-                   paymentDate.getFullYear() === now.getFullYear();
-          })
-          .reduce((sum, p) => sum + Number(p.amount), 0);
-
         const averageTicket = processedPayments.length > 0 ? totalRevenue / processedPayments.length : 0;
 
         if (mountedRef.current) {
           setStats({
             totalRevenue,
-            monthlyRevenue,
+            monthlyRevenue: 0,
             totalTransactions: processedPayments.length,
             activeSubscriptions: 0,
             averageTicket
@@ -90,7 +73,7 @@ export const useAdminPayments = () => {
         }
       }
     } catch (error) {
-      console.error('Error loading payments:', error);
+      console.error('❌ Erro ao carregar pagamentos:', error);
       if (mountedRef.current) {
         toast({
           title: "❌ Erro ao carregar pagamentos",
@@ -105,17 +88,16 @@ export const useAdminPayments = () => {
     }
   };
 
-  // Carregar dados apenas uma vez na montagem
   useEffect(() => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
+    if (initializedRef.current) return;
+    initializedRef.current = true;
     
     loadPayments();
 
     return () => {
       mountedRef.current = false;
     };
-  }, []); // Dependência vazia para carregar apenas uma vez
+  }, []);
 
   const exportPayments = () => {
     if (payments.length === 0) {
@@ -148,7 +130,7 @@ export const useAdminPayments = () => {
     setDateRange('30d');
   };
 
-  // Filtrar dados localmente para evitar re-consultas
+  // Filtros aplicados localmente
   const filteredPayments = payments.filter(payment => {
     const matchesSearch = searchTerm === '' || 
       payment.user_email?.toLowerCase().includes(searchTerm.toLowerCase());
