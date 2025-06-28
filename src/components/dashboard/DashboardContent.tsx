@@ -61,7 +61,7 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
         <div className="lg:col-span-2 space-y-6">
           <EnhancedProjectsSection 
             projects={projects} 
-            stats={stats}
+            isLoading={isDataLoading}
           />
         </div>
 
