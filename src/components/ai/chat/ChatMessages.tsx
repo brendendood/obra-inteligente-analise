@@ -16,24 +16,19 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = ({ messages, isLoading }: ChatMessagesProps) => {
-  const scrollbarHideStyle = {
-    scrollbarWidth: 'none' as const,
-    msOverflowStyle: 'none' as const,
-    WebkitScrollbar: {
-      display: 'none'
-    }
-  };
-
   return (
     <div 
-      className="flex-1 p-4 overflow-y-auto" 
-      style={scrollbarHideStyle}
-      css={{
-        '&::-webkit-scrollbar': {
-          display: 'none'
-        }
+      className="flex-1 p-4 overflow-y-auto scrollbar-hide"
+      style={{
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none'
       }}
     >
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       <div className="space-y-4">
         {messages.length === 0 && <ChatEmptyState />}
 
