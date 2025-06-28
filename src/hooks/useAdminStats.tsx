@@ -14,13 +14,14 @@ interface AdminStats {
 
 export function useAdminStats() {
   const { user, isAuthenticated } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkAdminAndLoadStats = async () => {
       if (!isAuthenticated || !user) {
+        setIsAdmin(false);
         setLoading(false);
         return;
       }
@@ -30,26 +31,25 @@ export function useAdminStats() {
         const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin_user');
         
         if (adminError) {
-          console.error('Error checking admin status:', adminError);
+          console.error('❌ ADMIN: Erro ao verificar status admin:', adminError);
           setIsAdmin(false);
-          setLoading(false);
-          return;
-        }
-
-        setIsAdmin(adminCheck || false);
-
-        if (adminCheck) {
-          // Carregar estatísticas
-          const { data: statsData, error: statsError } = await supabase.rpc('get_admin_dashboard_stats');
+        } else {
+          setIsAdmin(adminCheck || false);
           
-          if (statsError) {
-            console.error('Error loading admin stats:', statsError);
-          } else if (statsData && statsData.length > 0) {
-            setStats(statsData[0] as AdminStats);
+          // Se for admin, carregar estatísticas
+          if (adminCheck) {
+            const { data: statsData, error: statsError } = await supabase.rpc('get_admin_dashboard_stats');
+            
+            if (statsError) {
+              console.error('❌ ADMIN: Erro ao carregar stats:', statsError);
+            } else if (statsData && statsData.length > 0) {
+              setStats(statsData[0] as AdminStats);
+            }
           }
         }
       } catch (error) {
-        console.error('Error in admin check:', error);
+        console.error('💥 ADMIN: Erro crítico:', error);
+        setIsAdmin(false);
       } finally {
         setLoading(false);
       }
@@ -59,8 +59,12 @@ export function useAdminStats() {
   }, [isAuthenticated, user]);
 
   return {
-    stats,
     isAdmin,
+    stats,
     loading,
+    refetch: () => {
+      setLoading(true);
+      // Re-executar a função
+    }
   };
 }

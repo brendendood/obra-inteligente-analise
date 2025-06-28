@@ -7,6 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
+import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
+import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
+import { AdminPayments } from '@/components/admin/AdminPayments';
+import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -81,45 +85,25 @@ const AdminPanel = () => {
       id: 'projects',
       label: 'Projetos',
       icon: FolderOpen,
-      component: (
-        <div className="text-center py-12">
-          <FolderOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Gestão de Projetos em desenvolvimento</p>
-        </div>
-      )
+      component: <AdminProjectsManagement />
     },
     {
       id: 'analytics',
       label: 'Analytics',
       icon: BarChart3,
-      component: (
-        <div className="text-center py-12">
-          <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Analytics avançadas em desenvolvimento</p>
-        </div>
-      )
+      component: <AdminAnalytics />
     },
     {
       id: 'payments',
       label: 'Pagamentos',
       icon: CreditCard,
-      component: (
-        <div className="text-center py-12">
-          <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Gestão de Pagamentos em desenvolvimento</p>
-        </div>
-      )
+      component: <AdminPayments />
     },
     {
       id: 'ai-metrics',
       label: 'IA Metrics',
       icon: Brain,
-      component: (
-        <div className="text-center py-12">
-          <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">Métricas de IA em desenvolvimento</p>
-        </div>
-      )
+      component: <AdminAIMetrics />
     }
   ];
 
