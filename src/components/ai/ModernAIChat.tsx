@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -18,6 +17,7 @@ export const ModernAIChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showSendButton, setShowSendButton] = useState(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -34,7 +34,11 @@ export const ModernAIChat = () => {
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
+      textareaRef.current.style.height = newHeight + 'px';
+      
+      // Hide send button when textarea expands beyond initial height (44px)
+      setShowSendButton(newHeight <= 44);
     }
   };
 
@@ -175,13 +179,15 @@ export const ModernAIChat = () => {
               disabled={isLoading}
             />
           </div>
-          <Button
-            onClick={sendMessage}
-            disabled={!inputMessage.trim() || isLoading}
-            className="bg-blue-600 hover:bg-blue-700 h-16 w-16 p-0 flex-shrink-0 hidden sm:flex"
-          >
-            <Send className="h-6 w-6" />
-          </Button>
+          {showSendButton && (
+            <Button
+              onClick={sendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              className="bg-blue-600 hover:bg-blue-700 h-20 w-20 p-0 flex-shrink-0 rounded-2xl hidden sm:flex"
+            >
+              <Send className="h-7 w-7" />
+            </Button>
+          )}
           <Button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isLoading}
