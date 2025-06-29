@@ -251,7 +251,7 @@ const Login = () => {
               <p className="text-xs text-yellow-800 font-medium mb-2">🔑 Credenciais Admin (Teste):</p>
               <div className="text-xs text-yellow-700 space-y-1">
                 <p><strong>Email:</strong> admin@arqcloud.com.br</p>
-                <p><strong>Senha:</strong> admin123</p>
+                <p><strong>Senha:</strong> vovopepe</p>
               </div>
               <Button
                 type="button"
@@ -259,7 +259,7 @@ const Login = () => {
                 size="sm"
                 onClick={() => {
                   setEmail('admin@arqcloud.com.br');
-                  setPassword('admin123');
+                  setPassword('vovopepe');
                 }}
                 className="mt-2 text-xs border-yellow-300 text-yellow-700 hover:bg-yellow-100"
                 disabled={isLoading}

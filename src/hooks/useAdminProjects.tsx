@@ -1,115 +1,134 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface ProjectData {
+interface AdminProject {
   id: string;
   name: string;
-  user_id: string;
-  city: string;
-  state: string;
-  project_type: string;
-  project_status: string;
-  total_area: number;
-  estimated_budget: number;
+  total_area: number | null;
+  city: string | null;
+  state: string | null;
+  project_type: string | null;
+  project_status: string | null;
+  estimated_budget: number | null;
   created_at: string;
   updated_at: string;
-  user_name?: string;
+  user_email: string;
+  user_name: string | null;
+  file_size: number | null;
+  analysis_data: any;
 }
 
-export const useAdminProjects = () => {
-  const [projects, setProjects] = useState<ProjectData[]>([]);
+export function useAdminProjects() {
+  const [projects, setProjects] = useState<AdminProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
-  const [filterType, setFilterType] = useState<string>('');
-  const mountedRef = useRef(true);
-  const loadedRef = useRef(false);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [filterType, setFilterType] = useState('');
   const { toast } = useToast();
 
-  const loadProjects = async () => {
-    // Cache inteligente - só carrega se necessário
-    if (loadedRef.current && projects.length > 0) {
-      console.log('📦 ADMIN PROJECTS: Usando cache - dados já carregados');
-      return;
-    }
+  useEffect(() => {
+    loadProjects();
+  }, []);
 
-    console.log('🔄 ADMIN PROJECTS: Carregando projetos...');
-    setLoading(true);
-    
+  const loadProjects = async () => {
     try {
+      setLoading(true);
+      console.log('🔄 ADMIN PROJECTS: Carregando projetos...');
+
       const { data: projectsData, error } = await supabase
         .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (!mountedRef.current) return;
+        .select(`
+          *,
+          user_profiles!inner(full_name)
+        `)
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('❌ ADMIN PROJECTS: Erro ao carregar projetos:', error);
-        throw error;
+        toast({
+          title: "Erro ao carregar projetos",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
       }
 
-      if (projectsData) {
-        setProjects(projectsData);
-        loadedRef.current = true; // Marca como carregado
-        console.log('✅ ADMIN PROJECTS: Projetos carregados:', projectsData.length);
+      // Buscar emails dos usuários
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('❌ ADMIN PROJECTS: Erro ao buscar auth users:', authError);
       }
+
+      const mappedProjects: AdminProject[] = projectsData?.map(project => {
+        const authUser = authUsers?.users?.find(u => u.id === project.user_id);
+        const userProfile = Array.isArray(project.user_profiles) 
+          ? project.user_profiles[0] 
+          : project.user_profiles;
+
+        return {
+          id: project.id,
+          name: project.name,
+          total_area: project.total_area,
+          city: project.city,
+          state: project.state,
+          project_type: project.project_type,
+          project_status: project.project_status || 'draft',
+          estimated_budget: project.estimated_budget,
+          created_at: project.created_at,
+          updated_at: project.updated_at,
+          user_email: authUser?.email || 'Email não encontrado',
+          user_name: userProfile?.full_name || null,
+          file_size: project.file_size,
+          analysis_data: project.analysis_data,
+        };
+      }) || [];
+
+      console.log('✅ ADMIN PROJECTS: Projetos carregados:', mappedProjects.length);
+      setProjects(mappedProjects);
     } catch (error) {
-      console.error('❌ ADMIN PROJECTS: Erro ao carregar projetos:', error);
-      if (mountedRef.current) {
-        toast({
-          title: "❌ Erro ao carregar projetos",
-          description: "Não foi possível carregar os projetos.",
-          variant: "destructive"
-        });
-      }
+      console.error('💥 ADMIN PROJECTS: Erro crítico:', error);
+      toast({
+        title: "Erro crítico",
+        description: "Falha ao carregar dados dos projetos",
+        variant: "destructive",
+      });
     } finally {
-      if (mountedRef.current) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
-
-  // Carregar apenas uma vez no mount
-  useEffect(() => {
-    loadProjects();
-
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []); // Array vazio - executa apenas uma vez
 
   const updateProjectStatus = async (projectId: string, newStatus: string) => {
     try {
       const { error } = await supabase
         .from('projects')
-        .update({ project_status: newStatus })
+        .update({ 
+          project_status: newStatus,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', projectId);
 
       if (error) throw error;
 
-      // Atualizar estado local
-      setProjects(prev => 
-        prev.map(project => 
-          project.id === projectId 
-            ? { ...project, project_status: newStatus }
-            : project
-        )
-      );
+      // Atualizar localmente
+      setProjects(prev => prev.map(project => 
+        project.id === projectId 
+          ? { ...project, project_status: newStatus }
+          : project
+      ));
 
       toast({
-        title: "✅ Status atualizado",
-        description: "Status do projeto atualizado com sucesso.",
+        title: "Status atualizado",
+        description: `Status do projeto alterado para ${newStatus}`,
       });
     } catch (error) {
-      console.error('Error updating project status:', error);
+      console.error('❌ ADMIN PROJECTS: Erro ao atualizar status:', error);
       toast({
-        title: "❌ Erro ao atualizar status",
-        description: "Não foi possível atualizar o status do projeto.",
-        variant: "destructive"
+        title: "Erro ao atualizar status",
+        description: "Não foi possível alterar o status do projeto",
+        variant: "destructive",
       });
     }
   };
@@ -123,19 +142,19 @@ export const useAdminProjects = () => {
 
       if (error) throw error;
 
-      // Atualizar estado local
+      // Remover localmente
       setProjects(prev => prev.filter(project => project.id !== projectId));
 
       toast({
-        title: "✅ Projeto excluído",
-        description: "Projeto excluído com sucesso.",
+        title: "Projeto excluído",
+        description: "Projeto foi removido com sucesso",
       });
     } catch (error) {
-      console.error('Error deleting project:', error);
+      console.error('❌ ADMIN PROJECTS: Erro ao excluir projeto:', error);
       toast({
-        title: "❌ Erro ao excluir projeto",
-        description: "Não foi possível excluir o projeto.",
-        variant: "destructive"
+        title: "Erro ao excluir projeto",
+        description: "Não foi possível remover o projeto",
+        variant: "destructive",
       });
     }
   };
@@ -146,14 +165,16 @@ export const useAdminProjects = () => {
     setFilterType('');
   };
 
-  // Filtrar dados localmente (sem re-renders)
+  // Filtros aplicados
   const filteredProjects = projects.filter(project => {
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = !searchTerm || 
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.city?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === '' || project.project_status === filterStatus;
-    const matchesType = filterType === '' || project.project_type === filterType;
-    
+      project.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.user_name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = !filterStatus || project.project_status === filterStatus;
+    const matchesType = !filterType || project.project_type === filterType;
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -168,6 +189,7 @@ export const useAdminProjects = () => {
     setFilterType,
     updateProjectStatus,
     deleteProject,
-    clearFilters
+    clearFilters,
+    refreshProjects: loadProjects,
   };
-};
+}

@@ -447,6 +447,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          last_login: string | null
           phone: string | null
           referrer: string | null
           sector: string | null
@@ -465,6 +466,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          last_login?: string | null
           phone?: string | null
           referrer?: string | null
           sector?: string | null
@@ -483,6 +485,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          last_login?: string | null
           phone?: string | null
           referrer?: string | null
           sector?: string | null
