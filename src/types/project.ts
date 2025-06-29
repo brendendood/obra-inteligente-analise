@@ -34,6 +34,7 @@ export interface ScheduleTask {
   category: string;
   color: string;
   dependencies: string[];
+  progress?: number;
   assignee?: {
     name: string;
     email: string;
