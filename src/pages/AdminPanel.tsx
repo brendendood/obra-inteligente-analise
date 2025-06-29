@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +10,7 @@ import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagem
 import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import { AdminPayments } from '@/components/admin/AdminPayments';
 import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
+import { AdminAdvancedAnalytics } from '@/components/admin/AdminAdvancedAnalytics';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -98,6 +98,12 @@ const AdminPanel = () => {
       component: <AdminAnalytics />
     },
     {
+      id: 'advanced-analytics',
+      label: 'Analytics Avançado',
+      icon: Brain,
+      component: <AdminAdvancedAnalytics />
+    },
+    {
       id: 'payments',
       label: 'Pagamentos',
       icon: CreditCard,
@@ -150,14 +156,14 @@ const AdminPanel = () => {
       {/* Conteúdo principal otimizado */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-8">
             {tabItems.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger 
                   key={tab.id} 
                   value={tab.id}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 text-xs"
                 >
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{tab.label}</span>

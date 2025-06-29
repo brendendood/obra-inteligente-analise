@@ -408,9 +408,12 @@ export type Database = {
           created_at: string
           event_data: Json | null
           event_type: Database["public"]["Enums"]["user_event_type"]
+          events: Json | null
           id: string
           ip_address: unknown | null
+          last_active: string | null
           page_url: string | null
+          session_duration: number | null
           session_id: string | null
           user_agent: string | null
           user_id: string | null
@@ -419,9 +422,12 @@ export type Database = {
           created_at?: string
           event_data?: Json | null
           event_type: Database["public"]["Enums"]["user_event_type"]
+          events?: Json | null
           id?: string
           ip_address?: unknown | null
+          last_active?: string | null
           page_url?: string | null
+          session_duration?: number | null
           session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -430,9 +436,12 @@ export type Database = {
           created_at?: string
           event_data?: Json | null
           event_type?: Database["public"]["Enums"]["user_event_type"]
+          events?: Json | null
           id?: string
           ip_address?: unknown | null
+          last_active?: string | null
           page_url?: string | null
+          session_duration?: number | null
           session_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -499,6 +508,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_segments: {
+        Row: {
+          auto_generated: boolean | null
+          created_at: string | null
+          id: string
+          segment_data: Json | null
+          segment_name: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          auto_generated?: boolean | null
+          created_at?: string | null
+          id?: string
+          segment_data?: Json | null
+          segment_name: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          auto_generated?: boolean | null
+          created_at?: string | null
+          id?: string
+          segment_data?: Json | null
+          segment_name?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           created_at: string
@@ -541,11 +580,52 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_logs: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          payload: Json
+          response_body: string | null
+          status_code: number | null
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          response_body?: string | null
+          status_code?: number | null
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          response_body?: string | null
+          status_code?: number | null
+          webhook_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_user_engagement: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          total_sessions: number
+          avg_session_duration: number
+          total_events: number
+          last_activity: string
+          engagement_score: number
+        }[]
+      }
       check_admin_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -571,6 +651,19 @@ export type Database = {
           active_users_week: number
         }[]
       }
+      get_advanced_admin_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_users: number
+          active_users_week: number
+          active_users_month: number
+          avg_session_duration: number
+          total_ai_calls: number
+          ai_cost_month: number
+          conversion_rate: number
+          top_features: Json
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -578,6 +671,10 @@ export type Database = {
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      update_user_segments: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
