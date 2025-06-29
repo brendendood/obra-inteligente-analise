@@ -15,6 +15,8 @@ export function useAuth() {
     if (authInitializedRef.current) return;
     authInitializedRef.current = true;
 
+    let authSubscription: any = null;
+
     const initializeAuth = async () => {
       try {
         console.log('🔄 AUTH: Inicializando autenticação...');
@@ -35,6 +37,8 @@ export function useAuth() {
             }
           }
         );
+        
+        authSubscription = subscription;
         
         // Verificar sessão existente
         const { data: { session: existingSession }, error } = await supabase.auth.getSession();
@@ -57,11 +61,6 @@ export function useAuth() {
           hasUser: !!existingSession?.user 
         });
         
-        // Cleanup
-        return () => {
-          subscription.unsubscribe();
-        };
-        
       } catch (error) {
         console.error('💥 AUTH: Erro crítico na inicialização:', error);
         if (mountedRef.current) {
@@ -70,12 +69,12 @@ export function useAuth() {
       }
     };
 
-    const cleanup = initializeAuth();
+    initializeAuth();
 
     return () => {
       mountedRef.current = false;
-      if (cleanup && typeof cleanup === 'function') {
-        cleanup();
+      if (authSubscription) {
+        authSubscription.unsubscribe();
       }
     };
   }, []); // Array vazio - executa apenas uma vez
