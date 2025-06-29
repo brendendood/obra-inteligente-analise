@@ -69,7 +69,7 @@ export const generateAutomaticBudget = (project: Project): BudgetData => {
       isCustom: false
     },
     {
-      id: crypto.randomURI(),
+      id: crypto.randomUUID(),
       codigo: 'SINAPI-88309',
       descricao: 'Pintura interna com tinta látex acrílica',
       unidade: 'm²',

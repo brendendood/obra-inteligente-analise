@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Project } from '@/types/project';
 import { BudgetGenerationProgress } from './budget/BudgetGenerationProgress';
@@ -36,7 +37,7 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       console.log('💰 ORÇAMENTO: Carregando dados persistidos do projeto:', project.name);
       setBudgetData(project.analysis_data.budget_data);
       console.log('✅ ORÇAMENTO: Dados carregados do banco:', {
-        total: project.analysis_data.budget_data.total_cost,
+        total: project.analysis_data.budget_data.total_com_bdi,
         items: project.analysis_data.budget_data.items?.length || 0
       });
     }
@@ -99,7 +100,7 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         .from('projects')
         .update({ 
           analysis_data: updatedAnalysisData,
-          estimated_budget: budget.total_cost
+          estimated_budget: budget.total_com_bdi
         })
         .eq('id', project.id);
 
@@ -200,8 +201,8 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         <div className="space-y-6">
           <EmptyBudgetState 
             projectName={project.name} 
-            onGenerate={generateBudget}
-            isGenerating={isGenerating}
+            projectArea={project.total_area || 100}
+            onGenerateBudget={generateBudget}
           />
         </div>
       </TooltipProvider>
@@ -244,15 +245,14 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
             <BudgetSummary budgetData={budgetData} />
             <BudgetItemsList
               items={budgetData.items}
+              dataReferencia={budgetData.data_referencia}
               onUpdateItem={updateItem}
               onRemoveItem={removeItem}
-              environments={environments}
-              categories={categories}
             />
             <BudgetActions
               onAddItem={() => setShowAddDialog(true)}
               onExport={() => setShowExportDialog(true)}
-              onHistory={() => setShowHistoryDialog(true)}
+              onViewHistory={() => setShowHistoryDialog(true)}
             />
           </>
         )}
