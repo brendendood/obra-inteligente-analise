@@ -27,7 +27,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { NavigationBreadcrumb } from '@/components/layout/NavigationBreadcrumb';
-import GanttChart from '@/components/schedule/GanttChart';
+import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
 
 interface Project {
   id: string;
@@ -589,11 +589,19 @@ const ProjectDetail = () => {
 
           <TabsContent value="schedule">
             {scheduleData ? (
-              <GanttChart
+              <AdvancedGanttChart
                 tasks={scheduleData}
+                onUpdateTask={(taskId, updates) => {
+                  const updatedTasks = scheduleData.map((task: any) =>
+                    task.id === taskId ? { ...task, ...updates } : task
+                  );
+                  setScheduleData(updatedTasks);
+                }}
+                onAddTask={(newTask) => {
+                  setScheduleData([...scheduleData, newTask]);
+                }}
+                criticalPath={[]}
                 projectName={project.name}
-                onExportPDF={() => toast({ title: "📄 Exportando PDF...", description: "Funcionalidade em desenvolvimento" })}
-                onExportExcel={() => toast({ title: "📊 Exportando Excel...", description: "Funcionalidade em desenvolvimento" })}
               />
             ) : (
               <Card className="border-0 shadow-lg">
