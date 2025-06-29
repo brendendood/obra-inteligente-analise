@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -83,9 +82,8 @@ const generateAutomaticBudget = (area: number, projectType: string) => {
 
   return {
     data_referencia: new Date().toLocaleDateString('pt-BR'),
-    total_cost: subtotal,
+    total: subtotal,
     total_com_bdi: totalComBdi,
-    unit_cost_per_sqm: Math.round(subtotal / area),
     bdi,
     totalArea: area,
     items: itemsWithTotals
@@ -286,7 +284,7 @@ serve(async (req) => {
 
     console.log('✅ Budget generated automatically:', {
       totalCost: budgetData.total_com_bdi,
-      unitCost: budgetData.unit_cost_per_sqm,
+      totalArea: budgetData.totalArea,
       itemCount: budgetData.items.length
     })
 
@@ -310,7 +308,7 @@ serve(async (req) => {
       // DADOS OBRIGATÓRIOS PARA DASHBOARD - FORMATO CORRETO
       budget_data: {
         data_referencia: budgetData.data_referencia,
-        total: budgetData.total_cost,
+        total: budgetData.total,
         total_com_bdi: budgetData.total_com_bdi,
         bdi: budgetData.bdi,
         totalArea: budgetData.totalArea,

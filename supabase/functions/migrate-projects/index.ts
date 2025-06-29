@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Mesmas funções utilitárias da upload-project
+// Mesmas funções utilitárias da upload-project - PADRONIZADAS
 const generateAutomaticBudget = (area: number, projectType: string) => {
   const complexity = area > 200 ? 'alta' : area > 100 ? 'média' : 'baixa';
   
@@ -257,7 +257,7 @@ serve(async (req) => {
       const area = project.total_area || 100;
       const projectType = project.project_type || 'Residencial';
       
-      // Gerar dados de orçamento e cronograma
+      // Gerar dados de orçamento e cronograma COM ESTRUTURA IDÊNTICA
       const budgetData = generateAutomaticBudget(area, projectType);
       const scheduleData = generateProjectSchedule(area, projectType);
       
