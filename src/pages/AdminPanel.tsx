@@ -13,6 +13,7 @@ import { AdminPayments } from '@/components/admin/AdminPayments';
 import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
 import { AdminAdvancedAnalytics } from '@/components/admin/AdminAdvancedAnalytics';
 import { AdminReports } from '@/components/admin/AdminReports';
+import { AdminAlertsManager } from '@/components/admin/AdminAlertsManager';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -23,7 +24,8 @@ import {
   CreditCard, 
   Shield,
   Brain,
-  FileText
+  FileText,
+  Bell
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -93,6 +95,12 @@ const AdminPanel = () => {
       label: 'Projetos',
       icon: FolderOpen,
       component: <AdminProjectsManagement />
+    },
+    {
+      id: 'alerts',
+      label: 'Alertas',
+      icon: Bell,
+      component: <AdminAlertsManager />
     },
     {
       id: 'analytics',
@@ -165,7 +173,7 @@ const AdminPanel = () => {
       {/* Conteúdo principal otimizado */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 mb-8">
             {tabItems.map((tab) => {
               const Icon = tab.icon;
               return (
