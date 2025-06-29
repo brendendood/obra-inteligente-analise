@@ -1,9 +1,9 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download, FileSpreadsheet, FileText, Database } from 'lucide-react';
+import { FileSpreadsheet, FileText, Database } from 'lucide-react';
 import { BudgetData } from '@/utils/budgetGenerator';
-import { generateProjectPDF, PDFExportOptions } from '@/utils/pdfGenerator';
+import { generateProjectPDF, PDFExportOptions } from '@/utils/pdf';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 

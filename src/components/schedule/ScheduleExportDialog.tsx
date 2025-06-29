@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { FileText, FileSpreadsheet, Database, Clock } from 'lucide-react';
 import { ScheduleData } from '@/types/project';
-import { generateProjectPDF, PDFExportOptions } from '@/utils/pdfGenerator';
+import { generateProjectPDF, PDFExportOptions } from '@/utils/pdf';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
