@@ -8,25 +8,26 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
 
     // MÉTRICAS FINANCEIRAS - Dados Persistidos
     const projectsWithBudget = projects.filter(p => 
-      p.analysis_data?.budget_data?.total_cost && 
-      p.analysis_data.budget_data.total_cost > 0
+      p.analysis_data?.budget_data?.total_com_bdi && 
+      p.analysis_data.budget_data.total_com_bdi > 0
     );
 
     console.log('💰 Projetos com orçamento persistido:', projectsWithBudget.length);
 
     const totalInvestment = projectsWithBudget.reduce((sum, project) => {
-      const cost = project.analysis_data?.budget_data?.total_cost || 0;
+      const cost = project.analysis_data?.budget_data?.total_com_bdi || 0;
       return sum + cost;
     }, 0);
 
     const avgCostPerSqm = projectsWithBudget.length > 0 
       ? projectsWithBudget.reduce((sum, project) => {
-          const unitCost = project.analysis_data?.budget_data?.unit_cost_per_sqm || 0;
-          return sum + unitCost;
+          const totalCost = project.analysis_data?.budget_data?.total_com_bdi || 0;
+          const area = project.total_area || 100;
+          return sum + (totalCost / area);
         }, 0) / projectsWithBudget.length
       : null;
 
-    const budgetCosts = projectsWithBudget.map(p => p.analysis_data.budget_data.total_cost);
+    const budgetCosts = projectsWithBudget.map(p => p.analysis_data.budget_data.total_com_bdi);
     const highestCostProject = budgetCosts.length > 0 
       ? projectsWithBudget[budgetCosts.indexOf(Math.max(...budgetCosts))]
       : null;
@@ -65,7 +66,7 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
     }).length;
 
     const budgetAlerts = projectsWithBudget.filter(p => {
-      const cost = p.analysis_data.budget_data.total_cost;
+      const cost = p.analysis_data.budget_data.total_com_bdi;
       const area = p.total_area || 100;
       const costPerSqm = cost / area;
       return costPerSqm > 2000; // Alerta para custos acima de R$ 2000/m²
@@ -83,7 +84,7 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       ? (projects.filter(p => p.analysis_data?.isRealProject).length / projects.length) * 100
       : 0;
 
-    // TENDÊNCIAS MENSAIS
+    // TENDÊNCIAS MENSAIS - CORRIGIDO para match com MonthlyProductivityChart
     const monthlyTrends = Array.from({ length: 6 }, (_, i) => {
       const date = new Date();
       date.setMonth(date.getMonth() - (5 - i));
@@ -96,14 +97,19 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       });
 
       const monthBudget = monthProjects.reduce((sum, p) => 
-        sum + (p.analysis_data?.budget_data?.total_cost || 0), 0
+        sum + (p.analysis_data?.budget_data?.total_com_bdi || 0), 0
       );
 
+      // Simulando completed baseado em projetos processados
+      const completedProjects = monthProjects.filter(p => 
+        p.analysis_data?.budget_data || p.analysis_data?.schedule_data
+      ).length;
+
       return {
-        name: monthName,
-        projetos: monthProjects.length,
-        investimento: Math.round(monthBudget / 1000), // Em milhares
-        area: monthProjects.reduce((sum, p) => sum + (p.total_area || 0), 0)
+        month: monthName,
+        started: monthProjects.length,
+        completed: completedProjects,
+        investment: Math.round(monthBudget / 1000) // Em milhares
       };
     });
 
@@ -117,11 +123,11 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
         budgetEfficiency: processingEfficiency,
         highestCostProject: highestCostProject ? {
           name: highestCostProject.name,
-          cost: highestCostProject.analysis_data.budget_data.total_cost
+          cost: highestCostProject.analysis_data.budget_data.total_com_bdi
         } : null,
         lowestCostProject: lowestCostProject ? {
           name: lowestCostProject.name,
-          cost: lowestCostProject.analysis_data.budget_data.total_cost
+          cost: lowestCostProject.analysis_data.budget_data.total_com_bdi
         } : null
       },
       performance: {

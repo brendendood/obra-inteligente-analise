@@ -74,10 +74,10 @@ export const useDashboardData = () => {
       return acc;
     }, {});
 
-    // NOVAS MÉTRICAS BASEADAS EM DADOS PERSISTIDOS
+    // NOVAS MÉTRICAS BASEADAS EM DADOS PERSISTIDOS - CORRIGIDO
     const projectsWithBudget = projects.filter((project: any) => 
-      project.analysis_data?.budget_data?.total_cost && 
-      project.analysis_data.budget_data.total_cost > 0
+      project.analysis_data?.budget_data?.total_com_bdi && 
+      project.analysis_data.budget_data.total_com_bdi > 0
     );
 
     const projectsWithSchedule = projects.filter((project: any) => 
@@ -86,13 +86,14 @@ export const useDashboardData = () => {
     );
 
     const totalInvestment = projectsWithBudget.reduce((sum: number, project: any) => {
-      return sum + (project.analysis_data.budget_data.total_cost || 0);
+      return sum + (project.analysis_data.budget_data.total_com_bdi || 0);
     }, 0);
 
     const avgCostPerSqm = projectsWithBudget.length > 0 
       ? projectsWithBudget.reduce((sum: number, project: any) => {
-          const unitCost = project.analysis_data.budget_data.unit_cost_per_sqm || 0;
-          return sum + unitCost;
+          const totalCost = project.analysis_data.budget_data.total_com_bdi || 0;
+          const area = project.total_area || 100;
+          return sum + (totalCost / area);
         }, 0) / projectsWithBudget.length
       : null;
 

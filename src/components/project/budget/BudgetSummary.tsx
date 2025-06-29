@@ -1,22 +1,16 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Calculator, Percent } from 'lucide-react';
+import { BudgetData } from '@/utils/budgetGenerator';
 
 interface BudgetSummaryProps {
-  subtotal: number;
-  bdi: number;
-  total: number;
-  totalArea: number;
-  pricePerSqm: number;
+  budgetData: BudgetData;
 }
 
-export const BudgetSummary = ({ 
-  subtotal, 
-  bdi, 
-  total, 
-  totalArea, 
-  pricePerSqm 
-}: BudgetSummaryProps) => {
+export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
+  const { total, bdi, total_com_bdi, totalArea } = budgetData;
+  const pricePerSqm = total_com_bdi / totalArea;
+
   return (
     <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-green-200/50 shadow-sm">
       <CardHeader>
@@ -33,17 +27,17 @@ export const BudgetSummary = ({
               <span className="text-sm text-gray-600">Custo Direto</span>
             </div>
             <p className="text-xl font-bold text-gray-900">
-              R$ {subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </div>
 
           <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4">
             <div className="flex items-center space-x-2 mb-2">
               <Percent className="h-4 w-4 text-orange-600" />
-              <span className="text-sm text-gray-600">BDI (25%)</span>
+              <span className="text-sm text-gray-600">BDI ({Math.round(bdi * 100)}%)</span>
             </div>
             <p className="text-xl font-bold text-orange-700">
-              R$ {(total - subtotal).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {(total_com_bdi - total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </div>
         </div>
@@ -52,7 +46,7 @@ export const BudgetSummary = ({
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-1">TOTAL GERAL</p>
             <p className="text-3xl font-bold text-green-700">
-              R$ {total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {total_com_bdi.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
             <p className="text-sm text-gray-500 mt-2">
               R$ {pricePerSqm.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}/m² 
