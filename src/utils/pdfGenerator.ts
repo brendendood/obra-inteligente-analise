@@ -82,10 +82,13 @@ export class MadenAIPDFGenerator {
     this.doc.text('Resumo do Orçamento', this.margin, currentY);
     currentY += 15;
 
+    // Calcular custo por m² se não existir
+    const costPerSqm = options.projectArea ? budgetData.total / options.projectArea : 0;
+
     // Cards de resumo
     const summaryData = [
       ['Total Geral', `R$ ${budgetData.total.toLocaleString('pt-BR')}`],
-      ['Custo por m²', `R$ ${budgetData.cost_per_sqm.toLocaleString('pt-BR')}`],
+      ['Custo por m²', `R$ ${costPerSqm.toLocaleString('pt-BR')}`],
       ['Itens Inclusos', budgetData.items.length.toString()],
       ['Data de Referência SINAPI', budgetData.data_referencia]
     ];
@@ -108,12 +111,13 @@ export class MadenAIPDFGenerator {
     this.doc.text('Detalhamento por Categoria', this.margin, currentY);
     currentY += 15;
 
-    // Agrupar itens por categoria
+    // Agrupar itens por categoria - usando 'categoria' em vez de 'category'
     const itemsByCategory = budgetData.items.reduce((acc: any, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
+      const category = item.categoria || 'Outros';
+      if (!acc[category]) {
+        acc[category] = [];
       }
-      acc[item.category].push(item);
+      acc[category].push(item);
       return acc;
     }, {});
 
@@ -172,11 +176,20 @@ export class MadenAIPDFGenerator {
     this.doc.text('Cronograma de Execução', this.margin, currentY);
     currentY += 15;
 
+    // Calcular datas de início e fim baseadas nas tarefas
+    const startDate = scheduleData.tasks.length > 0 
+      ? scheduleData.tasks[0].startDate 
+      : new Date().toISOString().split('T')[0];
+    
+    const endDate = scheduleData.tasks.length > 0 
+      ? scheduleData.tasks[scheduleData.tasks.length - 1].endDate 
+      : new Date().toISOString().split('T')[0];
+
     // Informações gerais
     const scheduleInfo = [
       ['Duração Total', `${scheduleData.totalDuration} dias`],
-      ['Data de Início', scheduleData.startDate],
-      ['Data de Término', scheduleData.endDate],
+      ['Data de Início', startDate],
+      ['Data de Término', endDate],
       ['Total de Atividades', scheduleData.tasks.length.toString()]
     ];
 
@@ -198,10 +211,10 @@ export class MadenAIPDFGenerator {
     this.doc.text('Atividades Detalhadas', this.margin, currentY);
     currentY += 15;
 
-    // Preparar dados das tarefas
+    // Preparar dados das tarefas - usando 'category' em vez de 'phase'
     const tasksData = scheduleData.tasks.map(task => [
       task.name,
-      task.phase || 'Geral',
+      task.category || 'Geral',
       `${task.duration} dias`,
       new Date(task.startDate).toLocaleDateString('pt-BR'),
       new Date(task.endDate).toLocaleDateString('pt-BR'),
@@ -210,7 +223,7 @@ export class MadenAIPDFGenerator {
 
     this.doc.autoTable({
       startY: currentY,
-      head: [['Atividade', 'Fase', 'Duração', 'Início', 'Término', 'Progresso']],
+      head: [['Atividade', 'Categoria', 'Duração', 'Início', 'Término', 'Progresso']],
       body: tasksData,
       theme: 'striped',
       headStyles: { fillColor: [75, 85, 99], textColor: [255, 255, 255], fontSize: 10 },
@@ -259,13 +272,25 @@ export class MadenAIPDFGenerator {
     this.doc.text('Relatório Completo do Projeto', this.margin, currentY);
     currentY += 20;
 
+    // Calcular custo por m² se não existir
+    const costPerSqm = options.projectArea ? budgetData.total / options.projectArea : 0;
+
+    // Calcular datas de início e fim baseadas nas tarefas
+    const startDate = scheduleData.tasks.length > 0 
+      ? scheduleData.tasks[0].startDate 
+      : new Date().toISOString().split('T')[0];
+    
+    const endDate = scheduleData.tasks.length > 0 
+      ? scheduleData.tasks[scheduleData.tasks.length - 1].endDate 
+      : new Date().toISOString().split('T')[0];
+
     // Resumo executivo
     const executiveSummary = [
       ['Orçamento Total', `R$ ${budgetData.total.toLocaleString('pt-BR')}`],
-      ['Custo por m²', `R$ ${budgetData.cost_per_sqm.toLocaleString('pt-BR')}`],
+      ['Custo por m²', `R$ ${costPerSqm.toLocaleString('pt-BR')}`],
       ['Prazo de Execução', `${scheduleData.totalDuration} dias`],
-      ['Início Previsto', scheduleData.startDate],
-      ['Término Previsto', scheduleData.endDate]
+      ['Início Previsto', startDate],
+      ['Término Previsto', endDate]
     ];
 
     this.doc.autoTable({
