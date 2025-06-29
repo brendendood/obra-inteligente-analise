@@ -1,6 +1,6 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, DollarSign, CreditCard, Users } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DollarSign, TrendingUp, CreditCard, Users } from 'lucide-react';
 
 interface PaymentStats {
   totalRevenue: number;
@@ -26,7 +26,7 @@ export const PaymentsStats = ({ stats }: PaymentsStatsProps) => {
     {
       title: 'Receita Total',
       value: formatCurrency(stats.totalRevenue),
-      description: 'Receita acumulada',
+      description: 'Faturamento acumulado',
       icon: DollarSign,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
@@ -34,23 +34,23 @@ export const PaymentsStats = ({ stats }: PaymentsStatsProps) => {
     {
       title: 'Receita Mensal',
       value: formatCurrency(stats.monthlyRevenue),
-      description: 'Receita deste mês',
+      description: 'Faturamento do mês',
       icon: TrendingUp,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
       title: 'Total de Transações',
-      value: stats.totalTransactions.toLocaleString(),
+      value: stats.totalTransactions.toLocaleString('pt-BR'),
       description: 'Pagamentos processados',
       icon: CreditCard,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
     {
-      title: 'Ticket Médio',
-      value: formatCurrency(stats.averageTicket),
-      description: 'Valor médio por transação',
+      title: 'Assinaturas Ativas',
+      value: stats.activeSubscriptions.toLocaleString('pt-BR'),
+      description: 'Usuários pagantes',
       icon: Users,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50'
@@ -62,25 +62,21 @@ export const PaymentsStats = ({ stats }: PaymentsStatsProps) => {
       {statsCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
+          <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {stat.title}
                 </CardTitle>
-                <p className="text-xs text-gray-500 mt-1">
-                  {stat.description}
-                </p>
+                <CardDescription className="text-2xl font-bold text-gray-900 mt-1">
+                  {stat.value}
+                </CardDescription>
+                <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
               </div>
               <div className={`p-2 rounded-lg ${stat.bgColor}`}>
                 <Icon className={`h-5 w-5 ${stat.color}`} />
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
-                {stat.value}
-              </div>
-            </CardContent>
           </Card>
         );
       })}
