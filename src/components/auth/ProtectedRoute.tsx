@@ -1,6 +1,7 @@
 
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,28 +9,29 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
 
-  console.log('🔒 PROTECTED ROUTE: Verificando acesso', { loading, isAuthenticated });
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, loading, navigate]);
 
-  // Mostrar loading enquanto verifica autenticação
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verificando autenticação...</p>
+          <p className="text-gray-600">Carregando...</p>
         </div>
       </div>
     );
   }
 
-  // Se não autenticado, redirecionar para home (que mostrará o login)
   if (!isAuthenticated) {
-    console.log('🔒 PROTECTED ROUTE: Usuário não autenticado, redirecionando');
-    return <Navigate to="/" replace />;
+    return null;
   }
 
-  console.log('✅ PROTECTED ROUTE: Acesso autorizado');
   return <>{children}</>;
 };
 

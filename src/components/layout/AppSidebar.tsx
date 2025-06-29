@@ -1,29 +1,25 @@
 
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { 
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
 } from '@/components/ui/sidebar';
+import { useProject } from '@/contexts/ProjectContext';
 import { ProjectContextHeader } from './sidebar/ProjectContextHeader';
 import { SidebarNavigation } from './sidebar/SidebarNavigation';
 import { UserProfile } from './sidebar/UserProfile';
 
 export const AppSidebar = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const location = useLocation();
+  const { currentProject } = useProject();
 
-  // Determinar se estamos numa área de projeto de forma segura
-  const isInProject = Boolean(
-    projectId && 
-    location.pathname.includes('/projeto/')
-  );
-
-  console.log('🧭 SIDEBAR: Renderizando', { projectId, isInProject, pathname: location.pathname });
+  // Determinar se estamos numa área de projeto com verificação de segurança
+  const isInProject = Boolean(projectId && currentProject && currentProject.id === projectId);
 
   return (
-    <Sidebar className="border-r w-64 flex-shrink-0">
+    <Sidebar className="border-r">
       <SidebarHeader className="border-b border-gray-100 p-6">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -33,8 +29,8 @@ export const AppSidebar = () => {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="flex-1">
-        {/* Project Context Header - apenas se necessário */}
+      <SidebarContent>
+        {/* Project Context Header - com verificação de segurança */}
         <ProjectContextHeader isInProject={isInProject} />
 
         {/* Navigation Menu */}

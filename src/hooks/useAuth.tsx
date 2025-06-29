@@ -8,54 +8,54 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
-  const initializationStartedRef = useRef(false);
+  const authInitializedRef = useRef(false);
+  const subscriptionRef = useRef<any>(null);
 
   useEffect(() => {
     // Prevenir múltiplas inicializações
-    if (initializationStartedRef.current) return;
-    initializationStartedRef.current = true;
+    if (authInitializedRef.current) return;
+    authInitializedRef.current = true;
 
-    console.log('🔄 AUTH: Inicializando autenticação...');
-    
-    let authSubscription: any = null;
+    let timeoutId: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
-        // Verificar sessão existente primeiro
-        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
-        
-        if (!mountedRef.current) return;
-        
-        if (error) {
-          console.error('❌ AUTH: Erro ao verificar sessão:', error);
-        } else {
-          console.log('✅ AUTH: Sessão verificada', { 
-            hasSession: !!existingSession, 
-            hasUser: !!existingSession?.user 
-          });
-          
-          setSession(existingSession);
-          setUser(existingSession?.user ?? null);
-        }
-        
-        // Configurar listener de mudanças de estado
+        // PASSO 1: Configurar listener PRIMEIRO
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (event, session) => {
             console.log('🔄 AUTH: State change event:', event);
             
             if (!mountedRef.current) return;
             
-            setSession(session);
-            setUser(session?.user ?? null);
+            // Debounce para evitar updates excessivos
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              if (mountedRef.current) {
+                setSession(session);
+                setUser(session?.user ?? null);
+                setLoading(false);
+              }
+            }, 100);
           }
         );
         
-        authSubscription = subscription;
+        subscriptionRef.current = subscription;
         
-        // Finalizar loading
-        if (mountedRef.current) {
-          setLoading(false);
+        // PASSO 2: Verificar sessão existente DEPOIS do listener
+        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
+        
+        if (!mountedRef.current) return;
+        
+        if (error) {
+          console.error('❌ AUTH: Erro ao verificar sessão:', error);
         }
+        
+        // Update inicial sem conflitar com o listener
+        setSession(existingSession);
+        setUser(existingSession?.user ?? null);
+        setLoading(false);
+        
+        console.log('✅ AUTH: Inicialização concluída');
         
       } catch (error) {
         console.error('💥 AUTH: Erro crítico na inicialização:', error);
@@ -68,22 +68,16 @@ export function useAuth() {
     initializeAuth();
 
     return () => {
-      console.log('🧹 AUTH: Limpando recursos...');
       mountedRef.current = false;
-      if (authSubscription) {
-        authSubscription.unsubscribe();
+      clearTimeout(timeoutId);
+      
+      if (subscriptionRef.current?.unsubscribe) {
+        subscriptionRef.current.unsubscribe();
       }
     };
-  }, []);
+  }, []); // Array vazio - executa apenas uma vez
 
   const isAuthenticated = !!user && !!session;
-
-  console.log('🔍 AUTH: Current state', { 
-    loading, 
-    isAuthenticated, 
-    hasUser: !!user, 
-    hasSession: !!session 
-  });
 
   return {
     user,
