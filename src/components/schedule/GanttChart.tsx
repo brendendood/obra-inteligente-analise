@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,28 +11,17 @@ import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { DropIndicator } from '@/components/ui/DropIndicator';
 import { getPhaseInfo } from '@/utils/scheduleRecalculator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-interface Task {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  duration: number;
-  color: string;
-  category: string;
-  progress?: number;
-  dependencies?: string[];
-}
+import { ScheduleTask } from '@/types/project';
 
 interface GanttChartProps {
-  tasks: Task[];
+  tasks: ScheduleTask[];
   projectName: string;
   onExportPDF?: () => void;
   onExportExcel?: () => void;
 }
 
 const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExcel }: GanttChartProps) => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<ScheduleTask[]>(initialTasks);
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
   const [recalculationWarnings, setRecalculationWarnings] = useState<string[]>([]);
@@ -64,15 +54,18 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
       : new Date();
     const endDate = new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const newTask: Task = {
+    const newTask: ScheduleTask = {
       id: Date.now().toString(),
       name: newTaskName,
       startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0],
       duration: 7,
-      color: 'bg-blue-500',
+      cost: 0,
+      status: 'planned',
       category: 'nova',
-      progress: 0
+      color: '#3B82F6',
+      dependencies: [],
+      assignee: { name: 'Equipe Geral', email: 'geral@obra.com' }
     };
 
     setTasks([...tasks, newTask]);
@@ -99,10 +92,16 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
   };
 
   const categoryLabels: Record<string, string> = {
-    estrutura: 'Estrutura',
-    alvenaria: 'Alvenaria',
-    instalacoes: 'Instalações',
-    acabamento: 'Acabamentos',
+    Preliminares: 'Preliminares',
+    Estrutural: 'Estrutural',
+    Vedações: 'Vedações',
+    Cobertura: 'Cobertura',
+    Revestimentos: 'Revestimentos',
+    Instalações: 'Instalações',
+    Contrapisos: 'Contrapisos',
+    Esquadrias: 'Esquadrias',
+    Acabamentos: 'Acabamentos',
+    Limpeza: 'Limpeza',
     nova: 'Nova Tarefa'
   };
 
@@ -121,7 +120,7 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
           unidade: 'dias',
           quantidade: task.duration,
           preco_unitario: 0,
-          total: 0,
+          total: task.cost,
           categoria: categoryLabels[task.category] || task.category,
           ambiente: 'Cronograma',
           isAiGenerated: false,
@@ -341,6 +340,7 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
                         <span>Início: {new Date(task.startDate).toLocaleDateString('pt-BR')}</span>
                         <span>Fim: {new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
                         <span>{task.duration} dias</span>
+                        <span>R$ {task.cost.toLocaleString('pt-BR')}</span>
                         {task.dependencies && task.dependencies.length > 0 && (
                           <span>Deps: {task.dependencies.join(', ')}</span>
                         )}
