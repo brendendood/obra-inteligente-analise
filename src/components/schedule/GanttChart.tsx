@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash2, Edit, Calendar, Download, FileSpreadsheet, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Edit, Calendar, Download, FileSpreadsheet, GripVertical, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { exportToExcel, exportToPDF } from '@/utils/exportUtils';
 import { useToast } from '@/hooks/use-toast';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { DropIndicator } from '@/components/ui/DropIndicator';
+import { getPhaseInfo } from '@/utils/scheduleRecalculator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface Task {
   id: string;
@@ -32,18 +34,25 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
+  const [recalculationWarnings, setRecalculationWarnings] = useState<string[]>([]);
   const { toast } = useToast();
 
-  // Configurar drag & drop
+  // Configurar drag & drop com recálculo automático
   const {
     isDragging,
     getDragItemProps,
     getDropZoneProps,
     getDropIndicatorProps,
+    isValidDrop
   } = useDragAndDrop({
     items: tasks,
     onReorder: setTasks,
     keyExtractor: (task) => task.id,
+    enableRecalculation: true,
+    onRecalculate: (recalculatedTasks, warnings) => {
+      setTasks(recalculatedTasks);
+      setRecalculationWarnings(warnings);
+    }
   });
 
   const handleAddTask = () => {
@@ -89,14 +98,6 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
     ));
   };
 
-  const categoryColors: Record<string, string> = {
-    estrutura: 'bg-blue-500',
-    alvenaria: 'bg-orange-500',
-    instalacoes: 'bg-purple-500',
-    acabamento: 'bg-green-500',
-    nova: 'bg-gray-500'
-  };
-
   const categoryLabels: Record<string, string> = {
     estrutura: 'Estrutura',
     alvenaria: 'Alvenaria',
@@ -107,7 +108,6 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
 
   const handleExportToExcel = () => {
     try {
-      // Converter dados do cronograma para formato de exportação
       const scheduleData = {
         data_referencia: new Date().toLocaleDateString('pt-BR'),
         total: 0,
@@ -192,6 +192,21 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
       </CardHeader>
       
       <CardContent className="space-y-6">
+        {/* Warnings de recálculo */}
+        {recalculationWarnings.length > 0 && (
+          <Alert className="border-orange-200 bg-orange-50">
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-orange-800">
+              <strong>Avisos do recálculo automático:</strong>
+              <ul className="mt-2 space-y-1">
+                {recalculationWarnings.map((warning, index) => (
+                  <li key={index} className="text-sm">• {warning}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Add New Task */}
         <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
           <Input
@@ -222,16 +237,19 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
                 const taskWidth = (task.duration / totalDays) * 100;
                 const leftPosition = (startOffset / totalDays) * 100;
                 
+                const phaseInfo = getPhaseInfo(task);
+                
                 return (
                   <div key={task.id} className="flex items-center space-x-3">
                     <div className="w-48 text-sm font-medium truncate">{task.name}</div>
                     <div className="flex-1 relative h-6 bg-gray-200 rounded">
                       <div 
-                        className={`absolute h-full ${task.color} rounded flex items-center justify-center text-white text-xs font-medium`}
+                        className="absolute h-full rounded flex items-center justify-center text-white text-xs font-medium"
                         style={{ 
                           left: `${leftPosition}%`, 
                           width: `${taskWidth}%`,
-                          minWidth: '60px'
+                          minWidth: '60px',
+                          backgroundColor: phaseInfo.color
                         }}
                       >
                         {task.duration}d
@@ -256,115 +274,122 @@ const GanttChart = ({ tasks: initialTasks, projectName, onExportPDF, onExportExc
           </div>
         )}
 
-        {/* Tasks List with Drag & Drop */}
+        {/* Tasks List with Enhanced Drag & Drop */}
         <div className="space-y-1">
-          {tasks.map((task, index) => (
-            <div key={task.id} className="relative">
-              {/* Drop Indicator */}
-              <DropIndicator {...getDropIndicatorProps(index)} className="mb-2" />
-              
-              {/* Task Item */}
-              <div
-                {...getDragItemProps(task, index)}
-                {...getDropZoneProps(index)}
-                className={`flex items-center space-x-4 p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 group ${
-                  isDragging ? 'select-none' : ''
-                }`}
-              >
-                {/* Drag Handle */}
-                <div className="flex-shrink-0 cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity">
-                  <GripVertical className="h-5 w-5 text-gray-400" />
-                </div>
-
-                <div className="flex items-center space-x-3 flex-1">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-500 w-8">
-                      {index + 1}
-                    </span>
-                    
-                    <div className={`w-4 h-4 rounded ${categoryColors[task.category]} flex-shrink-0`}></div>
-                    
-                    <Badge variant="outline" className="text-xs">
-                      {categoryLabels[task.category]}
-                    </Badge>
+          {tasks.map((task, index) => {
+            const phaseInfo = getPhaseInfo(task);
+            
+            return (
+              <div key={task.id} className="relative">
+                {/* Drop Indicator with validation */}
+                <DropIndicator {...getDropIndicatorProps(index)} className="mb-2" />
+                
+                {/* Task Item */}
+                <div
+                  {...getDragItemProps(task, index)}
+                  {...getDropZoneProps(index)}
+                  className={`flex items-center space-x-4 p-4 bg-white border rounded-lg hover:shadow-md transition-all duration-200 group ${
+                    isDragging ? 'select-none' : ''
+                  } ${!isValidDrop && isDragging ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                >
+                  {/* Drag Handle */}
+                  <div className="flex-shrink-0 cursor-grab active:cursor-grabbing opacity-40 group-hover:opacity-100 transition-opacity">
+                    <GripVertical className="h-5 w-5 text-gray-400" />
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    {editingTask === task.id ? (
-                      <Input
-                        value={task.name}
-                        onChange={(e) => {
-                          const updatedTasks = tasks.map(t => 
-                            t.id === task.id ? { ...t, name: e.target.value } : t
-                          );
-                          setTasks(updatedTasks);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') setEditingTask(null);
-                          if (e.key === 'Escape') setEditingTask(null);
-                        }}
-                        onBlur={() => setEditingTask(null)}
-                        autoFocus
-                        className="text-sm"
-                      />
-                    ) : (
-                      <h4 className="font-medium text-gray-900 truncate">
-                        {task.name}
-                      </h4>
-                    )}
-                    
-                    <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
-                      <span>Início: {new Date(task.startDate).toLocaleDateString('pt-BR')}</span>
-                      <span>Fim: {new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
-                      <span>{task.duration} dias</span>
-                      {task.dependencies && task.dependencies.length > 0 && (
-                        <span>Deps: {task.dependencies.join(', ')}</span>
+                  <div className="flex items-center space-x-3 flex-1">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm font-medium text-gray-500 w-8">
+                        {index + 1}
+                      </span>
+                      
+                      <div 
+                        className="w-4 h-4 rounded flex-shrink-0"
+                        style={{ backgroundColor: phaseInfo.color }}
+                      ></div>
+                      
+                      <Badge variant="outline" className="text-xs">
+                        {phaseInfo.name}
+                      </Badge>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      {editingTask === task.id ? (
+                        <Input
+                          value={task.name}
+                          onChange={(e) => {
+                            const updatedTasks = tasks.map(t => 
+                              t.id === task.id ? { ...t, name: e.target.value } : t
+                            );
+                            setTasks(updatedTasks);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') setEditingTask(null);
+                            if (e.key === 'Escape') setEditingTask(null);
+                          }}
+                          onBlur={() => setEditingTask(null)}
+                          autoFocus
+                          className="text-sm"
+                        />
+                      ) : (
+                        <h4 className="font-medium text-gray-900 truncate">
+                          {task.name}
+                        </h4>
                       )}
+                      
+                      <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                        <span>Início: {new Date(task.startDate).toLocaleDateString('pt-BR')}</span>
+                        <span>Fim: {new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
+                        <span>{task.duration} dias</span>
+                        {task.dependencies && task.dependencies.length > 0 && (
+                          <span>Deps: {task.dependencies.join(', ')}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Progress Control */}
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={task.progress || 0}
-                    onChange={(e) => handleUpdateProgress(task.id, parseInt(e.target.value) || 0)}
-                    className="w-16 h-8 text-xs"
-                    placeholder="%"
-                  />
-                </div>
+                  {/* Progress Control */}
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={task.progress || 0}
+                      onChange={(e) => handleUpdateProgress(task.id, parseInt(e.target.value) || 0)}
+                      className="w-16 h-8 text-xs"
+                      placeholder="%"
+                    />
+                  </div>
 
-                {/* Actions */}
-                <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditingTask(task.id)}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteTask(task.id)}
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  {/* Actions */}
+                  <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingTask(task.id)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+                
+                {/* Drop Indicator no final */}
+                {index === tasks.length - 1 && (
+                  <DropIndicator {...getDropIndicatorProps(tasks.length)} className="mt-2" />
+                )}
               </div>
-              
-              {/* Drop Indicator no final */}
-              {index === tasks.length - 1 && (
-                <DropIndicator {...getDropIndicatorProps(tasks.length)} className="mt-2" />
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {tasks.length === 0 && (
