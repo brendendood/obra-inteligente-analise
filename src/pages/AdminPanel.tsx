@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +12,7 @@ import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
 import { AdminPayments } from '@/components/admin/AdminPayments';
 import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
 import { AdminAdvancedAnalytics } from '@/components/admin/AdminAdvancedAnalytics';
+import { AdminReports } from '@/components/admin/AdminReports';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -20,7 +22,8 @@ import {
   BarChart3, 
   CreditCard, 
   Shield,
-  Brain
+  Brain,
+  FileText
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -104,6 +107,12 @@ const AdminPanel = () => {
       component: <AdminAdvancedAnalytics />
     },
     {
+      id: 'reports',
+      label: 'Relatórios',
+      icon: FileText,
+      component: <AdminReports />
+    },
+    {
       id: 'payments',
       label: 'Pagamentos',
       icon: CreditCard,
@@ -156,7 +165,7 @@ const AdminPanel = () => {
       {/* Conteúdo principal otimizado */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-8">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
             {tabItems.map((tab) => {
               const Icon = tab.icon;
               return (
