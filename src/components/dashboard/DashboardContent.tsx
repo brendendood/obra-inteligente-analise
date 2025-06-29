@@ -4,7 +4,6 @@ import { QuickActions } from './QuickActions';
 import { DashboardStatsGrid } from './DashboardStatsGrid';
 import { MonthlyProductivityChart } from './MonthlyProductivityChart';
 import { EnhancedProjectsSection } from './EnhancedProjectsSection';
-import { MigrationButton } from './MigrationButton';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
 import { useProjectStore, useProjectStats } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
@@ -47,10 +46,9 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
 
   return (
     <div className="flex flex-col space-y-8 w-full min-w-0">
-      {/* 1. AÇÕES RÁPIDAS - Primeiro lugar */}
-      <div className="flex items-center justify-between">
+      {/* 1. AÇÕES RÁPIDAS - Agora com migração integrada */}
+      <div className="w-full">
         <QuickActions />
-        <MigrationButton />
       </div>
       
       {/* 2. HUB DE PROJETOS - Segundo lugar */}
