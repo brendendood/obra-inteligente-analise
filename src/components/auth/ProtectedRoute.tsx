@@ -13,23 +13,33 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      navigate('/login');
+      console.log('🔒 PROTECTED ROUTE: Usuário não autenticado, redirecionando para login');
+      navigate('/login', { replace: true });
     }
   }, [isAuthenticated, loading, navigate]);
 
+  // Mostrar loading enquanto verifica autenticação
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando...</p>
+          <p className="text-gray-600">Verificando autenticação...</p>
         </div>
       </div>
     );
   }
 
+  // Se não autenticado, não renderizar nada (redirecionamento será feito pelo useEffect)
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Redirecionando...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

@@ -15,18 +15,21 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const { isAuthenticated, loading } = useAuth();
   const isMobile = useIsMobile();
 
+  console.log('🏗️ APP LAYOUT: Renderizando', { loading, isAuthenticated });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando...</p>
+          <p className="text-gray-600">Carregando aplicação...</p>
         </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
+    console.log('🔒 APP LAYOUT: Usuário não autenticado, redirecionando');
     return <Navigate to="/login" replace />;
   }
 
@@ -34,11 +37,15 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="min-h-screen flex w-full bg-gray-50/30">
         {/* Sidebar - Fixo no desktop, oculto no mobile */}
-        {!isMobile && <AppSidebar />}
+        {!isMobile && (
+          <div className="flex-shrink-0">
+            <AppSidebar />
+          </div>
+        )}
         
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 w-full">
-          {/* Header sem controle de sidebar */}
+          {/* Header */}
           <Header />
           
           {/* Content Area com Scroll */}

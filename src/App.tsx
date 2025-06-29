@@ -50,7 +50,7 @@ function App() {
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               
-              {/* Rotas protegidas SEM ProjectProvider */}
+              {/* Dashboard - sem ProjectProvider */}
               <Route 
                 path="/painel" 
                 element={
@@ -60,7 +60,26 @@ function App() {
                 } 
               />
               
-              {/* Rotas protegidas COM ProjectProvider */}
+              {/* Rotas administrativas - sem ProjectProvider */}
+              <Route 
+                path="/admin-panel" 
+                element={
+                  <ProtectedRoute>
+                    <AdminPanel />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Rotas que precisam do ProjectProvider */}
               <Route 
                 path="/upload" 
                 element={
@@ -94,7 +113,7 @@ function App() {
                 } 
               />
               
-              {/* Rotas de projeto específico COM ProjectProvider */}
+              {/* Rotas de projeto específico */}
               <Route 
                 path="/projeto/:projectId" 
                 element={
@@ -117,26 +136,7 @@ function App() {
                 } 
               />
               
-              {/* Rotas administrativas SEM ProjectProvider */}
-              <Route 
-                path="/admin-panel" 
-                element={
-                  <ProtectedRoute>
-                    <AdminPanel />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute>
-                    <Admin />
-                  </ProtectedRoute>
-                } 
-              />
-              
-              {/* Redirecionamento padrão */}
+              {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

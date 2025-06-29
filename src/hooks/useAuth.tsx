@@ -9,53 +9,58 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
   const authInitializedRef = useRef(false);
-  const subscriptionRef = useRef<any>(null);
 
   useEffect(() => {
     // Prevenir múltiplas inicializações
     if (authInitializedRef.current) return;
     authInitializedRef.current = true;
 
-    let timeoutId: NodeJS.Timeout;
-
     const initializeAuth = async () => {
       try {
-        // PASSO 1: Configurar listener PRIMEIRO
+        console.log('🔄 AUTH: Inicializando autenticação...');
+        
+        // Configurar listener de mudanças de estado
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           (event, session) => {
             console.log('🔄 AUTH: State change event:', event);
             
             if (!mountedRef.current) return;
             
-            // Debounce para evitar updates excessivos
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-              if (mountedRef.current) {
-                setSession(session);
-                setUser(session?.user ?? null);
-                setLoading(false);
-              }
-            }, 100);
+            setSession(session);
+            setUser(session?.user ?? null);
+            
+            // Definir loading como false apenas após receber o primeiro evento
+            if (loading) {
+              setLoading(false);
+            }
           }
         );
         
-        subscriptionRef.current = subscription;
-        
-        // PASSO 2: Verificar sessão existente DEPOIS do listener
+        // Verificar sessão existente
         const { data: { session: existingSession }, error } = await supabase.auth.getSession();
         
         if (!mountedRef.current) return;
         
         if (error) {
           console.error('❌ AUTH: Erro ao verificar sessão:', error);
+          setLoading(false);
+          return;
         }
         
-        // Update inicial sem conflitar com o listener
+        // Atualizar estado inicial
         setSession(existingSession);
         setUser(existingSession?.user ?? null);
         setLoading(false);
         
-        console.log('✅ AUTH: Inicialização concluída');
+        console.log('✅ AUTH: Inicialização concluída', { 
+          hasSession: !!existingSession, 
+          hasUser: !!existingSession?.user 
+        });
+        
+        // Cleanup
+        return () => {
+          subscription.unsubscribe();
+        };
         
       } catch (error) {
         console.error('💥 AUTH: Erro crítico na inicialização:', error);
@@ -65,19 +70,24 @@ export function useAuth() {
       }
     };
 
-    initializeAuth();
+    const cleanup = initializeAuth();
 
     return () => {
       mountedRef.current = false;
-      clearTimeout(timeoutId);
-      
-      if (subscriptionRef.current?.unsubscribe) {
-        subscriptionRef.current.unsubscribe();
+      if (cleanup && typeof cleanup === 'function') {
+        cleanup();
       }
     };
   }, []); // Array vazio - executa apenas uma vez
 
   const isAuthenticated = !!user && !!session;
+
+  console.log('🔍 AUTH: Current state', { 
+    loading, 
+    isAuthenticated, 
+    hasUser: !!user, 
+    hasSession: !!session 
+  });
 
   return {
     user,

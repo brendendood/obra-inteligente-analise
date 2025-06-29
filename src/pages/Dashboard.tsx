@@ -30,12 +30,21 @@ export default function Dashboard() {
     completedThisMonth: 0
   });
 
+  console.log('📊 DASHBOARD: Renderizando', { 
+    userId: user?.id, 
+    projectsCount: projects.length,
+    isLoading 
+  });
+
   useEffect(() => {
-    fetchProjects();
+    console.log('📊 DASHBOARD: Buscando projetos...');
+    fetchProjects().catch(error => {
+      console.error('❌ DASHBOARD: Erro ao buscar projetos:', error);
+    });
   }, [fetchProjects]);
 
   useEffect(() => {
-    if (projects.length > 0) {
+    if (projects && projects.length >= 0) {
       const analyzedCount = projects.filter(p => p.analysis_data).length;
       const inProgressCount = projects.filter(p => !p.analysis_data).length;
       const thisMonth = new Date();
@@ -53,7 +62,7 @@ export default function Dashboard() {
     }
   }, [projects]);
 
-  const recentProjects = projects.slice(0, 3);
+  const recentProjects = projects ? projects.slice(0, 3) : [];
   const completionRate = stats.totalProjects > 0 ? (stats.analyzedProjects / stats.totalProjects) * 100 : 0;
 
   if (isLoading) {
