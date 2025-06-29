@@ -45,17 +45,23 @@ export function useUserSegments() {
           description: error.message,
           variant: "destructive",
         });
+        setSegments([]);
         return;
       }
 
-      // Buscar emails dos usuários
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error('❌ USER SEGMENTS: Erro ao buscar auth users:', authError);
+      // Buscar emails dos usuários - com tratamento de erro
+      let authUsers: any[] = [];
+      try {
+        const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          console.error('❌ USER SEGMENTS: Erro ao buscar auth users:', authError);
+        } else {
+          authUsers = authData?.users || [];
+        }
+      } catch (authError) {
+        console.error('❌ USER SEGMENTS: Erro crítico ao buscar auth users:', authError);
       }
-
-      const authUsers = authData?.users || [];
 
       const mappedSegments: UserSegment[] = (segmentsData || []).map(segment => {
         const authUser = authUsers.find(u => u.id === segment.user_id);
@@ -64,13 +70,13 @@ export function useUserSegments() {
           : null;
 
         return {
-          id: segment.id,
-          user_id: segment.user_id,
-          segment_name: segment.segment_name,
-          segment_data: segment.segment_data,
-          auto_generated: segment.auto_generated,
-          created_at: segment.created_at,
-          updated_at: segment.updated_at,
+          id: segment.id || '',
+          user_id: segment.user_id || '',
+          segment_name: segment.segment_name || '',
+          segment_data: segment.segment_data || {},
+          auto_generated: Boolean(segment.auto_generated),
+          created_at: segment.created_at || new Date().toISOString(),
+          updated_at: segment.updated_at || new Date().toISOString(),
           user_email: authUser?.email || 'Email não encontrado',
           user_name: userProfile?.full_name || null,
         };
@@ -80,42 +86,68 @@ export function useUserSegments() {
       setSegments(mappedSegments);
     } catch (error) {
       console.error('💥 USER SEGMENTS: Erro crítico:', error);
+      setSegments([]);
+      toast({
+        title: "Erro inesperado",
+        description: "Não foi possível carregar os segmentos",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const exportSegmentsCSV = (segmentType?: string) => {
-    const filteredSegments = segmentType 
-      ? segments.filter(s => s.segment_name === segmentType)
-      : segments;
+    try {
+      const filteredSegments = segmentType 
+        ? segments.filter(s => s.segment_name === segmentType)
+        : segments;
 
-    const csv = [
-      ['Email', 'Nome', 'Segmento', 'Dados', 'Criado em'].join(','),
-      ...filteredSegments.map(segment => [
-        segment.user_email,
-        segment.user_name || '',
-        segment.segment_name,
-        JSON.stringify(segment.segment_data).replace(/"/g, '""'),
-        new Date(segment.created_at).toLocaleDateString('pt-BR')
-      ].join(','))
-    ].join('\n');
+      if (filteredSegments.length === 0) {
+        toast({
+          title: "Nenhum dado para exportar",
+          description: "Não há segmentos para o filtro selecionado",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `segmentos-${segmentType || 'todos'}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+      const csv = [
+        ['Email', 'Nome', 'Segmento', 'Dados', 'Criado em'].join(','),
+        ...filteredSegments.map(segment => [
+          segment.user_email || '',
+          segment.user_name || '',
+          segment.segment_name || '',
+          JSON.stringify(segment.segment_data || {}).replace(/"/g, '""'),
+          new Date(segment.created_at).toLocaleDateString('pt-BR')
+        ].join(','))
+      ].join('\n');
 
-    toast({
-      title: "Exportação concluída",
-      description: "Arquivo CSV baixado com sucesso",
-    });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `segmentos-${segmentType || 'todos'}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Exportação concluída",
+        description: `${filteredSegments.length} registros exportados com sucesso`,
+      });
+    } catch (error) {
+      console.error('❌ EXPORT: Erro ao exportar CSV:', error);
+      toast({
+        title: "Erro na exportação",
+        description: "Não foi possível gerar o arquivo CSV",
+        variant: "destructive",
+      });
+    }
   };
 
-  // Estatísticas dos segmentos
+  // Estatísticas dos segmentos - com tratamento seguro
   const segmentStats = {
     total: segments.length,
     active_weekly: segments.filter(s => s.segment_name === 'active_weekly').length,

@@ -1,7 +1,8 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, BarChart3, Users, Target } from 'lucide-react';
+import { RefreshCw, BarChart3, Users, Target, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdvancedAnalyticsCards } from './analytics/AdvancedAnalyticsCards';
 import { UserEngagementTable } from './analytics/UserEngagementTable';
 import { UserSegmentsManager } from './analytics/UserSegmentsManager';
@@ -12,6 +13,7 @@ export const AdminAdvancedAnalytics = () => {
     analytics,
     userEngagement,
     loading,
+    error,
     refreshAnalytics,
     refreshEngagement,
     triggerSegmentUpdate,
@@ -28,18 +30,44 @@ export const AdminAdvancedAnalytics = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar analytics</h3>
+              <p className="text-gray-500 mb-4">{error}</p>
+              <Button onClick={refreshAnalytics}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Tentar Novamente
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!analytics) {
     return (
-      <div className="text-center py-12">
-        <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar analytics</h3>
-        <p className="text-gray-500 mb-4">
-          Não foi possível carregar os dados de analytics avançado.
-        </p>
-        <Button onClick={refreshAnalytics}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Tentar Novamente
-        </Button>
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Analytics não disponível</h3>
+              <p className="text-gray-500 mb-4">
+                Não foi possível carregar os dados de analytics avançado.
+              </p>
+              <Button onClick={refreshAnalytics}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Carregar Analytics
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

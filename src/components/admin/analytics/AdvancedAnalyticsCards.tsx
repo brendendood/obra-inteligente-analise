@@ -12,6 +12,11 @@ import {
   Zap
 } from 'lucide-react';
 
+interface TopFeature {
+  feature: string;
+  count: number;
+}
+
 interface AdvancedAnalyticsCardsProps {
   analytics: {
     total_users: number;
@@ -21,44 +26,51 @@ interface AdvancedAnalyticsCardsProps {
     total_ai_calls: number;
     ai_cost_month: number;
     conversion_rate: number;
-    top_features: Array<{ feature: string; count: number }>;
+    top_features: TopFeature[];
   };
 }
 
 export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProps) => {
   const formatDuration = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0m 0s";
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}m ${remainingSeconds}s`;
   };
 
   const formatCurrency = (value: number) => {
+    if (!value || isNaN(value)) return "$0.00";
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'USD'
     }).format(value);
   };
 
+  const safePercentage = (part: number, total: number) => {
+    if (!total || total === 0) return 0;
+    return Math.round((part / total) * 100);
+  };
+
   const statsCards = [
     {
       title: 'Usuários Ativos (Semana)',
-      value: analytics.active_users_week,
-      description: `${Math.round((analytics.active_users_week / analytics.total_users) * 100)}% do total`,
+      value: analytics.active_users_week || 0,
+      description: `${safePercentage(analytics.active_users_week, analytics.total_users)}% do total`,
       icon: Users,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
     {
       title: 'Usuários Ativos (Mês)',
-      value: analytics.active_users_month,
-      description: `${Math.round((analytics.active_users_month / analytics.total_users) * 100)}% do total`,
+      value: analytics.active_users_month || 0,
+      description: `${safePercentage(analytics.active_users_month, analytics.total_users)}% do total`,
       icon: Activity,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
       title: 'Sessão Média',
-      value: formatDuration(analytics.avg_session_duration),
+      value: formatDuration(analytics.avg_session_duration || 0),
       description: 'Tempo médio por sessão',
       icon: Clock,
       color: 'text-purple-600',
@@ -67,7 +79,7 @@ export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProp
     },
     {
       title: 'Chamadas de IA (Mês)',
-      value: analytics.total_ai_calls,
+      value: analytics.total_ai_calls || 0,
       description: 'Interações com IA este mês',
       icon: Brain,
       color: 'text-orange-600',
@@ -75,7 +87,7 @@ export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProp
     },
     {
       title: 'Custo IA (Mês)',
-      value: formatCurrency(analytics.ai_cost_month),
+      value: formatCurrency(analytics.ai_cost_month || 0),
       description: 'Gasto em tokens OpenAI',
       icon: DollarSign,
       color: 'text-red-600',
@@ -84,7 +96,7 @@ export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProp
     },
     {
       title: 'Taxa de Conversão',
-      value: `${analytics.conversion_rate.toFixed(1)}%`,
+      value: `${(analytics.conversion_rate || 0).toFixed(1)}%`,
       description: 'Free → Paid',
       icon: Target,
       color: 'text-emerald-600',
@@ -92,6 +104,8 @@ export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProp
       isFormatted: true
     }
   ];
+
+  const topFeatures = Array.isArray(analytics.top_features) ? analytics.top_features : [];
 
   return (
     <div className="space-y-6">
@@ -116,7 +130,7 @@ export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProp
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-gray-900">
-                  {stat.isFormatted ? stat.value : Number(stat.value).toLocaleString('pt-BR')}
+                  {stat.isFormatted ? stat.value : Number(stat.value || 0).toLocaleString('pt-BR')}
                 </div>
               </CardContent>
             </Card>
@@ -133,19 +147,26 @@ export const AdvancedAnalyticsCards = ({ analytics }: AdvancedAnalyticsCardsProp
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {analytics.top_features.map((feature, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span className="text-sm font-medium capitalize">
-                  {feature.feature.replace('_', ' ')}
-                </span>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3" />
-                  {feature.count.toLocaleString('pt-BR')}
-                </Badge>
-              </div>
-            ))}
-          </div>
+          {topFeatures.length > 0 ? (
+            <div className="space-y-3">
+              {topFeatures.map((feature, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-sm font-medium capitalize">
+                    {String(feature.feature || 'Unknown').replace('_', ' ')}
+                  </span>
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    {Number(feature.count || 0).toLocaleString('pt-BR')}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Zap className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-sm">Nenhuma feature utilizada nos últimos 30 dias</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
