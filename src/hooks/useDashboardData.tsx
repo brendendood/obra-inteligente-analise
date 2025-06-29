@@ -42,6 +42,12 @@ export const useDashboardData = () => {
     if (!projects || !mountedRef.current) return;
 
     console.log('📊 DASHBOARD: Recalculando estatísticas COMPLETAS para', projects.length, 'projetos');
+    console.log('📊 DASHBOARD: Projetos disponíveis:', projects.map(p => ({ 
+      name: p.name, 
+      hasAnalysis: !!p.analysis_data,
+      budgetValue: p.analysis_data?.budget_data?.total_com_bdi,
+      scheduleDuration: p.analysis_data?.schedule_data?.total_duration
+    })));
 
     // Stats básicas
     const totalArea = projects.reduce((sum: number, project: any) => {
@@ -75,31 +81,45 @@ export const useDashboardData = () => {
     }, {});
 
     // NOVAS MÉTRICAS BASEADAS EM DADOS PERSISTIDOS - CORRIGIDO
-    const projectsWithBudget = projects.filter((project: any) => 
-      project.analysis_data?.budget_data?.total_com_bdi && 
-      project.analysis_data.budget_data.total_com_bdi > 0
-    );
+    const projectsWithBudget = projects.filter((project: any) => {
+      const hasBudget = project.analysis_data?.budget_data?.total_com_bdi && 
+                       project.analysis_data.budget_data.total_com_bdi > 0;
+      if (hasBudget) {
+        console.log(`✅ Projeto com orçamento: ${project.name} = R$ ${project.analysis_data.budget_data.total_com_bdi}`);
+      }
+      return hasBudget;
+    });
 
-    const projectsWithSchedule = projects.filter((project: any) => 
-      project.analysis_data?.schedule_data?.total_duration && 
-      project.analysis_data.schedule_data.total_duration > 0
-    );
+    const projectsWithSchedule = projects.filter((project: any) => {
+      const hasSchedule = project.analysis_data?.schedule_data?.total_duration && 
+                         project.analysis_data.schedule_data.total_duration > 0;
+      if (hasSchedule) {
+        console.log(`✅ Projeto com cronograma: ${project.name} = ${project.analysis_data.schedule_data.total_duration} dias`);
+      }
+      return hasSchedule;
+    });
 
     const totalInvestment = projectsWithBudget.reduce((sum: number, project: any) => {
-      return sum + (project.analysis_data.budget_data.total_com_bdi || 0);
+      const cost = project.analysis_data.budget_data.total_com_bdi || 0;
+      console.log(`Somando investimento: ${project.name} = R$ ${cost}`);
+      return sum + cost;
     }, 0);
 
     const avgCostPerSqm = projectsWithBudget.length > 0 
       ? projectsWithBudget.reduce((sum: number, project: any) => {
           const totalCost = project.analysis_data.budget_data.total_com_bdi || 0;
           const area = project.total_area || 100;
-          return sum + (totalCost / area);
+          const costPerSqm = totalCost / area;
+          console.log(`Custo/m² ${project.name}: R$ ${totalCost} / ${area}m² = R$ ${costPerSqm}`);
+          return sum + costPerSqm;
         }, 0) / projectsWithBudget.length
       : null;
 
     const avgProjectDuration = projectsWithSchedule.length > 0
       ? projectsWithSchedule.reduce((sum: number, project: any) => {
-          return sum + (project.analysis_data.schedule_data.total_duration || 0);
+          const duration = project.analysis_data.schedule_data.total_duration || 0;
+          console.log(`Duração ${project.name}: ${duration} dias`);
+          return sum + duration;
         }, 0) / projectsWithSchedule.length
       : null;
 

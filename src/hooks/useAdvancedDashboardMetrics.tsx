@@ -5,17 +5,26 @@ import { Project } from '@/types/project';
 export const useAdvancedDashboardMetrics = (projects: Project[]) => {
   return useMemo(() => {
     console.log('📊 ADVANCED METRICS: Calculando métricas para', projects.length, 'projetos');
+    console.log('📊 ADVANCED METRICS: Projetos recebidos:', projects.map(p => ({ 
+      name: p.name, 
+      hasAnalysis: !!p.analysis_data,
+      hasBudget: !!p.analysis_data?.budget_data,
+      hasSchedule: !!p.analysis_data?.schedule_data
+    })));
 
     // MÉTRICAS FINANCEIRAS - Dados Persistidos
-    const projectsWithBudget = projects.filter(p => 
-      p.analysis_data?.budget_data?.total_com_bdi && 
-      p.analysis_data.budget_data.total_com_bdi > 0
-    );
+    const projectsWithBudget = projects.filter(p => {
+      const hasBudgetData = p.analysis_data?.budget_data?.total_com_bdi && 
+                           p.analysis_data.budget_data.total_com_bdi > 0;
+      console.log(`Projeto ${p.name}: hasBudgetData=${hasBudgetData}, valor=${p.analysis_data?.budget_data?.total_com_bdi}`);
+      return hasBudgetData;
+    });
 
     console.log('💰 Projetos com orçamento persistido:', projectsWithBudget.length);
 
     const totalInvestment = projectsWithBudget.reduce((sum, project) => {
       const cost = project.analysis_data?.budget_data?.total_com_bdi || 0;
+      console.log(`Adicionando custo ${cost} do projeto ${project.name}`);
       return sum + cost;
     }, 0);
 
@@ -23,7 +32,9 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       ? projectsWithBudget.reduce((sum, project) => {
           const totalCost = project.analysis_data?.budget_data?.total_com_bdi || 0;
           const area = project.total_area || 100;
-          return sum + (totalCost / area);
+          const costPerSqm = totalCost / area;
+          console.log(`Projeto ${project.name}: custo=${totalCost}, área=${area}, custo/m²=${costPerSqm}`);
+          return sum + costPerSqm;
         }, 0) / projectsWithBudget.length
       : null;
 
@@ -36,10 +47,12 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       : null;
 
     // MÉTRICAS DE PERFORMANCE - Dados Persistidos
-    const projectsWithSchedule = projects.filter(p => 
-      p.analysis_data?.schedule_data?.total_duration && 
-      p.analysis_data.schedule_data.total_duration > 0
-    );
+    const projectsWithSchedule = projects.filter(p => {
+      const hasScheduleData = p.analysis_data?.schedule_data?.total_duration && 
+                             p.analysis_data.schedule_data.total_duration > 0;
+      console.log(`Projeto ${p.name}: hasScheduleData=${hasScheduleData}, duração=${p.analysis_data?.schedule_data?.total_duration}`);
+      return hasScheduleData;
+    });
 
     console.log('📅 Projetos com cronograma persistido:', projectsWithSchedule.length);
 
@@ -81,7 +94,7 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       : 0;
 
     const dataQualityScore = projects.length > 0
-      ? (projects.filter(p => p.analysis_data?.isRealProject).length / projects.length) * 100
+      ? (projects.filter(p => p.analysis_data && Object.keys(p.analysis_data).length > 0).length / projects.length) * 100
       : 0;
 
     // TENDÊNCIAS MENSAIS - CORRIGIDO para match com MonthlyProductivityChart
@@ -116,11 +129,11 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
     const result = {
       financial: {
         totalInvestment: Math.round(totalInvestment),
-        avgCostPerSqm,
+        avgCostPerSqm: avgCostPerSqm ? Math.round(avgCostPerSqm) : null,
         costVariation: budgetCosts.length > 1 
           ? Math.round(((Math.max(...budgetCosts) - Math.min(...budgetCosts)) / Math.min(...budgetCosts)) * 100)
           : null,
-        budgetEfficiency: processingEfficiency,
+        budgetEfficiency: Math.round(processingEfficiency),
         highestCostProject: highestCostProject ? {
           name: highestCostProject.name,
           cost: highestCostProject.analysis_data.budget_data.total_com_bdi
@@ -133,7 +146,7 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       performance: {
         avgProcessingTime: 2.5, // Simulado
         processingEfficiency: Math.round(processingEfficiency),
-        avgProjectDuration,
+        avgProjectDuration: avgProjectDuration ? Math.round(avgProjectDuration) : null,
         onTimeDeliveryRate: 85, // Simulado
         bottleneckPhase: projectsWithSchedule.length > 0 ? 'Instalações' : null
       },
@@ -158,6 +171,7 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       withBudget: projectsWithBudget.length,
       withSchedule: projectsWithSchedule.length,
       totalInvestment: result.financial.totalInvestment,
+      avgCostPerSqm: result.financial.avgCostPerSqm,
       avgDuration: result.performance.avgProjectDuration
     });
 
