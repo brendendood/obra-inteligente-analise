@@ -23,10 +23,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Se não autenticado, redirecionar para login
+  // Se não autenticado, redirecionar para home (que mostrará o login)
   if (!isAuthenticated) {
     console.log('🔒 PROTECTED ROUTE: Usuário não autenticado, redirecionando');
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   console.log('✅ PROTECTED ROUTE: Acesso autorizado');

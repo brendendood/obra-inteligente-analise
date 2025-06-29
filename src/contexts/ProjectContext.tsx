@@ -65,7 +65,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         clearAllProjects();
       }
     }
-  }, [loading, isAuthenticated, user?.id, allProjects.length]);
+  }, [loading, isAuthenticated, user?.id, allProjects.length, clearAllProjects, getProjectFromStorage, saveProjectToStorage, allProjects]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     console.log('📋 PROJECT CONTEXT: Retornando projetos do store');

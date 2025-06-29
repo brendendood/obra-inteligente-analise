@@ -27,7 +27,7 @@ const Index = () => {
     );
   }
 
-  // Se não autenticado, mostrar landing page
+  // Se não autenticado, mostrar landing page diretamente
   if (!isAuthenticated) {
     return <LandingPage />;
   }

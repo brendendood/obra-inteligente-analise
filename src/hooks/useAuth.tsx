@@ -74,7 +74,7 @@ export function useAuth() {
         authSubscription.unsubscribe();
       }
     };
-  }, []); // Array vazio - executa apenas uma vez
+  }, []);
 
   const isAuthenticated = !!user && !!session;
 
