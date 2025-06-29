@@ -10,6 +10,12 @@ interface DashboardStats {
   monthlyProjects: number;
   averageArea: number;
   projectsByType: Record<string, number>;
+  // NOVOS CAMPOS BASEADOS EM DADOS PERSISTIDOS
+  totalInvestment: number;
+  projectsWithBudget: number;
+  projectsWithSchedule: number;
+  avgCostPerSqm: number | null;
+  avgProjectDuration: number | null;
 }
 
 export const useDashboardData = () => {
@@ -23,15 +29,21 @@ export const useDashboardData = () => {
     processedProjects: 0,
     monthlyProjects: 0,
     averageArea: 0,
-    projectsByType: {}
+    projectsByType: {},
+    totalInvestment: 0,
+    projectsWithBudget: 0,
+    projectsWithSchedule: 0,
+    avgCostPerSqm: null,
+    avgProjectDuration: null
   });
 
-  // Recalcula stats apenas quando projetos mudam (sem loops)
+  // Recalcula stats com dados persistidos
   useEffect(() => {
     if (!projects || !mountedRef.current) return;
 
-    console.log('📊 DASHBOARD: Recalculando estatísticas para', projects.length, 'projetos');
+    console.log('📊 DASHBOARD: Recalculando estatísticas COMPLETAS para', projects.length, 'projetos');
 
+    // Stats básicas
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
     }, 0);
@@ -62,6 +74,34 @@ export const useDashboardData = () => {
       return acc;
     }, {});
 
+    // NOVAS MÉTRICAS BASEADAS EM DADOS PERSISTIDOS
+    const projectsWithBudget = projects.filter((project: any) => 
+      project.analysis_data?.budget_data?.total_cost && 
+      project.analysis_data.budget_data.total_cost > 0
+    );
+
+    const projectsWithSchedule = projects.filter((project: any) => 
+      project.analysis_data?.schedule_data?.total_duration && 
+      project.analysis_data.schedule_data.total_duration > 0
+    );
+
+    const totalInvestment = projectsWithBudget.reduce((sum: number, project: any) => {
+      return sum + (project.analysis_data.budget_data.total_cost || 0);
+    }, 0);
+
+    const avgCostPerSqm = projectsWithBudget.length > 0 
+      ? projectsWithBudget.reduce((sum: number, project: any) => {
+          const unitCost = project.analysis_data.budget_data.unit_cost_per_sqm || 0;
+          return sum + unitCost;
+        }, 0) / projectsWithBudget.length
+      : null;
+
+    const avgProjectDuration = projectsWithSchedule.length > 0
+      ? projectsWithSchedule.reduce((sum: number, project: any) => {
+          return sum + (project.analysis_data.schedule_data.total_duration || 0);
+        }, 0) / projectsWithSchedule.length
+      : null;
+
     const newStats = {
       totalProjects: projects.length,
       totalArea,
@@ -69,12 +109,25 @@ export const useDashboardData = () => {
       processedProjects,
       monthlyProjects,
       averageArea,
-      projectsByType
+      projectsByType,
+      totalInvestment: Math.round(totalInvestment),
+      projectsWithBudget: projectsWithBudget.length,
+      projectsWithSchedule: projectsWithSchedule.length,
+      avgCostPerSqm: avgCostPerSqm ? Math.round(avgCostPerSqm) : null,
+      avgProjectDuration: avgProjectDuration ? Math.round(avgProjectDuration) : null
     };
 
     setStats(newStats);
-    console.log('✅ DASHBOARD: Estatísticas recalculadas com sucesso');
-  }, [projects]); // Depende apenas de projects
+    
+    console.log('✅ DASHBOARD: Estatísticas COMPLETAS recalculadas:', {
+      projetos: newStats.totalProjects,
+      comOrcamento: newStats.projectsWithBudget,
+      comCronograma: newStats.projectsWithSchedule,
+      investimentoTotal: newStats.totalInvestment,
+      custoMedioM2: newStats.avgCostPerSqm,
+      duracaoMedia: newStats.avgProjectDuration
+    });
+  }, [projects]);
 
   useEffect(() => {
     return () => {

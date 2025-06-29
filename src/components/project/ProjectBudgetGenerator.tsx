@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Project } from '@/types/project';
 import { BudgetGenerationProgress } from './budget/BudgetGenerationProgress';
@@ -12,6 +11,7 @@ import { BudgetHistoryDialog } from './budget/BudgetHistoryDialog';
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { generateAutomaticBudget, BudgetData, BudgetItem } from '@/utils/budgetGenerator';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProjectBudgetGeneratorProps {
   project: Project;
@@ -30,14 +30,19 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
   const environments = ['Quarto', 'Sala', 'Cozinha', 'Banheiro', 'Lavanderia', 'Varanda', 'Garagem', 'Geral', 'Outro'];
   const categories = ['Alvenaria', 'Estrutura', 'Instalações', 'Revestimentos', 'Pintura', 'Esquadrias', 'Louças e Metais', 'Outro'];
 
-  // Gerar automaticamente ao carregar o componente
+  // CARREGAR DADOS PERSISTIDOS DO BANCO
   useEffect(() => {
-    if (project && !budgetData) {
-      generateBudget();
+    if (project?.analysis_data?.budget_data) {
+      console.log('💰 ORÇAMENTO: Carregando dados persistidos do projeto:', project.name);
+      setBudgetData(project.analysis_data.budget_data);
+      console.log('✅ ORÇAMENTO: Dados carregados do banco:', {
+        total: project.analysis_data.budget_data.total_cost,
+        items: project.analysis_data.budget_data.items?.length || 0
+      });
     }
   }, [project]);
 
-  const generateBudget = useCallback(() => {
+  const generateBudget = useCallback(async () => {
     setIsGenerating(true);
     setProgress(0);
 
@@ -61,10 +66,14 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         // Gerar orçamento automático
         const generatedBudget = generateAutomaticBudget(project);
         setBudgetData(generatedBudget);
+        
+        // PERSISTIR NO BANCO
+        saveBudgetToDatabase(generatedBudget);
+        
         setIsGenerating(false);
         
         toast({
-          title: "✅ Orçamento gerado automaticamente!",
+          title: "✅ Orçamento gerado e salvo!",
           description: `Orçamento baseado na tabela SINAPI criado para ${project.name} (${project.total_area}m²).`,
         });
 
@@ -74,6 +83,35 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       }
     }, 500);
   }, [project, onBudgetGenerated, toast]);
+
+  // Função para salvar no banco
+  const saveBudgetToDatabase = async (budget: BudgetData) => {
+    try {
+      console.log('💾 ORÇAMENTO: Salvando no banco de dados...');
+      
+      const updatedAnalysisData = {
+        ...project.analysis_data,
+        budget_data: budget,
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('projects')
+        .update({ 
+          analysis_data: updatedAnalysisData,
+          estimated_budget: budget.total_cost
+        })
+        .eq('id', project.id);
+
+      if (error) {
+        console.error('❌ Erro ao salvar orçamento:', error);
+      } else {
+        console.log('✅ Orçamento salvo no banco com sucesso');
+      }
+    } catch (error) {
+      console.error('💥 Erro ao persistir orçamento:', error);
+    }
+  };
 
   const updateItem = (id: string, updates: Partial<BudgetItem>) => {
     setBudgetData((prevData) => {
@@ -91,12 +129,17 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       const newTotal = updatedItems.reduce((acc, item) => acc + item.total, 0);
       const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
-      return {
+      const updatedBudget = {
         ...prevData,
         total: newTotal,
         total_com_bdi: newTotalComBDI,
         items: updatedItems,
       };
+
+      // Salvar alterações no banco
+      saveBudgetToDatabase(updatedBudget);
+      
+      return updatedBudget;
     });
   };
 
@@ -108,12 +151,17 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       const newTotal = updatedItems.reduce((acc, item) => acc + item.total, 0);
       const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
-      return {
+      const updatedBudget = {
         ...prevData,
         total: newTotal,
         total_com_bdi: newTotalComBDI,
         items: updatedItems,
       };
+
+      // Salvar alterações no banco
+      saveBudgetToDatabase(updatedBudget);
+
+      return updatedBudget;
     });
   };
 
@@ -131,14 +179,34 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
       const newTotal = updatedItems.reduce((acc, item) => acc + item.total, 0);
       const newTotalComBDI = newTotal * (1 + prevData.bdi);
 
-      return {
+      const updatedBudget = {
         ...prevData,
         total: newTotal,
         total_com_bdi: newTotalComBDI,
         items: updatedItems,
       };
+
+      // Salvar alterações no banco
+      saveBudgetToDatabase(updatedBudget);
+
+      return updatedBudget;
     });
   };
+
+  // Se não tem dados persistidos, mostrar geração
+  if (!budgetData && !isGenerating) {
+    return (
+      <TooltipProvider>
+        <div className="space-y-6">
+          <EmptyBudgetState 
+            projectName={project.name} 
+            onGenerate={generateBudget}
+            isGenerating={isGenerating}
+          />
+        </div>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -162,42 +230,31 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
           />
         </div>
 
+        {/* Progress during generation */}
         {isGenerating && (
-          <BudgetGenerationProgress 
-            progress={progress} 
-            projectArea={project.total_area || 100} 
-          />
-        )}
-
-        {budgetData && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-3 space-y-6">
-              <BudgetItemsList
-                items={budgetData.items}
-                dataReferencia={budgetData.data_referencia}
-                onUpdateItem={updateItem}
-                onRemoveItem={removeItem}
-              />
-            </div>
-
-            <div className="space-y-6">
-              <BudgetSummary
-                subtotal={budgetData.total}
-                bdi={budgetData.bdi}
-                total={budgetData.total_com_bdi}
-                totalArea={budgetData.totalArea}
-                pricePerSqm={budgetData.total_com_bdi / budgetData.totalArea}
-              />
-            </div>
-          </div>
-        )}
-
-        {!budgetData && !isGenerating && (
-          <EmptyBudgetState
-            projectName={project.name}
+          <BudgetGenerationProgress
+            progress={progress}
             projectArea={project.total_area || 100}
-            onGenerateBudget={generateBudget}
           />
+        )}
+
+        {/* Budget content */}
+        {budgetData && (
+          <>
+            <BudgetSummary budgetData={budgetData} />
+            <BudgetItemsList
+              items={budgetData.items}
+              onUpdateItem={updateItem}
+              onRemoveItem={removeItem}
+              environments={environments}
+              categories={categories}
+            />
+            <BudgetActions
+              onAddItem={() => setShowAddDialog(true)}
+              onExport={() => setShowExportDialog(true)}
+              onHistory={() => setShowHistoryDialog(true)}
+            />
+          </>
         )}
 
         {/* Dialogs */}
@@ -219,7 +276,7 @@ export const ProjectBudgetGenerator = ({ project, onBudgetGenerated }: ProjectBu
         <BudgetHistoryDialog
           open={showHistoryDialog}
           onOpenChange={setShowHistoryDialog}
-          projectId={project?.id}
+          projectId={project.id}
         />
       </div>
     </TooltipProvider>
