@@ -36,7 +36,7 @@ interface AlertConfig {
 
 interface AlertLog {
   id: string;
-  alert_config_id: string;
+  alert_type: string;
   triggered_at: string;
   message: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
@@ -66,14 +66,13 @@ export const AdminAlertsManager = () => {
       setLoading(true);
       console.log('📢 ALERTS: Carregando configurações e logs...');
 
-      // Carregar configurações de alerta
-      const { data: configs } = await supabase
+      // Usar type assertion temporariamente até as tabelas serem criadas
+      const { data: configs } = await (supabase as any)
         .from('alert_configurations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Carregar logs recentes
-      const { data: logs } = await supabase
+      const { data: logs } = await (supabase as any)
         .from('alert_logs')
         .select('*')
         .order('triggered_at', { ascending: false })
@@ -85,11 +84,14 @@ export const AdminAlertsManager = () => {
       console.log('✅ ALERTS: Dados carregados', { configs: configs?.length, logs: logs?.length });
     } catch (error) {
       console.error('❌ ALERTS: Erro ao carregar dados:', error);
-      toast({
-        title: "Erro ao carregar alertas",
-        description: "Não foi possível carregar as configurações de alerta",
-        variant: "destructive",
-      });
+      // Não mostrar erro se as tabelas não existirem ainda
+      if (!error?.message?.includes('relation') && !error?.message?.includes('does not exist')) {
+        toast({
+          title: "Aviso",
+          description: "As tabelas de alertas ainda não foram criadas. Execute a migração SQL primeiro.",
+          variant: "default",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -97,7 +99,7 @@ export const AdminAlertsManager = () => {
 
   const toggleAlert = async (alertId: string, enabled: boolean) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('alert_configurations')
         .update({ enabled, updated_at: new Date().toISOString() })
         .eq('id', alertId);
@@ -200,7 +202,7 @@ export const AdminAlertsManager = () => {
         },
         {
           alert_type: 'subscription_expiring',
-          name: 'Assinatura Vencendo',
+          name: 'Assinatura Vencendo',  
           description: 'Plano expira em 3 dias',
           enabled: true,
           conditions: { days_until_expire: 3 },
@@ -208,7 +210,7 @@ export const AdminAlertsManager = () => {
         }
       ];
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('alert_configurations')
         .upsert(defaultAlerts, { onConflict: 'alert_type' });
 
@@ -223,8 +225,8 @@ export const AdminAlertsManager = () => {
     } catch (error) {
       console.error('❌ ALERTS: Erro ao criar alertas padrão:', error);
       toast({
-        title: "Erro ao criar alertas",
-        description: "Não foi possível criar as configurações padrão",
+        title: "Tabelas não encontradas",
+        description: "Execute a migração SQL primeiro para criar as tabelas necessárias",
         variant: "destructive",
       });
     }
@@ -232,7 +234,7 @@ export const AdminAlertsManager = () => {
 
   const resolveAlert = async (alertId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('alert_logs')
         .update({ resolved: true })
         .eq('id', alertId);
@@ -300,6 +302,23 @@ export const AdminAlertsManager = () => {
           Criar Alertas Padrão
         </Button>
       </div>
+
+      {/* Aviso sobre migração */}
+      {alertConfigs.length === 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <div>
+                <h4 className="font-medium text-orange-900">Migração SQL Necessária</h4>
+                <p className="text-sm text-orange-800">
+                  Execute a migração SQL fornecida anteriormente para criar as tabelas de alertas antes de usar esta funcionalidade.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Configurações de Webhook/N8N */}
       <Card>

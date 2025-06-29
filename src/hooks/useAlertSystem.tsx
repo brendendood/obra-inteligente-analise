@@ -22,7 +22,7 @@ export function useAlertSystem() {
 
   const loadAlertConfigs = async () => {
     try {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('alert_configurations')
         .select('*')
         .eq('enabled', true);
@@ -30,6 +30,7 @@ export function useAlertSystem() {
       setAlertConfigs(data || []);
     } catch (error) {
       console.error('❌ ALERTS: Erro ao carregar configurações:', error);
+      // Não mostrar erro se as tabelas não existirem ainda
     }
   };
 
@@ -38,7 +39,7 @@ export function useAlertSystem() {
       console.log('🚨 ALERT: Disparando alerta...', alertData);
 
       // Registrar o alerta no banco
-      const { error: logError } = await supabase
+      const { error: logError } = await (supabase as any)
         .from('alert_logs')
         .insert({
           alert_type: alertData.eventType,
