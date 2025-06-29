@@ -1,20 +1,21 @@
+
 import { useState, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { recalculateScheduleDates, validateTaskOrder } from '@/utils/scheduleRecalculator';
-
-interface DragItem {
-  id: string;
-  index: number;
-  data: any;
-}
-
-interface UseDragAndDropProps {
-  items: any[];
-  onReorder: (items: any[]) => void;
-  keyExtractor: (item: any) => string;
-  enableRecalculation?: boolean;
-  onRecalculate?: (recalculatedItems: any[], warnings: string[]) => void;
-}
+import { recalculateScheduleDates } from '@/utils/scheduleRecalculator';
+import { DragItem, UseDragAndDropProps, DragState } from '@/types/dragAndDrop';
+import {
+  createGhostElement,
+  applyDragStyles,
+  removeDragStyles,
+  setupDragTransfer,
+  cleanupGhostElement
+} from '@/utils/dragOperations';
+import {
+  validateDropTarget,
+  isOutsideBounds,
+  performReorder
+} from '@/utils/dropOperations';
+import { getDragItemStyle, getDropIndicatorProps } from '@/utils/dragVisualFeedback';
 
 export const useDragAndDrop = ({ 
   items, 
@@ -23,10 +24,13 @@ export const useDragAndDrop = ({
   enableRecalculation = false,
   onRecalculate 
 }: UseDragAndDropProps) => {
-  const [draggedItem, setDraggedItem] = useState<DragItem | null>(null);
-  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isValidDrop, setIsValidDrop] = useState(true);
+  const [dragState, setDragState] = useState<DragState>({
+    draggedItem: null,
+    dropTargetIndex: null,
+    isDragging: false,
+    isValidDrop: true
+  });
+  
   const dragElementRef = useRef<HTMLElement | null>(null);
   const ghostElementRef = useRef<HTMLElement | null>(null);
   const { toast } = useToast();
@@ -38,124 +42,98 @@ export const useDragAndDrop = ({
       data: item
     };
 
-    setDraggedItem(dragData);
-    setIsDragging(true);
+    setDragState(prev => ({
+      ...prev,
+      draggedItem: dragData,
+      isDragging: true
+    }));
 
-    // Criar ghost element melhorado
     const target = e.currentTarget as HTMLElement;
     dragElementRef.current = target;
     
-    const ghost = target.cloneNode(true) as HTMLElement;
-    ghost.style.position = 'absolute';
-    ghost.style.top = '-1000px';
-    ghost.style.left = '-1000px';
-    ghost.style.pointerEvents = 'none';
-    ghost.style.opacity = '0.9';
-    ghost.style.transform = 'rotate(1deg) scale(0.98)';
-    ghost.style.boxShadow = '0 20px 60px rgba(59, 130, 246, 0.4)';
-    ghost.style.borderRadius = '12px';
-    ghost.style.zIndex = '9999';
-    ghost.style.border = '2px solid #3B82F6';
-    ghost.style.backgroundColor = '#F8FAFC';
-    
+    const ghost = createGhostElement(target);
     document.body.appendChild(ghost);
     ghostElementRef.current = ghost;
     
-    e.dataTransfer.setDragImage(ghost, 0, 0);
-    e.dataTransfer.effectAllowed = 'move';
-    
-    // Estilo do elemento original
-    target.style.opacity = '0.5';
-    target.style.transform = 'scale(0.97)';
-    target.style.transition = 'all 0.2s ease';
+    setupDragTransfer(e, dragData, ghost);
+    applyDragStyles(target);
     
     setTimeout(() => {
-      if (ghostElementRef.current) {
-        document.body.removeChild(ghostElementRef.current);
-        ghostElementRef.current = null;
-      }
+      cleanupGhostElement(ghostElementRef.current);
+      ghostElementRef.current = null;
     }, 100);
   }, [keyExtractor]);
 
   const handleDragEnd = useCallback((e: React.DragEvent) => {
     const target = e.currentTarget as HTMLElement;
-    target.style.opacity = '1';
-    target.style.transform = 'scale(1)';
-    target.style.transition = 'all 0.3s ease';
+    removeDragStyles(target);
     
-    setDraggedItem(null);
-    setDropTargetIndex(null);
-    setIsDragging(false);
-    setIsValidDrop(true);
+    setDragState({
+      draggedItem: null,
+      dropTargetIndex: null,
+      isDragging: false,
+      isValidDrop: true
+    });
     
-    if (ghostElementRef.current) {
-      document.body.removeChild(ghostElementRef.current);
-      ghostElementRef.current = null;
-    }
+    cleanupGhostElement(ghostElementRef.current);
+    ghostElementRef.current = null;
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
     
-    if (draggedItem && targetIndex !== draggedItem.index) {
-      setDropTargetIndex(targetIndex);
+    if (dragState.draggedItem && targetIndex !== dragState.draggedItem.index) {
+      const validation = validateDropTarget(
+        dragState.draggedItem.index,
+        targetIndex,
+        items,
+        enableRecalculation
+      );
       
-      // Validar se é um drop válido quando recálculo está habilitado
-      if (enableRecalculation) {
-        const newItems = [...items];
-        const draggedElement = newItems.splice(draggedItem.index, 1)[0];
-        newItems.splice(targetIndex, 0, draggedElement);
-        
-        const validation = validateTaskOrder(newItems);
-        setIsValidDrop(validation.isValid);
-        e.dataTransfer.dropEffect = validation.isValid ? 'move' : 'none';
-      } else {
-        setIsValidDrop(true);
-        e.dataTransfer.dropEffect = 'move';
-      }
+      setDragState(prev => ({
+        ...prev,
+        dropTargetIndex: targetIndex,
+        isValidDrop: validation.isValid
+      }));
+      
+      e.dataTransfer.dropEffect = validation.effect as any;
     }
-  }, [draggedItem, items, enableRecalculation]);
+  }, [dragState.draggedItem, items, enableRecalculation]);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX;
-    const y = e.clientY;
-    
-    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-      setDropTargetIndex(null);
-      setIsValidDrop(true);
+    if (isOutsideBounds(e, e.currentTarget)) {
+      setDragState(prev => ({
+        ...prev,
+        dropTargetIndex: null,
+        isValidDrop: true
+      }));
     }
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
     
-    if (!draggedItem || targetIndex === draggedItem.index) {
-      setDropTargetIndex(null);
+    if (!dragState.draggedItem || targetIndex === dragState.draggedItem.index) {
+      setDragState(prev => ({ ...prev, dropTargetIndex: null }));
       return;
     }
 
-    // Verificar se é um drop válido
-    if (!isValidDrop) {
+    if (!dragState.isValidDrop) {
       toast({
         title: "❌ Reordenação inválida",
         description: "Essa reordenação violaria a sequência lógica da obra.",
         variant: "destructive",
       });
-      setDropTargetIndex(null);
+      setDragState(prev => ({ ...prev, dropTargetIndex: null }));
       return;
     }
 
-    const newItems = [...items];
-    const draggedElement = newItems.splice(draggedItem.index, 1)[0];
-    newItems.splice(targetIndex, 0, draggedElement);
+    const newItems = performReorder(items, dragState.draggedItem.index, targetIndex);
     
-    // Executar recálculo se habilitado
     if (enableRecalculation && onRecalculate) {
       try {
         const result = recalculateScheduleDates(newItems);
         
-        // Mostrar warnings se existirem
         if (result.warnings.length > 0) {
           toast({
             title: "⚠️ Atenção",
@@ -176,7 +154,7 @@ export const useDragAndDrop = ({
           description: "Não foi possível recalcular automaticamente. Verifique as dependências.",
           variant: "destructive",
         });
-        onReorder(newItems); // Fallback para reordenação simples
+        onReorder(newItems);
       }
     } else {
       onReorder(newItems);
@@ -186,18 +164,15 @@ export const useDragAndDrop = ({
       });
     }
     
-    setDropTargetIndex(null);
-  }, [draggedItem, items, isValidDrop, enableRecalculation, onRecalculate, onReorder, toast]);
+    setDragState(prev => ({ ...prev, dropTargetIndex: null }));
+  }, [dragState, items, enableRecalculation, onRecalculate, onReorder, toast]);
 
   const getDragItemProps = useCallback((item: any, index: number) => ({
     draggable: true,
     onDragStart: (e: React.DragEvent) => handleDragStart(e, item, index),
     onDragEnd: handleDragEnd,
-    style: {
-      cursor: isDragging ? 'grabbing' : 'grab',
-      transition: 'all 0.2s ease',
-    }
-  }), [handleDragStart, handleDragEnd, isDragging]);
+    style: getDragItemStyle(dragState.isDragging)
+  }), [handleDragStart, handleDragEnd, dragState.isDragging]);
 
   const getDropZoneProps = useCallback((index: number) => ({
     onDragOver: (e: React.DragEvent) => handleDragOver(e, index),
@@ -205,19 +180,21 @@ export const useDragAndDrop = ({
     onDrop: (e: React.DragEvent) => handleDrop(e, index),
   }), [handleDragOver, handleDragLeave, handleDrop]);
 
-  const getDropIndicatorProps = useCallback((index: number) => ({
-    isVisible: dropTargetIndex === index && draggedItem !== null,
-    isActive: dropTargetIndex === index,
-    isValid: isValidDrop
-  }), [dropTargetIndex, draggedItem, isValidDrop]);
+  const getDropIndicatorPropsCallback = useCallback((index: number) => 
+    getDropIndicatorProps(
+      index,
+      dragState.dropTargetIndex,
+      dragState.draggedItem,
+      dragState.isValidDrop
+    ), [dragState.dropTargetIndex, dragState.draggedItem, dragState.isValidDrop]);
 
   return {
-    isDragging,
-    draggedItem,
-    dropTargetIndex,
-    isValidDrop,
+    isDragging: dragState.isDragging,
+    draggedItem: dragState.draggedItem,
+    dropTargetIndex: dragState.dropTargetIndex,
+    isValidDrop: dragState.isValidDrop,
     getDragItemProps,
     getDropZoneProps,
-    getDropIndicatorProps,
+    getDropIndicatorProps: getDropIndicatorPropsCallback,
   };
 };
