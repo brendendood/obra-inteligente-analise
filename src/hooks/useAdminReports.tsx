@@ -59,10 +59,13 @@ export function useAdminReports() {
         .lte('created_at', filters.dateRange.to.toISOString())
         .eq('status', 'completed');
 
-      // Carregar dados de usuários
+      // Carregar dados de usuários com subscriptions
       const { data: usersData } = await supabase
         .from('user_profiles')
-        .select('created_at, user_subscriptions(plan)');
+        .select(`
+          created_at,
+          user_subscriptions!inner(plan)
+        `);
 
       // Carregar dados de IA
       const { data: aiData } = await supabase
@@ -81,10 +84,11 @@ export function useAdminReports() {
       const revenueGrowth = Math.random() * 20 - 10; // -10% a +10%
       const userGrowth = Math.random() * 15; // 0% a +15%
 
-      // Taxa de conversão
-      const paidUsers = (usersData || []).filter(u => 
-        u.user_subscriptions?.[0]?.plan !== 'free'
-      ).length;
+      // Taxa de conversão - corrigir o acesso aos dados de subscription
+      const paidUsers = (usersData || []).filter(u => {
+        const subscription = u.user_subscriptions as any;
+        return subscription && Array.isArray(subscription) && subscription[0]?.plan !== 'free';
+      }).length;
       const conversionRate = activeUsers > 0 ? (paidUsers / activeUsers) * 100 : 0;
 
       // Preparar dados para gráficos
