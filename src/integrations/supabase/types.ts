@@ -146,6 +146,86 @@ export type Database = {
           },
         ]
       }
+      alert_configurations: {
+        Row: {
+          actions: Json | null
+          alert_type: string
+          conditions: Json | null
+          created_at: string | null
+          description: string | null
+          enabled: boolean | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          actions?: Json | null
+          alert_type: string
+          conditions?: Json | null
+          created_at?: string | null
+          description?: string | null
+          enabled?: boolean | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          actions?: Json | null
+          alert_type?: string
+          conditions?: Json | null
+          created_at?: string | null
+          description?: string | null
+          enabled?: boolean | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      alert_logs: {
+        Row: {
+          alert_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          project_id: string | null
+          resolved: boolean | null
+          severity: string
+          triggered_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          project_id?: string | null
+          resolved?: boolean | null
+          severity: string
+          triggered_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          project_id?: string | null
+          resolved?: boolean | null
+          severity?: string
+          triggered_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupons: {
         Row: {
           active: boolean | null

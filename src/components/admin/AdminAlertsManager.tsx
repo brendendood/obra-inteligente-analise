@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -18,7 +17,6 @@ import {
   DollarSign,
   Settings,
   Webhook,
-  Mail,
   Zap
 } from 'lucide-react';
 
@@ -49,12 +47,6 @@ export const AdminAlertsManager = () => {
   const [alertLogs, setAlertLogs] = useState<AlertLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [webhookUrl, setWebhookUrl] = useState('');
-  const [emailSettings, setEmailSettings] = useState({
-    smtp_host: '',
-    smtp_port: '',
-    smtp_user: '',
-    from_email: ''
-  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -66,7 +58,7 @@ export const AdminAlertsManager = () => {
       setLoading(true);
       console.log('📢 ALERTS: Carregando configurações e logs...');
 
-      // Usar type assertion temporariamente até as tabelas serem criadas
+      // Now that tables exist, we can use them normally
       const { data: configs } = await (supabase as any)
         .from('alert_configurations')
         .select('*')
@@ -84,14 +76,11 @@ export const AdminAlertsManager = () => {
       console.log('✅ ALERTS: Dados carregados', { configs: configs?.length, logs: logs?.length });
     } catch (error) {
       console.error('❌ ALERTS: Erro ao carregar dados:', error);
-      // Não mostrar erro se as tabelas não existirem ainda
-      if (!error?.message?.includes('relation') && !error?.message?.includes('does not exist')) {
-        toast({
-          title: "Aviso",
-          description: "As tabelas de alertas ainda não foram criadas. Execute a migração SQL primeiro.",
-          variant: "default",
-        });
-      }
+      toast({
+        title: "Erro ao carregar alertas",
+        description: "Não foi possível carregar os dados dos alertas",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -225,8 +214,8 @@ export const AdminAlertsManager = () => {
     } catch (error) {
       console.error('❌ ALERTS: Erro ao criar alertas padrão:', error);
       toast({
-        title: "Tabelas não encontradas",
-        description: "Execute a migração SQL primeiro para criar as tabelas necessárias",
+        title: "Erro ao criar alertas",
+        description: "Não foi possível criar as configurações padrão",
         variant: "destructive",
       });
     }
@@ -302,23 +291,6 @@ export const AdminAlertsManager = () => {
           Criar Alertas Padrão
         </Button>
       </div>
-
-      {/* Aviso sobre migração */}
-      {alertConfigs.length === 0 && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <div>
-                <h4 className="font-medium text-orange-900">Migração SQL Necessária</h4>
-                <p className="text-sm text-orange-800">
-                  Execute a migração SQL fornecida anteriormente para criar as tabelas de alertas antes de usar esta funcionalidade.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Configurações de Webhook/N8N */}
       <Card>

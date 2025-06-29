@@ -30,7 +30,6 @@ export function useAlertSystem() {
       setAlertConfigs(data || []);
     } catch (error) {
       console.error('❌ ALERTS: Erro ao carregar configurações:', error);
-      // Não mostrar erro se as tabelas não existirem ainda
     }
   };
 
@@ -116,7 +115,6 @@ export function useAlertSystem() {
     try {
       console.log('📧 EMAIL: Enviando alerta por email...', alertData.eventType);
 
-      // Implementar envio de email via edge function
       await supabase.functions.invoke('send-alert-email', {
         body: {
           alert_type: alertData.eventType,
