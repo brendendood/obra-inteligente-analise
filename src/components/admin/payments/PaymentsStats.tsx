@@ -3,11 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { DollarSign, TrendingUp, CreditCard, Users } from 'lucide-react';
 
 interface PaymentStats {
-  totalRevenue: number;
-  monthlyRevenue: number;
-  totalTransactions: number;
-  activeSubscriptions: number;
-  averageTicket: number;
+  total_revenue: number;
+  monthly_revenue: number;
+  active_subscriptions: number;
+  failed_payments: number;
 }
 
 interface PaymentsStatsProps {
@@ -25,7 +24,7 @@ export const PaymentsStats = ({ stats }: PaymentsStatsProps) => {
   const statsCards = [
     {
       title: 'Receita Total',
-      value: formatCurrency(stats.totalRevenue),
+      value: formatCurrency(stats.total_revenue),
       description: 'Faturamento acumulado',
       icon: DollarSign,
       color: 'text-green-600',
@@ -33,15 +32,15 @@ export const PaymentsStats = ({ stats }: PaymentsStatsProps) => {
     },
     {
       title: 'Receita Mensal',
-      value: formatCurrency(stats.monthlyRevenue),
+      value: formatCurrency(stats.monthly_revenue),
       description: 'Faturamento do mês',
       icon: TrendingUp,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     {
-      title: 'Total de Transações',
-      value: stats.totalTransactions.toLocaleString('pt-BR'),
+      title: 'Transações Totais',
+      value: stats.active_subscriptions.toLocaleString('pt-BR'),
       description: 'Pagamentos processados',
       icon: CreditCard,
       color: 'text-purple-600',
@@ -49,7 +48,7 @@ export const PaymentsStats = ({ stats }: PaymentsStatsProps) => {
     },
     {
       title: 'Assinaturas Ativas',
-      value: stats.activeSubscriptions.toLocaleString('pt-BR'),
+      value: stats.active_subscriptions.toLocaleString('pt-BR'),
       description: 'Usuários pagantes',
       icon: Users,
       color: 'text-orange-600',

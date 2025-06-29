@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -47,8 +46,8 @@ export function useAdminPayments() {
         .from('payments')
         .select(`
           *,
-          user_subscriptions!inner(plan, status, user_id),
-          user_profiles!inner(full_name, user_id)
+          user_subscriptions(plan, status, user_id),
+          user_profiles(full_name, user_id)
         `)
         .order('created_at', { ascending: false });
 
@@ -62,22 +61,24 @@ export function useAdminPayments() {
       }
 
       // Buscar emails dos usuários
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.error('❌ ADMIN PAYMENTS: Erro ao buscar auth users:', authError);
       }
 
-      const mappedPayments: AdminPayment[] = paymentsData?.map(payment => {
-        const subscription = Array.isArray(payment.user_subscriptions) 
-          ? payment.user_subscriptions[0] 
-          : payment.user_subscriptions;
-        
-        const userProfile = Array.isArray(payment.user_profiles) 
-          ? payment.user_profiles[0] 
-          : payment.user_profiles;
+      const authUsers = authData?.users || [];
 
-        const authUser = authUsers?.users?.find(u => u.id === subscription?.user_id);
+      const mappedPayments: AdminPayment[] = (paymentsData || []).map(payment => {
+        const subscription = Array.isArray(payment.user_subscriptions) && payment.user_subscriptions.length > 0
+          ? payment.user_subscriptions[0] 
+          : null;
+        
+        const userProfile = Array.isArray(payment.user_profiles) && payment.user_profiles.length > 0
+          ? payment.user_profiles[0] 
+          : null;
+
+        const authUser = authUsers.find(u => u.id === subscription?.user_id);
 
         return {
           id: payment.id,
@@ -92,7 +93,7 @@ export function useAdminPayments() {
           created_at: payment.created_at,
           subscription_status: subscription?.status || 'active',
         };
-      }) || [];
+      });
 
       // Calcular estatísticas
       const totalRevenue = mappedPayments

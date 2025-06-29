@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminProject {
   id: string;
+  user_id: string; // Adicionando user_id que estava faltando
   name: string;
   total_area: number | null;
   city: string | null;
@@ -41,7 +41,7 @@ export function useAdminProjects() {
         .from('projects')
         .select(`
           *,
-          user_profiles!inner(full_name)
+          user_profiles(full_name)
         `)
         .order('created_at', { ascending: false });
 
@@ -56,20 +56,23 @@ export function useAdminProjects() {
       }
 
       // Buscar emails dos usuários
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.error('❌ ADMIN PROJECTS: Erro ao buscar auth users:', authError);
       }
 
-      const mappedProjects: AdminProject[] = projectsData?.map(project => {
-        const authUser = authUsers?.users?.find(u => u.id === project.user_id);
-        const userProfile = Array.isArray(project.user_profiles) 
+      const authUsers = authData?.users || [];
+
+      const mappedProjects: AdminProject[] = (projectsData || []).map(project => {
+        const authUser = authUsers.find(u => u.id === project.user_id);
+        const userProfile = Array.isArray(project.user_profiles) && project.user_profiles.length > 0
           ? project.user_profiles[0] 
-          : project.user_profiles;
+          : null;
 
         return {
           id: project.id,
+          user_id: project.user_id, // Incluindo user_id
           name: project.name,
           total_area: project.total_area,
           city: project.city,
@@ -84,7 +87,7 @@ export function useAdminProjects() {
           file_size: project.file_size,
           analysis_data: project.analysis_data,
         };
-      }) || [];
+      });
 
       console.log('✅ ADMIN PROJECTS: Projetos carregados:', mappedProjects.length);
       setProjects(mappedProjects);

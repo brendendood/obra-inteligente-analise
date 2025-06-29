@@ -42,7 +42,7 @@ export function useAdminUsers() {
         .from('user_profiles')
         .select(`
           *,
-          user_subscriptions!inner(plan, status)
+          user_subscriptions(plan, status)
         `)
         .order('created_at', { ascending: false });
 
@@ -57,18 +57,20 @@ export function useAdminUsers() {
       }
 
       // Buscar emails dos usuários via auth
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.error('❌ ADMIN USERS: Erro ao buscar auth users:', authError);
       }
 
+      const authUsers = authData?.users || [];
+
       // Mapear dados combinados
-      const mappedUsers: AdminUser[] = profiles?.map(profile => {
-        const authUser = authUsers?.users?.find(u => u.id === profile.user_id);
-        const subscription = Array.isArray(profile.user_subscriptions) 
+      const mappedUsers: AdminUser[] = (profiles || []).map(profile => {
+        const authUser = authUsers.find(u => u.id === profile.user_id);
+        const subscription = Array.isArray(profile.user_subscriptions) && profile.user_subscriptions.length > 0
           ? profile.user_subscriptions[0] 
-          : profile.user_subscriptions;
+          : null;
 
         return {
           id: profile.id,
@@ -83,9 +85,9 @@ export function useAdminUsers() {
           tags: profile.tags,
           last_login: profile.last_login,
           created_at: profile.created_at,
-          subscription: subscription || null,
+          subscription: subscription,
         };
-      }) || [];
+      });
 
       console.log('✅ ADMIN USERS: Usuários carregados:', mappedUsers.length);
       setUsers(mappedUsers);
@@ -129,7 +131,7 @@ export function useAdminUsers() {
     }
   };
 
-  const updateUserPlan = async (userId: string, newPlan: string) => {
+  const updateUserPlan = async (userId: string, newPlan: 'free' | 'pro' | 'enterprise') => {
     try {
       const { error } = await supabase
         .from('user_subscriptions')

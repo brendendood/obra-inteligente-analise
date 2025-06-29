@@ -4,20 +4,22 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CreditCard, Calendar, User, DollarSign } from 'lucide-react';
 
-interface PaymentData {
+interface AdminPayment {
   id: string;
-  user_id: string;
+  user_email: string;
+  user_name: string | null;
+  plan: string;
   amount: number;
   currency: string;
   status: string;
-  payment_method: string;
+  payment_method: string | null;
+  invoice_url: string | null;
   created_at: string;
-  user_email?: string;
-  plan?: string;
+  subscription_status: string;
 }
 
 interface PaymentsTableProps {
-  payments: PaymentData[];
+  payments: AdminPayment[];
 }
 
 export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
@@ -90,9 +92,12 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">
-                      {payment.user_email || payment.user_id.slice(0, 8) + '...'}
-                    </span>
+                    <div>
+                      <span className="text-sm block">{payment.user_email}</span>
+                      {payment.user_name && (
+                        <span className="text-xs text-gray-500">{payment.user_name}</span>
+                      )}
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -107,8 +112,8 @@ export const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge className={getPlanColor(payment.plan || 'free')}>
-                    {(payment.plan || 'free').toUpperCase()}
+                  <Badge className={getPlanColor(payment.plan)}>
+                    {payment.plan.toUpperCase()}
                   </Badge>
                 </TableCell>
                 <TableCell>
