@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Funções utilitárias para geração de dados
+// Mesmas funções utilitárias da upload-project
 const generateAutomaticBudget = (area: number, projectType: string) => {
   const complexity = area > 200 ? 'alta' : area > 100 ? 'média' : 'baixa';
   
@@ -83,9 +83,8 @@ const generateAutomaticBudget = (area: number, projectType: string) => {
 
   return {
     data_referencia: new Date().toLocaleDateString('pt-BR'),
-    total_cost: subtotal,
+    total: subtotal,
     total_com_bdi: totalComBdi,
-    unit_cost_per_sqm: Math.round(subtotal / area),
     bdi,
     totalArea: area,
     items: itemsWithTotals
@@ -194,15 +193,13 @@ const generateProjectSchedule = (area: number, projectType: string) => {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    console.log('🚀 Upload project function called - AUTO BUDGET/SCHEDULE VERSION')
+    console.log('🔄 Migrate projects function called')
     
-    // Create Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -211,7 +208,6 @@ serve(async (req) => {
     // Get user from Authorization header
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
-      console.error('❌ No authorization header')
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -222,7 +218,6 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token)
     
     if (userError || !user) {
-      console.error('❌ Error getting user:', userError)
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -231,152 +226,108 @@ serve(async (req) => {
 
     console.log('✅ User authenticated:', user.email)
 
-    // Parse JSON body
-    const body = await req.json()
-    const { fileName, originalName, projectName, fileSize } = body
-
-    if (!fileName || !originalName) {
-      console.error('❌ Missing required fields:', { fileName, originalName })
-      return new Response(
-        JSON.stringify({ error: 'Missing required fields: fileName, originalName' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    console.log('📤 Processing file:', { fileName, originalName, projectName, fileSize })
-
-    // Verificar se o arquivo existe no storage
-    const { data: fileData, error: fileError } = await supabase.storage
-      .from('project-files')
-      .download(fileName)
-
-    if (fileError) {
-      console.error('❌ File not found in storage:', fileError)
-      return new Response(
-        JSON.stringify({ error: 'File not found in storage' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    console.log('✅ File found in storage, size:', fileData.size)
-
-    // Determinar se é um projeto técnico real
-    const isRealProject = originalName.toLowerCase().includes('projeto') || 
-                         originalName.toLowerCase().includes('plant') ||
-                         originalName.toLowerCase().includes('desenho') ||
-                         originalName.toLowerCase().includes('arquitet')
-
-    // Estimar área do projeto (simulação - em produção seria extraída do PDF)
-    const estimatedArea = isRealProject ? 
-      Math.floor(Math.random() * 400) + 80 : // Entre 80-480m² para projetos reais
-      Math.floor(Math.random() * 150) + 50   // Entre 50-200m² para outros
-
-    // Determinar tipo do projeto
-    let projectType = 'Documento PDF'
-    if (isRealProject) {
-      const types = ['Residencial', 'Comercial', 'Industrial', 'Institucional']
-      projectType = types[Math.floor(Math.random() * types.length)]
-    }
-
-    console.log('🔄 Generating budget and schedule data automatically...')
-
-    // GERAR ORÇAMENTO E CRONOGRAMA AUTOMATICAMENTE
-    const budgetData = generateAutomaticBudget(estimatedArea, projectType)
-    const scheduleData = generateProjectSchedule(estimatedArea, projectType)
-
-    console.log('✅ Budget generated automatically:', {
-      totalCost: budgetData.total_com_bdi,
-      unitCost: budgetData.unit_cost_per_sqm,
-      itemCount: budgetData.items.length
-    })
-
-    console.log('✅ Schedule generated automatically:', {
-      totalDuration: scheduleData.total_duration,
-      taskCount: scheduleData.tasks.length,
-      phases: scheduleData.phases.length
-    })
-
-    // Montar analysis_data completo COM DADOS OBRIGATÓRIOS PARA DASHBOARD
-    const analysisData = {
-      isRealProject,
-      fileSize: fileData.size,
-      processingTime: new Date().toISOString(),
-      extractedInfo: {
-        hasFloorPlan: Math.random() > 0.5,
-        hasElevations: Math.random() > 0.5,
-        estimatedArea,
-        roomCount: isRealProject ? Math.floor(Math.random() * 10) + 2 : null
-      },
-      // DADOS OBRIGATÓRIOS PARA DASHBOARD - FORMATO CORRETO
-      budget_data: {
-        data_referencia: budgetData.data_referencia,
-        total: budgetData.total_cost,
-        total_com_bdi: budgetData.total_com_bdi,
-        bdi: budgetData.bdi,
-        totalArea: budgetData.totalArea,
-        items: budgetData.items
-      },
-      schedule_data: {
-        projectArea: scheduleData.projectArea,
-        total_duration: scheduleData.total_duration,
-        start_date: scheduleData.start_date,
-        end_date: scheduleData.end_date,
-        tasks: scheduleData.tasks,
-        phases: scheduleData.phases
-      },
-      // Metadados adicionais
-      generated_at: new Date().toISOString(),
-      version: '2.0'
-    }
-
-    console.log('💾 Persisting project with COMPLETE analysis data including budget and schedule...')
-
-    // Criar registro do projeto no banco com dados completos
-    const { data: project, error: projectError } = await supabase
+    // Buscar projetos que NÃO têm budget_data ou schedule_data
+    const { data: projectsToMigrate, error: fetchError } = await supabase
       .from('projects')
-      .insert({
-        user_id: user.id,
-        name: projectName || originalName.replace(/\.[^/.]+$/, ""),
-        file_path: fileName,
-        file_size: fileData.size,
-        analysis_data: analysisData,
-        project_type: projectType,
-        total_area: estimatedArea,
-        estimated_budget: budgetData.total_com_bdi,
-        extracted_text: isRealProject ? 
-          'Texto extraído do projeto arquitetônico com análise técnica completa...' : 
-          'Conteúdo do documento PDF processado...'
-      })
-      .select()
-      .single()
+      .select('*')
+      .eq('user_id', user.id)
 
-    if (projectError) {
-      console.error('❌ Error creating project:', projectError)
+    if (fetchError) {
+      console.error('❌ Error fetching projects:', fetchError)
       return new Response(
-        JSON.stringify({ error: 'Failed to create project record' }),
+        JSON.stringify({ error: 'Failed to fetch projects' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('🎉 Project created with AUTO budget and schedule data:', project.id)
+    const projectsNeedingMigration = projectsToMigrate.filter(project => {
+      const analysisData = project.analysis_data || {};
+      const hasBudget = analysisData.budget_data && analysisData.budget_data.total_com_bdi;
+      const hasSchedule = analysisData.schedule_data && analysisData.schedule_data.total_duration;
+      return !hasBudget || !hasSchedule;
+    });
 
-    const message = isRealProject 
-      ? `Projeto arquitetônico analisado! Orçamento de R$ ${budgetData.total_com_bdi.toLocaleString('pt-BR')} e cronograma de ${scheduleData.total_duration} dias gerados automaticamente.`
-      : `PDF processado! Documento analisado com orçamento estimado de R$ ${budgetData.total_com_bdi.toLocaleString('pt-BR')} para ${estimatedArea}m².`
+    console.log(`📊 Found ${projectsNeedingMigration.length} projects needing migration`);
+
+    const results = [];
+
+    for (const project of projectsNeedingMigration) {
+      console.log(`🔄 Migrating project: ${project.name}`);
+      
+      const area = project.total_area || 100;
+      const projectType = project.project_type || 'Residencial';
+      
+      // Gerar dados de orçamento e cronograma
+      const budgetData = generateAutomaticBudget(area, projectType);
+      const scheduleData = generateProjectSchedule(area, projectType);
+      
+      // Manter dados existentes e adicionar os novos
+      const existingAnalysisData = project.analysis_data || {};
+      const updatedAnalysisData = {
+        ...existingAnalysisData,
+        budget_data: {
+          data_referencia: budgetData.data_referencia,
+          total: budgetData.total,
+          total_com_bdi: budgetData.total_com_bdi,
+          bdi: budgetData.bdi,
+          totalArea: budgetData.totalArea,
+          items: budgetData.items
+        },
+        schedule_data: {
+          projectArea: scheduleData.projectArea,
+          total_duration: scheduleData.total_duration,
+          start_date: scheduleData.start_date,
+          end_date: scheduleData.end_date,
+          tasks: scheduleData.tasks,
+          phases: scheduleData.phases
+        },
+        migrated_at: new Date().toISOString(),
+        migration_version: '2.0'
+      };
+
+      // Atualizar projeto
+      const { data: updatedProject, error: updateError } = await supabase
+        .from('projects')
+        .update({
+          analysis_data: updatedAnalysisData,
+          estimated_budget: budgetData.total_com_bdi
+        })
+        .eq('id', project.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error(`❌ Error updating project ${project.name}:`, updateError);
+        results.push({
+          projectId: project.id,
+          projectName: project.name,
+          success: false,
+          error: updateError.message
+        });
+      } else {
+        console.log(`✅ Successfully migrated project: ${project.name}`);
+        results.push({
+          projectId: project.id,
+          projectName: project.name,
+          success: true,
+          budgetTotal: budgetData.total_com_bdi,
+          scheduleDuration: scheduleData.total_duration
+        });
+      }
+    }
+
+    console.log('🎉 Migration completed');
 
     return new Response(
       JSON.stringify({
         success: true,
-        message,
-        project,
-        analysis: {
-          ...analysisData,
-          summary: {
-            totalCost: budgetData.total_com_bdi,
-            totalDuration: scheduleData.total_duration,
-            area: estimatedArea,
-            type: projectType
-          }
+        message: `Migration completed for ${projectsNeedingMigration.length} projects`,
+        results,
+        summary: {
+          totalProjectsFound: projectsToMigrate.length,
+          projectsMigrated: projectsNeedingMigration.length,
+          successfulMigrations: results.filter(r => r.success).length,
+          failedMigrations: results.filter(r => !r.success).length
         }
       }),
       { 
@@ -386,7 +337,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('💥 Upload project error:', error)
+    console.error('💥 Migration error:', error)
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',

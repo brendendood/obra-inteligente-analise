@@ -41,14 +41,6 @@ export const useDashboardData = () => {
   useEffect(() => {
     if (!projects || !mountedRef.current) return;
 
-    console.log('📊 DASHBOARD: Recalculando estatísticas COMPLETAS para', projects.length, 'projetos');
-    console.log('📊 DASHBOARD: Projetos disponíveis:', projects.map(p => ({ 
-      name: p.name, 
-      hasAnalysis: !!p.analysis_data,
-      budgetValue: p.analysis_data?.budget_data?.total_com_bdi,
-      scheduleDuration: p.analysis_data?.schedule_data?.total_duration
-    })));
-
     // Stats básicas
     const totalArea = projects.reduce((sum: number, project: any) => {
       return sum + (project.total_area || 0);
@@ -80,28 +72,19 @@ export const useDashboardData = () => {
       return acc;
     }, {});
 
-    // NOVAS MÉTRICAS BASEADAS EM DADOS PERSISTIDOS - CORRIGIDO
+    // MÉTRICAS BASEADAS EM DADOS PERSISTIDOS
     const projectsWithBudget = projects.filter((project: any) => {
-      const hasBudget = project.analysis_data?.budget_data?.total_com_bdi && 
-                       project.analysis_data.budget_data.total_com_bdi > 0;
-      if (hasBudget) {
-        console.log(`✅ Projeto com orçamento: ${project.name} = R$ ${project.analysis_data.budget_data.total_com_bdi}`);
-      }
-      return hasBudget;
+      return project.analysis_data?.budget_data?.total_com_bdi && 
+             project.analysis_data.budget_data.total_com_bdi > 0;
     });
 
     const projectsWithSchedule = projects.filter((project: any) => {
-      const hasSchedule = project.analysis_data?.schedule_data?.total_duration && 
-                         project.analysis_data.schedule_data.total_duration > 0;
-      if (hasSchedule) {
-        console.log(`✅ Projeto com cronograma: ${project.name} = ${project.analysis_data.schedule_data.total_duration} dias`);
-      }
-      return hasSchedule;
+      return project.analysis_data?.schedule_data?.total_duration && 
+             project.analysis_data.schedule_data.total_duration > 0;
     });
 
     const totalInvestment = projectsWithBudget.reduce((sum: number, project: any) => {
       const cost = project.analysis_data.budget_data.total_com_bdi || 0;
-      console.log(`Somando investimento: ${project.name} = R$ ${cost}`);
       return sum + cost;
     }, 0);
 
@@ -110,7 +93,6 @@ export const useDashboardData = () => {
           const totalCost = project.analysis_data.budget_data.total_com_bdi || 0;
           const area = project.total_area || 100;
           const costPerSqm = totalCost / area;
-          console.log(`Custo/m² ${project.name}: R$ ${totalCost} / ${area}m² = R$ ${costPerSqm}`);
           return sum + costPerSqm;
         }, 0) / projectsWithBudget.length
       : null;
@@ -118,7 +100,6 @@ export const useDashboardData = () => {
     const avgProjectDuration = projectsWithSchedule.length > 0
       ? projectsWithSchedule.reduce((sum: number, project: any) => {
           const duration = project.analysis_data.schedule_data.total_duration || 0;
-          console.log(`Duração ${project.name}: ${duration} dias`);
           return sum + duration;
         }, 0) / projectsWithSchedule.length
       : null;
@@ -139,15 +120,6 @@ export const useDashboardData = () => {
     };
 
     setStats(newStats);
-    
-    console.log('✅ DASHBOARD: Estatísticas COMPLETAS recalculadas:', {
-      projetos: newStats.totalProjects,
-      comOrcamento: newStats.projectsWithBudget,
-      comCronograma: newStats.projectsWithSchedule,
-      investimentoTotal: newStats.totalInvestment,
-      custoMedioM2: newStats.avgCostPerSqm,
-      duracaoMedia: newStats.avgProjectDuration
-    });
   }, [projects]);
 
   useEffect(() => {
