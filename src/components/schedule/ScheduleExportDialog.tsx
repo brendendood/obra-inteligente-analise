@@ -1,90 +1,65 @@
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Download, FileText, Table, FileSpreadsheet } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { exportScheduleToPDF, exportScheduleToExcel, exportScheduleToCSV } from '@/utils/scheduleExportUtils';
+import { Button } from '@/components/ui/button';
+import { FileText, FileSpreadsheet, Database, Clock } from 'lucide-react';
 import { ScheduleData } from '@/types/project';
+import { generateProjectPDF, PDFExportOptions } from '@/utils/pdfGenerator';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 interface ScheduleExportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  scheduleData: ScheduleData;
+  scheduleData: ScheduleData | null;
+  projectName?: string;
+  projectArea?: number;
 }
 
-export const ScheduleExportDialog = ({ open, onOpenChange, scheduleData }: ScheduleExportDialogProps) => {
-  const [isExporting, setIsExporting] = useState(false);
+export const ScheduleExportDialog = ({ 
+  open, 
+  onOpenChange, 
+  scheduleData, 
+  projectName = 'Projeto',
+  projectArea 
+}: ScheduleExportDialogProps) => {
   const { toast } = useToast();
+  const [isExporting, setIsExporting] = useState(false);
 
-  const exportFormats = [
-    {
-      id: 'pdf',
-      name: 'PDF Cronograma',
-      description: 'Cronograma completo em PDF profissional',
-      icon: FileText,
-      color: 'bg-red-100 text-red-700 border-red-200'
-    },
-    {
-      id: 'excel',
-      name: 'Excel Planilha',
-      description: 'Planilha Excel com múltiplas abas e análises',
-      icon: FileSpreadsheet,
-      color: 'bg-green-100 text-green-700 border-green-200'
-    },
-    {
-      id: 'csv',
-      name: 'CSV Dados',
-      description: 'Arquivo CSV para importar em outros sistemas',
-      icon: Table,
-      color: 'bg-blue-100 text-blue-700 border-blue-200'
-    }
-  ];
-
-  const handleExport = async (format: string) => {
-    if (!scheduleData) {
-      toast({
-        title: "❌ Erro",
-        description: "Nenhum cronograma disponível para exportar.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleExport = async (format: 'pdf' | 'excel' | 'csv') => {
+    if (!scheduleData) return;
 
     setIsExporting(true);
 
     try {
-      const fileName = `Cronograma_${scheduleData.projectName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
-      
-      switch (format) {
-        case 'pdf':
-          await exportScheduleToPDF(scheduleData, fileName);
-          break;
-          
-        case 'excel':
-          await exportScheduleToExcel(scheduleData, fileName);
-          break;
-          
-        case 'csv':
-          await exportScheduleToCSV(scheduleData, fileName);
-          break;
-          
-        default:
-          throw new Error('Formato não suportado');
+      if (format === 'pdf') {
+        const options: PDFExportOptions = {
+          projectName,
+          projectArea,
+          date: new Date(),
+          includeHeader: true,
+          includeLogo: true
+        };
+
+        await generateProjectPDF('schedule', { schedule: scheduleData }, options);
+        
+        toast({
+          title: "✅ PDF Exportado",
+          description: `Cronograma de ${projectName} exportado com sucesso!`,
+        });
+      } else {
+        toast({
+          title: "🚧 Em desenvolvimento",
+          description: `Exportação ${format.toUpperCase()} estará disponível em breve!`,
+          variant: "default",
+        });
       }
-
-      toast({
-        title: "✅ Exportação concluída!",
-        description: `Cronograma exportado em formato ${format.toUpperCase()}.`,
-      });
-
+      
       onOpenChange(false);
     } catch (error) {
       console.error('Erro na exportação:', error);
       toast({
         title: "❌ Erro na exportação",
-        description: "Não foi possível exportar o cronograma. Tente novamente.",
+        description: "Não foi possível exportar o arquivo. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -94,56 +69,62 @@ export const ScheduleExportDialog = ({ open, onOpenChange, scheduleData }: Sched
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Download className="h-5 w-5 mr-2 text-blue-600" />
+          <DialogTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5 text-blue-600" />
             Exportar Cronograma
           </DialogTitle>
         </DialogHeader>
-
+        
         <div className="space-y-4">
-          <div className="text-sm text-gray-600 mb-4">
-            Escolha o formato para exportar o cronograma de <strong>{scheduleData?.projectName}</strong>:
+          <p className="text-sm text-gray-600">
+            Escolha o formato para exportar o cronograma de <strong>{projectName}</strong>:
+          </p>
+          
+          <div className="space-y-3">
+            <Button
+              onClick={() => handleExport('pdf')}
+              className="w-full justify-start bg-red-600 hover:bg-red-700"
+              disabled={!scheduleData || isExporting}
+            >
+              <FileText className="h-4 w-4 mr-3" />
+              <div className="text-left">
+                <div className="font-medium">PDF Profissional (.pdf)</div>
+                <div className="text-xs opacity-90">Cronograma detalhado com caminho crítico</div>
+              </div>
+              {isExporting && <div className="ml-auto animate-spin">⏳</div>}
+            </Button>
+
+            <Button
+              onClick={() => handleExport('excel')}
+              className="w-full justify-start bg-green-600 hover:bg-green-700"
+              disabled={!scheduleData || isExporting}
+            >
+              <FileSpreadsheet className="h-4 w-4 mr-3" />
+              <div className="text-left">
+                <div className="font-medium">Excel (.xlsx)</div>
+                <div className="text-xs opacity-90">Planilha editável de Gantt</div>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => handleExport('csv')}
+              className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+              disabled={!scheduleData || isExporting}
+            >
+              <Database className="h-4 w-4 mr-3" />
+              <div className="text-left">
+                <div className="font-medium">CSV (.csv)</div>
+                <div className="text-xs opacity-90">Dados das atividades para análise</div>
+              </div>
+            </Button>
           </div>
 
-          {exportFormats.map((format) => {
-            const IconComponent = format.icon;
-            return (
-              <Button
-                key={format.id}
-                variant="outline"
-                className="w-full h-auto p-4 flex items-start space-x-3 hover:bg-gray-50"
-                onClick={() => handleExport(format.id)}
-                disabled={isExporting}
-              >
-                <div className={`p-2 rounded-lg ${format.color}`}>
-                  <IconComponent className="h-5 w-5" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium text-gray-900">{format.name}</div>
-                  <div className="text-sm text-gray-500 mt-1">{format.description}</div>
-                </div>
-              </Button>
-            );
-          })}
-
-          {isExporting && (
-            <div className="text-center py-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600">Preparando exportação...</p>
-            </div>
-          )}
-
-          <div className="pt-4 border-t">
-            <div className="flex items-center justify-between text-xs text-gray-500">
-              <span>Dados inclusos:</span>
-              <div className="flex space-x-2">
-                <Badge variant="outline" className="text-xs">Cronograma</Badge>
-                <Badge variant="outline" className="text-xs">Custos</Badge>
-                <Badge variant="outline" className="text-xs">Crítico</Badge>
-              </div>
-            </div>
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isExporting}>
+              Cancelar
+            </Button>
           </div>
         </div>
       </DialogContent>

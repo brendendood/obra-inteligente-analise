@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Project } from '@/types/project';
 import { BudgetGenerationProgress } from './BudgetGenerationProgress';
@@ -113,6 +112,7 @@ export const BudgetWorkspace = ({
         onOpenChange={setShowExportDialog}
         budgetData={budgetData}
         projectName={project.name}
+        projectArea={project.total_area}
       />
 
       <BudgetHistoryDialog
