@@ -6,7 +6,7 @@ import { PDFExportOptions } from './BasePDFGenerator';
 import { BudgetData } from '../budgetGenerator';
 import { ScheduleData } from '@/types/project';
 
-export { PDFExportOptions } from './BasePDFGenerator';
+export type { PDFExportOptions } from './BasePDFGenerator';
 
 export const generateProjectPDF = async (
   type: 'budget' | 'schedule' | 'combined',
