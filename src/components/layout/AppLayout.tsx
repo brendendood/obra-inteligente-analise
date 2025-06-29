@@ -1,10 +1,7 @@
 
-import { useState, useEffect } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import Header from './Header';
-import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppLayoutProps {
@@ -12,26 +9,9 @@ interface AppLayoutProps {
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { isAuthenticated, loading } = useAuth();
   const isMobile = useIsMobile();
 
-  console.log('🏗️ APP LAYOUT: Renderizando', { loading, isAuthenticated });
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando aplicação...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    console.log('🔒 APP LAYOUT: Usuário não autenticado, redirecionando');
-    return <Navigate to="/login" replace />;
-  }
+  console.log('🏗️ APP LAYOUT: Renderizando layout');
 
   return (
     <SidebarProvider defaultOpen={!isMobile}>

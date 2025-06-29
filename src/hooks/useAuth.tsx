@@ -8,18 +8,35 @@ export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
-  const authInitializedRef = useRef(false);
+  const initializationStartedRef = useRef(false);
 
   useEffect(() => {
     // Prevenir múltiplas inicializações
-    if (authInitializedRef.current) return;
-    authInitializedRef.current = true;
+    if (initializationStartedRef.current) return;
+    initializationStartedRef.current = true;
 
+    console.log('🔄 AUTH: Inicializando autenticação...');
+    
     let authSubscription: any = null;
 
     const initializeAuth = async () => {
       try {
-        console.log('🔄 AUTH: Inicializando autenticação...');
+        // Verificar sessão existente primeiro
+        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
+        
+        if (!mountedRef.current) return;
+        
+        if (error) {
+          console.error('❌ AUTH: Erro ao verificar sessão:', error);
+        } else {
+          console.log('✅ AUTH: Sessão verificada', { 
+            hasSession: !!existingSession, 
+            hasUser: !!existingSession?.user 
+          });
+          
+          setSession(existingSession);
+          setUser(existingSession?.user ?? null);
+        }
         
         // Configurar listener de mudanças de estado
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -30,36 +47,15 @@ export function useAuth() {
             
             setSession(session);
             setUser(session?.user ?? null);
-            
-            // Definir loading como false apenas após receber o primeiro evento
-            if (loading) {
-              setLoading(false);
-            }
           }
         );
         
         authSubscription = subscription;
         
-        // Verificar sessão existente
-        const { data: { session: existingSession }, error } = await supabase.auth.getSession();
-        
-        if (!mountedRef.current) return;
-        
-        if (error) {
-          console.error('❌ AUTH: Erro ao verificar sessão:', error);
+        // Finalizar loading
+        if (mountedRef.current) {
           setLoading(false);
-          return;
         }
-        
-        // Atualizar estado inicial
-        setSession(existingSession);
-        setUser(existingSession?.user ?? null);
-        setLoading(false);
-        
-        console.log('✅ AUTH: Inicialização concluída', { 
-          hasSession: !!existingSession, 
-          hasUser: !!existingSession?.user 
-        });
         
       } catch (error) {
         console.error('💥 AUTH: Erro crítico na inicialização:', error);
@@ -72,6 +68,7 @@ export function useAuth() {
     initializeAuth();
 
     return () => {
+      console.log('🧹 AUTH: Limpando recursos...');
       mountedRef.current = false;
       if (authSubscription) {
         authSubscription.unsubscribe();

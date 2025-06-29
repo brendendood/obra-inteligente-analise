@@ -11,6 +11,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 // Páginas principais
 import Index from './pages/Index';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Projects from './pages/Projects';
@@ -38,6 +39,8 @@ const LoadingFallback = () => (
 );
 
 function App() {
+  console.log('🚀 APP: Iniciando aplicação');
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -49,6 +52,7 @@ function App() {
               {/* Rotas públicas */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
               
               {/* Dashboard - sem ProjectProvider */}
               <Route 

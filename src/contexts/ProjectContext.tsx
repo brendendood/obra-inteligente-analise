@@ -92,7 +92,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
 export function useProject() {
   const context = useContext(ProjectContext);
   if (context === undefined) {
-    // Em vez de lançar erro, retornar um contexto padrão
+    // Retornar contexto padrão seguro em vez de lançar erro
     console.warn('⚠️ useProject usado fora do ProjectProvider, retornando valores padrão');
     return {
       currentProject: null,
