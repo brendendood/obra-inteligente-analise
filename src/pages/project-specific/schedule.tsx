@@ -10,6 +10,7 @@ import { ScheduleHeader } from '@/components/schedule/ScheduleHeader';
 import { ScheduleGenerationProgress } from '@/components/schedule/ScheduleGenerationProgress';
 import { ScheduleStatsCards } from '@/components/schedule/ScheduleStatsCards';
 import { ScheduleEmptyState } from '@/components/schedule/ScheduleEmptyState';
+import { ScheduleTask } from '@/types/project';
 
 const ProjectSpecificSchedule = () => {
   const { project, isLoading, error } = useProjectDetail();
@@ -24,6 +25,16 @@ const ProjectSpecificSchedule = () => {
     updateTask,
     addTask
   } = useScheduleGenerator({ project });
+
+  // Função para atualizar uma tarefa específica
+  const handleUpdateTask = (taskId: string, updates: Partial<ScheduleTask>) => {
+    updateTask(taskId, updates);
+  };
+
+  // Função para adicionar nova tarefa
+  const handleAddTask = (newTask: ScheduleTask) => {
+    addTask(newTask);
+  };
 
   if (isLoading) {
     return (
@@ -81,8 +92,8 @@ const ProjectSpecificSchedule = () => {
 
           <AdvancedGanttChart
             tasks={scheduleData.tasks}
-            onUpdateTask={updateTask}
-            onAddTask={addTask}
+            onUpdateTask={handleUpdateTask}
+            onAddTask={handleAddTask}
             criticalPath={scheduleData.criticalPath}
             projectName={scheduleData.projectName}
           />

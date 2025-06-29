@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,6 +79,7 @@ const ProjectSpecificSchedule = () => {
           category: 'Estrutural',
           color: '#3B82F6',
           dependencies: [],
+          progress: 0,
           assignee: { name: 'Equipe Fundações', email: 'fundacoes@obra.com' }
         }
       ];

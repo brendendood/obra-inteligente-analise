@@ -1,10 +1,13 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Edit, Trash2, User, Calendar, DollarSign, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, User, Calendar, DollarSign, Clock, GripVertical } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
+import { DropIndicator } from '@/components/ui/DropIndicator';
 import { ScheduleTask } from '@/types/project';
 
 interface AdvancedGanttChartProps {
@@ -16,17 +19,52 @@ interface AdvancedGanttChartProps {
 }
 
 export const AdvancedGanttChart = ({
-  tasks,
+  tasks: initialTasks,
   onUpdateTask,
   onAddTask,
   criticalPath,
   projectName
 }: AdvancedGanttChartProps) => {
+  const [tasks, setTasks] = useState<ScheduleTask[]>(initialTasks);
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [newTaskName, setNewTaskName] = useState('');
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
-  const [draggedTask, setDraggedTask] = useState<ScheduleTask | null>(null);
   const { toast } = useToast();
+
+  // Configurar drag & drop com recálculo automático
+  const {
+    isDragging,
+    getDragItemProps,
+    getDropZoneProps,
+    getDropIndicatorProps,
+    isValidDrop
+  } = useDragAndDrop({
+    items: tasks,
+    onReorder: (reorderedTasks) => {
+      setTasks(reorderedTasks);
+      // Sincronizar com o componente pai
+      reorderedTasks.forEach((task, index) => {
+        onUpdateTask(task.id, { ...task });
+      });
+    },
+    keyExtractor: (task) => task.id,
+    enableRecalculation: true,
+    onRecalculate: (recalculatedTasks, warnings) => {
+      setTasks(recalculatedTasks);
+      
+      // Aplicar mudanças no componente pai
+      recalculatedTasks.forEach(task => {
+        onUpdateTask(task.id, task);
+      });
+
+      if (warnings.length > 0) {
+        toast({
+          title: "⚠️ Cronograma recalculado",
+          description: `${warnings.length} aviso(s) sobre dependências.`,
+        });
+      }
+    }
+  });
 
   const getStatusColor = (status: string) => {
     const colors = {
@@ -60,9 +98,12 @@ export const AdvancedGanttChart = ({
       category: 'Nova Etapa',
       color: '#6B7280',
       dependencies: [],
+      progress: 0,
       assignee: { name: 'Não atribuído', email: '' }
     };
 
+    const updatedTasks = [...tasks, newTask];
+    setTasks(updatedTasks);
     onAddTask(newTask);
     setNewTaskName('');
     
@@ -72,52 +113,49 @@ export const AdvancedGanttChart = ({
     });
   };
 
-  const handleTaskClick = (taskId: string) => {
+  const handleTaskClick = (e: React.MouseEvent, taskId: string) => {
+    // Prevenir conflito com drag
+    if (isDragging) return;
+    e.stopPropagation();
     setSelectedTask(selectedTask === taskId ? null : taskId);
   };
 
   const handleStatusChange = (taskId: string, newStatus: 'planned' | 'in_progress' | 'completed') => {
+    const updatedTasks = tasks.map(task => 
+      task.id === taskId ? { ...task, status: newStatus } : task
+    );
+    setTasks(updatedTasks);
     onUpdateTask(taskId, { status: newStatus });
+    
     toast({
       title: "📊 Status atualizado",
       description: `Status da etapa alterado para ${getStatusLabel(newStatus)}.`,
     });
   };
 
-  const handleDragStart = (e: React.DragEvent, task: ScheduleTask) => {
-    setDraggedTask(task);
-    e.dataTransfer.effectAllowed = 'move';
+  const handleProgressChange = (taskId: string, progress: number) => {
+    const updatedTasks = tasks.map(task => 
+      task.id === taskId ? { ...task, progress } : task
+    );
+    setTasks(updatedTasks);
+    onUpdateTask(taskId, { progress });
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, targetTask: ScheduleTask) => {
-    e.preventDefault();
-    
-    if (!draggedTask || draggedTask.id === targetTask.id) return;
-
-    const draggedIndex = tasks.findIndex(t => t.id === draggedTask.id);
-    const targetIndex = tasks.findIndex(t => t.id === targetTask.id);
-
-    // In a real implementation, you'd need to reorder the tasks array
-    // For now, we'll just show a toast
+  const handleDeleteTask = (taskId: string) => {
+    const updatedTasks = tasks.filter(task => task.id !== taskId);
+    setTasks(updatedTasks);
     toast({
-      title: "🔄 Etapa reordenada",
-      description: `${draggedTask.name} movida na sequência do cronograma.`,
+      title: "🗑️ Tarefa removida",
+      description: "Tarefa removida do cronograma.",
     });
-
-    setDraggedTask(null);
   };
 
   // Calculate timeline for visualization
   const startDates = tasks.map(task => new Date(task.startDate).getTime());
   const endDates = tasks.map(task => new Date(task.endDate).getTime());
-  const projectStart = Math.min(...startDates);
-  const projectEnd = Math.max(...endDates);
-  const totalDays = Math.ceil((projectEnd - projectStart) / (24 * 60 * 60 * 1000));
+  const projectStart = startDates.length > 0 ? Math.min(...startDates) : Date.now();
+  const projectEnd = endDates.length > 0 ? Math.max(...endDates) : Date.now();
+  const totalDays = Math.ceil((projectEnd - projectStart) / (24 * 60 * 60 * 1000)) || 1;
   const weeksCount = Math.ceil(totalDays / 7);
 
   return (
@@ -163,117 +201,168 @@ export const AdvancedGanttChart = ({
               ))}
             </div>
 
-            {/* Tasks */}
+            {/* Tasks with Drag & Drop */}
             <div className="space-y-3">
-              {tasks.map((task) => {
+              {tasks.map((task, index) => {
                 const isSelected = selectedTask === task.id;
                 const isCritical = criticalPath.includes(task.id);
                 const taskStart = new Date(task.startDate).getTime();
                 const taskEnd = new Date(task.endDate).getTime();
                 const taskStartWeek = Math.floor((taskStart - projectStart) / (7 * 24 * 60 * 60 * 1000));
-                const taskDurationWeeks = Math.ceil((taskEnd - taskStart) / (7 * 24 * 60 * 60 * 1000));
+                const taskDurationWeeks = Math.max(1, Math.ceil((taskEnd - taskStart) / (7 * 24 * 60 * 60 * 1000)));
 
                 return (
-                  <div
-                    key={task.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, task)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, task)}
-                    className={`space-y-3 p-4 border rounded-lg cursor-move transition-all duration-200 ${
-                      isSelected 
-                        ? 'bg-blue-50 border-blue-300 shadow-md' 
-                        : 'bg-white border-gray-200 hover:shadow-sm'
-                    } ${isCritical ? 'ring-2 ring-red-200' : ''}`}
-                    onClick={() => handleTaskClick(task.id)}
-                  >
-                    {/* Task Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-4 h-4 rounded-full ${getStatusColor(task.status)}`}></div>
-                          {isCritical && (
-                            <Badge variant="destructive" className="text-xs">CRÍTICO</Badge>
-                          )}
-                        </div>
-                        
-                        <div>
-                          <h4 className="font-semibold text-slate-900">{task.name}</h4>
-                          <div className="flex items-center space-x-4 text-xs text-slate-500 mt-1">
-                            <span className="flex items-center space-x-1">
-                              <Clock className="h-3 w-3" />
-                              <span>{task.duration} dias</span>
-                            </span>
-                            <span className="flex items-center space-x-1">
-                              <DollarSign className="h-3 w-3" />
-                              <span>R$ {task.cost.toLocaleString('pt-BR')}</span>
-                            </span>
-                            {task.assignee && (
-                              <span className="flex items-center space-x-1">
-                                <User className="h-3 w-3" />
-                                <span>{task.assignee.name}</span>
-                              </span>
+                  <div key={task.id} className="relative">
+                    {/* Drop Indicator */}
+                    <DropIndicator {...getDropIndicatorProps(index)} className="mb-2" />
+                    
+                    {/* Task Item */}
+                    <div
+                      {...getDragItemProps(task, index)}
+                      {...getDropZoneProps(index)}
+                      className={`space-y-3 p-4 border rounded-lg transition-all duration-200 group ${
+                        isSelected 
+                          ? 'bg-blue-50 border-blue-300 shadow-md' 
+                          : 'bg-white border-gray-200 hover:shadow-sm'
+                      } ${isCritical ? 'ring-2 ring-red-200' : ''} ${
+                        isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'
+                      } ${!isValidDrop && isDragging ? 'border-red-300 bg-red-50' : ''}`}
+                    >
+                      {/* Task Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          {/* Drag Handle */}
+                          <div className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity">
+                            <GripVertical className="h-5 w-5 text-gray-400" />
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-4 h-4 rounded-full ${getStatusColor(task.status)}`}></div>
+                            {isCritical && (
+                              <Badge variant="destructive" className="text-xs">CRÍTICO</Badge>
                             )}
                           </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <select
-                          value={task.status}
-                          onChange={(e) => handleStatusChange(task.id, e.target.value as any)}
-                          className="text-xs border rounded px-2 py-1"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <option value="planned">Planejado</option>
-                          <option value="in_progress">Em Andamento</option>
-                          <option value="completed">Concluído</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Gantt Bar */}
-                    <div className="relative">
-                      <div className="grid grid-cols-12 gap-1 h-8">
-                        {Array.from({ length: 12 }, (_, weekIndex) => {
-                          const isTaskInWeek = weekIndex >= taskStartWeek && weekIndex < (taskStartWeek + taskDurationWeeks);
                           
-                          return (
-                            <div
-                              key={weekIndex}
-                              className={`h-full rounded-sm border transition-colors ${
-                                isTaskInWeek 
-                                  ? `${getStatusColor(task.status)} opacity-80 border-slate-300` 
-                                  : 'bg-slate-100 border-slate-200'
-                              }`}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Task Details (when selected) */}
-                    {isSelected && (
-                      <div className="bg-slate-50 p-3 rounded border-t">
-                        <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <span className="font-medium text-slate-700">Início:</span>
-                            <span className="ml-2">{new Date(task.startDate).toLocaleDateString('pt-BR')}</span>
-                          </div>
-                          <div>
-                            <span className="font-medium text-slate-700">Fim:</span>
-                            <span className="ml-2">{new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
-                          </div>
-                          <div>
-                            <span className="font-medium text-slate-700">Categoria:</span>
-                            <span className="ml-2">{task.category}</span>
-                          </div>
-                          <div>
-                            <span className="font-medium text-slate-700">Dependências:</span>
-                            <span className="ml-2">{task.dependencies.length || 'Nenhuma'}</span>
+                            <h4 
+                              className="font-semibold text-slate-900 cursor-pointer"
+                              onClick={(e) => handleTaskClick(e, task.id)}
+                            >
+                              {task.name}
+                            </h4>
+                            <div className="flex items-center space-x-4 text-xs text-slate-500 mt-1">
+                              <span className="flex items-center space-x-1">
+                                <Clock className="h-3 w-3" />
+                                <span>{task.duration} dias</span>
+                              </span>
+                              <span className="flex items-center space-x-1">
+                                <DollarSign className="h-3 w-3" />
+                                <span>R$ {task.cost.toLocaleString('pt-BR')}</span>
+                              </span>
+                              {task.assignee && (
+                                <span className="flex items-center space-x-1">
+                                  <User className="h-3 w-3" />
+                                  <span>{task.assignee.name}</span>
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
+
+                        {/* Controls */}
+                        <div className="flex items-center space-x-2">
+                          <select
+                            value={task.status}
+                            onChange={(e) => handleStatusChange(task.id, e.target.value as any)}
+                            className="text-xs border rounded px-2 py-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <option value="planned">Planejado</option>
+                            <option value="in_progress">Em Andamento</option>
+                            <option value="completed">Concluído</option>
+                          </select>
+
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={task.progress || 0}
+                            onChange={(e) => handleProgressChange(task.id, parseInt(e.target.value) || 0)}
+                            className="w-16 h-8 text-xs"
+                            placeholder="%"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTask(task.id);
+                            }}
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
+
+                      {/* Gantt Bar */}
+                      <div className="relative">
+                        <div className="grid grid-cols-12 gap-1 h-8">
+                          {Array.from({ length: 12 }, (_, weekIndex) => {
+                            const isTaskInWeek = weekIndex >= taskStartWeek && weekIndex < (taskStartWeek + taskDurationWeeks);
+                            
+                            return (
+                              <div
+                                key={weekIndex}
+                                className={`h-full rounded-sm border transition-colors ${
+                                  isTaskInWeek 
+                                    ? `${getStatusColor(task.status)} opacity-80 border-slate-300` 
+                                    : 'bg-slate-100 border-slate-200'
+                                }`}
+                              >
+                                {/* Progress overlay */}
+                                {isTaskInWeek && task.progress && task.progress > 0 && (
+                                  <div 
+                                    className="h-full bg-green-600 rounded-sm opacity-75"
+                                    style={{ width: `${task.progress}%` }}
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Task Details (when selected) */}
+                      {isSelected && (
+                        <div className="bg-slate-50 p-3 rounded border-t">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="font-medium text-slate-700">Início:</span>
+                              <span className="ml-2">{new Date(task.startDate).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-slate-700">Fim:</span>
+                              <span className="ml-2">{new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-slate-700">Categoria:</span>
+                              <span className="ml-2">{task.category}</span>
+                            </div>
+                            <div>
+                              <span className="font-medium text-slate-700">Dependências:</span>
+                              <span className="ml-2">{task.dependencies.length || 'Nenhuma'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Drop Indicator no final */}
+                    {index === tasks.length - 1 && (
+                      <DropIndicator {...getDropIndicatorProps(tasks.length)} className="mt-2" />
                     )}
                   </div>
                 );
