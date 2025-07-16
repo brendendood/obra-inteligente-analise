@@ -4,11 +4,13 @@ import { Project } from '@/types/project';
 
 export const useAdvancedDashboardMetrics = (projects: Project[]) => {
   return useMemo(() => {
-    console.log('📊 ADVANCED METRICS: Calculando métricas para', projects.length, 'projetos');
-    console.log('📊 ADVANCED METRICS: Projetos recebidos:', projects.map(p => ({ 
+    console.log('📊 DASHBOARD: Calculando métricas para', projects.length, 'projetos do usuário');
+    console.log('📊 DASHBOARD: Projetos recebidos:', projects.map(p => ({ 
       name: p.name, 
+      userId: p.user_id,
       hasAnalysis: !!p.analysis_data,
       hasBudget: !!p.analysis_data?.budget_data,
+      budgetValue: p.analysis_data?.budget_data?.total_com_bdi || 0,
       hasSchedule: !!p.analysis_data?.schedule_data
     })));
 
@@ -24,9 +26,11 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
 
     const totalInvestment = projectsWithBudget.reduce((sum, project) => {
       const cost = project.analysis_data?.budget_data?.total_com_bdi || 0;
-      console.log(`Adicionando custo ${cost} do projeto ${project.name}`);
+      console.log(`💰 DASHBOARD: Projeto ${project.name} - Custo: R$ ${cost.toLocaleString('pt-BR')}`);
       return sum + cost;
     }, 0);
+    
+    console.log(`💰 DASHBOARD: Total Investment calculado: R$ ${totalInvestment.toLocaleString('pt-BR')} (${projectsWithBudget.length} projetos)`);
 
     const avgCostPerSqm = projectsWithBudget.length > 0 
       ? projectsWithBudget.reduce((sum, project) => {

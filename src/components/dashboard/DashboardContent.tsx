@@ -8,6 +8,7 @@ import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteC
 import { useProjectStore, useProjectStats } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
+import { DashboardDebugInfo } from '@/components/debug/DashboardDebugInfo';
 
 interface DashboardContentProps {
   stats: any;
@@ -15,9 +16,9 @@ interface DashboardContentProps {
   isDataLoading: boolean;
 }
 
-const DashboardContent = ({ stats }: DashboardContentProps) => {
+const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentProps) => {
   // Usar apenas os dados do Zustand - SEM fazer novas requisições
-  const { projects, isLoading, error, clearError } = useProjectStore();
+  const { error, clearError } = useProjectStore();
   
   // Estatísticas dos projetos
   const { recentProjects } = useProjectStats();
@@ -31,7 +32,7 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
     executeDelete,
   } = useProjectDeletion();
 
-  // Métricas avançadas completas
+  // Métricas avançadas completas baseadas nos projetos do usuário
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
 
   // Limpar erro automaticamente
@@ -55,7 +56,7 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
       <div className="w-full">
         <EnhancedProjectsSection
           projects={projects}
-          isLoading={isLoading}
+          isLoading={isDataLoading}
           onDeleteProject={confirmDelete}
         />
       </div>
@@ -68,6 +69,11 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
       {/* 4. GRÁFICO DE PRODUTIVIDADE - Por último */}
       <div className="w-full">
         <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
+      </div>
+      
+      {/* DEBUG INFO - Temporário */}
+      <div className="w-full">
+        <DashboardDebugInfo />
       </div>
 
       {/* Dialog de Confirmação de Exclusão */}

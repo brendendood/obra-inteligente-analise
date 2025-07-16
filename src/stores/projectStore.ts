@@ -81,6 +81,11 @@ export const useProjectStore = create<ProjectState>()(
           });
           
           console.log('✅ STORE: Projetos carregados com sucesso:', projects?.length || 0);
+          console.log('📊 STORE: Projetos do usuário:', projects?.map(p => ({ 
+            name: p.name, 
+            userId: p.user_id,
+            budgetValue: (p.analysis_data as any)?.budget_data?.total_com_bdi || 0
+          })) || []);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar projetos';
           console.error('❌ STORE: Erro ao buscar projetos:', error);
