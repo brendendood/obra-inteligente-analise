@@ -123,9 +123,9 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
         {/* Layout Vertical Mobile-First */}
         <div className="space-y-4">
-          {/* Nome do projeto em destaque */}
+          {/* Nome do projeto em destaque - Tamanho otimizado para mobile */}
           <div className="pr-20">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 line-clamp-2 leading-tight">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 leading-tight">
               {project.name}
             </h3>
           </div>
