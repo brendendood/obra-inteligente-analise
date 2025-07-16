@@ -8,8 +8,8 @@ import {
   ChevronRight,
   MoreVertical,
   Edit,
-  Tag,
-  Trash2
+  Trash2,
+  Hammer
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -18,17 +18,39 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useProjectNavigation } from '@/hooks/useProjectNavigation';
 import { Project } from '@/types/project';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { ProjectEditDialog } from '@/components/projects/ProjectEditDialog';
 
 interface SimpleProjectCardProps {
   project: Project;
   onDeleteProject?: (project: Project) => void;
+  onProjectUpdate?: (project: Project) => void;
 }
 
-export const SimpleProjectCard = ({ project, onDeleteProject }: SimpleProjectCardProps) => {
+export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }: SimpleProjectCardProps) => {
   const { navigateToProject } = useProjectNavigation();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const statusOptions = [
+    { value: 'draft', label: 'Rascunho', color: 'text-gray-600' },
+    { value: 'active', label: 'Ativo', color: 'text-blue-600' },
+    { value: 'completed', label: 'Concluído', color: 'text-green-600' },
+    { value: 'archived', label: 'Arquivado', color: 'text-gray-500' }
+  ];
+
+  const currentStatus = statusOptions.find(s => s.value === project.project_status) || statusOptions[0];
 
   const handleOpenProject = async () => {
     console.log('🔄 CARD: Abrindo projeto:', project.name);
@@ -49,15 +71,44 @@ export const SimpleProjectCard = ({ project, onDeleteProject }: SimpleProjectCar
   const handleRenameClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // TODO: Implementar função de renomear
-    console.log('Renomear projeto:', project.name);
+    setShowEditDialog(true);
   };
 
-  const handleStatusClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    // TODO: Implementar função de alterar status
-    console.log('Alterar status do projeto:', project.name);
+  const handleProjectSave = (updatedProject: Project) => {
+    if (onProjectUpdate) {
+      onProjectUpdate(updatedProject);
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    setIsUpdatingStatus(true);
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ 
+          project_status: newStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', project.id);
+
+      if (error) {
+        console.error('Erro ao atualizar status:', error);
+        toast.error('Erro ao atualizar status do projeto');
+        return;
+      }
+
+      toast.success('Status do projeto atualizado com sucesso!');
+      
+      // Atualizar o projeto localmente
+      if (onProjectUpdate) {
+        onProjectUpdate({ ...project, project_status: newStatus });
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      toast.error('Erro ao atualizar status do projeto');
+    } finally {
+      setIsUpdatingStatus(false);
+    }
   };
 
   return (
@@ -87,6 +138,30 @@ export const SimpleProjectCard = ({ project, onDeleteProject }: SimpleProjectCar
 
           {/* Ações */}
           <div className="flex items-center space-x-3 flex-shrink-0">
+            {/* Status Dropdown */}
+            <Select
+              value={project.project_status || 'draft'}
+              onValueChange={handleStatusChange}
+              disabled={isUpdatingStatus}
+            >
+              <SelectTrigger className="w-32 h-8 text-xs">
+                <SelectValue>
+                  <span className={currentStatus.color}>
+                    {currentStatus.label}
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    <span className={status.color}>
+                      {status.label}
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             {/* Menu de três pontinhos */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -102,10 +177,6 @@ export const SimpleProjectCard = ({ project, onDeleteProject }: SimpleProjectCar
                 <DropdownMenuItem onClick={handleRenameClick} className="cursor-pointer">
                   <Edit className="h-4 w-4 mr-2" />
                   Renomear projeto
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleStatusClick} className="cursor-pointer">
-                  <Tag className="h-4 w-4 mr-2" />
-                  Alterar status
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {onDeleteProject && (
@@ -127,7 +198,7 @@ export const SimpleProjectCard = ({ project, onDeleteProject }: SimpleProjectCar
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 h-10 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
             >
               {isLoading ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <Hammer className="h-4 w-4 text-white mr-2 animate-hammer" />
               ) : null}
               <span className="mr-2">{isLoading ? 'Carregando...' : 'Ver projeto'}</span>
               <ChevronRight className="h-4 w-4" />
@@ -135,6 +206,14 @@ export const SimpleProjectCard = ({ project, onDeleteProject }: SimpleProjectCar
           </div>
         </div>
       </CardContent>
+      
+      {/* Dialog de edição */}
+      <ProjectEditDialog
+        project={project}
+        isOpen={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        onSave={handleProjectSave}
+      />
     </Card>
   );
 };

@@ -117,6 +117,28 @@ const config: Config = {
         shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" }
+        },
+        "hammer": {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)" },
+          "25%": { transform: "translateY(-8px) rotate(-15deg)" },
+          "50%": { transform: "translateY(-4px) rotate(-8deg)" },
+          "75%": { transform: "translateY(-2px) rotate(-5deg)" }
+        },
+        "drill": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" }
+        },
+        "wrench": {
+          "0%, 100%": { transform: "translateX(0) rotate(0deg)" },
+          "25%": { transform: "translateX(-4px) rotate(-10deg)" },
+          "50%": { transform: "translateX(4px) rotate(10deg)" },
+          "75%": { transform: "translateX(-2px) rotate(-5deg)" }
+        },
+        "ruler": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-6px)" },
+          "50%": { transform: "translateX(6px)" },
+          "75%": { transform: "translateX(-3px)" }
         }
       },
       animation: {
@@ -130,7 +152,11 @@ const config: Config = {
         "slide-out-right": "slide-out-right 0.3s ease-out",
         "enter": "fade-in 0.3s ease-out, scale-in 0.2s ease-out",
         "exit": "fade-out 0.3s ease-out, scale-out 0.2s ease-out",
-        shimmer: "shimmer 2s linear infinite"
+        shimmer: "shimmer 2s linear infinite",
+        "hammer": "hammer 1.5s ease-in-out infinite",
+        "drill": "drill 1s linear infinite",
+        "wrench": "wrench 2s ease-in-out infinite",
+        "ruler": "ruler 1.8s ease-in-out infinite"
       },
     },
   },

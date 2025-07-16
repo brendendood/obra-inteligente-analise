@@ -8,6 +8,7 @@ export interface Project {
   extracted_text?: string;
   analysis_data?: any;
   project_type?: string;
+  project_status?: string;
   total_area?: number;
   created_at: string;
   updated_at: string;
