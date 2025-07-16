@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Zap } from 'lucide-react';
-
 interface PerformanceMetricsCardProps {
   performance: {
     avgProcessingTime: number | null;
@@ -9,17 +8,15 @@ interface PerformanceMetricsCardProps {
     avgProjectDuration: number | null;
   };
 }
-
-export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardProps) => {
+export const PerformanceMetricsCard = ({
+  performance
+}: PerformanceMetricsCardProps) => {
   const getEfficiencyColor = (value: number) => {
     if (value >= 80) return 'text-green-600';
     if (value >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
-
-
-  const tooltipContent = (
-    <div className="space-y-3">
+  const tooltipContent = <div className="space-y-3">
       <div>
         <strong className="text-gray-800 block mb-1">PERFORMANCE & EFICIÊNCIA</strong>
         <span className="text-sm">Como Interpretar:</span>
@@ -41,15 +38,12 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
           <span className="ml-1">Tempo previsto nos cronogramas gerados. Útil para planejar recursos.</span>
         </div>
       </div>
-    </div>
-  );
-
-  return (
-    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
+    </div>;
+  return <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <Zap className="h-5 w-5 text-blue-600" />
-          <span>Performance & Eficiência</span>
+          <span>Performance</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
@@ -80,6 +74,5 @@ export const PerformanceMetricsCard = ({ performance }: PerformanceMetricsCardPr
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
