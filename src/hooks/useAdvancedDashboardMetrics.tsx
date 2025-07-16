@@ -34,33 +34,22 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       ? projectsWithBudget[budgetCosts.indexOf(Math.min(...budgetCosts))]
       : null;
 
-    // MÉTRICAS DE PERFORMANCE - Dados Persistidos
-    const projectsWithSchedule = projects.filter(p => {
-      const hasScheduleData = (p.analysis_data as any)?.schedule_data?.total_duration && 
-                             (p.analysis_data as any).schedule_data.total_duration > 0;
-      return hasScheduleData;
-    });
+    // MÉTRICAS DE PROJETOS - Dados Objetivos
+    const totalArea = projects.reduce((sum, project) => {
+      return sum + (project.total_area || 0);
+    }, 0);
 
-    const avgProjectDuration = projectsWithSchedule.length > 0
-      ? projectsWithSchedule.reduce((sum, project) => {
-          const duration = (project.analysis_data as any).schedule_data.total_duration;
-          return sum + duration;
-        }, 0) / projectsWithSchedule.length
+    const avgCostPerProject = projects.length > 0 && totalInvestment > 0
+      ? Math.round(totalInvestment / projects.length)
       : null;
 
-    const processingEfficiency = projects.length > 0 
-      ? (projectsWithBudget.length / projects.length) * 100 
-      : 0;
-
-
-    // MÉTRICAS DE QUALIDADE
-    const completionRate = projects.length > 0 
-      ? ((projectsWithBudget.length + projectsWithSchedule.length) / (projects.length * 2)) * 100
-      : 0;
-
-    const dataQualityScore = projects.length > 0
-      ? (projects.filter(p => p.analysis_data && Object.keys(p.analysis_data).length > 0).length / projects.length) * 100
-      : 0;
+    // STATUS DOS PROJETOS
+    const lastSubmissionDate = projects.length > 0 
+      ? projects.reduce((latest, project) => {
+          const projectDate = new Date(project.created_at);
+          return projectDate > latest ? projectDate : latest;
+        }, new Date(projects[0].created_at)).toISOString()
+      : null;
 
     // TENDÊNCIAS MENSAIS - CORRIGIDO para match com MonthlyProductivityChart
     const monthlyTrends = Array.from({ length: 6 }, (_, i) => {
@@ -96,15 +85,15 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
         totalInvestment: Math.round(totalInvestment),
         avgCostPerSqm: avgCostPerSqm ? Math.round(avgCostPerSqm) : null
       },
-      performance: {
-        avgProcessingTime: 2.5, // Simulado
-        processingEfficiency: Math.round(processingEfficiency),
-        avgProjectDuration: avgProjectDuration ? Math.round(avgProjectDuration) : null
+      projectMetrics: {
+        totalArea: Math.round(totalArea),
+        avgCostPerProject,
+        projectCount: projects.length
       },
-      quality: {
-        completionRate: Math.round(completionRate),
-        dataQualityScore: Math.round(dataQualityScore),
-        avgAccuracy: 92 // Simulado
+      projectStatus: {
+        projectsWithBudget: projectsWithBudget.length,
+        lastSubmissionDate,
+        totalProjects: projects.length
       },
       monthlyTrends
     };

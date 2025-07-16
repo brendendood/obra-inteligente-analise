@@ -1,7 +1,7 @@
 
 import { FinancialInsightsCard } from './metrics/FinancialInsightsCard';
-import { PerformanceMetricsCard } from './metrics/PerformanceMetricsCard';
-import { QualityMetricsCard } from './metrics/QualityMetricsCard';
+import { ProjectMetricsCard } from './metrics/ProjectMetricsCard';
+import { ProjectStatusCard } from './metrics/ProjectStatusCard';
 
 interface DashboardStatsGridProps {
   advancedMetrics: {
@@ -9,15 +9,15 @@ interface DashboardStatsGridProps {
       totalInvestment: number;
       avgCostPerSqm: number | null;
     };
-    performance: {
-      avgProcessingTime: number | null;
-      processingEfficiency: number;
-      avgProjectDuration: number | null;
+    projectMetrics: {
+      totalArea: number;
+      avgCostPerProject: number | null;
+      projectCount: number;
     };
-    quality: {
-      completionRate: number;
-      dataQualityScore: number;
-      avgAccuracy: number;
+    projectStatus: {
+      projectsWithBudget: number;
+      lastSubmissionDate: string | null;
+      totalProjects: number;
     };
   };
 }
@@ -35,11 +35,11 @@ export const DashboardStatsGrid = ({
         {/* Métricas Financeiras */}
         <FinancialInsightsCard financial={advancedMetrics.financial} />
         
-        {/* Métricas de Performance */}
-        <PerformanceMetricsCard performance={advancedMetrics.performance} />
+        {/* Métricas dos Projetos */}
+        <ProjectMetricsCard projectMetrics={advancedMetrics.projectMetrics} />
         
-        {/* Qualidade dos Dados */}
-        <QualityMetricsCard quality={advancedMetrics.quality} />
+        {/* Status dos Projetos */}
+        <ProjectStatusCard projectStatus={advancedMetrics.projectStatus} />
       </div>
     </div>
   );
