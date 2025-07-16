@@ -62,10 +62,6 @@ const DashboardContent = ({ stats }: DashboardContentProps) => {
       
       {/* 3. MÉTRICAS AVANÇADAS - Terceiro lugar */}
       <DashboardStatsGrid 
-        stats={stats}
-        avgCostPerSqm={advancedMetrics.financial.avgCostPerSqm}
-        avgProjectDuration={advancedMetrics.performance.avgProjectDuration}
-        riskLevel={advancedMetrics.predictive.riskLevel}
         advancedMetrics={advancedMetrics}
       />
       

@@ -67,26 +67,6 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       ? (projectsWithBudget.length / projects.length) * 100 
       : 0;
 
-    // ANÁLISE PREDITIVA
-    const upcomingDeadlines = projectsWithSchedule.filter(p => {
-      const endDate = p.analysis_data?.schedule_data?.end_date;
-      if (!endDate) return false;
-      const deadline = new Date(endDate);
-      const now = new Date();
-      const diffTime = deadline.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays > 0 && diffDays <= 30;
-    }).length;
-
-    const budgetAlerts = projectsWithBudget.filter(p => {
-      const cost = p.analysis_data.budget_data.total_com_bdi;
-      const area = p.total_area || 100;
-      const costPerSqm = cost / area;
-      return costPerSqm > 2000; // Alerta para custos acima de R$ 2000/m²
-    }).length;
-
-    const riskLevel = budgetAlerts > projects.length * 0.3 ? 'Alto' : 
-                     budgetAlerts > projects.length * 0.1 ? 'Médio' : 'Baixo';
 
     // MÉTRICAS DE QUALIDADE
     const completionRate = projects.length > 0 
@@ -129,38 +109,16 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
     const result = {
       financial: {
         totalInvestment: Math.round(totalInvestment),
-        avgCostPerSqm: avgCostPerSqm ? Math.round(avgCostPerSqm) : null,
-        costVariation: budgetCosts.length > 1 
-          ? Math.round(((Math.max(...budgetCosts) - Math.min(...budgetCosts)) / Math.min(...budgetCosts)) * 100)
-          : null,
-        budgetEfficiency: Math.round(processingEfficiency),
-        highestCostProject: highestCostProject ? {
-          name: highestCostProject.name,
-          cost: highestCostProject.analysis_data.budget_data.total_com_bdi
-        } : null,
-        lowestCostProject: lowestCostProject ? {
-          name: lowestCostProject.name,
-          cost: lowestCostProject.analysis_data.budget_data.total_com_bdi
-        } : null
+        avgCostPerSqm: avgCostPerSqm ? Math.round(avgCostPerSqm) : null
       },
       performance: {
         avgProcessingTime: 2.5, // Simulado
         processingEfficiency: Math.round(processingEfficiency),
-        avgProjectDuration: avgProjectDuration ? Math.round(avgProjectDuration) : null,
-        onTimeDeliveryRate: 85, // Simulado
-        bottleneckPhase: projectsWithSchedule.length > 0 ? 'Instalações' : null
-      },
-      predictive: {
-        riskLevel: riskLevel as 'Baixo' | 'Médio' | 'Alto',
-        riskFactors: budgetAlerts > 0 ? ['Custos elevados', 'Prazos apertados'] : ['Baixo risco'],
-        upcomingDeadlines,
-        budgetAlerts,
-        qualityScore: Math.round(dataQualityScore)
+        avgProjectDuration: avgProjectDuration ? Math.round(avgProjectDuration) : null
       },
       quality: {
         completionRate: Math.round(completionRate),
         dataQualityScore: Math.round(dataQualityScore),
-        revisionRate: 15, // Simulado
         avgAccuracy: 92 // Simulado
       },
       monthlyTrends
