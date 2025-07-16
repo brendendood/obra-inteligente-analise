@@ -175,13 +175,17 @@ export const EnhancedProjectsSection = ({
       </CardHeader>
       
       <CardContent className="w-full">
-        {/* Lista de projetos */}
-        <div className="space-y-4">
+        {/* Lista de projetos - Otimizada para mobile */}
+        <div className="space-y-3 sm:space-y-4">
           {paginatedProjects.map((project) => (
             <SimpleProjectCard
               key={project.id}
               project={project}
               onDeleteProject={onDeleteProject}
+              onProjectUpdate={(updatedProject) => {
+                // Atualizar o projeto na lista se necessário
+                console.log('Projeto atualizado:', updatedProject);
+              }}
             />
           ))}
         </div>
