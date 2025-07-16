@@ -8,7 +8,6 @@ import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteC
 import { useProjectStore, useProjectStats } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
-import { DashboardDebugInfo } from '@/components/debug/DashboardDebugInfo';
 
 interface DashboardContentProps {
   stats: any;
@@ -69,11 +68,6 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
       {/* 4. GRÁFICO DE PRODUTIVIDADE - Por último */}
       <div className="w-full">
         <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
-      </div>
-      
-      {/* DEBUG INFO - Temporário */}
-      <div className="w-full">
-        <DashboardDebugInfo />
       </div>
 
       {/* Dialog de Confirmação de Exclusão */}

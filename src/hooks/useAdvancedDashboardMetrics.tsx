@@ -4,45 +4,29 @@ import { Project } from '@/types/project';
 
 export const useAdvancedDashboardMetrics = (projects: Project[]) => {
   return useMemo(() => {
-    console.log('📊 DASHBOARD: Calculando métricas para', projects.length, 'projetos do usuário');
-    console.log('📊 DASHBOARD: Projetos recebidos:', projects.map(p => ({ 
-      name: p.name, 
-      userId: p.user_id,
-      hasAnalysis: !!p.analysis_data,
-      hasBudget: !!p.analysis_data?.budget_data,
-      budgetValue: p.analysis_data?.budget_data?.total_com_bdi || 0,
-      hasSchedule: !!p.analysis_data?.schedule_data
-    })));
 
     // MÉTRICAS FINANCEIRAS - Dados Persistidos
     const projectsWithBudget = projects.filter(p => {
-      const hasBudgetData = p.analysis_data?.budget_data?.total_com_bdi && 
-                           p.analysis_data.budget_data.total_com_bdi > 0;
-      console.log(`Projeto ${p.name}: hasBudgetData=${hasBudgetData}, valor=${p.analysis_data?.budget_data?.total_com_bdi}`);
+      const hasBudgetData = (p.analysis_data as any)?.budget_data?.total_com_bdi && 
+                           (p.analysis_data as any).budget_data.total_com_bdi > 0;
       return hasBudgetData;
     });
 
-    console.log('💰 Projetos com orçamento persistido:', projectsWithBudget.length);
-
     const totalInvestment = projectsWithBudget.reduce((sum, project) => {
-      const cost = project.analysis_data?.budget_data?.total_com_bdi || 0;
-      console.log(`💰 DASHBOARD: Projeto ${project.name} - Custo: R$ ${cost.toLocaleString('pt-BR')}`);
+      const cost = (project.analysis_data as any)?.budget_data?.total_com_bdi || 0;
       return sum + cost;
     }, 0);
-    
-    console.log(`💰 DASHBOARD: Total Investment calculado: R$ ${totalInvestment.toLocaleString('pt-BR')} (${projectsWithBudget.length} projetos)`);
 
     const avgCostPerSqm = projectsWithBudget.length > 0 
       ? projectsWithBudget.reduce((sum, project) => {
-          const totalCost = project.analysis_data?.budget_data?.total_com_bdi || 0;
+          const totalCost = (project.analysis_data as any)?.budget_data?.total_com_bdi || 0;
           const area = project.total_area || 100;
           const costPerSqm = totalCost / area;
-          console.log(`Projeto ${project.name}: custo=${totalCost}, área=${area}, custo/m²=${costPerSqm}`);
           return sum + costPerSqm;
         }, 0) / projectsWithBudget.length
       : null;
 
-    const budgetCosts = projectsWithBudget.map(p => p.analysis_data.budget_data.total_com_bdi);
+    const budgetCosts = projectsWithBudget.map(p => (p.analysis_data as any).budget_data.total_com_bdi);
     const highestCostProject = budgetCosts.length > 0 
       ? projectsWithBudget[budgetCosts.indexOf(Math.max(...budgetCosts))]
       : null;
@@ -52,17 +36,14 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
 
     // MÉTRICAS DE PERFORMANCE - Dados Persistidos
     const projectsWithSchedule = projects.filter(p => {
-      const hasScheduleData = p.analysis_data?.schedule_data?.total_duration && 
-                             p.analysis_data.schedule_data.total_duration > 0;
-      console.log(`Projeto ${p.name}: hasScheduleData=${hasScheduleData}, duração=${p.analysis_data?.schedule_data?.total_duration}`);
+      const hasScheduleData = (p.analysis_data as any)?.schedule_data?.total_duration && 
+                             (p.analysis_data as any).schedule_data.total_duration > 0;
       return hasScheduleData;
     });
 
-    console.log('📅 Projetos com cronograma persistido:', projectsWithSchedule.length);
-
     const avgProjectDuration = projectsWithSchedule.length > 0
       ? projectsWithSchedule.reduce((sum, project) => {
-          const duration = project.analysis_data.schedule_data.total_duration;
+          const duration = (project.analysis_data as any).schedule_data.total_duration;
           return sum + duration;
         }, 0) / projectsWithSchedule.length
       : null;
@@ -94,19 +75,19 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       });
 
       const monthBudget = monthProjects.reduce((sum, p) => 
-        sum + (p.analysis_data?.budget_data?.total_com_bdi || 0), 0
+        sum + ((p.analysis_data as any)?.budget_data?.total_com_bdi || 0), 0
       );
 
       // Simulando completed baseado em projetos processados
       const completedProjects = monthProjects.filter(p => 
-        p.analysis_data?.budget_data || p.analysis_data?.schedule_data
+        (p.analysis_data as any)?.budget_data || (p.analysis_data as any)?.schedule_data
       ).length;
 
       return {
         month: monthName,
         started: monthProjects.length,
         completed: completedProjects,
-        investment: Math.round(monthBudget / 1000) // Em milhares
+        investment: Math.round(monthBudget) // Valor real, não dividido por 1000
       };
     });
 
@@ -127,15 +108,6 @@ export const useAdvancedDashboardMetrics = (projects: Project[]) => {
       },
       monthlyTrends
     };
-
-    console.log('✅ ADVANCED METRICS: Métricas calculadas:', {
-      projectsTotal: projects.length,
-      withBudget: projectsWithBudget.length,
-      withSchedule: projectsWithSchedule.length,
-      totalInvestment: result.financial.totalInvestment,
-      avgCostPerSqm: result.financial.avgCostPerSqm,
-      avgDuration: result.performance.avgProjectDuration
-    });
 
     return result;
   }, [projects]);
