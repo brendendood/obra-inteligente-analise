@@ -1,5 +1,5 @@
 
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle, ArrowRight, Hammer } from 'lucide-react';
 
 interface UploadSuccessProps {
   projectName: string;

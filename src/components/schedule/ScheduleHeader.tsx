@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Calendar, Download, RefreshCw, TrendingUp } from 'lucide-react';
+import { Calendar, Download, RefreshCw, TrendingUp, Hammer } from 'lucide-react';
 
 interface ScheduleHeaderProps {
   projectName: string;

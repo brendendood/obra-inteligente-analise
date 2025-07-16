@@ -1,5 +1,6 @@
 
 import { Progress } from '@/components/ui/progress';
+import { Hammer } from 'lucide-react';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
 import { ProcessingStep } from '@/hooks/useProcessingSteps';
 

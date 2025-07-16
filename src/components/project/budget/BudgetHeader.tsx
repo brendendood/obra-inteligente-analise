@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { RefreshCw, Download, History, Building2, Calendar } from 'lucide-react';
+import { RefreshCw, Download, History, Building2, Calendar, Hammer } from 'lucide-react';
 
 interface BudgetHeaderProps {
   projectName: string;
