@@ -77,26 +77,9 @@ const Login = () => {
         description: `Bem-vindo(a), ${data.user.email}!`,
       });
 
-      // Verificar se é admin para redirecionar apropriadamente
-      try {
-        const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin_user');
-        
-        if (adminError) {
-          console.error('⚠️ LOGIN: Erro ao verificar status admin:', adminError);
-        }
-        
-        if (adminCheck) {
-          console.log('👑 LOGIN: Usuário admin detectado, redirecionando para admin panel');
-          navigate('/admin-panel');
-        } else {
-          console.log('👤 LOGIN: Usuário comum, redirecionando para painel');
-          navigate('/painel');
-        }
-      } catch (adminCheckError) {
-        console.error('💥 LOGIN: Erro crítico na verificação admin:', adminCheckError);
-        // Em caso de erro na verificação, redirecionar para painel normal
-        navigate('/painel');
-      }
+      // Sempre redirecionar para o painel principal
+      console.log('👤 LOGIN: Redirecionando para painel principal');
+      navigate('/painel');
 
     } catch (error) {
       console.error('💥 LOGIN: Erro crítico no login:', error);
@@ -246,27 +229,6 @@ const Login = () => {
               </div>
             </form>
 
-            {/* Credenciais de teste para admin */}
-            <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-xs text-yellow-800 font-medium mb-2">🔑 Credenciais Admin (Teste):</p>
-              <div className="text-xs text-yellow-700 space-y-1">
-                <p><strong>Email:</strong> admin@arqcloud.com.br</p>
-                <p><strong>Senha:</strong> vovopepe</p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setEmail('admin@arqcloud.com.br');
-                  setPassword('vovopepe');
-                }}
-                className="mt-2 text-xs border-yellow-300 text-yellow-700 hover:bg-yellow-100"
-                disabled={isLoading}
-              >
-                Usar credenciais admin
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </div>

@@ -4,13 +4,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { 
   Plus,
   Database,
-  RefreshCw
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 import { useProjectMigration } from '@/hooks/useProjectMigration';
+import { useAdminAccess } from '@/hooks/useAdminAccess';
 
 export const QuickActions = () => {
   const navigate = useNavigate();
   const { migrateProjects, isMigrating } = useProjectMigration();
+  const { isAdmin, isLoading: adminLoading } = useAdminAccess();
 
   const handleMigration = async () => {
     try {
@@ -39,7 +42,16 @@ export const QuickActions = () => {
       action: handleMigration,
       disabled: isMigrating,
       isLoading: isMigrating
-    }
+    },
+    // Botão admin - apenas para administradores
+    ...(isAdmin && !adminLoading ? [{
+      icon: Settings,
+      title: "Painel Admin",
+      description: "Acessar painel administrativo",
+      color: "bg-purple-500",
+      hoverColor: "hover:bg-purple-600",
+      action: () => navigate("/admin-panel")
+    }] : [])
   ];
 
   return (
