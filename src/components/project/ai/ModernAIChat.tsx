@@ -9,7 +9,8 @@ import {
   Bot, 
   User,
   Copy,
-  CheckCircle 
+  CheckCircle,
+  Hammer 
 } from 'lucide-react';
 import { Project } from '@/types/project';
 import { useToast } from '@/hooks/use-toast';
@@ -249,7 +250,9 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
               className="bg-blue-600 hover:bg-blue-700 rounded-xl w-12 h-12 p-0 shrink-0"
             >
               {isTyping ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                 <div className="animate-hammer">
+                   <Hammer className="h-4 w-4 text-orange-500" />
+                 </div>
               ) : (
                 <Send className="h-4 w-4" />
               )}

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { LucideIcon, Lock } from 'lucide-react';
+import { LucideIcon, Lock, Hammer } from 'lucide-react';
 
 interface ProjectActionCardProps {
   icon: LucideIcon;
@@ -86,7 +86,9 @@ const ProjectActionCard: React.FC<ProjectActionCardProps> = ({
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 w-full min-w-0">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white flex-shrink-0"></div>
+                  <div className="animate-hammer">
+                    <Hammer className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                  </div>
                   <span className="truncate">Carregando...</span>
                 </div>
               ) : disabled ? (

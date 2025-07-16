@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Hammer } from 'lucide-react';
 
 interface ActionButtonProps {
   children: React.ReactNode;
@@ -65,8 +65,10 @@ const ActionButton = ({
     >
       {isLoading ? (
         <>
-          <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-          <span className="truncate">Carregando...</span>
+          <div className="animate-hammer">
+            <Hammer className="h-4 w-4 text-orange-500 flex-shrink-0" />
+          </div>
+          <span className="truncate">Construindo resultados...</span>
         </>
       ) : icon ? (
         <>

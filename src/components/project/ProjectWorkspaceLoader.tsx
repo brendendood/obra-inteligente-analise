@@ -5,6 +5,7 @@ import { useProject } from '@/contexts/ProjectContext';
 import { useProjectStore } from '@/stores/projectStore';
 import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { Hammer } from 'lucide-react';
 
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -50,7 +51,9 @@ export const useProjectLoader = () => {
     <AppLayout>
       <div className="space-y-6 animate-fade-in">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <div className="animate-hammer">
+            <Hammer className="h-6 w-6 text-orange-500" />
+          </div>
           <span className="text-gray-600">Carregando projeto...</span>
         </div>
         <EnhancedSkeleton variant="card" className="h-20" />

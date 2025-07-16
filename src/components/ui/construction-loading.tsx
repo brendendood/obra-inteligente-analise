@@ -44,7 +44,7 @@ export const ConstructionLoading = ({
 };
 
 export const InlineConstructionLoading = ({ 
-  text = "Carregando...", 
+  text = "Construindo resultados...", 
   className 
 }: { 
   text?: string;

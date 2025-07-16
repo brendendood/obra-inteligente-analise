@@ -27,7 +27,9 @@ const UploadSuccess = ({ projectName }: UploadSuccessProps) => {
         </div>
         
         <div className="flex items-center justify-center space-x-2 text-blue-600">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          <div className="animate-hammer">
+            <Hammer className="h-5 w-5 text-orange-500" />
+          </div>
           <span className="font-medium">Carregando projeto</span>
           <ArrowRight className="h-4 w-4 animate-pulse" />
         </div>

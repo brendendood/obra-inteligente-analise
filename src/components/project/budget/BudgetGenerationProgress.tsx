@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Hammer } from 'lucide-react';
 
 interface BudgetGenerationProgressProps {
   progress: number;
@@ -14,7 +14,9 @@ export const BudgetGenerationProgress = ({ progress, projectArea }: BudgetGenera
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
-            <RefreshCw className="h-5 w-5 animate-spin text-blue-600" />
+            <div className="animate-hammer">
+              <Hammer className="h-5 w-5 text-orange-500" />
+            </div>
             <span className="font-medium text-blue-900">
               Gerando orçamento automaticamente com MadenAI...
             </span>

@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
+import { PageConstructionLoading } from "@/components/ui/construction-loading";
 
 // Páginas críticas (carregadas imediatamente)
 import LandingPage from "./pages/LandingPage";
@@ -71,10 +72,7 @@ const LandingPageWrapper = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando...</p>
-        </div>
+        <PageConstructionLoading text="Construindo aplicação..." />
       </div>
     );
   }

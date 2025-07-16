@@ -65,7 +65,9 @@ export const BudgetHeader = ({
             >
               {isGenerating ? (
                 <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  <div className="animate-hammer mr-2">
+                    <Hammer className="h-4 w-4 text-orange-500" />
+                  </div>
                   Atualizando...
                 </>
               ) : (
