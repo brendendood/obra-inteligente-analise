@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => ({
   build: {
     // Otimizações de build para performance
     target: 'esnext',
-    minify: 'terser',
-    sourcemap: false,
+    minify: mode === 'production' ? 'esbuild' : false,
+    sourcemap: mode === 'development',
     
     // Code splitting otimizado
     rollupOptions: {
@@ -45,14 +45,6 @@ export default defineConfig(({ mode }) => ({
     
     // Otimização de assets
     assetsInlineLimit: 4096,
-    
-    // Terser options para minificação
-    terserOptions: {
-      compress: {
-        drop_console: mode === 'production',
-        drop_debugger: mode === 'production',
-      },
-    },
   },
   
   // Otimizações de performance
