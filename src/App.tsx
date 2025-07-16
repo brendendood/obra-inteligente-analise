@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,27 +9,60 @@ import { ProjectProvider } from "@/contexts/ProjectContext";
 import { useAuth } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
+import { LazyWrapper } from "@/components/ui/lazy-wrapper";
+
+// Páginas críticas (carregadas imediatamente)
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
-import Upload from "./pages/Upload";
-import Assistant from "./pages/Assistant";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Admin from "./pages/Admin";
-import AdminPanel from "./pages/AdminPanel";
-import NotFound from "./pages/NotFound";
 
-// Layout e páginas do projeto específico
-import ProjectSpecificLayout from "./pages/project-specific/layout";
-import ProjectSpecificOverview from "./pages/project-specific/overview";
-import ProjectSpecificBudget from "./pages/project-specific/budget";
-import ProjectSpecificSchedule from "./pages/project-specific/schedule";
-import ProjectSpecificAssistant from "./pages/project-specific/assistant";
-import ProjectSpecificDocumentsPage from "./pages/project-specific/documents";
+// Páginas com lazy loading
+const Upload = lazy(() => import("./pages/Upload"));
+const Assistant = lazy(() => import("./pages/Assistant"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Admin = lazy(() => import("./pages/Admin"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+// Layout e páginas do projeto específico (lazy loading)
+const ProjectSpecificLayout = lazy(() => import("./pages/project-specific/layout"));
+const ProjectSpecificOverview = lazy(() => import("./pages/project-specific/overview"));
+const ProjectSpecificBudget = lazy(() => import("./pages/project-specific/budget"));
+const ProjectSpecificSchedule = lazy(() => import("./pages/project-specific/schedule"));
+const ProjectSpecificAssistant = lazy(() => import("./pages/project-specific/assistant"));
+const ProjectSpecificDocumentsPage = lazy(() => import("./pages/project-specific/documents"));
+
+// Query Client otimizado para performance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Cache mais longo para reduzir requisições
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      gcTime: 10 * 60 * 1000, // 10 minutos (antes era cacheTime)
+      
+      // Retry strategy otimizada
+      retry: (failureCount, error: any) => {
+        if (error?.status === 404) return false;
+        return failureCount < 2;
+      },
+      
+      // Network mode otimizado
+      networkMode: 'online',
+      
+      // Background refetch otimizado
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always',
+      refetchOnMount: true,
+    },
+    mutations: {
+      // Retry para mutations
+      retry: 1,
+      networkMode: 'online',
+    },
+  },
+});
 
 // Componente para redirecionar usuários autenticados da landing page
 const LandingPageWrapper = () => {
@@ -95,14 +128,16 @@ const App = () => {
                 <Route path="/" element={<LandingPageWrapper />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
-                <Route path="/termos" element={<Terms />} />
-                <Route path="/politica" element={<Privacy />} />
-                <Route path="/admin" element={<Admin />} />
+                <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+                <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+                <Route path="/admin" element={<LazyWrapper><Admin /></LazyWrapper>} />
                 
                 {/* Nova rota para o painel administrativo completo */}
                 <Route path="/admin-panel" element={
                   <ProtectedRoute>
-                    <AdminPanel />
+                    <LazyWrapper>
+                      <AdminPanel />
+                    </LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
@@ -119,42 +154,50 @@ const App = () => {
                 
                 <Route path="/upload" element={
                   <ProtectedRoute>
-                    <Upload />
+                    <LazyWrapper>
+                      <Upload />
+                    </LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 {/* Nova rota para Assistente IA */}
                 <Route path="/ia" element={
                   <ProtectedRoute>
-                    <Assistant />
+                    <LazyWrapper>
+                      <Assistant />
+                    </LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 {/* Layout Routes para projetos específicos */}
                 <Route path="/projeto/:projectId" element={
                   <ProtectedRoute>
-                    <ProjectSpecificLayout />
+                    <LazyWrapper>
+                      <ProjectSpecificLayout />
+                    </LazyWrapper>
                   </ProtectedRoute>
                 }>
                   {/* Rotas filhas aninhadas */}
-                  <Route index element={<ProjectSpecificOverview />} />
-                  <Route path="orcamento" element={<ProjectSpecificBudget />} />
-                  <Route path="cronograma" element={<ProjectSpecificSchedule />} />
-                  <Route path="assistente" element={<ProjectSpecificAssistant />} />
-                  <Route path="documentos" element={<ProjectSpecificDocumentsPage />} />
+                  <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
+                  <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
+                  <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
+                  <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                  <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
                 </Route>
                 
                 {/* Rota especializada para IA (mantendo compatibilidade) */}
                 <Route path="/ia/:projectId" element={
                   <ProtectedRoute>
-                    <ProjectSpecificLayout />
+                    <LazyWrapper>
+                      <ProjectSpecificLayout />
+                    </LazyWrapper>
                   </ProtectedRoute>
                 }>
-                  <Route index element={<ProjectSpecificAssistant />} />
+                  <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
                 </Route>
 
                 {/* Rota 404 */}
-                <Route path="*" element={<NotFound />} />
+                <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
               </Routes>
             </ProjectProvider>
           </BrowserRouter>

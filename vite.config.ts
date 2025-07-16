@@ -19,4 +19,62 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Otimizações de build para performance
+    target: 'esnext',
+    minify: 'terser',
+    sourcemap: false,
+    
+    // Code splitting otimizado
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks separados
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-toast'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'chart-vendor': ['recharts'],
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge'],
+        },
+      },
+    },
+    
+    // Chunks size otimizado
+    chunkSizeWarningLimit: 1000,
+    
+    // Otimização de assets
+    assetsInlineLimit: 4096,
+    
+    // Terser options para minificação
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production',
+      },
+    },
+  },
+  
+  // Otimizações de performance
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@supabase/supabase-js',
+      'lucide-react',
+      'recharts',
+      'date-fns',
+      'clsx',
+      'tailwind-merge'
+    ],
+    exclude: ['@vite/client', '@vite/env'],
+  },
+  
+  // Cache headers para desenvolvimento
+  preview: {
+    headers: {
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
+  },
 }));
