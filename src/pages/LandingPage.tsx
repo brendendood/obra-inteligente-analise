@@ -390,6 +390,80 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Tecnologias que usamos */}
+      <section className="py-12 md:py-20 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4 md:mb-6">
+              Tecnologias que Usamos
+            </h2>
+            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+              Nossa plataforma é construída com as melhores tecnologias do mercado para garantir performance, segurança e escalabilidade.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+            {/* Frontend */}
+            <div className="space-y-6">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Frontend</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {[
+                  { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
+                  { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" },
+                  { name: "Tailwind CSS", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" },
+                  { name: "Radix UI", logo: "https://avatars.githubusercontent.com/u/75042455?s=200&v=4" },
+                  { name: "Recharts", logo: "https://recharts.org/static/logo.svg" },
+                  { name: "Lucide React", logo: "https://lucide.dev/logo.dark.svg" },
+                ].map((tech) => (
+                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group">
+                    <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
+                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <img 
+                          src={tech.logo} 
+                          alt={`${tech.name} logo`}
+                          className="max-w-full max-h-full object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                      <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Backend */}
+            <div className="space-y-6">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Backend</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {[
+                  { name: "Supabase", logo: "https://supabase.com/brand-assets/supabase-logo-icon.png" },
+                  { name: "IA Proprietária", logo: "https://cdn-icons-png.flaticon.com/512/6461/6461819.png" },
+                  { name: "N8N", logo: "https://n8n.io/favicon.ico" },
+                  { name: "SINAPI", logo: "https://cdn-icons-png.flaticon.com/512/3159/3159310.png" },
+                  { name: "Edge Functions", logo: "https://cdn-icons-png.flaticon.com/512/2721/2721291.png" },
+                  { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
+                ].map((tech) => (
+                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group">
+                    <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
+                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <img 
+                          src={tech.logo} 
+                          alt={`${tech.name} logo`}
+                          className="max-w-full max-h-full object-contain"
+                          loading="lazy"
+                        />
+                      </div>
+                      <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Tech Specs Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
