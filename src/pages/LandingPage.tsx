@@ -280,23 +280,31 @@ const LandingPage = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">2.5K+</div>
-              <div className="text-blue-100">Projetos Analisados</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">95%</div>
-              <div className="text-blue-100">Precisão</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">80%</div>
-              <div className="text-blue-100">Economia de Tempo</div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-white mb-2">1.2K+</div>
-              <div className="text-blue-100">Usuários Ativos</div>
-            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="text-center">
+                <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {counter1.count}+
+                </div>
+                <div className="text-blue-100">Projetos Analisados</div>
+              </div>
+              <div className="text-center">
+                <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {counter2.count}%
+                </div>
+                <div className="text-blue-100">Precisão</div>
+              </div>
+              <div className="text-center">
+                <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {counter3.count}%
+                </div>
+                <div className="text-blue-100">Economia de Tempo</div>
+              </div>
+              <div className="text-center">
+                <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {counter4.count}+
+                </div>
+                <div className="text-blue-100">Usuários Ativos</div>
+              </div>
           </div>
         </div>
       </section>
