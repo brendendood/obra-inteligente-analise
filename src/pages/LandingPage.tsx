@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Upload, 
@@ -13,12 +13,70 @@ import {
   Target,
   Star,
   CheckCircle,
-  Zap
+  Zap,
+  Award,
+  Building,
+  CheckSquare,
+  Code,
+  Database,
+  ExternalLink,
+  FileArchive,
+  FileCog,
+  Gauge,
+  HardHat,
+  Layers,
+  Lock,
+  Ruler,
+  ServerCog,
+  Shield,
+  Wrench,
+  Instagram,
+  Linkedin,
+  Youtube
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// Hook para contador animado
+const useCountAnimation = (target: number, duration: number = 2000) => {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const increment = target / (duration / 16);
+          let current = 0;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              setCount(target);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(current));
+            }
+          }, 16);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (countRef.current) {
+      observer.observe(countRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return { count, countRef };
+};
+
 const LandingPage = () => {
   const [scrollY, setScrollY] = useState(0);
+  const counter1 = useCountAnimation(2500);
+  const counter2 = useCountAnimation(95);
+  const counter3 = useCountAnimation(80);
+  const counter4 = useCountAnimation(1200);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
