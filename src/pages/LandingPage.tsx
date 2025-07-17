@@ -39,11 +39,7 @@ import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
-// Importar as imagens mockup
-import heroDashboard from '@/assets/hero-dashboard-mockup.jpg';
-import budgetFeature from '@/assets/budget-feature-mockup.jpg';
-import timelineFeature from '@/assets/timeline-feature-mockup.jpg';
-import aiChatFeature from '@/assets/ai-chat-feature-mockup.jpg';
+// Clean design without AI-generated images
 
 const LandingPage = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -64,15 +60,15 @@ const LandingPage = () => {
       icon: <Calculator className="h-8 w-8 text-white" />,
       title: "Orçamento Inteligente SINAPI",
       description: "IA que interpreta seus projetos e gera orçamentos técnicos precisos com base em dados oficiais do SINAPI. Cálculos automáticos em segundos, não em horas.",
-      image: budgetFeature,
+      iconSet: [<FileText className="h-6 w-6" />, <PieChart className="h-6 w-6" />, <Target className="h-6 w-6" />],
       stats: "97% de precisão",
       badge: "Dados Oficiais"
     },
     {
       icon: <Calendar className="h-8 w-8 text-white" />,
-      title: "Cronogramas Inteligentes",
+      title: "Cronogramas Inteligentes", 
       description: "Criação automática de cronogramas divididos em fases reais de execução. Prazos otimizados com base em dados históricos da construção civil brasileira.",
-      image: timelineFeature,
+      iconSet: [<Clock className="h-6 w-6" />, <Activity className="h-6 w-6" />, <CheckCircle className="h-6 w-6" />],
       stats: "70% mais rápido",
       badge: "Automação Total"
     },
@@ -80,8 +76,8 @@ const LandingPage = () => {
       icon: <BarChart3 className="h-8 w-8 text-white" />,
       title: "Dashboard Financeiro",
       description: "Visualize custo total, custo por m², prazos médios e desempenho dos projetos em tempo real. Insights que facilitam a tomada de decisão.",
-      image: heroDashboard,
-      stats: "Dados em tempo real",
+      iconSet: [<TrendingUp className="h-6 w-6" />, <Eye className="h-6 w-6" />, <Settings className="h-6 w-6" />],
+      stats: "Dados em tempo real", 
       badge: "Insights Poderosos"
     }
   ];
@@ -223,15 +219,30 @@ const LandingPage = () => {
           </div>
         </div>
         
-        {/* Hero Image - Floating */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-6xl px-4">
+        {/* Hero Visual Element - Clean Icons */}
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
           <div className="relative hero-float">
-            <div className="glassmorphism-dark rounded-t-3xl p-2">
-              <img 
-                src={heroDashboard} 
-                alt="Dashboard MadenAI" 
-                className="w-full h-auto rounded-t-2xl premium-shadow"
-              />
+            <div className="glassmorphism-dark rounded-t-3xl p-8">
+              <div className="grid grid-cols-3 gap-8 text-center">
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <Calculator className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-white/70 text-sm">Orçamentos</div>
+                </div>
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <Calendar className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-white/70 text-sm">Cronogramas</div>
+                </div>
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <BarChart3 className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="text-white/70 text-sm">Analytics</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -286,15 +297,26 @@ const LandingPage = () => {
                   </div>
                 </div>
                 
-                {/* Feature Image */}
+                {/* Feature Visual */}
                 <div className="flex-1">
                   <div className="relative">
                     <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl opacity-70"></div>
-                    <img 
-                      src={feature.image} 
-                      alt={feature.title}
-                      className="relative w-full h-auto rounded-3xl premium-shadow border border-gray-200/50"
-                    />
+                    <div className="relative glassmorphism rounded-3xl premium-shadow p-12">
+                      <div className="grid grid-cols-3 gap-8 text-center">
+                        {feature.iconSet.map((icon, iconIndex) => (
+                          <div key={iconIndex} className="space-y-4">
+                            <div className={`w-16 h-16 bg-gradient-to-br ${index % 3 === 0 ? 'from-blue-500 to-blue-600' : index % 3 === 1 ? 'from-purple-500 to-purple-600' : 'from-green-500 to-green-600'} rounded-2xl flex items-center justify-center mx-auto text-white`}>
+                              {icon}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-8 text-center">
+                        <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${index % 3 === 0 ? 'from-blue-500 to-blue-600' : index % 3 === 1 ? 'from-purple-500 to-purple-600' : 'from-green-500 to-green-600'} rounded-3xl`}>
+                          {feature.icon}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
