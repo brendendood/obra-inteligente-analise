@@ -121,17 +121,139 @@ const LandingPage = () => {
     {
       number: "01",
       title: "Faça Upload",
-      description: "Envie plantas, especificações ou qualquer documento do projeto"
+      description: "Envie plantas baixas, memoriais descritivos ou especificações técnicas em PDF"
     },
     {
       number: "02", 
       title: "IA Analisa",
-      description: "Nossa IA processa e extrai informações técnicas detalhadas"
+      description: "Nossa IA processa dados técnicos seguindo normas ABNT NBR 12721 e SINAPI"
     },
     {
       number: "03",
       title: "Receba Resultados",
-      description: "Orçamentos, cronogramas e relatórios prontos em minutos"
+      description: "Orçamentos detalhados, cronogramas físico-financeiros e relatórios executivos"
+    }
+  ];
+
+  const plans = [
+    {
+      name: "Gratuito",
+      price: "R$ 0",
+      period: "/mês",
+      description: "Ideal para profissionais iniciantes",
+      features: [
+        "1 projeto por mês",
+        "Análise básica de PDF",
+        "Orçamento técnico simples",
+        "Suporte por email"
+      ],
+      popular: false
+    },
+    {
+      name: "Pro",
+      price: "R$ 79",
+      period: "/mês",
+      description: "Para profissionais ativos",
+      features: [
+        "Projetos ilimitados",
+        "Cronogramas automáticos",
+        "Dados oficiais SINAPI",
+        "Dashboards avançados",
+        "Exportações em PDF/Excel",
+        "Suporte prioritário"
+      ],
+      popular: true
+    },
+    {
+      name: "Enterprise",
+      price: "Sob consulta",
+      period: "",
+      description: "Para construtoras e escritórios",
+      features: [
+        "Acesso multiusuário",
+        "Integração com ERPs",
+        "Automações N8N",
+        "Onboarding personalizado",
+        "Suporte técnico dedicado",
+        "SLA garantido"
+      ],
+      popular: false
+    }
+  ];
+
+  const testimonials = [
+    {
+      name: "Carlos Eduardo Santos",
+      role: "Engenheiro Civil",
+      company: "Santos Engenharia",
+      content: "Reduzi 40% do tempo de orçamentação em obras residenciais. A precisão técnica seguindo a NBR 12721 é impressionante.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=carlos&backgroundColor=b6e3f4&eyes=happy&mouth=smile"
+    },
+    {
+      name: "Ana Paula Oliveira",
+      role: "Arquiteta",
+      company: "Oliveira Arquitetura",
+      content: "A análise automática de plantas baixas economizou semanas de trabalho. Interface intuitiva e resultados profissionais.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ana&backgroundColor=ffd93d&eyes=happy&mouth=smile"
+    },
+    {
+      name: "Roberto Mendes",
+      role: "Gestor de Obras",
+      company: "Construtora Mendes",
+      content: "Os cronogramas físico-financeiros são precisos e seguem as melhores práticas. Essencial para gestão de projetos.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=roberto&backgroundColor=c0aede&eyes=happy&mouth=smile"
+    },
+    {
+      name: "Marina Costa",
+      role: "Engenheira Estrutural",
+      company: "Costa & Associados",
+      content: "A integração com dados do SINAPI garante orçamentos atualizados. Ferramenta indispensável para engenheiros.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=marina&backgroundColor=ffdfbf&eyes=happy&mouth=smile"
+    },
+    {
+      name: "José Silva",
+      role: "Coordenador de Projetos",
+      company: "Silva Construções",
+      content: "Automatizou nosso processo de análise técnica. ROI positivo desde o primeiro mês de uso.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=jose&backgroundColor=d1d4f9&eyes=happy&mouth=smile"
+    }
+  ];
+
+  const techSpecs = [
+    {
+      icon: Database,
+      title: "Dados Oficiais SINAPI",
+      description: "Composições unitárias atualizadas mensalmente seguindo diretrizes do IBGE"
+    },
+    {
+      icon: Shield,
+      title: "Conformidade NBR 12721",
+      description: "Orçamentos técnicos em conformidade com normas ABNT para avaliação de custos"
+    },
+    {
+      icon: Code,
+      title: "IA Proprietária Local",
+      description: "Algoritmos treinados especificamente para análise de documentos técnicos da construção civil"
+    },
+    {
+      icon: ServerCog,
+      title: "Integração N8N",
+      description: "Automações personalizadas conectando ERP, planilhas e sistemas de gestão"
+    },
+    {
+      icon: FileArchive,
+      title: "Processamento PDF Avançado",
+      description: "OCR especializado em plantas baixas, memoriais descritivos e especificações técnicas"
+    },
+    {
+      icon: Lock,
+      title: "Segurança Supabase",
+      description: "Armazenamento seguro com criptografia e backup automático de dados sensíveis"
     }
   ];
 
@@ -268,7 +390,140 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* Tech Specs Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Especificações Técnicas
+            </h2>
+            <p className="text-xl text-slate-600">
+              Tecnologias e conformidades que garantem a precisão dos seus projetos
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {techSpecs.map((spec, index) => (
+              <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10">
+                  <spec.icon className="h-7 w-7 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">{spec.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{spec.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Plans Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Planos para cada necessidade
+            </h2>
+            <p className="text-xl text-slate-600">
+              Escolha o plano ideal para você ou sua empresa
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {plans.map((plan, index) => (
+              <div key={index} className={`p-8 rounded-2xl border ${
+                plan.popular 
+                  ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-transparent text-white' 
+                  : 'bg-white border-slate-200'
+              } relative`}>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg">
+                    Mais Popular
+                  </div>
+                )}
+                
+                <div className="text-xl font-semibold mb-2">
+                  {plan.name}
+                </div>
+                
+                <div className="flex items-baseline mb-6">
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="ml-1 text-sm opacity-80">{plan.period}</span>
+                </div>
+                
+                <p className={`mb-8 ${plan.popular ? 'text-blue-100' : 'text-slate-600'}`}>
+                  {plan.description}
+                </p>
+                
+                <ul className="space-y-4 mb-8">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center gap-3">
+                      <CheckCircle className={`h-5 w-5 flex-shrink-0 ${
+                        plan.popular ? 'text-blue-200' : 'text-blue-500'
+                      }`} />
+                      <span className={plan.popular ? 'text-blue-100' : 'text-slate-600'}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Button 
+                  className={`w-full h-12 text-base font-semibold rounded-xl ${
+                    plan.popular
+                      ? 'bg-white text-blue-600 hover:bg-blue-50'
+                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                  }`}
+                >
+                  Começar Agora
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              O que dizem nossos usuários
+            </h2>
+            <p className="text-xl text-slate-600">
+              Profissionais que já transformaram sua forma de trabalhar
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.slice(0, 3).map((testimonial, index) => (
+              <div key={index} className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200">
+                <div className="flex items-start gap-4 mb-6">
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200"
+                  />
+                  <div>
+                    <div className="font-semibold text-slate-900">{testimonial.name}</div>
+                    <div className="text-sm text-slate-600">{testimonial.role}</div>
+                    <div className="text-sm text-slate-500">{testimonial.company}</div>
+                  </div>
+                </div>
+                
+                <p className="text-slate-600 leading-relaxed mb-4">
+                  {testimonial.content}
+                </p>
+                
+                <div className="flex gap-1">
+                  {Array.from({ length: testimonial.rating }).map((_, i) => (
+                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -345,20 +600,117 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-slate-200 bg-white">
+      <footer className="py-16 px-4 border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="font-display font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4 md:mb-0">
-              MadenAI
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+            <div className="col-span-2">
+              <div className="font-display font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+                MadenAI
+              </div>
+              <p className="text-slate-600 mb-6 max-w-sm">
+                Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
+              </p>
+              <div className="flex gap-4">
+                <a href="https://instagram.com" className="text-slate-400 hover:text-slate-600 transition-colors" target="_blank" rel="noopener">
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <a href="https://linkedin.com" className="text-slate-400 hover:text-slate-600 transition-colors" target="_blank" rel="noopener">
+                  <Linkedin className="h-5 w-5" />
+                </a>
+                <a href="https://youtube.com" className="text-slate-400 hover:text-slate-600 transition-colors" target="_blank" rel="noopener">
+                  <Youtube className="h-5 w-5" />
+                </a>
+              </div>
             </div>
-            <div className="flex items-center gap-8 text-slate-600">
-              <Link to="/privacy" className="hover:text-slate-900 transition-colors">
-                Privacidade
-              </Link>
-              <Link to="/terms" className="hover:text-slate-900 transition-colors">
-                Termos
-              </Link>
-              <span>© 2024 MadenAI. Todos os direitos reservados.</span>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Produto</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/features" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Recursos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/pricing" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Preços
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/demo" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Demonstração
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Para quem é</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/engineers" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Engenheiros
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/architects" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Arquitetos
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/constructors" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Construtoras
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Tecnologias</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="https://www.ibge.gov.br/sinapi" className="text-slate-500 hover:text-slate-700 transition-colors" target="_blank" rel="noopener">
+                    SINAPI
+                  </a>
+                </li>
+                <li>
+                  <a href="https://supabase.com" className="text-slate-500 hover:text-slate-700 transition-colors" target="_blank" rel="noopener">
+                    Supabase
+                  </a>
+                </li>
+                <li>
+                  <a href="https://n8n.io" className="text-slate-500 hover:text-slate-700 transition-colors" target="_blank" rel="noopener">
+                    N8N
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Legal</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/privacy" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Privacidade
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="text-slate-500 hover:text-slate-700 transition-colors">
+                    Termos
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 mt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-slate-500">
+              © 2024 MadenAI. Todos os direitos reservados.
+            </div>
+            <div className="flex gap-8">
+              <img src="https://www.ibge.gov.br/novo-portal-v3/img/logo-ibge.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-opacity" />
+              <img src="https://supabase.com/img/supabase-dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-opacity" />
+              <img src="https://n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </div>
