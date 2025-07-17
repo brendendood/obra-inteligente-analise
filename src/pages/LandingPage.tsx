@@ -5,12 +5,15 @@ import {
   Bot, 
   Calculator, 
   Calendar, 
-  CheckCircle, 
+  FileText, 
   ArrowRight,
   BarChart3,
   Users,
   Clock,
-  Target
+  Target,
+  Star,
+  CheckCircle,
+  Zap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -23,149 +26,275 @@ const LandingPage = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const features = [
+    {
+      icon: Upload,
+      title: "Upload Inteligente",
+      description: "Faça upload de plantas, documentos ou dados do seu projeto arquitetônico"
+    },
+    {
+      icon: Bot,
+      title: "IA Especializada",
+      description: "Nossa IA analisa cada detalhe técnico e gera insights precisos"
+    },
+    {
+      icon: Calculator,
+      title: "Orçamentos Automáticos",
+      description: "Orçamentos detalhados gerados automaticamente com precisão profissional"
+    },
+    {
+      icon: Calendar,
+      title: "Cronogramas Inteligentes",
+      description: "Cronogramas otimizados considerando recursos e dependências"
+    },
+    {
+      icon: FileText,
+      title: "Documentação Completa",
+      description: "Relatórios técnicos e documentação profissional automatizada"
+    },
+    {
+      icon: BarChart3,
+      title: "Análises Avançadas",
+      description: "Insights detalhados sobre custos, prazos e recursos necessários"
+    }
+  ];
+
+  const steps = [
+    {
+      number: "01",
+      title: "Faça Upload",
+      description: "Envie plantas, especificações ou qualquer documento do projeto"
+    },
+    {
+      number: "02", 
+      title: "IA Analisa",
+      description: "Nossa IA processa e extrai informações técnicas detalhadas"
+    },
+    {
+      number: "03",
+      title: "Receba Resultados",
+      description: "Orçamentos, cronogramas e relatórios prontos em minutos"
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       {/* Floating Header */}
-      <header className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${scrollY > 50 ? 'bg-white/80 backdrop-blur-md border border-gray-200' : 'bg-transparent'} rounded-full px-8 py-4`}>
+      <header className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ${
+        scrollY > 50 
+          ? 'bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg shadow-slate-900/5' 
+          : 'bg-white/80 backdrop-blur-md border border-slate-200/50'
+      } rounded-2xl px-8 py-4 max-w-2xl w-full mx-4`}>
         <div className="flex items-center justify-between">
-          <div className="font-display font-bold text-xl text-gray-900">MadenAI</div>
-          <Link to="/login">
-            <Button variant="ghost" className="rounded-full">
-              Entrar
-            </Button>
-          </Link>
+          <div className="font-display font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            MadenAI
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/login">
+              <Button variant="ghost" className="rounded-xl hover:bg-slate-100">
+                Entrar
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+                Começar Grátis
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
       
-      {/* Hero Section - Minimal */}
-      <section className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-12">
-          {/* Main Title */}
-          <div className="space-y-6">
-            <h1 className="text-6xl sm:text-8xl font-display font-bold text-gray-900">
-              Sua obra,{' '}
-              <span className="text-blue-600">sua IA</span>
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto space-y-8">
+            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-blue-700 text-sm font-medium">
+              <Zap className="h-4 w-4" />
+              Análise de Projetos com IA
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 leading-tight">
+              Transforme seus projetos em{' '}
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                orçamentos precisos
+              </span>
             </h1>
             
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto font-light">
-              Orçamentos e cronogramas automáticos em segundos
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              Nossa IA especializada analisa plantas arquitetônicas e gera orçamentos, cronogramas e relatórios técnicos automaticamente, economizando semanas de trabalho.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+              <Link to="/upload">
+                <Button size="lg" className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40">
+                  Analisar Projeto Grátis
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50">
+                Ver Demonstração
+              </Button>
+            </div>
+            
+            <div className="flex items-center justify-center gap-6 text-sm text-slate-500 pt-6">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Grátis para começar
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Resultados em minutos
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                Precisão profissional
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Tudo que você precisa para seus projetos
+            </h2>
+            <p className="text-xl text-slate-600">
+              Uma plataforma completa que transforma a gestão de projetos arquitetônicos com inteligência artificial
             </p>
           </div>
           
-          {/* Single CTA */}
-          <Link to="/cadastro">
-            <Button size="lg" className="h-14 px-12 text-lg font-medium bg-blue-600 hover:bg-blue-700 rounded-full">
-              Começar agora
-            </Button>
-          </Link>
-          
-          {/* Simple Features */}
-          <div className="grid grid-cols-3 gap-8 pt-16 max-w-2xl mx-auto">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto">
-                <Calculator className="h-8 w-8 text-blue-600" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-colors">
+                  <feature.icon className="h-7 w-7 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
               </div>
-              <div className="text-sm text-gray-600">Orçamentos</div>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto">
-                <Calendar className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="text-sm text-gray-600">Cronogramas</div>
-            </div>
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto">
-                <BarChart3 className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="text-sm text-gray-600">Relatórios</div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* How it Works - Minimal */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-display font-bold text-gray-900 mb-16">
-            Como funciona
-          </h2>
+      {/* How it Works */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Como funciona
+            </h2>
+            <p className="text-xl text-slate-600">
+              Processo simples e automatizado para análise completa de projetos
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto text-white font-bold">
-                1
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {steps.map((step, index) => (
+              <div key={index} className="text-center relative">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white font-bold text-xl shadow-lg shadow-blue-500/25">
+                  {step.number}
+                </div>
+                <h3 className="text-2xl font-semibold text-slate-900 mb-4">{step.title}</h3>
+                <p className="text-slate-600 leading-relaxed max-w-sm mx-auto">{step.description}</p>
+                
+                {index < steps.length - 1 && (
+                  <ArrowRight className="hidden md:block absolute top-10 -right-4 h-8 w-8 text-slate-300" />
+                )}
               </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900">Upload</h3>
-                <p className="text-gray-600 text-sm">Envie seu projeto PDF</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto text-white font-bold">
-                2
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900">Análise</h3>
-                <p className="text-gray-600 text-sm">IA processa em segundos</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto text-white font-bold">
-                3
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold text-gray-900">Resultado</h3>
-                <p className="text-gray-600 text-sm">Orçamento e cronograma prontos</p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Stats - Minimal */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      {/* Stats */}
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-display font-bold text-white mb-4">
+              Resultados que impressionam
+            </h2>
+            <p className="text-xl text-blue-100">
+              Números que comprovam a eficiência da nossa plataforma
+            </p>
+          </div>
+          
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-gray-900">1.2K+</div>
-              <div className="text-sm text-gray-600">Usuários</div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">2.5K+</div>
+              <div className="text-blue-100">Projetos Analisados</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-gray-900">2.5M</div>
-              <div className="text-sm text-gray-600">Projetos</div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">95%</div>
+              <div className="text-blue-100">Precisão</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-gray-900">97%</div>
-              <div className="text-sm text-gray-600">Precisão</div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">80%</div>
+              <div className="text-blue-100">Economia de Tempo</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-gray-900">89%</div>
-              <div className="text-sm text-gray-600">Economia</div>
+            <div className="text-center">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-2">1.2K+</div>
+              <div className="text-blue-100">Usuários Ativos</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-2xl mx-auto px-4 text-center space-y-8">
-          <h2 className="text-4xl font-display font-bold text-gray-900">
-            Pronto para começar?
-          </h2>
-          <Link to="/cadastro">
-            <Button size="lg" className="h-14 px-12 text-lg font-medium bg-blue-600 hover:bg-blue-700 rounded-full">
-              Criar conta grátis
-            </Button>
-          </Link>
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Pronto para revolucionar seus projetos?
+            </h2>
+            <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+              Junte-se a milhares de profissionais que já economizam tempo e aumentam a precisão com nossa IA
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/upload">
+                <Button size="lg" className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25">
+                  Começar Gratuitamente
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50">
+                Falar com Especialista
+              </Button>
+            </div>
+            
+            <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
+              <div className="flex">
+                {[1,2,3,4,5].map((star) => (
+                  <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <span>4.9/5 baseado em 200+ avaliações</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Simple Footer */}
-      <footer className="py-12 border-t border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 text-center text-gray-600 text-sm">
-          © 2024 MadenAI. Todos os direitos reservados.
+      {/* Footer */}
+      <footer className="py-12 px-4 border-t border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="font-display font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4 md:mb-0">
+              MadenAI
+            </div>
+            <div className="flex items-center gap-8 text-slate-600">
+              <Link to="/privacy" className="hover:text-slate-900 transition-colors">
+                Privacidade
+              </Link>
+              <Link to="/terms" className="hover:text-slate-900 transition-colors">
+                Termos
+              </Link>
+              <span>© 2024 MadenAI. Todos os direitos reservados.</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
