@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +27,13 @@ import {
   ChevronRight,
   Target,
   Layers,
-  Activity
+  Activity,
+  ArrowDown,
+  Award,
+  Briefcase,
+  Eye,
+  PieChart,
+  Settings
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/layout/Header';
@@ -39,27 +46,67 @@ import timelineFeature from '@/assets/timeline-feature-mockup.jpg';
 import aiChatFeature from '@/assets/ai-chat-feature-mockup.jpg';
 
 const LandingPage = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    
+    // Trigger animations on load
+    setTimeout(() => setIsVisible(true), 500);
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const features = [
     {
-      icon: <Calculator className="h-12 w-12 text-primary" />,
+      icon: <Calculator className="h-8 w-8 text-white" />,
       title: "Orçamento Inteligente SINAPI",
-      description: "Geração automática de orçamentos técnicos detalhados com base em dados oficiais do SINAPI. Cálculos precisos em segundos.",
+      description: "IA que interpreta seus projetos e gera orçamentos técnicos precisos com base em dados oficiais do SINAPI. Cálculos automáticos em segundos, não em horas.",
       image: budgetFeature,
-      stats: "97% de precisão"
+      stats: "97% de precisão",
+      badge: "Dados Oficiais"
     },
     {
-      icon: <Calendar className="h-12 w-12 text-primary" />,
+      icon: <Calendar className="h-8 w-8 text-white" />,
       title: "Cronogramas Inteligentes",
-      description: "Criação automática de cronogramas divididos em fases reais de execução, com durações e prazos otimizados.",
+      description: "Criação automática de cronogramas divididos em fases reais de execução. Prazos otimizados com base em dados históricos da construção civil brasileira.",
       image: timelineFeature,
-      stats: "Até 70% mais rápido"
+      stats: "70% mais rápido",
+      badge: "Automação Total"
     },
     {
-      icon: <BarChart3 className="h-12 w-12 text-primary" />,
+      icon: <BarChart3 className="h-8 w-8 text-white" />,
       title: "Dashboard Financeiro",
-      description: "Visualize custo total, custo por m², prazos médios e desempenho dos projetos em tempo real.",
+      description: "Visualize custo total, custo por m², prazos médios e desempenho dos projetos em tempo real. Insights que facilitam a tomada de decisão.",
       image: heroDashboard,
-      stats: "Dados em tempo real"
+      stats: "Dados em tempo real",
+      badge: "Insights Poderosos"
+    }
+  ];
+
+  const process = [
+    {
+      step: "01",
+      title: "Upload Inteligente",
+      description: "Você faz o upload do seu projeto em PDF. Aceita plantas, memoriais descritivos, especificações técnicas e documentos complementares.",
+      icon: <Upload className="h-10 w-10 text-white" />,
+      color: "from-blue-500 to-blue-600"
+    },
+    {
+      step: "02", 
+      title: "Análise com IA",
+      description: "Em segundos, nossa IA brasileira analisa tudo usando dados reais do SINAPI, padrões de mercado e nossa base de conhecimento especializada.",
+      icon: <Bot className="h-10 w-10 text-white" />,
+      color: "from-purple-500 to-purple-600"
+    },
+    {
+      step: "03",
+      title: "Resultados Prontos",
+      description: "Receba orçamento detalhado, cronograma estruturado e dashboard com todos os dados para suas decisões estratégicas.",
+      icon: <CheckCircle className="h-10 w-10 text-white" />,
+      color: "from-green-500 to-green-600"
     }
   ];
 
@@ -67,156 +114,187 @@ const LandingPage = () => {
     {
       name: "Carlos Eduardo Silva",
       role: "Arquiteto Senior",
-      company: "Silva & Associados",
-      quote: "A MadenAI mudou completamente minha rotina. O que levava 2 dias para orçar, agora faço em 10 minutos com muito mais precisão.",
-      rating: 5
+      company: "Silva & Associados Arquitetura",
+      quote: "A MadenAI mudou completamente minha rotina. O que antes levava 2 dias para orçar, agora faço em 10 minutos com muito mais precisão. Meus clientes ficam impressionados com a qualidade dos relatórios.",
+      rating: 5,
+      avatar: "C"
     },
     {
       name: "Ana Carolina Santos",
       role: "Engenheira Civil",
-      company: "Construtora Horizonte",
-      quote: "Impressionante como o sistema interpreta os projetos e gera cronogramas realistas. Meus clientes ficaram impressionados.",
-      rating: 5
+      company: "Construtora Horizonte Ltda",
+      quote: "Impressionante como o sistema interpreta os projetos e gera cronogramas realistas. A integração com SINAPI é um diferencial enorme. Economizei 60% do tempo em análises.",
+      rating: 5,
+      avatar: "A"
     },
     {
       name: "Roberto Mendes",
       role: "Coordenador de Projetos",
-      company: "Mega Construções",
-      quote: "Finalmente uma IA que realmente entende de construção. Os cálculos são baseados em dados reais do mercado brasileiro.",
-      rating: 5
+      company: "Mega Construções S.A.",
+      quote: "Finalmente uma IA que realmente entende de construção brasileira. Os cálculos são baseados em dados reais e os insights ajudam muito nas apresentações para investidores.",
+      rating: 5,
+      avatar: "R"
     }
   ];
 
   const stats = [
-    { value: "2.5M", label: "Projetos analisados", icon: <FileText className="h-5 w-5" /> },
-    { value: "89%", label: "Redução de tempo", icon: <Clock className="h-5 w-5" /> },
-    { value: "1.2K+", label: "Profissionais ativos", icon: <Users className="h-5 w-5" /> },
-    { value: "97%", label: "Precisão nos cálculos", icon: <Target className="h-5 w-5" /> }
+    { value: "2.5M", label: "Projetos analisados", icon: <FileText className="h-6 w-6" /> },
+    { value: "89%", label: "Redução de tempo", icon: <Clock className="h-6 w-6" /> },
+    { value: "1.2K+", label: "Profissionais ativos", icon: <Users className="h-6 w-6" /> },
+    { value: "97%", label: "Precisão nos cálculos", icon: <Target className="h-6 w-6" /> }
   ];
 
   const integrations = [
-    { name: "N8N", description: "Automações inteligentes", icon: <Layers className="h-8 w-8" /> },
-    { name: "SINAPI", description: "Dados oficiais", icon: <Database className="h-8 w-8" /> },
-    { name: "Supabase", description: "Segurança de dados", icon: <Shield className="h-8 w-8" /> },
-    { name: "IA Brasileira", description: "Treinada localmente", icon: <Cpu className="h-8 w-8" /> }
+    { name: "N8N", description: "Automações inteligentes", icon: <Layers className="h-10 w-10" />, color: "text-blue-400" },
+    { name: "SINAPI", description: "Dados oficiais", icon: <Database className="h-10 w-10" />, color: "text-green-400" },
+    { name: "Supabase", description: "Segurança de dados", icon: <Shield className="h-10 w-10" />, color: "text-purple-400" },
+    { name: "IA Brasileira", description: "Treinada localmente", icon: <Cpu className="h-10 w-10" />, color: "text-orange-400" }
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       <Header />
       
-      {/* Hero Section - Apple Style */}
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-50 overflow-hidden">
+      {/* Hero Section - Dark Premium */}
+      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 overflow-hidden">
         {/* Background Effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20"></div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-8">
+        {/* Floating Elements */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute bottom-40 right-10 w-40 h-40 bg-purple-500/10 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+          <div className="space-y-12">
             {/* Badge */}
-            <div className="inline-flex items-center space-x-2 bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary px-6 py-3 rounded-full text-sm font-medium">
-              <Sparkles className="h-4 w-4" />
-              <span>O copiloto de IA para arquitetos e engenheiros</span>
+            <div className={`inline-flex items-center space-x-3 glassmorphism px-6 py-4 rounded-full text-sm font-medium transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <Sparkles className="h-5 w-5 text-blue-400" />
+              <span className="text-white/90">O copiloto de IA para arquitetos e engenheiros</span>
             </div>
             
             {/* Main Heading */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
-              Sua obra,{' '}
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                sua IA
-              </span>
-            </h1>
-            
-            {/* Subtitle */}
-            <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              A MadenAI é o copiloto de IA que interpreta, analisa e organiza seus projetos de arquitetura e engenharia em segundos — como se você tivesse um assistente técnico 24h por dia.
-            </p>
+            <div className={`space-y-6 transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-display font-bold leading-tight">
+                Sua obra,{' '}
+                <span className="text-gradient">
+                  sua IA
+                </span>
+              </h1>
+              
+              <p className="text-xl sm:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed font-light">
+                A MadenAI é o copiloto de IA que interpreta, analisa e organiza seus projetos de arquitetura e engenharia em segundos — como se você tivesse um assistente técnico 24h por dia.
+              </p>
+            </div>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <div className={`flex flex-col sm:flex-row gap-6 justify-center items-center max-w-2xl mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <Link to="/cadastro" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                  Comece agora
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" className="w-full sm:w-auto h-16 px-10 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 hover-glow rounded-2xl">
+                  Comece agora gratuitamente
+                  <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold border-2 backdrop-blur-sm hover:bg-primary/5 transition-all duration-300">
-                <Play className="mr-2 h-5 w-5" />
+              <Button variant="outline" size="lg" className="w-full sm:w-auto h-16 px-10 text-lg font-semibold border-2 border-white/20 text-white glassmorphism hover:bg-white/10 transition-all duration-300 rounded-2xl">
+                <Play className="mr-3 h-6 w-6" />
                 Ver demonstração
               </Button>
             </div>
             
-            {/* Quick Stats */}
-            <div className="flex flex-wrap justify-center gap-8 pt-8 text-gray-600">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">Análise em segundos</span>
+            {/* Trust Indicators */}
+            <div className={`flex flex-wrap justify-center gap-12 pt-12 text-white/70 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+              <div className="flex items-center space-x-3">
+                <Shield className="h-6 w-6 text-blue-400" />
+                <span className="text-base font-medium">100% Seguro</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">100% Seguro</span>
+              <div className="flex items-center space-x-3">
+                <Clock className="h-6 w-6 text-green-400" />
+                <span className="text-base font-medium">Análise em segundos</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">Dados SINAPI</span>
+              <div className="flex items-center space-x-3">
+                <Database className="h-6 w-6 text-purple-400" />
+                <span className="text-base font-medium">Dados SINAPI</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Users className="h-6 w-6 text-orange-400" />
+                <span className="text-base font-medium">+1.200 profissionais</span>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Hero Image */}
+        {/* Hero Image - Floating */}
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-6xl px-4">
           <div className="relative hero-float">
-            <img 
-              src={heroDashboard} 
-              alt="Dashboard MadenAI" 
-              className="w-full h-auto rounded-t-2xl shadow-2xl border border-gray-200"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent rounded-t-2xl"></div>
+            <div className="glassmorphism-dark rounded-t-3xl p-2">
+              <img 
+                src={heroDashboard} 
+                alt="Dashboard MadenAI" 
+                className="w-full h-auto rounded-t-2xl premium-shadow"
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="funcionalidades" className="py-24 bg-white">
+      <section id="funcionalidades" className="py-32 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Três ferramentas que mudam tudo
+          {/* Section Header */}
+          <div className="text-center mb-24 scroll-reveal">
+            <Badge variant="outline" className="mb-6 text-blue-600 border-blue-200 px-6 py-2 text-sm font-medium">
+              Funcionalidades Premium
+            </Badge>
+            <h2 className="text-5xl sm:text-6xl font-display font-bold text-gray-900 mb-8">
+              Três ferramentas que 
+              <span className="block text-gradient">mudam tudo</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
               Desenvolvidas especificamente para arquitetos e engenheiros brasileiros
             </p>
           </div>
 
-          <div className="space-y-32">
+          {/* Features Grid */}
+          <div className="space-y-40">
             {features.map((feature, index) => (
-              <div key={index} className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-12 lg:gap-20`}>
-                <div className="flex-1 space-y-8">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-2xl">
+              <div key={index} className={`flex flex-col ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} items-center gap-16 lg:gap-24 scroll-reveal`}>
+                {/* Text Content */}
+                <div className="flex-1 space-y-10">
+                  <div className={`inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br ${index % 3 === 0 ? 'from-blue-500 to-blue-600' : index % 3 === 1 ? 'from-purple-500 to-purple-600' : 'from-green-500 to-green-600'} rounded-3xl premium-shadow`}>
                     {feature.icon}
                   </div>
-                  <div className="space-y-6">
+                  
+                  <div className="space-y-8">
                     <div className="space-y-4">
-                      <Badge variant="outline" className="text-primary border-primary/20">
-                        {feature.stats}
+                      <Badge variant="outline" className="text-blue-600 border-blue-200 text-sm font-medium px-4 py-2">
+                        {feature.badge}
                       </Badge>
-                      <h3 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                      <h3 className="text-4xl lg:text-5xl font-display font-bold text-gray-900">
                         {feature.title}
                       </h3>
+                      <p className="text-xl text-gray-600 leading-relaxed font-light">
+                        {feature.description}
+                      </p>
                     </div>
-                    <p className="text-xl text-gray-600 leading-relaxed">
-                      {feature.description}
-                    </p>
+                    
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <Target className="h-5 w-5 text-green-500" />
+                        <span className="text-lg font-semibold text-gray-900">{feature.stats}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+                
+                {/* Feature Image */}
                 <div className="flex-1">
-                <div className="relative">
+                  <div className="relative">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl opacity-70"></div>
                     <img 
                       src={feature.image} 
                       alt={feature.title}
-                      className="w-full h-auto rounded-2xl shadow-2xl border border-gray-200 feature-image"
+                      className="relative w-full h-auto rounded-3xl premium-shadow border border-gray-200/50"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent rounded-2xl"></div>
                   </div>
                 </div>
               </div>
@@ -226,54 +304,42 @@ const LandingPage = () => {
       </section>
 
       {/* Process Section */}
-      <section className="py-24 bg-gradient-to-br from-slate-50 to-white">
+      <section className="py-32 bg-gradient-to-br from-slate-50 to-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Como funciona?
+          <div className="text-center mb-20 scroll-reveal">
+            <h2 className="text-5xl sm:text-6xl font-display font-bold text-gray-900 mb-8">
+              Como <span className="text-gradient">funciona?</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
               Três passos simples para transformar seus projetos
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                step: "01",
-                title: "Upload do Projeto",
-                description: "Você faz o upload do seu projeto em PDF. Nosso sistema aceita plantas, memoriais e documentos técnicos.",
-                icon: <Upload className="h-8 w-8 text-primary" />
-              },
-              {
-                step: "02",
-                title: "Análise Inteligente",
-                description: "Em segundos, a IA analisa tudo usando dados reais do SINAPI e nossa base de conhecimento brasileira.",
-                icon: <Bot className="h-8 w-8 text-primary" />
-              },
-              {
-                step: "03",
-                title: "Resultados Prontos",
-                description: "Receba orçamento detalhado, cronograma estruturado e dashboard com dados para suas decisões.",
-                icon: <CheckCircle className="h-8 w-8 text-primary" />
-              }
-            ].map((item, index) => (
-              <div key={index} className="relative">
-                <Card className="p-8 text-center h-full border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
-                  <CardContent className="space-y-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {process.map((item, index) => (
+              <div key={index} className="relative scroll-reveal feature-reveal">
+                <div className="relative glassmorphism p-10 text-center h-full rounded-3xl premium-shadow hover:premium-shadow transition-all duration-500 group">
+                  {/* Step Number */}
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                    <div className={`w-16 h-16 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center text-white font-bold text-xl premium-shadow`}>
+                      {item.step}
+                    </div>
+                  </div>
+                  
+                  <div className="pt-8 space-y-6">
+                    <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${item.color} rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
                       {item.icon}
                     </div>
-                    <div className="space-y-4">
-                      <div className="text-primary text-sm font-bold">{item.step}</div>
-                      <h3 className="text-xl font-bold text-gray-900">{item.title}</h3>
-                      <p className="text-gray-600">{item.description}</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                    
+                    <h3 className="text-2xl font-display font-bold text-gray-900">{item.title}</h3>
+                    <p className="text-gray-600 leading-relaxed">{item.description}</p>
+                  </div>
+                </div>
+                
+                {/* Connector */}
                 {index < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                    <ChevronRight className="h-8 w-8 text-primary/30" />
+                  <div className="hidden md:block absolute top-1/2 -right-6 transform -translate-y-1/2 z-10">
+                    <ArrowRight className="h-8 w-8 text-blue-400" />
                   </div>
                 )}
               </div>
@@ -283,62 +349,76 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 bg-white">
+      <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              O que dizem nossos usuários
+          <div className="text-center mb-20 scroll-reveal">
+            <h2 className="text-5xl sm:text-6xl font-display font-bold text-gray-900 mb-8">
+              O que dizem nossos <span className="text-gradient">usuários</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Profissionais reais compartilhando suas experiências
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
+              Profissionais reais compartilhando suas experiências transformadoras
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-8 border-0 shadow-md testimonial-card">
-                <CardContent className="space-y-6">
-                  <div className="flex space-x-1">
+              <div key={index} className="scroll-reveal feature-reveal">
+                <div className="glassmorphism p-8 rounded-3xl premium-shadow hover:premium-shadow transition-all duration-500 h-full">
+                  {/* Rating */}
+                  <div className="flex space-x-1 mb-6">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <blockquote className="text-gray-700 italic text-lg leading-relaxed">
+                  
+                  {/* Quote */}
+                  <blockquote className="text-gray-700 text-lg leading-relaxed mb-8 font-light italic">
                     "{testimonial.quote}"
                   </blockquote>
-                  <div className="space-y-1">
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.role}</div>
-                    <div className="text-sm text-primary">{testimonial.company}</div>
+                  
+                  {/* Author */}
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                      {testimonial.avatar}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900 text-lg">{testimonial.name}</div>
+                      <div className="text-gray-600 text-sm">{testimonial.role}</div>
+                      <div className="text-blue-600 text-sm font-medium">{testimonial.company}</div>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-24 bg-gradient-to-br from-primary to-primary/80 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-              Números que impressionam
+      <section className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20 scroll-reveal">
+            <h2 className="text-5xl sm:text-6xl font-display font-bold mb-8">
+              Números que <span className="text-gradient">impressionam</span>
             </h2>
-            <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
-              Resultados reais de uma plataforma que funciona
+            <p className="text-xl text-white/80 max-w-3xl mx-auto font-light">
+              Resultados reais de uma plataforma que realmente funciona
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center space-y-4 stats-counter">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-full">
-                  {stat.icon}
+              <div key={index} className="text-center space-y-6 scroll-reveal counter-animation">
+                <div className="inline-flex items-center justify-center w-20 h-20 glassmorphism-dark rounded-2xl">
+                  <div className="text-blue-400">
+                    {stat.icon}
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-4xl font-bold">{stat.value}</div>
-                  <div className="text-primary-foreground/80">{stat.label}</div>
+                  <div className="text-5xl font-display font-bold text-white">{stat.value}</div>
+                  <div className="text-white/70 text-lg">{stat.label}</div>
                 </div>
               </div>
             ))}
@@ -347,64 +427,97 @@ const LandingPage = () => {
       </section>
 
       {/* Integrations Section */}
-      <section className="py-24 bg-white">
+      <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Integrações poderosas
+          <div className="text-center mb-20 scroll-reveal">
+            <h2 className="text-5xl sm:text-6xl font-display font-bold text-gray-900 mb-8">
+              Integrações <span className="text-gradient">poderosas</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Conecte-se com as melhores ferramentas do mercado
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-light">
+              Conecte-se com as melhores ferramentas e dados do mercado brasileiro
             </p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {integrations.map((integration, index) => (
-              <Card key={index} className="p-6 text-center border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
-                <CardContent className="space-y-4">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full">
+              <div key={index} className="scroll-reveal feature-reveal">
+                <div className="glassmorphism p-8 text-center rounded-3xl premium-shadow hover:premium-shadow transition-all duration-500 group">
+                  <div className={`inline-flex items-center justify-center w-20 h-20 bg-gray-900 rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300 ${integration.color}`}>
                     {integration.icon}
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-gray-900">{integration.name}</h3>
-                    <p className="text-sm text-gray-600">{integration.description}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                  <h3 className="text-xl font-display font-bold text-gray-900 mb-2">{integration.name}</h3>
+                  <p className="text-gray-600 text-sm">{integration.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Final Section */}
-      <section className="py-24 bg-gradient-to-br from-slate-50 to-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="space-y-8">
-            <h2 className="text-4xl sm:text-5xl font-bold text-gray-900">
-              Pronto para revolucionar seus projetos?
+      {/* Trust Section */}
+      <section className="py-32 bg-gradient-to-br from-slate-50 to-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center scroll-reveal">
+          <div className="glassmorphism p-12 rounded-3xl premium-shadow">
+            <Award className="h-16 w-16 text-blue-500 mx-auto mb-8" />
+            <h2 className="text-4xl sm:text-5xl font-display font-bold text-gray-900 mb-6">
+              Desenvolvido com tecnologia nacional
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Junte-se a mais de 1.200 profissionais que já transformaram sua rotina com a MadenAI
+            <p className="text-xl text-gray-600 mb-8 font-light">
+              Plataforma 100% brasileira, treinada com dados reais do mercado nacional e integrada aos principais sistemas do país.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
+            <div className="flex flex-wrap justify-center gap-8 text-gray-600">
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5 text-green-500" />
+                <span>LGPD Compliance</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Database className="h-5 w-5 text-blue-500" />
+                <span>Dados SINAPI</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Globe className="h-5 w-5 text-purple-500" />
+                <span>Suporte Nacional</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-32 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
+        
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center scroll-reveal">
+          <div className="space-y-12">
+            <div className="space-y-8">
+              <h2 className="text-5xl sm:text-6xl font-display font-bold">
+                Pronto para revolucionar <span className="text-gradient">seus projetos?</span>
+              </h2>
+              <p className="text-xl text-white/80 max-w-3xl mx-auto font-light">
+                Junte-se a mais de 1.200 profissionais que já transformaram sua rotina com a MadenAI. Comece gratuitamente, sem cartão de crédito.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center max-w-2xl mx-auto">
               <Link to="/cadastro" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                  Comece agora gratuitamente
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" className="w-full sm:w-auto h-16 px-12 text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 hover-glow rounded-2xl">
+                  Comece agora
+                  <ArrowRight className="ml-3 h-6 w-6" />
                 </Button>
               </Link>
             </div>
-            <div className="flex justify-center space-x-8 text-sm text-gray-600 pt-4">
+            
+            <div className="flex justify-center space-x-12 text-sm text-white/70 pt-8">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-5 w-5 text-green-400" />
                 <span>Sem cartão de crédito</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <Clock className="h-5 w-5 text-blue-400" />
                 <span>Configuração em 2 minutos</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <Shield className="h-5 w-5 text-purple-400" />
                 <span>Suporte especializado</span>
               </div>
             </div>
