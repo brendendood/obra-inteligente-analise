@@ -701,19 +701,20 @@ export type Database = {
     }
     Functions: {
       calculate_user_engagement: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          user_id: string
-          total_sessions: number
-          avg_session_duration: number
-          total_events: number
-          last_activity: string
-          engagement_score: number
-        }[]
+        Args: Record<PropertyKey, never> | { target_user_id: string }
+        Returns: number
       }
       check_admin_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      example_function: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: number
+          username: string
+          created_at: string
+        }[]
       }
       get_admin_dashboard_stats: {
         Args: Record<PropertyKey, never>
@@ -747,6 +748,13 @@ export type Database = {
           ai_cost_month: number
           conversion_rate: number
           top_features: Json
+        }[]
+      }
+      get_user_engagement: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          user_id: string
+          engagement_score: number
         }[]
       }
       is_admin: {

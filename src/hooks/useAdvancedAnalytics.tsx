@@ -159,7 +159,7 @@ export function useAdvancedAnalytics() {
         return;
       }
 
-      const engagementData = (data || []).map((item: any) => ({
+      const engagementData = (Array.isArray(data) ? data : []).map((item: any) => ({
         user_id: String(item.user_id || ''),
         total_sessions: Number(item.total_sessions) || 0,
         avg_session_duration: Number(item.avg_session_duration) || 0,
