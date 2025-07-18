@@ -37,50 +37,53 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Hook para contador animado CRESCENTE (corrigido)
+// Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const countRef = useRef(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const countRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (hasAnimated) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !isVisible) {
           setIsVisible(true);
+          setHasAnimated(true);
           
-          // Animação crescente suave
-          const startTime = Date.now();
+          console.log(`Iniciando animação do contador para ${target}`);
+          
+          // Animação otimizada
+          let start = 0;
+          const increment = target / (duration / 16);
+          
           const animate = () => {
-            const now = Date.now();
-            const elapsed = now - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Função de easing para animação mais suave
-            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-            const currentValue = Math.floor(target * easeOutQuart);
-            
-            setCount(currentValue);
-            
-            if (progress < 1) {
+            start += increment;
+            if (start < target) {
+              setCount(Math.floor(start));
               requestAnimationFrame(animate);
             } else {
-              setCount(target); // Garantir valor final exato
+              setCount(target);
+              console.log(`Contador finalizado em ${target}`);
             }
           };
           
           requestAnimationFrame(animate);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.3, rootMargin: '50px' }
     );
 
     if (countRef.current) {
       observer.observe(countRef.current);
     }
 
-    return () => observer.disconnect();
-  }, [target, duration, isVisible]);
+    return () => {
+      observer.disconnect();
+    };
+  }, [target, duration, isVisible, hasAnimated]);
 
   return { count, countRef };
 };
@@ -93,8 +96,11 @@ const LandingPage = () => {
   const counter4 = useCountAnimation(1200);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -271,10 +277,12 @@ const LandingPage = () => {
     }
   ];
 
+  console.log('Landing Page renderizada com sucesso');
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Floating Header - MELHORADO PARA MOBILE */}
-      <header className={`fixed top-3 md:top-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ${
+      {/* Header flutuante OTIMIZADO */}
+      <header className={`fixed top-3 md:top-6 left-1/2 transform -translate-x-1/2 z-50 transition-smooth ${
         scrollY > 50 
           ? 'bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg shadow-slate-900/5' 
           : 'bg-white/80 backdrop-blur-md border border-slate-200/50'
@@ -285,12 +293,12 @@ const LandingPage = () => {
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <Link to="/login">
-              <Button variant="ghost" className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2">
+              <Button variant="ghost" className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2 transition-fast">
                 Entrar
               </Button>
             </Link>
             <Link to="/signup">
-              <Button className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2">
+              <Button className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2 transition-fast">
                 Começar Grátis
               </Button>
             </Link>
@@ -298,7 +306,7 @@ const LandingPage = () => {
         </div>
       </header>
       
-      {/* Hero Section */}
+      {/* Hero Section OTIMIZADA */}
       <section className="pt-24 md:pt-32 pb-20 px-4 animate-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto space-y-8">
@@ -318,20 +326,18 @@ const LandingPage = () => {
               Nossa IA especializada analisa plantas arquitetônicas e gera orçamentos, cronogramas e relatórios técnicos automaticamente, economizando semanas de trabalho.
             </p>
             
-            {/* BOTÕES CORRIGIDOS - MESMO TAMANHO */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
               <Link to="/upload" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40 hover-lift">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift">
                   Analisar Projeto Grátis
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50 hover-scale">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50 hover-scale transition-fast">
                 Ver Demonstração
               </Button>
             </div>
             
-            {/* CHECKS ORGANIZADOS - LAYOUT MELHORADO */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-500 pt-6">
               <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
                 <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -350,7 +356,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section OTIMIZADA */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -364,8 +370,8 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover-lift animate-fade-in stagger-animation" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-colors group-hover:scale-110 duration-300">
+              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-smooth hover-lift animate-fade-in stagger-animation" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-smooth group-hover:scale-110">
                   <feature.icon className="h-7 w-7 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
@@ -376,7 +382,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* How it Works */}
+      {/* How it Works OTIMIZADA */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -391,7 +397,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {steps.map((step, index) => (
               <div key={index} className="text-center relative animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white font-bold text-xl shadow-lg shadow-blue-500/25 hover-scale">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white font-bold text-xl shadow-lg shadow-blue-500/25 hover-scale transition-fast">
                   {step.number}
                 </div>
                 <h3 className="text-2xl font-semibold text-slate-900 mb-4">{step.title}</h3>
@@ -406,7 +412,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Tecnologias que usamos - LOGOS CORRIGIDOS */}
+      {/* Tecnologias OTIMIZADA */}
       <section className="py-12 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-8 md:mb-16 animate-fade-in">
@@ -431,9 +437,9 @@ const LandingPage = () => {
                   { name: "Recharts", logo: "https://github.com/recharts/recharts/raw/master/logo.svg" },
                   { name: "Lucide React", logo: "https://lucide.dev/logo.dark.svg" },
                 ].map((tech, index) => (
-                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
-                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center transition-fast hover:scale-110">
                         <img 
                           src={tech.logo} 
                           alt={`${tech.name} logo`}
@@ -460,9 +466,9 @@ const LandingPage = () => {
                   { name: "Edge Functions", logo: "https://cdn-icons-png.flaticon.com/512/2721/2721291.png" },
                   { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
                 ].map((tech, index) => (
-                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group animate-fade-in" style={{ animationDelay: `${(index + 6) * 0.1}s` }}>
+                  <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${(index + 6) * 0.1}s` }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
-                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center transition-fast hover:scale-110">
                         <img 
                           src={tech.logo} 
                           alt={`${tech.name} logo`}
@@ -480,7 +486,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Tech Specs Section */}
+      {/* Tech Specs OTIMIZADA */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -494,8 +500,8 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {techSpecs.map((spec, index) => (
-              <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300">
+              <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-smooth hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10 group-hover:scale-110 transition-fast">
                   <spec.icon className="h-7 w-7 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">{spec.title}</h3>
@@ -506,7 +512,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Plans Section */}
+      {/* Plans OTIMIZADA */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -520,7 +526,7 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan, index) => (
-              <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-all duration-300 ${
+              <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth ${
                 plan.popular 
                   ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-transparent text-white' 
                   : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-lg'
@@ -558,7 +564,7 @@ const LandingPage = () => {
                 </ul>
                 
                 <Button 
-                  className={`w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover-scale ${
+                  className={`w-full h-12 text-base font-semibold rounded-xl transition-fast hover-scale ${
                     plan.popular
                       ? 'bg-white text-blue-600 hover:bg-blue-50'
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
@@ -572,7 +578,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials OTIMIZADA */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -586,12 +592,13 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.slice(0, 3).map((testimonial, index) => (
-              <div key={index} className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div key={index} className="testimonial-card bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="flex items-start gap-4 mb-6">
                   <img 
                     src={testimonial.avatar} 
                     alt={testimonial.name}
-                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200 hover-scale"
+                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200 hover-scale transition-fast"
+                    loading="lazy"
                   />
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.name}</div>
@@ -615,7 +622,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section - CONTADOR CRESCENTE CORRIGIDO */}
+      {/* Stats Section OTIMIZADA */}
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 animate-fade-in">
@@ -629,25 +636,25 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center animate-fade-in">
-              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
                 {counter1.count.toLocaleString()}+
               </div>
               <div className="text-blue-100">Projetos Analisados</div>
             </div>
             <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
                 {counter2.count}%
               </div>
               <div className="text-blue-100">Precisão</div>
             </div>
             <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
                 {counter3.count}%
               </div>
               <div className="text-blue-100">Economia de Tempo</div>
             </div>
             <div className="text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
                 {counter4.count.toLocaleString()}+
               </div>
               <div className="text-blue-100">Usuários Ativos</div>
@@ -656,10 +663,10 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* Final CTA OTIMIZADA */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200 hover:border-blue-300 transition-all duration-300 animate-fade-in hover-lift">
+          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200 hover:border-blue-300 transition-smooth animate-fade-in hover-lift">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               Pronto para revolucionar seus projetos?
             </h2>
@@ -669,12 +676,12 @@ const LandingPage = () => {
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/upload" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover-lift">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover-lift transition-smooth">
                   Começar Gratuitamente
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale transition-fast">
                 Falar com Especialista
               </Button>
             </div>
@@ -691,7 +698,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer - LOGOS CORRIGIDOS E ANO ATUALIZADO */}
+      {/* Footer OTIMIZADO */}
       <footer className="py-16 px-4 border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
@@ -703,13 +710,13 @@ const LandingPage = () => {
                 Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
               </p>
               <div className="flex gap-4">
-                <a href="https://instagram.com" className="text-slate-400 hover:text-slate-600 transition-colors hover-scale" target="_blank" rel="noopener">
+                <a href="https://instagram.com" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://linkedin.com" className="text-slate-400 hover:text-slate-600 transition-colors hover-scale" target="_blank" rel="noopener">
+                <a href="https://linkedin.com" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
                   <Linkedin className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com" className="text-slate-400 hover:text-slate-600 transition-colors hover-scale" target="_blank" rel="noopener">
+                <a href="https://youtube.com" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
                   <Youtube className="h-5 w-5" />
                 </a>
               </div>
@@ -719,17 +726,17 @@ const LandingPage = () => {
               <h3 className="font-semibold text-slate-900 mb-3">Produto</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/features" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/features" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Recursos
                   </Link>
                 </li>
                 <li>
-                  <Link to="/pricing" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/pricing" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Preços
                   </Link>
                 </li>
                 <li>
-                  <Link to="/demo" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/demo" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Demonstração
                   </Link>
                 </li>
@@ -740,17 +747,17 @@ const LandingPage = () => {
               <h3 className="font-semibold text-slate-900 mb-3">Para quem é</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/engineers" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/engineers" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Engenheiros
                   </Link>
                 </li>
                 <li>
-                  <Link to="/architects" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/architects" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Arquitetos
                   </Link>
                 </li>
                 <li>
-                  <Link to="/constructors" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/constructors" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Construtoras
                   </Link>
                 </li>
@@ -761,17 +768,17 @@ const LandingPage = () => {
               <h3 className="font-semibold text-slate-900 mb-3">Tecnologias</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="https://www.ibge.gov.br/sinapi" className="text-slate-500 hover:text-slate-700 transition-colors" target="_blank" rel="noopener">
+                  <a href="https://www.ibge.gov.br/sinapi" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
                     SINAPI
                   </a>
                 </li>
                 <li>
-                  <a href="https://supabase.com" className="text-slate-500 hover:text-slate-700 transition-colors" target="_blank" rel="noopener">
+                  <a href="https://supabase.com" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
                     Supabase
                   </a>
                 </li>
                 <li>
-                  <a href="https://n8n.io" className="text-slate-500 hover:text-slate-700 transition-colors" target="_blank" rel="noopener">
+                  <a href="https://n8n.io" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
                     N8N
                   </a>
                 </li>
@@ -782,12 +789,12 @@ const LandingPage = () => {
               <h3 className="font-semibold text-slate-900 mb-3">Legal</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/privacy" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/privacy" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Privacidade
                   </Link>
                 </li>
                 <li>
-                  <Link to="/terms" className="text-slate-500 hover:text-slate-700 transition-colors">
+                  <Link to="/terms" className="text-slate-500 hover:text-slate-700 transition-fast">
                     Termos
                   </Link>
                 </li>
@@ -800,9 +807,9 @@ const LandingPage = () => {
               © 2025 MadenAI. Todos os direitos reservados.
             </div>
             <div className="flex gap-8">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-opacity hover-scale" />
-              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-opacity hover-scale" />
-              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-opacity hover-scale" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
             </div>
           </div>
         </div>
