@@ -110,31 +110,31 @@ const LandingPage = () => {
 
   const missionSteps = [
     {
-      title: "Primeiro Upload",
-      description: "Faça upload do seu primeiro projeto",
+      title: "Selecione seu projeto",
+      description: "Escolha um projeto para começar sua jornada",
       xp: 50,
-      icon: Upload,
+      icon: Target,
       color: "from-green-500 to-emerald-500"
     },
     {
-      title: "Análise Completa",
-      description: "Complete sua primeira análise com IA",
+      title: "Faça o upload",
+      description: "Carregue seus arquivos e documentos",
       xp: 100,
-      icon: Bot,
+      icon: Upload,
       color: "from-blue-500 to-indigo-500"
     },
     {
-      title: "Orçamento Expert",
-      description: "Gere 5 orçamentos detalhados",
+      title: "Faça sua análise",
+      description: "Deixe a IA processar seus dados",
       xp: 200,
-      icon: Calculator,
+      icon: Bot,
       color: "from-purple-500 to-pink-500"
     },
     {
-      title: "Cronograma Master",
-      description: "Crie cronogramas para 3 projetos",
+      title: "Economize tempo",
+      description: "Receba resultados profissionais instantaneamente",
       xp: 300,
-      icon: Calendar,
+      icon: Clock,
       color: "from-orange-500 to-red-500"
     }
   ];
@@ -540,7 +540,7 @@ const LandingPage = () => {
                   
                   {/* Ícone da missão */}
                   <div className={`w-16 h-16 bg-gradient-to-br ${mission.color} rounded-2xl flex items-center justify-center mx-auto mb-4 ${
-                    status === 'locked' ? 'opacity-50 grayscale' : status === 'available' ? 'group-hover:scale-110 animate-pulse' : 'group-hover:scale-110'
+                    status === 'locked' ? 'opacity-50 grayscale' : 'group-hover:scale-110'
                   } transition-all duration-300`}>
                     <mission.icon className="h-8 w-8 text-white" />
                   </div>
@@ -595,6 +595,25 @@ const LandingPage = () => {
               </div>
               <span className="text-sm text-slate-600">{totalXP}/{xpForNextLevel} XP</span>
             </div>
+            
+            {/* Botão CTA quando jornada completa */}
+            {completedSteps.every(step => step) && (
+              <div className="mt-8 animate-scale-in">
+                <Button 
+                  size="lg" 
+                  className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-xl shadow-lg shadow-green-500/25 transition-smooth hover-lift"
+                  onClick={() => {
+                    const plansSection = document.querySelector('#planos');
+                    if (plansSection) {
+                      plansSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  🎉 Parabéns! Assine um Plano Agora
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -700,7 +719,7 @@ const LandingPage = () => {
       </section>
 
       {/* Plans OTIMIZADA */}
-      <section className="py-20 px-4">
+      <section id="planos" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
