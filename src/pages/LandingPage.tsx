@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -90,6 +89,11 @@ const useCountAnimation = (target: number, duration: number = 2000) => {
 
 const LandingPage = () => {
   const [scrollY, setScrollY] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [totalXP, setTotalXP] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<boolean[]>([false, false, false, false]);
+  const [showParticles, setShowParticles] = useState<number | null>(null);
+  
   const counter1 = useCountAnimation(2500);
   const counter2 = useCountAnimation(95);
   const counter3 = useCountAnimation(80);
@@ -103,6 +107,67 @@ const LandingPage = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const missionSteps = [
+    {
+      title: "Primeiro Upload",
+      description: "Faça upload do seu primeiro projeto",
+      xp: 50,
+      icon: Upload,
+      color: "from-green-500 to-emerald-500"
+    },
+    {
+      title: "Análise Completa",
+      description: "Complete sua primeira análise com IA",
+      xp: 100,
+      icon: Bot,
+      color: "from-blue-500 to-indigo-500"
+    },
+    {
+      title: "Orçamento Expert",
+      description: "Gere 5 orçamentos detalhados",
+      xp: 200,
+      icon: Calculator,
+      color: "from-purple-500 to-pink-500"
+    },
+    {
+      title: "Cronograma Master",
+      description: "Crie cronogramas para 3 projetos",
+      xp: 300,
+      icon: Calendar,
+      color: "from-orange-500 to-red-500"
+    }
+  ];
+
+  const handleMissionClick = (index: number) => {
+    if (index === currentStep && !completedSteps[index]) {
+      const newCompletedSteps = [...completedSteps];
+      newCompletedSteps[index] = true;
+      setCompletedSteps(newCompletedSteps);
+      
+      const newTotalXP = totalXP + missionSteps[index].xp;
+      setTotalXP(newTotalXP);
+      
+      if (index < missionSteps.length - 1) {
+        setCurrentStep(index + 1);
+        setShowParticles(index + 1);
+        
+        setTimeout(() => {
+          setShowParticles(null);
+        }, 600);
+      }
+    }
+  };
+
+  const getMissionStatus = (index: number) => {
+    if (completedSteps[index]) return 'completed';
+    if (index === currentStep) return 'available';
+    return 'locked';
+  };
+
+  const currentLevel = Math.floor(totalXP / 200) + 1;
+  const xpForNextLevel = (currentLevel * 200);
+  const progressPercent = totalXP > 0 ? (totalXP % 200) / 200 * 100 : 0;
 
   const features = [
     {
@@ -429,7 +494,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* User Journey - Nova Seção Inspirada no Conty */}
+      {/* User Journey - Seção Interativa NOVA */}
       <section id="user-journey" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -442,95 +507,93 @@ const LandingPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: "Primeiro Upload",
-                description: "Faça upload do seu primeiro projeto",
-                xp: "50 XP",
-                icon: Upload,
-                status: "available",
-                color: "from-green-500 to-emerald-500"
-              },
-              {
-                title: "Análise Completa",
-                description: "Complete sua primeira análise com IA",
-                xp: "100 XP",
-                icon: Bot,
-                status: "locked",
-                color: "from-blue-500 to-indigo-500"
-              },
-              {
-                title: "Orçamento Expert",
-                description: "Gere 5 orçamentos detalhados",
-                xp: "200 XP",
-                icon: Calculator,
-                status: "locked",
-                color: "from-purple-500 to-pink-500"
-              },
-              {
-                title: "Cronograma Master",
-                description: "Crie cronogramas para 3 projetos",
-                xp: "300 XP",
-                icon: Calendar,
-                status: "locked",
-                color: "from-orange-500 to-red-500"
-              }
-            ].map((mission, index) => (
-              <div key={index} className={`group relative p-6 bg-white rounded-2xl border-2 ${
-                mission.status === 'available' ? 'border-green-200 shadow-lg shadow-green-500/10' : 'border-slate-200'
-              } hover:shadow-xl transition-all duration-300 animate-fade-in`} style={{ animationDelay: `${index * 0.1}s` }}>
-                {mission.status === 'available' && (
-                  <div className="absolute -top-3 -right-3 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center animate-pulse">
-                    <CheckCircle className="h-4 w-4 text-white" />
+            {missionSteps.map((mission, index) => {
+              const status = getMissionStatus(index);
+              const isClickable = status === 'available';
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`group relative p-6 bg-white rounded-2xl border-2 transition-all duration-300 animate-fade-in ${
+                    status === 'completed' 
+                      ? 'border-green-200 shadow-lg shadow-green-500/10' 
+                      : status === 'available'
+                      ? 'border-blue-200 shadow-lg shadow-blue-500/10 cursor-pointer hover:shadow-xl hover:scale-105'
+                      : 'border-slate-200'
+                  } ${showParticles === index ? 'mission-unlock' : ''}`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => handleMissionClick(index)}
+                >
+                  {/* Indicador de missão completada */}
+                  {status === 'completed' && (
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center shadow-lg animate-scale-in">
+                      <CheckCircle className="h-5 w-5 text-white" />
+                    </div>
+                  )}
+                  
+                  {/* Chamada para clicar (disponível) */}
+                  {status === 'available' && (
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-3 py-1 rounded-full shadow-lg animate-bounce">
+                      Clique aqui
+                    </div>
+                  )}
+                  
+                  {/* Ícone da missão */}
+                  <div className={`w-16 h-16 bg-gradient-to-br ${mission.color} rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+                    status === 'locked' ? 'opacity-50 grayscale' : status === 'available' ? 'group-hover:scale-110 animate-pulse' : 'group-hover:scale-110'
+                  } transition-all duration-300`}>
+                    <mission.icon className="h-8 w-8 text-white" />
                   </div>
-                )}
-                
-                <div className={`w-16 h-16 bg-gradient-to-br ${mission.color} rounded-2xl flex items-center justify-center mx-auto mb-4 ${
-                  mission.status === 'locked' ? 'opacity-50 grayscale' : 'group-hover:scale-110'
-                } transition-all duration-300`}>
-                  <mission.icon className="h-8 w-8 text-white" />
+                  
+                  {/* Conteúdo da missão */}
+                  <div className="text-center">
+                    <h3 className={`text-lg font-semibold mb-2 ${
+                      status === 'locked' ? 'text-slate-400' : 'text-slate-900'
+                    }`}>
+                      {mission.title}
+                    </h3>
+                    <p className={`text-sm mb-4 ${
+                      status === 'locked' ? 'text-slate-400' : 'text-slate-600'
+                    }`}>
+                      {mission.description}
+                    </p>
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                      status === 'completed' 
+                        ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200' 
+                        : status === 'available'
+                        ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200'
+                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    }`}>
+                      <Award className="h-4 w-4" />
+                      {mission.xp} XP
+                    </div>
+                  </div>
+                  
+                  {/* Overlay para missões bloqueadas */}
+                  {status === 'locked' && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      <Lock className="h-8 w-8 text-slate-400" />
+                    </div>
+                  )}
                 </div>
-                
-                <div className="text-center">
-                  <h3 className={`text-lg font-semibold mb-2 ${
-                    mission.status === 'locked' ? 'text-slate-400' : 'text-slate-900'
-                  }`}>
-                    {mission.title}
-                  </h3>
-                  <p className={`text-sm mb-4 ${
-                    mission.status === 'locked' ? 'text-slate-400' : 'text-slate-600'
-                  }`}>
-                    {mission.description}
-                  </p>
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                    mission.status === 'available' 
-                      ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200' 
-                      : 'bg-slate-100 text-slate-500 border border-slate-200'
-                  }`}>
-                    <Award className="h-4 w-4" />
-                    {mission.xp}
-                  </div>
-                </div>
-                
-                {mission.status === 'locked' && (
-                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                    <Lock className="h-8 w-8 text-slate-400" />
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
           
+          {/* Barra de progresso XP atualizada */}
           <div className="mt-12 text-center">
             <div className="inline-flex items-center gap-4 px-6 py-3 bg-white rounded-2xl border border-slate-200 shadow-lg">
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold text-slate-900">Nível 1</span>
+                <span className="font-semibold text-slate-900">Nível {currentLevel}</span>
               </div>
               <div className="w-32 h-3 bg-slate-200 rounded-full overflow-hidden">
-                <div className="w-1/4 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
               </div>
-              <span className="text-sm text-slate-600">50/200 XP</span>
+              <span className="text-sm text-slate-600">{totalXP}/{xpForNextLevel} XP</span>
             </div>
           </div>
         </div>

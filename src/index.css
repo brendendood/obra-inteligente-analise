@@ -270,6 +270,30 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+/* Animações de partículas para desbloqueio */
+@keyframes particle-explosion {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes mission-unlock-animation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* Classes de animação OTIMIZADAS */
 .animate-fade-in {
   animation: fade-in 0.6s ease-out forwards;
@@ -304,6 +328,41 @@ input:focus, textarea:focus, select:focus {
 .pulse-slow {
   animation: pulse-slow 2s ease-in-out infinite;
   will-change: opacity;
+}
+
+/* Animação de desbloqueio com partículas */
+.mission-unlock {
+  animation: mission-unlock-animation 0.6s ease-out;
+  position: relative;
+  overflow: visible;
+}
+
+.mission-unlock::before,
+.mission-unlock::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  border-radius: 50%;
+  animation: particle-explosion 0.6s ease-out forwards;
+  z-index: 10;
+}
+
+.mission-unlock::before {
+  top: 20%;
+  left: 20%;
+  --x: -40px;
+  --y: -30px;
+  animation-delay: 0.1s;
+}
+
+.mission-unlock::after {
+  top: 30%;
+  right: 20%;
+  --x: 40px;
+  --y: -20px;
+  animation-delay: 0.2s;
 }
 
 /* Transições suaves OTIMIZADAS */
@@ -535,7 +594,8 @@ input:focus, textarea:focus, select:focus {
   .hero-float,
   .pulse-slow,
   .floating,
-  .stagger-animation {
+  .stagger-animation,
+  .mission-unlock {
     animation: none !important;
     transition: none !important;
   }
