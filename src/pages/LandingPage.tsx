@@ -107,33 +107,33 @@ const LandingPage = () => {
   const features = [
     {
       icon: Upload,
-      title: "Upload Inteligente",
-      description: "Faça upload de plantas, documentos ou dados do seu projeto arquitetônico"
+      title: "Upload e Análise Instantânea",
+      description: "Arraste sua planta baixa ou memorial descritivo e receba análise completa em menos de 60 segundos"
     },
     {
       icon: Bot,
-      title: "IA Especializada",
-      description: "Nossa IA analisa cada detalhe técnico e gera insights precisos"
+      title: "IA Treinada para Construção Civil",
+      description: "Algoritmos especializados que reconhecem elementos construtivos e aplicam normas técnicas automaticamente"
     },
     {
       icon: Calculator,
-      title: "Orçamentos Automáticos",
-      description: "Orçamentos detalhados gerados automaticamente com precisão profissional"
+      title: "Orçamentos 90% Mais Rápidos",
+      description: "Elimine planilhas manuais e receba orçamentos detalhados com composições SINAPI atualizadas"
     },
     {
       icon: Calendar,
-      title: "Cronogramas Inteligentes",
-      description: "Cronogramas otimizados considerando recursos e dependências"
+      title: "Cronogramas Físico-Financeiros",
+      description: "Cronogramas inteligentes que consideram interdependências e otimizam recursos automaticamente"
     },
     {
       icon: FileText,
-      title: "Documentação Completa",
-      description: "Relatórios técnicos e documentação profissional automatizada"
+      title: "Relatórios Técnicos Prontos",
+      description: "Documentação profissional em conformidade com NBR 12721 - pronta para apresentação"
     },
     {
       icon: BarChart3,
-      title: "Análises Avançadas",
-      description: "Insights detalhados sobre custos, prazos e recursos necessários"
+      title: "Insights que Economizam Milhares",
+      description: "Identifique oportunidades de economia e otimizações que podem reduzir custos em até 15%"
     }
   ];
 
@@ -310,20 +310,20 @@ const LandingPage = () => {
       <section className="pt-24 md:pt-32 pb-20 px-4 animate-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto space-y-8">
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-blue-700 text-sm font-medium animate-scale-in">
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-full px-4 py-2 text-red-700 text-sm font-medium animate-scale-in">
               <Zap className="h-4 w-4" />
-              Análise de Projetos com IA
+              Chega de perder tempo com planilhas!
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-slate-900 leading-tight animate-slide-in-right">
-              Transforme seus projetos em{' '}
+              Receba orçamentos técnicos precisos em{' '}
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                orçamentos precisos
+                segundos
               </span>
             </h1>
             
-            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Nossa IA especializada analisa plantas arquitetônicas e gera orçamentos, cronogramas e relatórios técnicos automaticamente, economizando semanas de trabalho.
+            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
+              <strong className="text-slate-900">Nossa IA entende seu projeto arquitetônico,</strong> interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos — tudo pronto para uso profissional em tempo recorde.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
@@ -355,18 +355,18 @@ const LandingPage = () => {
               </Button>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-500 pt-6">
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-600 pt-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg backdrop-blur-sm border border-slate-200">
                 <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="whitespace-nowrap">Grátis para começar</span>
+                <span className="whitespace-nowrap font-medium">Resultados em 60 segundos</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg backdrop-blur-sm border border-slate-200">
                 <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="whitespace-nowrap">Resultados em minutos</span>
+                <span className="whitespace-nowrap font-medium">Baseado em dados SINAPI</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg backdrop-blur-sm border border-slate-200">
                 <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="whitespace-nowrap">Precisão profissional</span>
+                <span className="whitespace-nowrap font-medium">Grátis para começar</span>
               </div>
             </div>
           </div>
@@ -378,10 +378,10 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
-              Tudo que você precisa para seus projetos
+              Por que engenheiros e arquitetos escolhem o MadenAI?
             </h2>
             <p className="text-xl text-slate-600">
-              Uma plataforma completa que transforma a gestão de projetos arquitetônicos com inteligência artificial
+              Deixe a IA fazer o trabalho pesado enquanto você foca no que realmente importa: criar projetos excepcionais
             </p>
           </div>
           
