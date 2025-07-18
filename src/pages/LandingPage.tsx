@@ -328,12 +328,29 @@ const LandingPage = () => {
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
               <Link to="/upload" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift">
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
+                  onClick={() => {
+                    console.log('Botão Analisar Projeto Grátis clicado - redirecionando para upload');
+                    // Analytics tracking pode ser adicionado aqui
+                  }}
+                >
                   Analisar Projeto Grátis
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50 hover-scale transition-fast">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50 hover-scale transition-fast"
+                onClick={() => {
+                  const userJourneySection = document.getElementById('user-journey');
+                  if (userJourneySection) {
+                    userJourneySection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
                 Ver Demonstração
               </Button>
             </div>
@@ -412,6 +429,113 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* User Journey - Nova Seção Inspirada no Conty */}
+      <section id="user-journey" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Sua Jornada de Sucesso
+            </h2>
+            <p className="text-xl text-slate-600">
+              Acompanhe seu progresso e desbloqueie novas funcionalidades conforme você domina a plataforma
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                title: "Primeiro Upload",
+                description: "Faça upload do seu primeiro projeto",
+                xp: "50 XP",
+                icon: Upload,
+                status: "available",
+                color: "from-green-500 to-emerald-500"
+              },
+              {
+                title: "Análise Completa",
+                description: "Complete sua primeira análise com IA",
+                xp: "100 XP",
+                icon: Bot,
+                status: "locked",
+                color: "from-blue-500 to-indigo-500"
+              },
+              {
+                title: "Orçamento Expert",
+                description: "Gere 5 orçamentos detalhados",
+                xp: "200 XP",
+                icon: Calculator,
+                status: "locked",
+                color: "from-purple-500 to-pink-500"
+              },
+              {
+                title: "Cronograma Master",
+                description: "Crie cronogramas para 3 projetos",
+                xp: "300 XP",
+                icon: Calendar,
+                status: "locked",
+                color: "from-orange-500 to-red-500"
+              }
+            ].map((mission, index) => (
+              <div key={index} className={`group relative p-6 bg-white rounded-2xl border-2 ${
+                mission.status === 'available' ? 'border-green-200 shadow-lg shadow-green-500/10' : 'border-slate-200'
+              } hover:shadow-xl transition-all duration-300 animate-fade-in`} style={{ animationDelay: `${index * 0.1}s` }}>
+                {mission.status === 'available' && (
+                  <div className="absolute -top-3 -right-3 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center animate-pulse">
+                    <CheckCircle className="h-4 w-4 text-white" />
+                  </div>
+                )}
+                
+                <div className={`w-16 h-16 bg-gradient-to-br ${mission.color} rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+                  mission.status === 'locked' ? 'opacity-50 grayscale' : 'group-hover:scale-110'
+                } transition-all duration-300`}>
+                  <mission.icon className="h-8 w-8 text-white" />
+                </div>
+                
+                <div className="text-center">
+                  <h3 className={`text-lg font-semibold mb-2 ${
+                    mission.status === 'locked' ? 'text-slate-400' : 'text-slate-900'
+                  }`}>
+                    {mission.title}
+                  </h3>
+                  <p className={`text-sm mb-4 ${
+                    mission.status === 'locked' ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
+                    {mission.description}
+                  </p>
+                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                    mission.status === 'available' 
+                      ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200' 
+                      : 'bg-slate-100 text-slate-500 border border-slate-200'
+                  }`}>
+                    <Award className="h-4 w-4" />
+                    {mission.xp}
+                  </div>
+                </div>
+                
+                {mission.status === 'locked' && (
+                  <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                    <Lock className="h-8 w-8 text-slate-400" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center gap-4 px-6 py-3 bg-white rounded-2xl border border-slate-200 shadow-lg">
+              <div className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-yellow-500" />
+                <span className="font-semibold text-slate-900">Nível 1</span>
+              </div>
+              <div className="w-32 h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div className="w-1/4 h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full animate-pulse"></div>
+              </div>
+              <span className="text-sm text-slate-600">50/200 XP</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Tecnologias OTIMIZADA */}
       <section className="py-12 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
@@ -430,11 +554,11 @@ const LandingPage = () => {
               <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Frontend</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {[
-                  { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
-                  { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" },
-                  { name: "Tailwind CSS", logo: "https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" },
+                  { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+                  { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
+                  { name: "Tailwind CSS", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" },
                   { name: "Radix UI", logo: "https://avatars.githubusercontent.com/u/75042455?s=200&v=4" },
-                  { name: "Recharts", logo: "https://github.com/recharts/recharts/raw/master/logo.svg" },
+                  { name: "Recharts", logo: "https://raw.githubusercontent.com/recharts/recharts/master/logo.svg" },
                   { name: "Lucide React", logo: "https://lucide.dev/logo.dark.svg" },
                 ].map((tech, index) => (
                   <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -460,11 +584,11 @@ const LandingPage = () => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {[
                   { name: "Supabase", logo: "https://supabase.com/brand-assets/supabase-logo-icon.png" },
-                  { name: "IA Proprietária", logo: "https://cdn-icons-png.flaticon.com/512/6461/6461819.png" },
-                  { name: "N8N", logo: "https://docs.n8n.io/favicon.svg" },
+                  { name: "IA Proprietária", logo: "https://cdn-icons-png.flaticon.com/512/8637/8637099.png" },
+                  { name: "N8N", logo: "https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-logo.png" },
                   { name: "SINAPI", logo: "https://cdn-icons-png.flaticon.com/512/3159/3159310.png" },
                   { name: "Edge Functions", logo: "https://cdn-icons-png.flaticon.com/512/2721/2721291.png" },
-                  { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
+                  { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" },
                 ].map((tech, index) => (
                   <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${(index + 6) * 0.1}s` }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
