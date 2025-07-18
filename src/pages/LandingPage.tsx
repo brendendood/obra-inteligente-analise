@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -36,26 +37,39 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-// Hook para contador animado
+// Hook para contador animado CRESCENTE (corrigido)
 const useCountAnimation = (target: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const countRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          const increment = target / (duration / 16);
-          let current = 0;
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-              setCount(target);
-              clearInterval(timer);
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+          
+          // Animação crescente suave
+          const startTime = Date.now();
+          const animate = () => {
+            const now = Date.now();
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Função de easing para animação mais suave
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            const currentValue = Math.floor(target * easeOutQuart);
+            
+            setCount(currentValue);
+            
+            if (progress < 1) {
+              requestAnimationFrame(animate);
             } else {
-              setCount(Math.floor(current));
+              setCount(target); // Garantir valor final exato
             }
-          }, 16);
+          };
+          
+          requestAnimationFrame(animate);
         }
       },
       { threshold: 0.5 }
@@ -66,7 +80,7 @@ const useCountAnimation = (target: number, duration: number = 2000) => {
     }
 
     return () => observer.disconnect();
-  }, [target, duration]);
+  }, [target, duration, isVisible]);
 
   return { count, countRef };
 };
@@ -259,24 +273,24 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Floating Header */}
-      <header className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ${
+      {/* Floating Header - MELHORADO PARA MOBILE */}
+      <header className={`fixed top-3 md:top-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ${
         scrollY > 50 
           ? 'bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg shadow-slate-900/5' 
           : 'bg-white/80 backdrop-blur-md border border-slate-200/50'
-      } rounded-2xl px-8 py-4 max-w-2xl w-full mx-4`}>
+      } rounded-xl md:rounded-2xl px-4 md:px-8 py-3 md:py-4 max-w-sm sm:max-w-lg md:max-w-2xl w-[95%] md:w-full mx-2 md:mx-4`}>
         <div className="flex items-center justify-between">
-          <div className="font-display font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <div className="font-display font-bold text-xl md:text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             MadenAI
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Link to="/login">
-              <Button variant="ghost" className="rounded-xl hover:bg-slate-100">
+              <Button variant="ghost" className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2">
                 Entrar
               </Button>
             </Link>
             <Link to="/signup">
-              <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+              <Button className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2">
                 Começar Grátis
               </Button>
             </Link>
@@ -285,49 +299,51 @@ const LandingPage = () => {
       </header>
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-24 md:pt-32 pb-20 px-4 animate-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto space-y-8">
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-blue-700 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 text-blue-700 text-sm font-medium animate-scale-in">
               <Zap className="h-4 w-4" />
               Análise de Projetos com IA
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-display font-bold text-slate-900 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-slate-900 leading-tight animate-slide-in-right">
               Transforme seus projetos em{' '}
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 orçamentos precisos
               </span>
             </h1>
             
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
               Nossa IA especializada analisa plantas arquitetônicas e gera orçamentos, cronogramas e relatórios técnicos automaticamente, economizando semanas de trabalho.
             </p>
             
+            {/* BOTÕES CORRIGIDOS - MESMO TAMANHO */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Link to="/upload">
-                <Button size="lg" className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40">
+              <Link to="/upload" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40 hover-lift">
                   Analisar Projeto Grátis
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50 hover-scale">
                 Ver Demonstração
               </Button>
             </div>
             
-            <div className="flex items-center justify-center gap-6 text-sm text-slate-500 pt-6">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                Grátis para começar
+            {/* CHECKS ORGANIZADOS - LAYOUT MELHORADO */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-500 pt-6">
+              <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
+                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <span className="whitespace-nowrap">Grátis para começar</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                Resultados em minutos
+              <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
+                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <span className="whitespace-nowrap">Resultados em minutos</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                Precisão profissional
+              <div className="flex items-center gap-2 px-3 py-2 bg-white/50 rounded-lg backdrop-blur-sm">
+                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                <span className="whitespace-nowrap">Precisão profissional</span>
               </div>
             </div>
           </div>
@@ -337,7 +353,7 @@ const LandingPage = () => {
       {/* Features Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               Tudo que você precisa para seus projetos
             </h2>
@@ -348,8 +364,8 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-colors">
+              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover-lift animate-fade-in stagger-animation" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-colors group-hover:scale-110 duration-300">
                   <feature.icon className="h-7 w-7 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
@@ -363,7 +379,7 @@ const LandingPage = () => {
       {/* How it Works */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               Como funciona
             </h2>
@@ -374,15 +390,15 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {steps.map((step, index) => (
-              <div key={index} className="text-center relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white font-bold text-xl shadow-lg shadow-blue-500/25">
+              <div key={index} className="text-center relative animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white font-bold text-xl shadow-lg shadow-blue-500/25 hover-scale">
                   {step.number}
                 </div>
                 <h3 className="text-2xl font-semibold text-slate-900 mb-4">{step.title}</h3>
                 <p className="text-slate-600 leading-relaxed max-w-sm mx-auto">{step.description}</p>
                 
                 {index < steps.length - 1 && (
-                  <ArrowRight className="hidden md:block absolute top-10 -right-4 h-8 w-8 text-slate-300" />
+                  <ArrowRight className="hidden md:block absolute top-10 -right-4 h-8 w-8 text-slate-300 animate-bounce-gentle" />
                 )}
               </div>
             ))}
@@ -390,10 +406,10 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Tecnologias que usamos */}
+      {/* Tecnologias que usamos - LOGOS CORRIGIDOS */}
       <section className="py-12 md:py-20 bg-muted/20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 md:mb-16">
+          <div className="text-center mb-8 md:mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4 md:mb-6">
               Tecnologias que Usamos
             </h2>
@@ -404,18 +420,18 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             {/* Frontend */}
-            <div className="space-y-6">
+            <div className="space-y-6 animate-slide-in-right">
               <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Frontend</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {[
                   { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
                   { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" },
-                  { name: "Tailwind CSS", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tailwindcss/tailwindcss-plain.svg" },
+                  { name: "Tailwind CSS", logo: "https://www.vectorlogo.zone/logos/tailwindcss/tailwindcss-icon.svg" },
                   { name: "Radix UI", logo: "https://avatars.githubusercontent.com/u/75042455?s=200&v=4" },
-                  { name: "Recharts", logo: "https://recharts.org/static/logo.svg" },
+                  { name: "Recharts", logo: "https://github.com/recharts/recharts/raw/master/logo.svg" },
                   { name: "Lucide React", logo: "https://lucide.dev/logo.dark.svg" },
-                ].map((tech) => (
-                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group">
+                ].map((tech, index) => (
+                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
                       <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <img 
@@ -433,18 +449,18 @@ const LandingPage = () => {
             </div>
 
             {/* Backend */}
-            <div className="space-y-6">
+            <div className="space-y-6 animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
               <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Backend</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {[
                   { name: "Supabase", logo: "https://supabase.com/brand-assets/supabase-logo-icon.png" },
                   { name: "IA Proprietária", logo: "https://cdn-icons-png.flaticon.com/512/6461/6461819.png" },
-                  { name: "N8N", logo: "https://n8n.io/favicon.ico" },
+                  { name: "N8N", logo: "https://docs.n8n.io/favicon.svg" },
                   { name: "SINAPI", logo: "https://cdn-icons-png.flaticon.com/512/3159/3159310.png" },
                   { name: "Edge Functions", logo: "https://cdn-icons-png.flaticon.com/512/2721/2721291.png" },
                   { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" },
-                ].map((tech) => (
-                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group">
+                ].map((tech, index) => (
+                  <div key={tech.name} className="bg-white border border-slate-200 rounded-xl p-3 md:p-6 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:scale-[1.02] group animate-fade-in" style={{ animationDelay: `${(index + 6) * 0.1}s` }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
                       <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                         <img 
@@ -467,7 +483,7 @@ const LandingPage = () => {
       {/* Tech Specs Section */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               Especificações Técnicas
             </h2>
@@ -478,8 +494,8 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {techSpecs.map((spec, index) => (
-              <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300">
-                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10">
+              <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10 group-hover:scale-110 transition-transform duration-300">
                   <spec.icon className="h-7 w-7 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">{spec.title}</h3>
@@ -493,7 +509,7 @@ const LandingPage = () => {
       {/* Plans Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               Planos para cada necessidade
             </h2>
@@ -504,13 +520,13 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan, index) => (
-              <div key={index} className={`p-8 rounded-2xl border ${
+              <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-all duration-300 ${
                 plan.popular 
                   ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-transparent text-white' 
-                  : 'bg-white border-slate-200'
-              } relative`}>
+                  : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-lg'
+              }`} style={{ animationDelay: `${index * 0.1}s` }}>
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg">
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg animate-bounce-gentle">
                     Mais Popular
                   </div>
                 )}
@@ -542,7 +558,7 @@ const LandingPage = () => {
                 </ul>
                 
                 <Button 
-                  className={`w-full h-12 text-base font-semibold rounded-xl ${
+                  className={`w-full h-12 text-base font-semibold rounded-xl transition-all duration-300 hover-scale ${
                     plan.popular
                       ? 'bg-white text-blue-600 hover:bg-blue-50'
                       : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
@@ -559,7 +575,7 @@ const LandingPage = () => {
       {/* Testimonials */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               O que dizem nossos usuários
             </h2>
@@ -570,12 +586,12 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.slice(0, 3).map((testimonial, index) => (
-              <div key={index} className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200">
+              <div key={index} className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="flex items-start gap-4 mb-6">
                   <img 
                     src={testimonial.avatar} 
                     alt={testimonial.name}
-                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200"
+                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200 hover-scale"
                   />
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.name}</div>
@@ -598,9 +614,11 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Stats Section - CONTADOR CRESCENTE CORRIGIDO */}
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-white mb-4">
               Resultados que impressionam
             </h2>
@@ -609,31 +627,31 @@ const LandingPage = () => {
             </p>
           </div>
           
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  {counter1.count}+
-                </div>
-                <div className="text-blue-100">Projetos Analisados</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center animate-fade-in">
+              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+                {counter1.count.toLocaleString()}+
               </div>
-              <div className="text-center">
-                <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  {counter2.count}%
-                </div>
-                <div className="text-blue-100">Precisão</div>
+              <div className="text-blue-100">Projetos Analisados</div>
+            </div>
+            <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+                {counter2.count}%
               </div>
-              <div className="text-center">
-                <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  {counter3.count}%
-                </div>
-                <div className="text-blue-100">Economia de Tempo</div>
+              <div className="text-blue-100">Precisão</div>
+            </div>
+            <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+                {counter3.count}%
               </div>
-              <div className="text-center">
-                <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2">
-                  {counter4.count}+
-                </div>
-                <div className="text-blue-100">Usuários Ativos</div>
+              <div className="text-blue-100">Economia de Tempo</div>
+            </div>
+            <div className="text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 counter-animation">
+                {counter4.count.toLocaleString()}+
               </div>
+              <div className="text-blue-100">Usuários Ativos</div>
+            </div>
           </div>
         </div>
       </section>
@@ -641,7 +659,7 @@ const LandingPage = () => {
       {/* Final CTA */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200">
+          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200 hover:border-blue-300 transition-all duration-300 animate-fade-in hover-lift">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
               Pronto para revolucionar seus projetos?
             </h2>
@@ -650,13 +668,13 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/upload">
-                <Button size="lg" className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25">
+              <Link to="/upload" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover-lift">
                   Começar Gratuitamente
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale">
                 Falar com Especialista
               </Button>
             </div>
@@ -673,7 +691,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer - LOGOS CORRIGIDOS E ANO ATUALIZADO */}
       <footer className="py-16 px-4 border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
@@ -685,13 +703,13 @@ const LandingPage = () => {
                 Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
               </p>
               <div className="flex gap-4">
-                <a href="https://instagram.com" className="text-slate-400 hover:text-slate-600 transition-colors" target="_blank" rel="noopener">
+                <a href="https://instagram.com" className="text-slate-400 hover:text-slate-600 transition-colors hover-scale" target="_blank" rel="noopener">
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a href="https://linkedin.com" className="text-slate-400 hover:text-slate-600 transition-colors" target="_blank" rel="noopener">
+                <a href="https://linkedin.com" className="text-slate-400 hover:text-slate-600 transition-colors hover-scale" target="_blank" rel="noopener">
                   <Linkedin className="h-5 w-5" />
                 </a>
-                <a href="https://youtube.com" className="text-slate-400 hover:text-slate-600 transition-colors" target="_blank" rel="noopener">
+                <a href="https://youtube.com" className="text-slate-400 hover:text-slate-600 transition-colors hover-scale" target="_blank" rel="noopener">
                   <Youtube className="h-5 w-5" />
                 </a>
               </div>
@@ -779,12 +797,12 @@ const LandingPage = () => {
 
           <div className="pt-8 mt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="text-slate-500">
-              © 2024 MadenAI. Todos os direitos reservados.
+              © 2025 MadenAI. Todos os direitos reservados.
             </div>
             <div className="flex gap-8">
-              <img src="https://www.ibge.gov.br/novo-portal-v3/img/logo-ibge.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-opacity" />
-              <img src="https://supabase.com/img/supabase-dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-opacity" />
-              <img src="https://n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-opacity" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-opacity hover-scale" />
+              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-opacity hover-scale" />
+              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-opacity hover-scale" />
             </div>
           </div>
         </div>
