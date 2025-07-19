@@ -1,58 +1,56 @@
 
+import { Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-900 text-slate-300 py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo e descrição */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">M</span>
+    <footer className="bg-slate-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo and Description */}
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg shadow-lg">
+                <Zap className="h-6 w-6 text-white" />
               </div>
-              <span className="font-bold text-white text-xl">MadenAI</span>
+              <span className="text-xl font-bold">MadenAI</span>
             </div>
-            <p className="text-sm text-slate-400">
-              Transformando projetos de construção com inteligência artificial
+            <p className="text-slate-400 mb-4 max-w-md">
+              Transforme seus projetos de engenharia e arquitetura com o poder da Inteligência Artificial. 
+              Análise automatizada, orçamentos precisos e cronogramas inteligentes.
             </p>
+            <div className="text-sm text-slate-400">
+              <p>© 2025 MadenAI. Todos os direitos reservados.</p>
+            </div>
           </div>
 
-          {/* Links Principais */}
+          {/* Links Úteis */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Plataforma</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/painel" className="hover:text-white transition-colors">Dashboard</Link></li>
-              <li><Link to="/projetos" className="hover:text-white transition-colors">Projetos</Link></li>
-              <li><Link to="/upload" className="hover:text-white transition-colors">Upload</Link></li>
-              <li><Link to="/assistente" className="hover:text-white transition-colors">Assistente IA</Link></li>
-            </ul>
+            <h3 className="font-semibold mb-4">Links Úteis</h3>
+            <div className="space-y-2">
+              <Link to="/termos" className="block text-slate-400 hover:text-white transition-colors duration-200">
+                Termos de Uso
+              </Link>
+              <Link to="/politica" className="block text-slate-400 hover:text-white transition-colors duration-200">
+                Política de Privacidade
+              </Link>
+              <a href="mailto:suporte@maden.ai" className="block text-slate-400 hover:text-white transition-colors duration-200">
+                Suporte
+              </a>
+            </div>
           </div>
 
-          {/* Tecnologias */}
+          {/* Contato */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Tecnologias</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/sinapi" className="hover:text-white transition-colors">SINAPI</Link></li>
-              <li><Link to="/supabase" className="hover:text-white transition-colors">Supabase</Link></li>
-              <li><Link to="/n8n" className="hover:text-white transition-colors">N8N</Link></li>
-            </ul>
+            <h3 className="font-semibold mb-4">Contato</h3>
+            <div className="space-y-2 text-slate-400">
+              <p>Email: suporte@maden.ai</p>
+              <p>Para engenheiros, arquitetos e equipes especializadas</p>
+              <p className="text-sm mt-3 text-slate-500">
+                Potencializando projetos com IA desde 2025
+              </p>
+            </div>
           </div>
-
-          {/* Suporte */}
-          <div>
-            <h3 className="font-semibold text-white mb-4">Suporte</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/termos" className="hover:text-white transition-colors">Termos de Uso</Link></li>
-              <li><Link to="/politica" className="hover:text-white transition-colors">Política de Privacidade</Link></li>
-              <li><a href="mailto:contato@madenai.com" className="hover:text-white transition-colors">Contato</a></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="border-t border-slate-800 mt-8 pt-8 text-center text-sm text-slate-400">
-          <p>&copy; 2024 MadenAI. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>
