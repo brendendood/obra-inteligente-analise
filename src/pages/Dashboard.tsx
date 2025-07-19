@@ -47,7 +47,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      <div className="flex flex-col space-y-8 w-full min-w-0">
+      <div className="flex flex-col space-y-6 w-full min-w-0 max-w-7xl mx-auto">
         <div className="flex items-center justify-between">
           <EnhancedBreadcrumb />
           <SmartLoading 
@@ -59,7 +59,7 @@ const Dashboard = () => {
         </div>
         
         {/* Header limpo */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 sm:p-8 w-full">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <div className="min-w-0 flex-1">
               <SmartGreeting userName={userName} />

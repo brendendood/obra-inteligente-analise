@@ -103,13 +103,13 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
       {statsConfig.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="border border-gray-200 bg-white hover:shadow-md transition-shadow duration-200 rounded-md">
+          <Card key={index} className="border border-gray-200 bg-white hover:shadow-md transition-shadow duration-200 rounded-lg">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium text-gray-600">
                   {stat.title}
                 </CardTitle>
-                <div className={`p-2 rounded-md ${stat.bgColor}`}>
+                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
                   <Icon className={`h-5 w-5 ${stat.iconColor}`} />
                 </div>
               </div>

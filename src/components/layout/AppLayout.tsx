@@ -37,7 +37,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           <Header />
           
           <main className="flex-1 overflow-auto">
-            <div className="h-full">
+            <div className="h-full p-4 sm:p-6 lg:p-8">
               {children}
             </div>
             <MemberFooter />
