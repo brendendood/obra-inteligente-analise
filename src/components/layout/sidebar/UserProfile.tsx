@@ -10,6 +10,14 @@ import { useNavigate } from 'react-router-dom';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
 import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
+import { useSidebar } from '@/components/ui/sidebar';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator 
+} from '@/components/ui/dropdown-menu';
 
 export const UserProfile = () => {
   const { user } = useAuth();
@@ -18,6 +26,7 @@ export const UserProfile = () => {
   const { clearHistory } = useContextualNavigation();
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
+  const { open } = useSidebar();
 
   const handleLogout = async () => {
     try {
@@ -36,6 +45,53 @@ export const UserProfile = () => {
   const userGender = user?.user_metadata?.gender;
   const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
 
+  if (!open) {
+    // Estado colapsado - mostrar apenas avatar com dropdown
+    return (
+      <>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full h-12 p-0 hover:bg-gray-100">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="bg-blue-600 text-white text-xs">
+                  {getAvatarFallback(userGender)}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="right" align="end" className="w-56">
+            <div className="px-2 py-1.5">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user?.user_metadata?.full_name || 'Usuário'}
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                {user?.email}
+              </p>
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setIsAccountDialogOpen(true)}>
+              <User className="h-4 w-4 mr-2" />
+              Minha Conta
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Dialog Minha Conta */}
+        <MyAccountDialog 
+          isOpen={isAccountDialogOpen}
+          onClose={() => setIsAccountDialogOpen(false)}
+        />
+      </>
+    );
+  }
+
+  // Estado expandido - mostrar interface completa
   return (
     <>
       <div className="space-y-3">

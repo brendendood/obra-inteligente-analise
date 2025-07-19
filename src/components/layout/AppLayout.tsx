@@ -29,18 +29,18 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <SidebarInset className="flex flex-col flex-1">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
-            <SidebarTrigger className="-ml-1" />
+          <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+            <SidebarTrigger className="-ml-1 h-8 w-8" />
             <div className="ml-auto">
               <Header />
             </div>
           </header>
           <main className="flex-1 overflow-auto bg-gray-50">
-            <div className="h-full p-4 sm:p-6 lg:p-8">
+            <div className="h-full p-3 sm:p-4 md:p-6 lg:p-8">
               {children}
             </div>
             <MemberFooter />

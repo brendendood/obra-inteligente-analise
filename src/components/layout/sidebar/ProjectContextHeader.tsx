@@ -4,6 +4,8 @@ import { ArrowLeft, Building2 } from 'lucide-react';
 import { SidebarGroup } from '@/components/ui/sidebar';
 import { useProject } from '@/contexts/ProjectContext';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
+import { useSidebar } from '@/components/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ProjectContextHeaderProps {
   isInProject: boolean;
@@ -12,6 +14,7 @@ interface ProjectContextHeaderProps {
 export const ProjectContextHeader = ({ isInProject }: ProjectContextHeaderProps) => {
   const { currentProject } = useProject();
   const { navigateContextual } = useContextualNavigation();
+  const { open } = useSidebar();
 
   const handleBackToDashboard = () => {
     navigateContextual('/painel');
@@ -22,6 +25,35 @@ export const ProjectContextHeader = ({ isInProject }: ProjectContextHeaderProps)
     return null;
   }
 
+  if (!open) {
+    // Estado colapsado - mostrar apenas ícone com tooltip
+    return (
+      <SidebarGroup>
+        <div className="p-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToDashboard}
+                  className="w-full h-10 p-0 text-blue-700 hover:bg-blue-100"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Voltar para Dashboard</p>
+                <p className="text-xs opacity-75">{currentProject.name}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </SidebarGroup>
+    );
+  }
+
+  // Estado expandido - mostrar interface completa
   return (
     <SidebarGroup>
       <div className="p-4 bg-blue-50 border-b border-blue-100">
