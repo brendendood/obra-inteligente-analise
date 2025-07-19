@@ -4,6 +4,7 @@ import { AppSidebar } from './AppSidebar';
 import Header from './Header';
 import { MemberFooter } from './MemberFooter';
 import { useAuth } from '@/hooks/useAuth';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -28,19 +29,21 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <AppSidebar />
-      
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header />
+    <SidebarProvider>
+      <div className="min-h-screen bg-gray-50 flex w-full">
+        <AppSidebar />
         
-        <main className="flex-1 overflow-auto">
-          <div className="h-full">
-            {children}
-          </div>
-          <MemberFooter />
-        </main>
+        <div className="flex-1 flex flex-col min-w-0">
+          <Header />
+          
+          <main className="flex-1 overflow-auto">
+            <div className="h-full">
+              {children}
+            </div>
+            <MemberFooter />
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
