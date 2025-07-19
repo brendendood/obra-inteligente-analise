@@ -7,6 +7,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const mountedRef = useRef(true);
   const authInitializedRef = useRef(false);
   const subscriptionRef = useRef<any>(null);
@@ -29,10 +30,23 @@ export function useAuth() {
             
             // Debounce para evitar updates excessivos
             clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
+            timeoutId = setTimeout(async () => {
               if (mountedRef.current) {
                 setSession(session);
                 setUser(session?.user ?? null);
+                
+                // Check admin permissions
+                if (session?.user) {
+                  const { data } = await supabase
+                    .from('admin_permissions')
+                    .select('user_id')
+                    .eq('user_id', session.user.id)
+                    .single();
+                  setIsAdmin(!!data);
+                } else {
+                  setIsAdmin(false);
+                }
+                
                 setLoading(false);
               }
             }, 100);
@@ -53,6 +67,19 @@ export function useAuth() {
         // Update inicial sem conflitar com o listener
         setSession(existingSession);
         setUser(existingSession?.user ?? null);
+        
+        // Check admin permissions for initial session
+        if (existingSession?.user) {
+          const { data } = await supabase
+            .from('admin_permissions')
+            .select('user_id')
+            .eq('user_id', existingSession.user.id)
+            .single();
+          setIsAdmin(!!data);
+        } else {
+          setIsAdmin(false);
+        }
+        
         setLoading(false);
         
         console.log('✅ AUTH: Inicialização concluída');
@@ -84,5 +111,6 @@ export function useAuth() {
     session,
     loading,
     isAuthenticated,
+    isAdmin,
   };
 }
