@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -32,7 +33,9 @@ import {
   Wrench,
   Instagram,
   Linkedin,
-  Youtube
+  Youtube,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -398,7 +401,6 @@ const LandingPage = () => {
                   className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
                   onClick={() => {
                     console.log('Botão Analisar Projeto Grátis clicado - redirecionando para upload');
-                    // Analytics tracking pode ser adicionado aqui
                   }}
                 >
                   Analisar Projeto Grátis
@@ -494,7 +496,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* User Journey - Seção Interativa NOVA */}
+      {/* User Journey - Seção Interativa */}
       <section id="user-journey" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
@@ -640,8 +642,8 @@ const LandingPage = () => {
                   { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
                   { name: "Tailwind CSS", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" },
                   { name: "Radix UI", logo: "https://avatars.githubusercontent.com/u/75042455?s=200&v=4" },
-                  { name: "Recharts", logo: "https://raw.githubusercontent.com/recharts/recharts/master/logo.svg" },
-                  { name: "Lucide React", logo: "https://lucide.dev/logo.dark.svg" },
+                  { name: "Recharts", logo: "https://recharts.org/images/recharts-logo.png" },
+                  { name: "Lucide React", logo: "https://lucide.dev/logo.light.svg" },
                 ].map((tech, index) => (
                   <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
@@ -651,6 +653,10 @@ const LandingPage = () => {
                           alt={`${tech.name} logo`}
                           className="max-w-full max-h-full object-contain"
                           loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
                         />
                       </div>
                       <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
@@ -667,7 +673,7 @@ const LandingPage = () => {
                 {[
                   { name: "Supabase", logo: "https://supabase.com/brand-assets/supabase-logo-icon.png" },
                   { name: "IA Proprietária", logo: "https://cdn-icons-png.flaticon.com/512/8637/8637099.png" },
-                  { name: "N8N", logo: "https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-logo.png" },
+                  { name: "N8N", logo: "https://docs.n8n.io/favicon.svg" },
                   { name: "SINAPI", logo: "https://cdn-icons-png.flaticon.com/512/3159/3159310.png" },
                   { name: "Edge Functions", logo: "https://cdn-icons-png.flaticon.com/512/2721/2721291.png" },
                   { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" },
@@ -680,6 +686,10 @@ const LandingPage = () => {
                           alt={`${tech.name} logo`}
                           className="max-w-full max-h-full object-contain"
                           loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
                         />
                       </div>
                       <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
@@ -769,15 +779,17 @@ const LandingPage = () => {
                   ))}
                 </ul>
                 
-                <Button 
-                  className={`w-full h-12 text-base font-semibold rounded-xl transition-fast hover-scale ${
-                    plan.popular
-                      ? 'bg-white text-blue-600 hover:bg-blue-50'
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
-                  }`}
-                >
-                  Começar Agora
-                </Button>
+                <Link to="/signup">
+                  <Button 
+                    className={`w-full h-12 text-base font-semibold rounded-xl transition-fast hover-scale ${
+                      plan.popular
+                        ? 'bg-white text-blue-600 hover:bg-blue-50'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                    }`}
+                  >
+                    Começar Agora
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>
@@ -887,7 +899,14 @@ const LandingPage = () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale transition-fast">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale transition-fast"
+                onClick={() => {
+                  window.open('mailto:contato@maden.ai?subject=Falar com Especialista', '_blank');
+                }}
+              >
                 Falar com Especialista
               </Button>
             </div>
@@ -916,14 +935,14 @@ const LandingPage = () => {
                 Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
               </p>
               <div className="flex gap-4">
-                <a href="https://instagram.com" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
-                  <Instagram className="h-5 w-5" />
+                <a href="mailto:contato@maden.ai" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
+                  <Mail className="h-5 w-5" />
                 </a>
-                <a href="https://linkedin.com" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
+                <a href="tel:+5511999999999" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
+                  <Phone className="h-5 w-5" />
+                </a>
+                <a href="https://linkedin.com/company/maden-ai" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
                   <Linkedin className="h-5 w-5" />
-                </a>
-                <a href="https://youtube.com" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
-                  <Youtube className="h-5 w-5" />
                 </a>
               </div>
             </div>
@@ -932,19 +951,43 @@ const LandingPage = () => {
               <h3 className="font-semibold text-slate-900 mb-3">Produto</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/features" className="text-slate-500 hover:text-slate-700 transition-fast">
+                  <button 
+                    onClick={() => {
+                      const featuresSection = document.querySelector('section');
+                      if (featuresSection) {
+                        featuresSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
+                  >
                     Recursos
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link to="/pricing" className="text-slate-500 hover:text-slate-700 transition-fast">
+                  <button 
+                    onClick={() => {
+                      const plansSection = document.querySelector('#planos');
+                      if (plansSection) {
+                        plansSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
+                  >
                     Preços
-                  </Link>
+                  </button>
                 </li>
                 <li>
-                  <Link to="/demo" className="text-slate-500 hover:text-slate-700 transition-fast">
+                  <button 
+                    onClick={() => {
+                      const userJourneySection = document.getElementById('user-journey');
+                      if (userJourneySection) {
+                        userJourneySection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
+                  >
                     Demonstração
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -953,19 +996,13 @@ const LandingPage = () => {
               <h3 className="font-semibold text-slate-900 mb-3">Para quem é</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/engineers" className="text-slate-500 hover:text-slate-700 transition-fast">
-                    Engenheiros
-                  </Link>
+                  <span className="text-slate-500">Engenheiros</span>
                 </li>
                 <li>
-                  <Link to="/architects" className="text-slate-500 hover:text-slate-700 transition-fast">
-                    Arquitetos
-                  </Link>
+                  <span className="text-slate-500">Arquitetos</span>
                 </li>
                 <li>
-                  <Link to="/constructors" className="text-slate-500 hover:text-slate-700 transition-fast">
-                    Construtoras
-                  </Link>
+                  <span className="text-slate-500">Construtoras</span>
                 </li>
               </ul>
             </div>
