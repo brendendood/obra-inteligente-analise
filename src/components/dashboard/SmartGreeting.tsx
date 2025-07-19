@@ -26,7 +26,7 @@ export const SmartGreeting = ({ userName, className = '' }: SmartGreetingProps) 
   }, []);
 
   return (
-    <h1 className={`text-2xl sm:text-3xl font-bold text-gray-900 mb-2 truncate ${className}`}>
+    <h1 className={`text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 ${className}`} style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
       {greeting}, {userName}
     </h1>
   );

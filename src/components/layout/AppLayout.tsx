@@ -2,6 +2,7 @@
 import { ReactNode } from 'react';
 import Header from './Header';
 import { MemberFooter } from './MemberFooter';
+import { DesktopSidebar } from './DesktopSidebar';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AppLayoutProps {
@@ -30,12 +31,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       
-      <main className="flex-1 overflow-auto">
-        <div className="h-full p-4 sm:p-6 lg:p-8">
-          {children}
-        </div>
-        <MemberFooter />
-      </main>
+      <div className="flex flex-1 overflow-hidden">
+        <DesktopSidebar />
+        
+        <main className="flex-1 overflow-auto">
+          <div className="h-full p-4 sm:p-6 lg:p-8">
+            {children}
+          </div>
+          <MemberFooter />
+        </main>
+      </div>
     </div>
   );
 };

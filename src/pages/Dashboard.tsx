@@ -50,16 +50,14 @@ const Dashboard = () => {
       <div className="flex flex-col space-y-6 w-full min-w-0 max-w-7xl mx-auto">
         {/* Header com breadcrumb e status alinhados */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
-            <div className="flex items-center justify-between w-full">
-              <EnhancedBreadcrumb />
-              <SmartLoading 
-                isLoading={isLoadingProjects} 
-                hasData={projects.length > 0}
-                successText={`${projects.length} projetos carregados`}
-                loadingText="Carregando projetos..."
-              />
-            </div>
+          <div className="flex items-center justify-between w-full mb-6">
+            <EnhancedBreadcrumb />
+            <SmartLoading 
+              isLoading={isLoadingProjects} 
+              hasData={projects.length > 0}
+              successText={`${projects.length} projetos carregados`}
+              loadingText="Carregando projetos..."
+            />
           </div>
           
           <div className="min-w-0 flex-1">
