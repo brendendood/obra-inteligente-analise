@@ -1,52 +1,46 @@
 
-import { useState, useEffect } from 'react';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { ReactNode } from 'react';
 import { AppSidebar } from './AppSidebar';
-import Header from './Header';
+import { Header } from './Header';
+import { MemberFooter } from './MemberFooter';
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { PageConstructionLoading } from '@/components/ui/construction-loading';
 
 interface AppLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { isAuthenticated, loading } = useAuth();
-  const isMobile = useIsMobile();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <PageConstructionLoading text="Preparando interface..." />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    return <>{children}</>;
   }
 
   return (
-    <SidebarProvider defaultOpen={!isMobile}>
-      <div className="min-h-screen flex w-full bg-gray-50/30">
-        {/* Sidebar - Fixo no desktop, oculto no mobile */}
-        {!isMobile && <AppSidebar />}
+    <div className="min-h-screen bg-gray-50 flex">
+      <AppSidebar />
+      
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header />
         
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 w-full">
-          {/* Header sem controle de sidebar */}
-          <Header />
-          
-          {/* Content Area com Scroll */}
-          <main className="flex-1 overflow-auto w-full min-w-0">
-            <div className="container max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 w-full min-w-0">
-              {children}
-            </div>
-          </main>
-        </div>
+        <main className="flex-1 overflow-auto">
+          <div className="h-full">
+            {children}
+          </div>
+          <MemberFooter />
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };

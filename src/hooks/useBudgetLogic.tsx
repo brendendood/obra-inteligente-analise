@@ -101,6 +101,10 @@ export const useBudgetLogic = (project: Project, onBudgetGenerated?: (budget: Bu
       const updatedItems = prevData.items.map((item) => {
         if (item.id === id) {
           const updatedItem = { ...item, ...updates };
+          // Garantir que quantidade seja sempre inteira
+          if (updatedItem.quantidade !== undefined) {
+            updatedItem.quantidade = Math.round(updatedItem.quantidade);
+          }
           updatedItem.total = updatedItem.quantidade * updatedItem.preco_unitario;
           return updatedItem;
         }
@@ -153,7 +157,9 @@ export const useBudgetLogic = (project: Project, onBudgetGenerated?: (budget: Bu
       const newItemWithId: BudgetItem = {
         id: crypto.randomUUID(),
         ...newItem,
-        total: newItem.quantidade * newItem.preco_unitario,
+        // Garantir que quantidade seja sempre inteira
+        quantidade: Math.round(newItem.quantidade),
+        total: Math.round(newItem.quantidade) * newItem.preco_unitario,
       };
       
       const updatedItems = [...prevData.items, newItemWithId];
