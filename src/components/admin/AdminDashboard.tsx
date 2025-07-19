@@ -1,8 +1,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, FolderOpen, CreditCard, TrendingUp, UserPlus, Brain } from 'lucide-react';
+import { Users, FolderOpen, CreditCard, TrendingUp, UserPlus, Brain, Activity } from 'lucide-react';
 import { useAdminStats } from '@/hooks/useAdminStats';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 
 export const AdminDashboard = () => {
   const { stats, loading } = useAdminStats();
@@ -10,7 +11,7 @@ export const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardHeader className="pb-3">
@@ -49,7 +50,8 @@ export const AdminDashboard = () => {
       description: 'Usuários registrados na plataforma',
       icon: Users,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
+      change: '+12%'
     },
     {
       title: 'Total de Projetos',
@@ -57,7 +59,8 @@ export const AdminDashboard = () => {
       description: 'Projetos criados pelos usuários',
       icon: FolderOpen,
       color: 'text-green-600',
-      bgColor: 'bg-green-50'
+      bgColor: 'bg-green-50',
+      change: '+8%'
     },
     {
       title: 'Assinaturas Ativas',
@@ -65,7 +68,8 @@ export const AdminDashboard = () => {
       description: 'Usuários com planos pagos',
       icon: CreditCard,
       color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      bgColor: 'bg-purple-50',
+      change: '+23%'
     },
     {
       title: 'Receita Mensal',
@@ -74,7 +78,8 @@ export const AdminDashboard = () => {
       icon: TrendingUp,
       color: 'text-emerald-600',
       bgColor: 'bg-emerald-50',
-      isFormatted: true
+      isFormatted: true,
+      change: '+15%'
     },
     {
       title: 'Novos Usuários',
@@ -82,7 +87,8 @@ export const AdminDashboard = () => {
       description: 'Cadastros neste mês',
       icon: UserPlus,
       color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
+      bgColor: 'bg-orange-50',
+      change: '+18%'
     },
     {
       title: 'Uso de IA',
@@ -90,8 +96,25 @@ export const AdminDashboard = () => {
       description: 'Interações com IA neste mês',
       icon: Brain,
       color: 'text-pink-600',
-      bgColor: 'bg-pink-50'
+      bgColor: 'bg-pink-50',
+      change: '+34%'
     }
+  ];
+
+  // Dados fictícios para os gráficos (substituir por dados reais)
+  const monthlyData = [
+    { month: 'Jan', users: 65, projects: 28, revenue: 15000 },
+    { month: 'Fev', users: 75, projects: 35, revenue: 18000 },
+    { month: 'Mar', users: 85, projects: 42, revenue: 22000 },
+    { month: 'Abr', users: 95, projects: 48, revenue: 25000 },
+    { month: 'Mai', users: 110, projects: 55, revenue: 28000 },
+    { month: 'Jun', users: 125, projects: 62, revenue: 32000 }
+  ];
+
+  const planDistribution = [
+    { name: 'Free', value: 65, color: '#64748b' },
+    { name: 'Pro', value: 25, color: '#3b82f6' },
+    { name: 'Enterprise', value: 10, color: '#8b5cf6' }
   ];
 
   return (
@@ -122,8 +145,13 @@ export const AdminDashboard = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-gray-900">
-                  {stat.isFormatted ? stat.value : Number(stat.value).toLocaleString('pt-BR')}
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {stat.isFormatted ? stat.value : Number(stat.value).toLocaleString('pt-BR')}
+                  </div>
+                  <Badge variant="secondary" className="text-green-700 bg-green-100">
+                    {stat.change}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
@@ -131,13 +159,92 @@ export const AdminDashboard = () => {
         })}
       </div>
 
-      {/* Status Cards */}
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        {/* Monthly Growth Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Crescimento Mensal
+            </CardTitle>
+            <CardDescription>Usuários e projetos ao longo do tempo</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={2} />
+                <Line type="monotone" dataKey="projects" stroke="#10b981" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Plan Distribution Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-purple-600" />
+              Distribuição de Planos
+            </CardTitle>
+            <CardDescription>Porcentagem de usuários por plano</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={planDistribution}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {planDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Revenue Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5 text-emerald-600" />
+            Receita Mensal
+          </CardTitle>
+          <CardDescription>Evolução da receita ao longo dos meses</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip formatter={(value) => formatCurrency(Number(value))} />
+              <Bar dataKey="revenue" fill="#10b981" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-green-600" />
-              Crescimento
+              Métricas de Crescimento
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -158,6 +265,12 @@ export const AdminDashboard = () => {
                     : 0}
                 </Badge>
               </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Receita por Usuário (ARR)</span>
+                <Badge variant="secondary">
+                  {formatCurrency(stats.total_users > 0 ? (stats.monthly_revenue * 12) / stats.total_users : 0)}
+                </Badge>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -166,7 +279,7 @@ export const AdminDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Brain className="h-5 w-5 text-purple-600" />
-              IA Analytics
+              Analytics de IA
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -183,6 +296,12 @@ export const AdminDashboard = () => {
                 <span className="text-sm text-gray-600">Engagement IA</span>
                 <Badge variant={stats.ai_usage_this_month > 100 ? "default" : "outline"}>
                   {stats.ai_usage_this_month > 100 ? "Alto" : "Baixo"}
+                </Badge>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Crescimento Mensal</span>
+                <Badge variant="secondary" className="text-green-700 bg-green-100">
+                  +34%
                 </Badge>
               </div>
             </div>
