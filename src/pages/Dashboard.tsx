@@ -48,25 +48,25 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <div className="flex flex-col space-y-6 w-full min-w-0 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
-          <EnhancedBreadcrumb />
-          <SmartLoading 
-            isLoading={isLoadingProjects} 
-            hasData={projects.length > 0}
-            successText={`${projects.length} projetos carregados`}
-            loadingText="Carregando projetos..."
-          />
-        </div>
-        
-        {/* Header limpo */}
+        {/* Header com breadcrumb e status alinhados */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-            <div className="min-w-0 flex-1">
-              <SmartGreeting userName={userName} />
-              <p className="text-base sm:text-lg text-gray-600">
-                Gerencie seus projetos de construção com IA
-              </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-6">
+            <div className="flex items-center justify-between w-full">
+              <EnhancedBreadcrumb />
+              <SmartLoading 
+                isLoading={isLoadingProjects} 
+                hasData={projects.length > 0}
+                successText={`${projects.length} projetos carregados`}
+                loadingText="Carregando projetos..."
+              />
             </div>
+          </div>
+          
+          <div className="min-w-0 flex-1">
+            <SmartGreeting userName={userName} />
+            <p className="text-base sm:text-lg text-gray-600">
+              Gerencie seus projetos de construção com IA
+            </p>
           </div>
         </div>
 

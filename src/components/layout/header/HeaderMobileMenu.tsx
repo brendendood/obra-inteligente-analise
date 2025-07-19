@@ -135,7 +135,7 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
                   onClick={() => handleNavigate(item.path)}
                   className={`w-full flex items-center space-x-3 px-3 py-3 text-sm rounded-lg mx-2 transition-colors ${
                     item.isActive 
-                      ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700' 
+                      ? 'bg-blue-50 text-blue-700' 
                       : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -160,7 +160,7 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
                     onClick={() => handleNavigate(item.path)}
                     className={`w-full flex items-center space-x-3 px-3 py-3 text-sm rounded-lg mx-2 transition-colors ${
                       item.isActive 
-                        ? 'bg-green-50 text-green-700 border-l-4 border-green-700' 
+                        ? 'bg-green-50 text-green-700' 
                         : 'text-slate-600 hover:bg-slate-50'
                     }`}
                   >

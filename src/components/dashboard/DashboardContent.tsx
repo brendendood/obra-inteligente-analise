@@ -45,7 +45,7 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
   }, [error, clearError]);
 
   return (
-    <div className="flex flex-col space-y-8 w-full min-w-0">
+    <div className="flex flex-col space-y-6 w-full min-w-0">
       {/* 1. AÇÕES RÁPIDAS - Agora com migração integrada */}
       <div className="w-full">
         <QuickActions />
@@ -65,7 +65,7 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
         advancedMetrics={advancedMetrics}
       />
       
-      {/* 4. GRÁFICO DE PRODUTIVIDADE - Por último */}
+      {/* 4. GRÁFICO DE PRODUTIVIDADE - Por último com menos espaço */}
       <div className="w-full">
         <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
       </div>
