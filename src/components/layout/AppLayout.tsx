@@ -2,8 +2,9 @@
 import { ReactNode } from 'react';
 import Header from './Header';
 import { MemberFooter } from './MemberFooter';
-import { DesktopSidebar } from './DesktopSidebar';
+import { AppSidebar } from './AppSidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -28,19 +29,24 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
-      
-      <div className="flex flex-1 overflow-hidden">
-        <DesktopSidebar />
-        
-        <main className="flex-1 overflow-auto">
-          <div className="h-full p-4 sm:p-6 lg:p-8">
-            {children}
-          </div>
-          <MemberFooter />
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <SidebarInset className="flex flex-col flex-1">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="ml-auto">
+              <Header />
+            </div>
+          </header>
+          <main className="flex-1 overflow-auto bg-gray-50">
+            <div className="h-full p-4 sm:p-6 lg:p-8">
+              {children}
+            </div>
+            <MemberFooter />
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };

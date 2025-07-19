@@ -5,6 +5,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  useSidebar
 } from '@/components/ui/sidebar';
 import { useProject } from '@/contexts/ProjectContext';
 import { ProjectContextHeader } from './sidebar/ProjectContextHeader';
@@ -14,22 +15,29 @@ import { UserProfile } from './sidebar/UserProfile';
 export const AppSidebar = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject } = useProject();
+  const { open } = useSidebar();
 
   // Determinar se estamos numa área de projeto com verificação de segurança
   const isInProject = Boolean(projectId && currentProject && currentProject.id === projectId);
 
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="border-b border-gray-100 p-6">
+    <Sidebar 
+      variant="inset" 
+      className="border-r"
+      collapsible="icon"
+    >
+      <SidebarHeader className="border-b border-border/50 p-4">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-md flex items-center justify-center flex-shrink-0">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
-          <span className="text-xl font-bold text-gray-800">MadenAI</span>
+          {open && (
+            <span className="text-xl font-bold text-gray-800 truncate">MadenAI</span>
+          )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2">
         {/* Project Context Header - com verificação de segurança */}
         <ProjectContextHeader isInProject={isInProject} />
 
@@ -37,7 +45,7 @@ export const AppSidebar = () => {
         <SidebarNavigation />
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-gray-100 p-4">
+      <SidebarFooter className="border-t border-border/50 p-2">
         <UserProfile />
       </SidebarFooter>
     </Sidebar>
