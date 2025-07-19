@@ -40,12 +40,19 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Contato */}
+          {/* Tecnologias */}
           <div>
-            <h3 className="font-semibold mb-4">Contato</h3>
+            <h3 className="font-semibold mb-4">Tecnologia</h3>
             <div className="space-y-2 text-slate-400">
-              <p>Email: suporte@maden.ai</p>
-              <p>Para engenheiros, arquitetos e equipes especializadas</p>
+              <Link to="/sinapi" className="block hover:text-white transition-colors duration-200">
+                SINAPI
+              </Link>
+              <Link to="/supabase" className="block hover:text-white transition-colors duration-200">
+                Supabase
+              </Link>
+              <Link to="/n8n" className="block hover:text-white transition-colors duration-200">
+                N8N
+              </Link>
               <p className="text-sm mt-3 text-slate-500">
                 Potencializando projetos com IA desde 2025
               </p>
