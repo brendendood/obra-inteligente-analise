@@ -48,7 +48,7 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
   }, [isMobile]);
 
   return (
-    <>
+    <div className="flex flex-1 w-full overflow-x-hidden">
       {/* Mobile Header - Apenas no mobile */}
       {isMobile && (
         <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
@@ -76,70 +76,68 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
         </header>
       )}
 
-      <div className="flex flex-1 w-full">
-        {/* Desktop Sidebar - Sempre visível e fixo no desktop */}
-        {!isMobile && (
-          <div className={cn(
-            "fixed left-0 top-0 h-screen z-30 transition-all duration-300 ease-in-out",
-            isDesktopSidebarCollapsed ? "w-16" : "w-72"
-          )}>
-            <ModernSidebar 
-              isCollapsed={isDesktopSidebarCollapsed}
-              onToggleCollapse={toggleDesktopSidebar}
-            />
-          </div>
-        )}
-
-        {/* Mobile Overlay */}
-        {isMobile && isMobileSidebarOpen && (
-          <div 
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
-            onClick={() => setIsMobileSidebarOpen(false)} 
-          />
-        )}
-
-        {/* Mobile Sidebar Overlay */}
-        {isMobile && (
-          <div className={cn(
-            "fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transition-transform duration-300",
-            isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          )}>
-            {/* Header do Mobile Sidebar */}
-            <div className="flex items-center justify-between p-4 border-b border-slate-200">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
-                  <div className="w-4 h-4 bg-white rounded-sm"></div>
-                </div>
-                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  MadenAI
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobileSidebarOpen(false)}
-                className="p-2"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            
-            {/* Sidebar Content para Mobile */}
-            <ModernSidebar 
-              isMobile={true}
-              onNavigate={() => setIsMobileSidebarOpen(false)}
-            />
-          </div>
-        )}
-
-        {/* Main Content Area - Ajustar margem baseado no estado do sidebar */}
+      {/* Desktop Sidebar - Sempre visível e fixo no desktop */}
+      {!isMobile && (
         <div className={cn(
-          "flex-1 transition-all duration-300 ease-in-out",
-          !isMobile && (isDesktopSidebarCollapsed ? "ml-16" : "ml-72")
+          "fixed left-0 top-0 h-screen z-30 transition-all duration-300 ease-in-out",
+          isDesktopSidebarCollapsed ? "w-16" : "w-72"
         )}>
-          {children}
+          <ModernSidebar 
+            isCollapsed={isDesktopSidebarCollapsed}
+            onToggleCollapse={toggleDesktopSidebar}
+          />
         </div>
+      )}
+
+      {/* Mobile Overlay */}
+      {isMobile && isMobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
+          onClick={() => setIsMobileSidebarOpen(false)} 
+        />
+      )}
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobile && (
+        <div className={cn(
+          "fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transition-transform duration-300",
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}>
+          {/* Header do Mobile Sidebar */}
+          <div className="flex items-center justify-between p-4 border-b border-slate-200">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                <div className="w-4 h-4 bg-white rounded-sm"></div>
+              </div>
+              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                MadenAI
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileSidebarOpen(false)}
+              className="p-2"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          
+          {/* Sidebar Content para Mobile */}
+          <ModernSidebar 
+            isMobile={true}
+            onNavigate={() => setIsMobileSidebarOpen(false)}
+          />
+        </div>
+      )}
+
+      {/* Main Content Area - Ajustar margem baseado no estado do sidebar */}
+      <div className={cn(
+        "flex-1 transition-all duration-300 ease-in-out min-w-0",
+        !isMobile && (isDesktopSidebarCollapsed ? "ml-16" : "ml-72")
+      )}>
+        {children}
       </div>
-    </>
+    </div>
   );
 };

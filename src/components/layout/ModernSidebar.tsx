@@ -9,8 +9,8 @@ import {
   MessageCircle,
   LogOut,
   Crown,
-  ChevronLeft,
-  ChevronRight
+  PanelLeft,
+  PanelLeftClose
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -136,9 +136,9 @@ export const ModernSidebar = ({
             )}
           >
             {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
+              <PanelLeft className="h-4 w-4" />
             ) : (
-              <ChevronLeft className="h-4 w-4" />
+              <PanelLeftClose className="h-4 w-4" />
             )}
           </button>
         )}
