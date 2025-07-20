@@ -112,14 +112,46 @@ export const ModernSidebar = ({
       isMobile ? "w-72" : (isCollapsed ? "w-16" : "w-72")
     )}>
       
-      {/* Barra de Limite de Projetos - acima da navegação */}
+      {/* Header Superior - Logo + Toggle Button */}
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 flex-shrink-0">
+        {(!isCollapsed || isMobile) && (
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              MadenAI
+            </span>
+          </div>
+        )}
+        
+        {/* Toggle Button - apenas no desktop */}
+        {!isMobile && onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            className={cn(
+              "flex items-center justify-center rounded-lg transition-all duration-200 p-2",
+              "hover:bg-slate-100 text-slate-500 hover:text-slate-700",
+              isCollapsed && "w-8 h-8"
+            )}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* Barra de Limite de Projetos */}
       {(!isCollapsed || isMobile) && (
-        <div className="p-4 border-b border-slate-200">
+        <div className="p-4 border-b border-slate-200 flex-shrink-0">
           <ProjectLimitBar currentProjects={3} plan="basic" />
         </div>
       )}
 
-      {/* Navegação Principal */}
+      {/* Navegação Principal - Área com scroll */}
       <div className="flex-1 p-3 space-y-1 overflow-y-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
@@ -167,8 +199,8 @@ export const ModernSidebar = ({
         })}
       </div>
 
-      {/* Seção Inferior */}
-      <div className="border-t border-slate-200 p-3 space-y-3">
+      {/* Footer Fixo - Perfil, Upgrade e Logout */}
+      <div className="border-t border-slate-200 p-3 space-y-3 flex-shrink-0">
         
         {/* Perfil & Upgrade */}
         <div className={cn(
@@ -242,27 +274,6 @@ export const ModernSidebar = ({
             </div>
           )}
         </div>
-
-        {/* Toggle de Colapso - Apenas Desktop */}
-        {!isMobile && onToggleCollapse && (
-          <button
-            onClick={onToggleCollapse}
-            className={cn(
-              "w-full flex items-center rounded-xl transition-all duration-200 p-3",
-              "hover:bg-slate-50 text-slate-500 hover:text-slate-700",
-              isCollapsed && "justify-center"
-            )}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4" />
-            ) : (
-              <>
-                <ChevronLeft className="h-4 w-4 mr-3" />
-                <span className="text-sm font-medium truncate">Recolher</span>
-              </>
-            )}
-          </button>
-        )}
       </div>
     </div>
   );

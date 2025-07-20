@@ -77,10 +77,10 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
       )}
 
       <div className="flex flex-1 w-full">
-        {/* Desktop Sidebar - Sempre visível no desktop */}
+        {/* Desktop Sidebar - Sempre visível e fixo no desktop */}
         {!isMobile && (
           <div className={cn(
-            "flex-shrink-0 transition-all duration-300 ease-in-out",
+            "fixed left-0 top-0 h-screen z-30 transition-all duration-300 ease-in-out",
             isDesktopSidebarCollapsed ? "w-16" : "w-72"
           )}>
             <ModernSidebar 
@@ -132,11 +132,10 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
           </div>
         )}
 
-        {/* Main Content Area */}
+        {/* Main Content Area - Ajustar margem baseado no estado do sidebar */}
         <div className={cn(
           "flex-1 transition-all duration-300 ease-in-out",
-          !isMobile && isDesktopSidebarCollapsed && "ml-0",
-          !isMobile && !isDesktopSidebarCollapsed && "ml-0"
+          !isMobile && (isDesktopSidebarCollapsed ? "ml-16" : "ml-72")
         )}>
           {children}
         </div>
