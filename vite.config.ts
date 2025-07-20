@@ -106,7 +106,7 @@ export default defineConfig(({ mode }) => ({
   ...(mode === 'development' && {
     define: {
       // Reduce React DevTools overhead
-      __REACT_DEVTOOLS_GLOBAL_HOOK__: '({ isDisabled: true })',
+      __REACT_DEVTOOLS_GLOBAL_HOOK__: JSON.stringify({ isDisabled: true }),
     }
   })
 }));
