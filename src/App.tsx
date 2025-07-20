@@ -21,6 +21,10 @@ import Dashboard from "./pages/Dashboard";
 // Páginas com lazy loading
 const Upload = lazy(() => import("./pages/Upload"));
 const Assistant = lazy(() => import("./pages/Assistant"));
+const Account = lazy(() => import("./pages/Account"));
+const Plan = lazy(() => import("./pages/Plan"));
+const Help = lazy(() => import("./pages/Help"));
+const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Admin = lazy(() => import("./pages/Admin"));
@@ -163,6 +167,39 @@ const App = () => {
                   <ProtectedRoute>
                     <LazyWrapper>
                       <Assistant />
+                    </LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Rotas para páginas do menu */}
+                <Route path="/conta" element={
+                  <ProtectedRoute>
+                    <LazyWrapper>
+                      <Account />
+                    </LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/plano" element={
+                  <ProtectedRoute>
+                    <LazyWrapper>
+                      <Plan />
+                    </LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/ajuda" element={
+                  <ProtectedRoute>
+                    <LazyWrapper>
+                      <Help />
+                    </LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/contato" element={
+                  <ProtectedRoute>
+                    <LazyWrapper>
+                      <Contact />
                     </LazyWrapper>
                   </ProtectedRoute>
                 } />

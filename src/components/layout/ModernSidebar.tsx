@@ -80,7 +80,7 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    onMobileClose?.();
+    onMobileClose?.(); // Fechar sidebar mobile ao navegar
   };
 
   const handleLogout = async () => {
