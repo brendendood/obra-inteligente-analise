@@ -2,17 +2,18 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
+  Bot,
   Home, 
-  Settings, 
+  User,
   CreditCard,
-  FolderOpen,
-  Plus,
+  HelpCircle,
+  MessageCircle,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Menu,
   X,
-  User
+  Crown
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,7 +35,13 @@ export const ModernSidebar = () => {
   const userGender = user?.user_metadata?.gender;
   const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
 
-  const mainNavItems = [
+  const navItems = [
+    { 
+      icon: Bot, 
+      label: 'Assistente IA', 
+      path: '/ia',
+      isActive: location.pathname.startsWith('/ia')
+    },
     { 
       icon: Home, 
       label: 'Dashboard', 
@@ -42,25 +49,32 @@ export const ModernSidebar = () => {
       isActive: location.pathname === '/painel' || location.pathname === '/'
     },
     { 
-      icon: FolderOpen, 
-      label: 'Meus Projetos', 
-      path: '/projetos',
-      isActive: location.pathname.startsWith('/projetos')
+      icon: User, 
+      label: 'Conta & Preferências', 
+      path: '/conta',
+      isActive: location.pathname.startsWith('/conta')
     },
     { 
-      icon: Plus, 
-      label: 'Nova Obra', 
-      path: '/upload',
-      isActive: location.pathname.startsWith('/upload')
+      icon: CreditCard, 
+      label: 'Plano e Pagamentos', 
+      path: '/plano',
+      isActive: location.pathname.startsWith('/plano')
     }
   ];
 
-  const settingsItems = [
+  const supportItems = [
     { 
-      icon: Settings, 
-      label: 'Configurações', 
-      path: '/configuracoes',
-      isActive: location.pathname.startsWith('/configuracoes')
+      icon: HelpCircle, 
+      label: 'Ajuda e FAQs', 
+      path: '/ajuda',
+      isActive: location.pathname.startsWith('/ajuda')
+    },
+    { 
+      icon: MessageCircle, 
+      label: 'Fale com a Gente', 
+      path: '/contato',
+      isActive: location.pathname.startsWith('/contato'),
+      isCTA: true
     }
   ];
 
@@ -99,7 +113,7 @@ export const ModernSidebar = () => {
       {/* Main Navigation */}
       <div className="flex-1 px-3 pt-6">
         <nav className="space-y-2">
-          {mainNavItems.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <button
@@ -120,12 +134,16 @@ export const ModernSidebar = () => {
           })}
         </nav>
 
-        {/* Separator */}
-        <div className="my-6 border-t border-gray-200 dark:border-gray-700"></div>
-
-        {/* Settings Navigation */}
+        {/* Support Section */}
+        {!isCollapsed && (
+          <div className="pt-6">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-4 mb-3">
+              Suporte
+            </p>
+          </div>
+        )}
         <nav className="space-y-2">
-          {settingsItems.map((item) => {
+          {supportItems.map((item) => {
             const Icon = item.icon;
             return (
               <button
@@ -133,9 +151,11 @@ export const ModernSidebar = () => {
                 onClick={() => handleNavigation(item.path)}
                 className={cn(
                   "w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group",
-                  item.isActive
-                    ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
+                  item.isCTA 
+                    ? "bg-green-500 text-white hover:bg-green-600 shadow-lg shadow-green-500/25"
+                    : item.isActive
+                      ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
                   isCollapsed && "justify-center px-3"
                 )}
               >
@@ -149,25 +169,50 @@ export const ModernSidebar = () => {
 
       {/* Bottom Section */}
       <div className="p-3 space-y-2 border-t border-gray-200 dark:border-gray-700">
-        {/* User Account */}
-        <button
-          onClick={() => handleNavigation('/conta')}
-          className={cn(
-            "w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group",
-            location.pathname.startsWith('/conta')
-              ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-              : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800",
-            isCollapsed && "justify-center px-3"
-          )}
-        >
-          <Avatar className="h-5 w-5 flex-shrink-0">
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback className="bg-blue-600 text-white text-xs">
-              {getAvatarFallback(userGender)}
-            </AvatarFallback>
-          </Avatar>
-          {!isCollapsed && <span className="ml-3 truncate">Conta</span>}
-        </button>
+        {/* Profile Card */}
+        {!isCollapsed && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 mb-3">
+            <div className="flex items-center mb-3">
+              <Avatar className="h-8 w-8 mr-3">
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback className="bg-blue-600 text-white text-sm">
+                  {getAvatarFallback(userGender)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  Plano Basic
+                </p>
+              </div>
+            </div>
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0"
+              onClick={() => handleNavigation('/plano')}
+            >
+              <Crown className="h-4 w-4 mr-2" />
+              Upgrade para Pro
+            </Button>
+          </div>
+        )}
+
+        {/* Compact Profile for collapsed state */}
+        {isCollapsed && (
+          <button
+            onClick={() => handleNavigation('/conta')}
+            className="w-full flex justify-center px-3 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-200"
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback className="bg-blue-600 text-white text-sm">
+                {getAvatarFallback(userGender)}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        )}
 
         {/* Logout Button */}
         <button
