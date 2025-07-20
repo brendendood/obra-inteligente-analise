@@ -10,7 +10,7 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
-import { PageConstructionLoading } from "@/components/ui/construction-loading";
+import { UnifiedLoading } from "@/components/ui/unified-loading";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -69,13 +69,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Lightweight loading fallback
-const OptimizedFallback = () => (
-  <div className="flex items-center justify-center min-h-screen bg-gray-50">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-  </div>
-);
-
 // Error Boundary with better performance
 class PerformantErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -113,7 +106,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <ProjectProvider>
-                <Suspense fallback={<OptimizedFallback />}>
+                <Suspense fallback={<UnifiedLoading />}>
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<LandingPage />} />

@@ -1,6 +1,6 @@
 
 import { Progress } from '@/components/ui/progress';
-import { Hammer } from 'lucide-react';
+import { InlineUnifiedLoading } from '@/components/ui/unified-loading';
 import ProcessingProgress from '@/components/common/ProcessingProgress';
 import { ProcessingStep } from '@/hooks/useProcessingSteps';
 
@@ -30,7 +30,7 @@ const UploadProgress = ({
         isProcessing={isProcessing}
       />
       
-      {/* Progresso visual apenas - sem notificações sonoras */}
+      {/* Progresso visual limpo */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <span className="text-slate-700 font-medium">Progresso do upload</span>
@@ -39,18 +39,10 @@ const UploadProgress = ({
         <Progress value={uploadProgress} className="h-3" />
       </div>
       
-      {/* Status visual apenas - interface limpa */}
+      {/* Status unificado */}
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <div className="flex items-center space-x-3">
-          <div className="animate-hammer">
-            <Hammer className="h-5 w-5 text-orange-500" />
-          </div>
-          <span className="text-blue-800 font-medium">
-            Processando "{projectName}" com MadenAI...
-          </span>
-        </div>
+        <InlineUnifiedLoading text={`Processando "${projectName}"...`} />
         
-        {/* Progresso silencioso */}
         <div className="mt-3">
           <div className="text-xs text-blue-600 mb-2">
             {currentStep?.label || 'Inicializando processamento...'}

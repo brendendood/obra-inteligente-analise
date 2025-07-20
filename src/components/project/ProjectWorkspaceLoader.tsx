@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
 import { useProjectStore } from '@/stores/projectStore';
-import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Hammer } from 'lucide-react';
+import { UnifiedLoading } from '@/components/ui/unified-loading';
 
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
@@ -46,24 +45,10 @@ export const useProjectLoader = () => {
     loadProject();
   }, [projectId, getProjectById, setCurrentProject]);
 
-  // Loading Component otimizado
+  // Unified Loading Component
   const LoadingComponent = () => (
     <AppLayout>
-      <div className="space-y-6 animate-fade-in">
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="animate-hammer">
-            <Hammer className="h-6 w-6 text-orange-500" />
-          </div>
-          <span className="text-gray-600">Carregando projeto...</span>
-        </div>
-        <EnhancedSkeleton variant="card" className="h-20" />
-        <EnhancedSkeleton variant="card" className="h-16" />
-        <div className="space-y-4">
-          <EnhancedSkeleton variant="card" className="h-32" />
-          <EnhancedSkeleton variant="card" className="h-48" />
-          <EnhancedSkeleton variant="card" className="h-24" />
-        </div>
-      </div>
+      <UnifiedLoading />
     </AppLayout>
   );
 

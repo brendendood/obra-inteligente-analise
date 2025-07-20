@@ -1,5 +1,6 @@
 
 import { Bot } from 'lucide-react';
+import { CompactUnifiedLoading } from '@/components/ui/unified-loading';
 
 export const AITypingIndicator = () => {
   return (
@@ -10,11 +11,7 @@ export const AITypingIndicator = () => {
         </div>
         
         <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-4">
-          <div className="flex space-x-2">
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-          </div>
+          <CompactUnifiedLoading text="Pensando..." />
         </div>
       </div>
     </div>

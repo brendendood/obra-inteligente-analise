@@ -1,5 +1,6 @@
+
 import React, { Suspense, ComponentType } from 'react';
-import { SmartLoading } from './smart-loading';
+import { UnifiedLoading } from './unified-loading';
 
 interface LazyWrapperProps {
   children: React.ReactNode;
@@ -46,15 +47,7 @@ class SimpleErrorBoundary extends React.Component<
   }
 }
 
-const DefaultFallback = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <SmartLoading 
-      isLoading={true}
-      loadingText="Carregando..."
-      hasData={false}
-    />
-  </div>
-);
+const DefaultFallback = () => <UnifiedLoading />;
 
 export const LazyWrapper = ({ 
   children, 

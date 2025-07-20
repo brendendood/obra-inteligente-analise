@@ -1,11 +1,11 @@
 
 import { AppLayout } from '@/components/layout/AppLayout';
-import { PageConstructionLoading } from '@/components/ui/construction-loading';
+import { UnifiedLoading } from '@/components/ui/unified-loading';
 
 export const ProjectWorkspaceLoading = () => {
   return (
     <AppLayout>
-      <PageConstructionLoading text="Construindo projeto..." />
+      <UnifiedLoading />
     </AppLayout>
   );
 };

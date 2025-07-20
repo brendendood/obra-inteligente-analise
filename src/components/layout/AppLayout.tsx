@@ -4,6 +4,7 @@ import { MemberFooter } from './MemberFooter';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { UnifiedLoading } from '@/components/ui/unified-loading';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -25,18 +26,6 @@ const useOptimizedMediaQuery = (query: string) => {
 
   return matches;
 };
-
-// Memoized loading component
-const LoadingState = memo(() => (
-  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600">Carregando...</p>
-    </div>
-  </div>
-));
-
-LoadingState.displayName = 'LoadingState';
 
 // Memoized sidebar component
 const MemoizedSidebar = memo(Sidebar);
@@ -61,9 +50,9 @@ export const AppLayout = memo<AppLayoutProps>(({ children }) => {
     innerContent: "h-full p-4 sm:p-6 lg:p-8"
   }), [isMobile]);
 
-  // Early return for loading state
+  // Early return for loading state with unified loading
   if (loading) {
-    return <LoadingState />;
+    return <UnifiedLoading />;
   }
 
   // Early return for unauthenticated users

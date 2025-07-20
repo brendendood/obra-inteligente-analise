@@ -3,7 +3,8 @@ import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 import { useProjectNavigation } from '@/hooks/useProjectNavigation';
 import { useParams } from 'react-router-dom';
 import ProjectActionCard from './ProjectActionCard';
-import { Calculator, Calendar, Bot, FileText, Building2, Ruler, Clock, Hammer } from 'lucide-react';
+import { Calculator, Calendar, Bot, FileText, Building2, Ruler, Clock } from 'lucide-react';
+import { InlineUnifiedLoading } from '@/components/ui/unified-loading';
 
 export const ProjectOverview = () => {
   const { project } = useProjectDetail();
@@ -11,14 +12,7 @@ export const ProjectOverview = () => {
   const { projectId } = useParams<{ projectId: string }>();
 
   if (!project) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando projeto...</p>
-        </div>
-      </div>
-    );
+    return <InlineUnifiedLoading />;
   }
 
   const handleNavigateToSection = (section: 'orcamento' | 'cronograma' | 'assistente' | 'documentos') => {
@@ -115,9 +109,7 @@ export const ProjectOverview = () => {
         <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-6">
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0">
-              <div className="animate-hammer">
-                <Hammer className="h-6 w-6 text-orange-500" />
-              </div>
+              <InlineUnifiedLoading text="Processamento em andamento..." />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-yellow-900 mb-1">

@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { ProcessingStep } from '@/hooks/useProcessingSteps';
+import { InlineUnifiedLoading } from '@/components/ui/unified-loading';
 
 interface ProcessingProgressProps {
   steps: ProcessingStep[];
@@ -25,20 +26,13 @@ const ProcessingProgress = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           {isProcessing ? (
-            <Loader2 className="h-6 w-6 text-blue-600 animate-spin" />
+            <InlineUnifiedLoading text="IA processando projeto..." />
           ) : (
-            <CheckCircle className="h-6 w-6 text-green-600" />
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+              <span className="font-bold text-green-900">Análise concluída!</span>
+            </div>
           )}
-          <div>
-            <h3 className="font-bold text-blue-900">
-              {isProcessing ? 'IA processando projeto...' : 'Análise concluída!'}
-            </h3>
-            {currentStep && (
-              <p className="text-sm text-blue-700">
-                {currentStep.title} - {currentStep.description}
-              </p>
-            )}
-          </div>
         </div>
         <div className="text-right">
           <div className="text-2xl font-bold text-blue-800">{Math.round(progress)}%</div>
@@ -74,13 +68,6 @@ const ProcessingProgress = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2">
                 <span className="font-medium">{step.title}</span>
-                {step.active && (
-                  <div className="flex space-x-1">
-                    <div className="w-1 h-1 bg-blue-600 rounded-full animate-ping"></div>
-                    <div className="w-1 h-1 bg-blue-600 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
-                    <div className="w-1 h-1 bg-blue-600 rounded-full animate-ping" style={{ animationDelay: '0.4s' }}></div>
-                  </div>
-                )}
               </div>
               <div className="text-sm opacity-80">{step.description}</div>
             </div>
