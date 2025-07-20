@@ -4,7 +4,7 @@ import { MemberFooter } from './MemberFooter';
 import { Sidebar } from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -12,21 +12,7 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { user, loading } = useAuth();
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detectar mobile
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
+  const { isMobile, isCollapsed } = useSidebarState();
 
   if (loading) {
     return (
@@ -43,6 +29,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     return <>{children}</>;
   }
 
+  // Calcular margem baseada no estado do sidebar
+  const getMainMargin = () => {
+    if (isMobile) return "ml-0"; // Mobile não tem margem
+    return isCollapsed ? "ml-[64px]" : "ml-[280px]"; // Desktop com sidebar colapsável
+  };
+
   return (
     <div className="min-h-screen flex flex-col w-full bg-gray-50">
       {/* Sidebar */}
@@ -50,10 +42,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Main Content */}
       <main className={cn(
-        "flex-1 flex flex-col min-h-screen transition-none",
-        // Desktop: sempre com margem fixa de 280px (largura do sidebar)
-        !isMobile && "ml-[280px]"
-        // Mobile: sem margem, pois sidebar é overlay
+        "flex-1 flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out",
+        getMainMargin()
       )}>
         <div className="flex-1 overflow-auto">
           <div className="h-full p-4 sm:p-6 lg:p-8">
