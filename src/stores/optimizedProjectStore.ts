@@ -180,16 +180,9 @@ export const useOptimizedProjectStore = create<ProjectState>()(
 
 // Memoized selectors for better performance
 export const useProjectStats = () => {
-  return useOptimizedProjectStore(
-    (state) => ({
-      totalProjects: state.projects.length,
-      processedProjects: state.projects.filter(p => p.analysis_data).length,
-      recentProjects: state.projects.slice(0, 6),
-    }),
-    // Shallow comparison for better performance
-    (a, b) => 
-      a.totalProjects === b.totalProjects && 
-      a.processedProjects === b.processedProjects &&
-      a.recentProjects.length === b.recentProjects.length
-  );
+  return useOptimizedProjectStore((state) => ({
+    totalProjects: state.projects.length,
+    processedProjects: state.projects.filter(p => p.analysis_data).length,
+    recentProjects: state.projects.slice(0, 6),
+  }));
 };
