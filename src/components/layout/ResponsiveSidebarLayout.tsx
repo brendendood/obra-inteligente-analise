@@ -55,7 +55,7 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
           <div className="flex items-center justify-between p-4">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                 <div className="w-4 h-4 bg-white rounded-sm"></div>
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -68,7 +68,7 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="p-2"
+              className="p-2 w-10 h-10 flex-shrink-0"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -79,7 +79,7 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
       {/* Desktop Sidebar - Sempre visível e fixo no desktop */}
       {!isMobile && (
         <div className={cn(
-          "fixed left-0 top-0 h-screen z-30 transition-all duration-300 ease-in-out",
+          "fixed left-0 top-0 h-screen z-30 transition-all duration-300 ease-in-out overflow-x-hidden",
           isDesktopSidebarCollapsed ? "w-16" : "w-72"
         )}>
           <ModernSidebar 
@@ -100,13 +100,13 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
       {/* Mobile Sidebar Overlay */}
       {isMobile && (
         <div className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transition-transform duration-300",
+          "fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transition-transform duration-300 overflow-x-hidden",
           isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           {/* Header do Mobile Sidebar */}
           <div className="flex items-center justify-between p-4 border-b border-slate-200">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 aspect-square">
                 <div className="w-4 h-4 bg-white rounded-sm"></div>
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -117,7 +117,7 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
               variant="ghost"
               size="sm"
               onClick={() => setIsMobileSidebarOpen(false)}
-              className="p-2"
+              className="p-2 w-10 h-10 flex-shrink-0 aspect-square"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -133,7 +133,7 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
 
       {/* Main Content Area - Ajustar margem baseado no estado do sidebar */}
       <div className={cn(
-        "flex-1 transition-all duration-300 ease-in-out min-w-0",
+        "flex-1 transition-all duration-300 ease-in-out min-w-0 overflow-x-hidden",
         !isMobile && (isDesktopSidebarCollapsed ? "ml-16" : "ml-72")
       )}>
         {children}

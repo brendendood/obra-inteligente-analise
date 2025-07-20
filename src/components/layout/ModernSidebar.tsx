@@ -108,18 +108,18 @@ export const ModernSidebar = ({
 
   return (
     <div className={cn(
-      "bg-white border-r border-slate-200 flex flex-col h-full transition-all duration-300 ease-in-out",
+      "bg-white border-r border-slate-200 flex flex-col h-full transition-all duration-300 ease-in-out overflow-x-hidden",
       isMobile ? "w-72" : (isCollapsed ? "w-16" : "w-72")
     )}>
       
       {/* Header Superior - Logo + Toggle Button */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 flex-shrink-0">
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 flex-shrink-0 min-h-[73px]">
         {(!isCollapsed || isMobile) && (
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+          <div className="flex items-center min-w-0">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 aspect-square">
               <div className="w-4 h-4 bg-white rounded-sm"></div>
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
               MadenAI
             </span>
           </div>
@@ -130,9 +130,9 @@ export const ModernSidebar = ({
           <button
             onClick={onToggleCollapse}
             className={cn(
-              "flex items-center justify-center rounded-lg transition-all duration-200 p-2",
+              "flex items-center justify-center rounded-lg transition-all duration-200 flex-shrink-0",
               "hover:bg-slate-100 text-slate-500 hover:text-slate-700",
-              isCollapsed && "w-8 h-8"
+              isCollapsed ? "w-8 h-8 aspect-square" : "w-8 h-8 p-2"
             )}
           >
             {isCollapsed ? (
@@ -152,7 +152,7 @@ export const ModernSidebar = ({
       )}
 
       {/* Navegação Principal - Área com scroll */}
-      <div className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <div className="flex-1 p-3 space-y-1 overflow-y-auto overflow-x-hidden">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -160,7 +160,7 @@ export const ModernSidebar = ({
               <button
                 onClick={() => handleNavigation(item.path)}
                 className={cn(
-                  "w-full flex items-center rounded-xl transition-all duration-200 relative p-3",
+                  "w-full flex items-center rounded-xl transition-all duration-200 relative p-3 min-w-0",
                   "hover:bg-slate-50",
                   (isCollapsed && !isMobile) ? "justify-center" : "",
                   item.isActive && "bg-blue-50 text-blue-600"
@@ -174,7 +174,7 @@ export const ModernSidebar = ({
                 
                 {(!isCollapsed || isMobile) && (
                   <span className={cn(
-                    "text-sm font-medium truncate",
+                    "text-sm font-medium truncate min-w-0",
                     item.isActive ? "text-blue-600" : "text-slate-700"
                   )}>
                     {item.label}
@@ -200,7 +200,7 @@ export const ModernSidebar = ({
       </div>
 
       {/* Footer Fixo - Perfil, Upgrade e Logout */}
-      <div className="border-t border-slate-200 p-3 space-y-3 flex-shrink-0">
+      <div className="border-t border-slate-200 p-3 space-y-3 flex-shrink-0 overflow-x-hidden">
         
         {/* Perfil & Upgrade */}
         <div className={cn(
@@ -210,7 +210,7 @@ export const ModernSidebar = ({
           {(!isCollapsed || isMobile) ? (
             <>
               <div className="flex items-center mb-3">
-                <Avatar className="h-8 w-8 mr-3 ring-2 ring-white">
+                <Avatar className="h-8 w-8 mr-3 ring-2 ring-white flex-shrink-0 aspect-square">
                   <AvatarImage src={avatarUrl} />
                   <AvatarFallback className="bg-blue-500 text-white text-sm">
                     {getAvatarFallback(userGender)}
@@ -230,13 +230,13 @@ export const ModernSidebar = ({
                 className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-sm"
                 onClick={() => handleNavigation('/plano')}
               >
-                <Crown className="h-3 w-3 mr-2" />
-                Upgrade para Pro
+                <Crown className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="truncate">Upgrade para Pro</span>
               </Button>
             </>
           ) : (
             <div className="flex flex-col items-center space-y-2">
-              <Avatar className="h-8 w-8 ring-2 ring-white">
+              <Avatar className="h-8 w-8 ring-2 ring-white flex-shrink-0 aspect-square">
                 <AvatarImage src={avatarUrl} />
                 <AvatarFallback className="bg-blue-500 text-white text-sm">
                   {getAvatarFallback(userGender)}
@@ -244,7 +244,7 @@ export const ModernSidebar = ({
               </Avatar>
               <Button 
                 size="sm" 
-                className="w-8 h-8 p-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-sm"
+                className="w-8 h-8 p-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-sm flex-shrink-0 aspect-square"
                 onClick={() => handleNavigation('/plano')}
               >
                 <Crown className="h-3 w-3" />
@@ -259,7 +259,7 @@ export const ModernSidebar = ({
             onClick={handleLogout}
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-200 p-3",
-              "hover:bg-red-50 text-red-600",
+              "hover:bg-red-50 text-red-600 min-w-0",
               (isCollapsed && !isMobile) && "justify-center"
             )}
           >
