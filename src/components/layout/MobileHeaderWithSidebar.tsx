@@ -49,8 +49,8 @@ export const MobileHeaderWithSidebar = () => {
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <ModernSidebar 
-          isMobileOpen={isSidebarOpen} 
-          onMobileClose={() => setIsSidebarOpen(false)} 
+          isMobile={true} 
+          onNavigate={() => setIsSidebarOpen(false)} 
         />
       </div>
     </>
