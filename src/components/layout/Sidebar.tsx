@@ -11,9 +11,7 @@ import {
   LogOut,
   Crown,
   Menu,
-  X,
-  ChevronLeft,
-  ChevronRight
+  X
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,8 +33,6 @@ export const Sidebar = ({ className }: SidebarProps) => {
   const { toast } = useToast();
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
 
-  // Estados para desktop e mobile
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -48,14 +44,6 @@ export const Sidebar = ({ className }: SidebarProps) => {
     checkIsMobile();
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
-  }, []);
-
-  // Carregar estado do collapse do localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('sidebar-collapsed');
-    if (saved) {
-      setIsCollapsed(JSON.parse(saved));
-    }
   }, []);
 
   // Fechar mobile sidebar quando redimensionar para desktop
@@ -114,12 +102,6 @@ export const Sidebar = ({ className }: SidebarProps) => {
     }
   };
 
-  const toggleCollapse = () => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
-    localStorage.setItem('sidebar-collapsed', JSON.stringify(newState));
-  };
-
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -143,10 +125,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   // Mobile Header
   const MobileHeader = () => (
-    <header className="lg:hidden bg-white border-b border-slate-200 sticky top-0 z-50">
+    <header className="lg:hidden bg-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
           <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -157,9 +139,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
           variant="ghost"
           size="sm"
           onClick={() => setIsMobileOpen(true)}
-          className="p-2"
+          className="p-2 hover:bg-slate-100"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-5 w-5 text-slate-600" />
         </Button>
       </div>
     </header>
@@ -167,176 +149,107 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   // Sidebar Content
   const SidebarContent = () => (
-    <div className={cn(
-      "bg-white border-r border-slate-200 flex flex-col h-full transition-all duration-300",
-      isMobile ? "w-72" : (isCollapsed ? "w-16" : "w-72")
-    )}>
+    <div className="w-[280px] bg-white border-r border-slate-200/60 flex flex-col h-full shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 min-h-[73px]">
-        {(!isCollapsed || isMobile) && (
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
-            </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              MadenAI
-            </span>
+      <div className="flex items-center justify-between p-6 border-b border-slate-200/60">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+            <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
-        )}
+          <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            MadenAI
+          </span>
+        </div>
         
-        {/* Toggle Button - desktop only */}
-        {!isMobile && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleCollapse}
-            className="p-2"
-          >
-            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
-        )}
-
         {/* Close Button - mobile only */}
         {isMobile && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsMobileOpen(false)}
-            className="p-2"
+            className="p-2 hover:bg-slate-100"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 text-slate-500" />
           </Button>
         )}
       </div>
 
       {/* Project Limit Bar */}
-      {(!isCollapsed || isMobile) && (
-        <div className="p-4 border-b border-slate-200">
-          <ProjectLimitBar currentProjects={3} plan="basic" />
-        </div>
-      )}
+      <div className="p-6 border-b border-slate-200/60">
+        <ProjectLimitBar currentProjects={3} plan="basic" />
+      </div>
 
       {/* Navigation */}
-      <div className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <div className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.path} className="relative group">
-              <button
-                onClick={() => handleNavigation(item.path)}
-                className={cn(
-                  "w-full flex items-center rounded-xl transition-all duration-200 p-3",
-                  "hover:bg-slate-50",
-                  (isCollapsed && !isMobile) && "justify-center",
-                  item.isActive && "bg-blue-50 text-blue-600"
-                )}
-              >
-                <Icon className={cn(
-                  "h-5 w-5",
-                  (!isCollapsed || isMobile) && "mr-3",
-                  item.isActive ? "text-blue-600" : "text-slate-600"
-                )} />
-                
-                {(!isCollapsed || isMobile) && (
-                  <span className={cn(
-                    "text-sm font-medium",
-                    item.isActive ? "text-blue-600" : "text-slate-700"
-                  )}>
-                    {item.label}
-                  </span>
-                )}
-
-                {item.isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
-                )}
-              </button>
-
-              {/* Tooltip para collapsed */}
-              {isCollapsed && !isMobile && (
-                <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 whitespace-nowrap pointer-events-none shadow-lg">
-                  {item.label}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45" />
-                </div>
+            <button
+              key={item.path}
+              onClick={() => handleNavigation(item.path)}
+              className={cn(
+                "w-full flex items-center rounded-xl transition-all duration-200 p-3 text-left relative group",
+                "hover:bg-slate-50",
+                item.isActive 
+                  ? "bg-blue-50/80 text-blue-700 shadow-sm" 
+                  : "text-slate-700 hover:text-slate-900"
               )}
-            </div>
+            >
+              <Icon className={cn(
+                "h-5 w-5 mr-3 flex-shrink-0",
+                item.isActive ? "text-blue-600" : "text-slate-500"
+              )} />
+              
+              <span className="text-sm font-medium truncate">
+                {item.label}
+              </span>
+
+              {item.isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full" />
+              )}
+            </button>
           );
         })}
       </div>
 
       {/* Footer */}
-      <div className="border-t border-slate-200 p-3 space-y-3">
+      <div className="border-t border-slate-200/60 p-4 space-y-4">
         {/* User Profile & Upgrade */}
-        <div className={cn(
-          "bg-slate-50 rounded-xl transition-all duration-300",
-          (isCollapsed && !isMobile) ? "p-2" : "p-3"
-        )}>
-          {(!isCollapsed || isMobile) ? (
-            <>
-              <div className="flex items-center mb-3">
-                <Avatar className="h-8 w-8 mr-3 ring-2 ring-white">
-                  <AvatarImage src={avatarUrl} />
-                  <AvatarFallback className="bg-blue-500 text-white text-sm">
-                    {getAvatarFallback(userGender)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">
-                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
-                  </p>
-                  <p className="text-xs text-slate-500 truncate">
-                    Plano Basic
-                  </p>
-                </div>
-              </div>
-              <Button 
-                size="sm" 
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
-                onClick={() => handleNavigation('/plano')}
-              >
-                <Crown className="h-3 w-3 mr-2" />
-                Upgrade para Pro
-              </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center space-y-2">
-              <Avatar className="h-8 w-8 ring-2 ring-white">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback className="bg-blue-500 text-white text-sm">
-                  {getAvatarFallback(userGender)}
-                </AvatarFallback>
-              </Avatar>
-              <Button 
-                size="sm" 
-                className="w-8 h-8 p-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                onClick={() => handleNavigation('/plano')}
-              >
-                <Crown className="h-3 w-3" />
-              </Button>
+        <div className="bg-slate-50/80 rounded-xl p-4">
+          <div className="flex items-center mb-3">
+            <Avatar className="h-10 w-10 mr-3 ring-2 ring-white shadow-sm">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">
+                {getAvatarFallback(userGender)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-slate-900 truncate">
+                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
+              </p>
+              <p className="text-xs text-slate-500 truncate">
+                Plano Basic
+              </p>
             </div>
-          )}
+          </div>
+          <Button 
+            size="sm" 
+            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm"
+            onClick={() => handleNavigation('/plano')}
+          >
+            <Crown className="h-3 w-3 mr-2" />
+            Upgrade para Pro
+          </Button>
         </div>
 
         {/* Logout */}
-        <div className="relative group">
-          <button
-            onClick={handleLogout}
-            className={cn(
-              "w-full flex items-center rounded-xl transition-all duration-200 p-3",
-              "hover:bg-red-50 text-red-600",
-              (isCollapsed && !isMobile) && "justify-center"
-            )}
-          >
-            <LogOut className={cn("h-5 w-5", (!isCollapsed || isMobile) && "mr-3")} />
-            {(!isCollapsed || isMobile) && <span className="text-sm font-medium">Sair</span>}
-          </button>
-          
-          {isCollapsed && !isMobile && (
-            <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 whitespace-nowrap pointer-events-none shadow-lg">
-              Sair
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45" />
-            </div>
-          )}
-        </div>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center rounded-xl transition-all duration-200 p-3 hover:bg-red-50 text-red-600"
+        >
+          <LogOut className="h-5 w-5 mr-3" />
+          <span className="text-sm font-medium">Sair</span>
+        </button>
       </div>
     </div>
   );
@@ -346,12 +259,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Mobile Header */}
       <MobileHeader />
 
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - Always visible and fixed */}
       {!isMobile && (
-        <div className={cn(
-          "fixed left-0 top-0 h-screen z-40 transition-all duration-300",
-          isCollapsed ? "w-16" : "w-72"
-        )}>
+        <div className="fixed left-0 top-0 h-screen z-40 w-[280px]">
           <SidebarContent />
         </div>
       )}
@@ -359,7 +269,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Mobile Overlay */}
       {isMobile && isMobileOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" 
           onClick={() => setIsMobileOpen(false)} 
         />
       )}
@@ -367,7 +277,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Mobile Sidebar */}
       {isMobile && (
         <div className={cn(
-          "fixed inset-y-0 left-0 z-50 shadow-2xl transition-transform duration-300",
+          "fixed inset-y-0 left-0 z-50 shadow-2xl transition-transform duration-300 ease-out",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <SidebarContent />

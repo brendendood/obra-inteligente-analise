@@ -12,31 +12,19 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { user, loading } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detectar mobile e carregar estado do sidebar
+  // Detectar mobile
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
     
-    const loadSidebarState = () => {
-      const saved = localStorage.getItem('sidebar-collapsed');
-      if (saved) {
-        setIsCollapsed(JSON.parse(saved));
-      }
-    };
-
     checkIsMobile();
-    loadSidebarState();
-    
     window.addEventListener('resize', checkIsMobile);
-    window.addEventListener('storage', loadSidebarState);
     
     return () => {
       window.removeEventListener('resize', checkIsMobile);
-      window.removeEventListener('storage', loadSidebarState);
     };
   }, []);
 
@@ -62,8 +50,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
       {/* Main Content */}
       <main className={cn(
-        "flex-1 flex flex-col min-h-screen transition-all duration-300",
-        !isMobile && (isCollapsed ? "ml-16" : "ml-72")
+        "flex-1 flex flex-col min-h-screen transition-none",
+        // Desktop: sempre com margem fixa de 280px (largura do sidebar)
+        !isMobile && "ml-[280px]"
+        // Mobile: sem margem, pois sidebar é overlay
       )}>
         <div className="flex-1 overflow-auto">
           <div className="h-full p-4 sm:p-6 lg:p-8">
