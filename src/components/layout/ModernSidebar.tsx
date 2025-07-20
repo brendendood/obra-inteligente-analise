@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -9,11 +8,11 @@ import {
   HelpCircle,
   MessageCircle,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
   Menu,
   X,
-  Crown
+  Crown,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,7 +34,7 @@ export const ModernSidebar = () => {
   const userGender = user?.user_metadata?.gender;
   const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
 
-  const mainNavItems = [
+  const navigationItems = [
     { 
       icon: Bot, 
       label: 'Assistente IA', 
@@ -47,10 +46,7 @@ export const ModernSidebar = () => {
       label: 'Dashboard', 
       path: '/painel',
       isActive: location.pathname === '/painel' || location.pathname === '/'
-    }
-  ];
-
-  const accountItems = [
+    },
     { 
       icon: User, 
       label: 'Conta & Preferências', 
@@ -62,10 +58,7 @@ export const ModernSidebar = () => {
       label: 'Plano e Pagamentos', 
       path: '/plano',
       isActive: location.pathname.startsWith('/plano')
-    }
-  ];
-
-  const supportItems = [
+    },
     { 
       icon: HelpCircle, 
       label: 'Ajuda e FAQs', 
@@ -99,222 +92,50 @@ export const ModernSidebar = () => {
     }
   };
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-background border-r border-border">
-      {/* Header with Logo */}
-      <div className={cn("flex items-center px-4 py-4 border-b border-border", isCollapsed && "justify-center px-2")}>
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center flex-shrink-0">
-          <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-        </div>
-        {!isCollapsed && (
-          <span className="ml-3 text-lg font-bold text-foreground">
-            MadenAI
-          </span>
-        )}
-      </div>
-
-      {/* Navigation Sections */}
-      <div className="flex-1 flex flex-col px-3 py-4 space-y-6">
-        {/* Main Navigation */}
-        <div>
-          {mainNavItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
-                className={cn(
-                  "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative mb-1",
-                  item.isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent",
-                  isCollapsed && "justify-center px-2.5"
-                )}
-              >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", !isCollapsed && "mr-3")} />
-                {!isCollapsed && <span className="truncate">{item.label}</span>}
-                
-                {/* Tooltip for collapsed state */}
-                {isCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
-                    {item.label}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Account Section */}
-        <div>
-          {!isCollapsed && (
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-              Conta
-            </h3>
-          )}
-          {accountItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
-                className={cn(
-                  "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative mb-1",
-                  item.isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent",
-                  isCollapsed && "justify-center px-2.5"
-                )}
-              >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", !isCollapsed && "mr-3")} />
-                {!isCollapsed && <span className="truncate">{item.label}</span>}
-                
-                {/* Tooltip for collapsed state */}
-                {isCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
-                    {item.label}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Support Section */}
-        <div>
-          {!isCollapsed && (
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-              Suporte
-            </h3>
-          )}
-          {supportItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.path}
-                onClick={() => handleNavigation(item.path)}
-                className={cn(
-                  "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative",
-                  item.isCTA 
-                    ? "bg-green-500 text-white hover:bg-green-600"
-                    : item.isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent",
-                  isCollapsed && "justify-center px-2.5",
-                  index < supportItems.length - 1 && "mb-1"
-                )}
-              >
-                <Icon className={cn("h-5 w-5 flex-shrink-0", !isCollapsed && "mr-3")} />
-                {!isCollapsed && <span className="truncate">{item.label}</span>}
-                
-                {/* Tooltip for collapsed state */}
-                {isCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
-                    {item.label}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="border-t border-border p-3 space-y-3">
-        {/* Profile Card - Always Visible */}
-        <div className={cn(
-          "bg-accent/50 rounded-lg p-3",
-          isCollapsed && "p-2"
-        )}>
-          {!isCollapsed ? (
-            <>
-              <div className="flex items-center mb-3">
-                <Avatar className="h-8 w-8 mr-3">
-                  <AvatarImage src={avatarUrl} />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                    {getAvatarFallback(userGender)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
-                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
-                  </p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    Plano Basic
-                  </p>
-                </div>
-              </div>
-              <Button 
-                size="sm" 
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0"
-                onClick={() => handleNavigation('/plano')}
-              >
-                <Crown className="h-4 w-4 mr-2" />
-                Upgrade para Pro
-              </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center space-y-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  {getAvatarFallback(userGender)}
-                </AvatarFallback>
-              </Avatar>
-              <Button 
-                size="sm" 
-                className="w-8 h-8 p-0 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-                onClick={() => handleNavigation('/plano')}
-              >
-                <Crown className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Logout Button */}
+  const NavItem = ({ item }: { item: any }) => {
+    const Icon = item.icon;
+    return (
+      <div className="relative group">
         <button
-          onClick={handleLogout}
+          onClick={() => handleNavigation(item.path)}
           className={cn(
-            "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative",
-            "text-destructive hover:bg-destructive/10",
-            isCollapsed && "justify-center px-2.5"
+            "w-full flex items-center rounded-xl transition-all duration-200 relative",
+            "hover:bg-slate-50 dark:hover:bg-slate-800/50",
+            isCollapsed ? "p-3 justify-center" : "p-3",
+            item.isActive && "bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400"
           )}
         >
-          <LogOut className={cn("h-5 w-5 flex-shrink-0", !isCollapsed && "mr-3")} />
-          {!isCollapsed && <span className="truncate">Sair</span>}
+          <Icon className={cn(
+            "h-5 w-5 flex-shrink-0 transition-colors",
+            !isCollapsed && "mr-3",
+            item.isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"
+          )} />
           
-          {/* Tooltip for collapsed state */}
-          {isCollapsed && (
-            <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
-              Sair
-            </div>
+          {!isCollapsed && (
+            <span className={cn(
+              "text-sm font-medium truncate transition-colors",
+              item.isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-700 dark:text-slate-300"
+            )}>
+              {item.label}
+            </span>
+          )}
+
+          {/* Active indicator */}
+          {item.isActive && (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 dark:bg-blue-400 rounded-r-full" />
           )}
         </button>
 
-        {/* Collapse Toggle - Desktop Only */}
-        <div className="hidden lg:block">
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={cn(
-              "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
-              "text-muted-foreground hover:text-foreground hover:bg-accent",
-              isCollapsed && "justify-center px-2.5"
-            )}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <>
-                <ChevronLeft className="h-5 w-5 mr-3" />
-                <span className="truncate">Recolher</span>
-              </>
-            )}
-          </button>
-        </div>
+        {/* Tooltip for collapsed state */}
+        {isCollapsed && (
+          <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none shadow-lg">
+            {item.label}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -324,7 +145,7 @@ export const ModernSidebar = () => {
           variant="outline"
           size="sm"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="bg-white dark:bg-gray-800 shadow-lg"
+          className="bg-white dark:bg-slate-900 shadow-lg border-slate-200 dark:border-slate-700"
         >
           {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
@@ -332,20 +153,142 @@ export const ModernSidebar = () => {
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setIsMobileOpen(false)} />
+        <div 
+          className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
+          onClick={() => setIsMobileOpen(false)} 
+        />
       )}
 
       {/* Sidebar */}
       <div className={cn(
-        "bg-background border-r border-border flex flex-col transition-all duration-300 shadow-sm",
+        "bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300",
         // Desktop
-        "hidden lg:flex",
-        isCollapsed ? "w-16" : "w-64",
+        "hidden lg:flex h-screen",
+        isCollapsed ? "w-16" : "w-72",
         // Mobile
         "lg:relative lg:translate-x-0",
-        isMobileOpen && "fixed inset-y-0 left-0 z-50 flex w-64"
+        isMobileOpen && "fixed inset-y-0 left-0 z-50 flex w-72 shadow-2xl"
       )}>
-        <SidebarContent />
+        
+        {/* Header */}
+        <div className={cn(
+          "flex items-center p-4 border-b border-slate-200 dark:border-slate-800",
+          isCollapsed && "justify-center px-2"
+        )}>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-4 h-4 bg-white rounded-sm"></div>
+          </div>
+          {!isCollapsed && (
+            <span className="ml-3 text-lg font-bold text-slate-900 dark:text-white">
+              MadenAI
+            </span>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex-1 p-3 space-y-1 overflow-y-auto">
+          {navigationItems.map((item) => (
+            <NavItem key={item.path} item={item} />
+          ))}
+        </div>
+
+        {/* Bottom Section */}
+        <div className="border-t border-slate-200 dark:border-slate-800 p-3 space-y-3">
+          
+          {/* Profile & Upgrade */}
+          <div className={cn(
+            "bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 transition-all",
+            isCollapsed && "p-2"
+          )}>
+            {!isCollapsed ? (
+              <>
+                <div className="flex items-center mb-3">
+                  <Avatar className="h-8 w-8 mr-3 ring-2 ring-white dark:ring-slate-800">
+                    <AvatarImage src={avatarUrl} />
+                    <AvatarFallback className="bg-blue-500 text-white text-sm">
+                      {getAvatarFallback(userGender)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                      {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      Plano Basic
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  size="sm" 
+                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-sm"
+                  onClick={() => handleNavigation('/plano')}
+                >
+                  <Crown className="h-3 w-3 mr-2" />
+                  Upgrade para Pro
+                </Button>
+              </>
+            ) : (
+              <div className="flex flex-col items-center space-y-2">
+                <Avatar className="h-8 w-8 ring-2 ring-white dark:ring-slate-800">
+                  <AvatarImage src={avatarUrl} />
+                  <AvatarFallback className="bg-blue-500 text-white text-sm">
+                    {getAvatarFallback(userGender)}
+                  </AvatarFallback>
+                </Avatar>
+                <Button 
+                  size="sm" 
+                  className="w-8 h-8 p-0 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-sm"
+                  onClick={() => handleNavigation('/plano')}
+                >
+                  <Crown className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Logout */}
+          <div className="relative group">
+            <button
+              onClick={handleLogout}
+              className={cn(
+                "w-full flex items-center rounded-xl transition-all duration-200",
+                "hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400",
+                isCollapsed ? "p-3 justify-center" : "p-3"
+              )}
+            >
+              <LogOut className={cn("h-5 w-5 flex-shrink-0", !isCollapsed && "mr-3")} />
+              {!isCollapsed && <span className="text-sm font-medium truncate">Sair</span>}
+            </button>
+            
+            {isCollapsed && (
+              <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none shadow-lg">
+                Sair
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 dark:bg-slate-100 rotate-45" />
+              </div>
+            )}
+          </div>
+
+          {/* Collapse Toggle - Desktop Only */}
+          <div className="hidden lg:block">
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={cn(
+                "w-full flex items-center rounded-xl transition-all duration-200",
+                "hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400",
+                isCollapsed ? "p-3 justify-center" : "p-3"
+              )}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-4 w-4" />
+              ) : (
+                <>
+                  <ChevronLeft className="h-4 w-4 mr-3" />
+                  <span className="text-sm font-medium truncate">Recolher</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </>
   );
