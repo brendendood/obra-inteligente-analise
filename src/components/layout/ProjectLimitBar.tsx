@@ -1,0 +1,42 @@
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Crown } from 'lucide-react';
+
+interface ProjectLimitBarProps {
+  currentProjects: number;
+  plan: 'basic' | 'pro';
+}
+
+export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {
+  const maxProjects = plan === 'basic' ? 10 : 50;
+  const percentage = (currentProjects / maxProjects) * 100;
+  const isAtLimit = currentProjects >= maxProjects;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-slate-600 dark:text-slate-400">
+          Projetos: {currentProjects}/{maxProjects}
+        </span>
+        <Badge 
+          variant={plan === 'pro' ? 'default' : 'secondary'} 
+          className="text-xs"
+        >
+          {plan === 'pro' && <Crown className="h-3 w-3 mr-1" />}
+          {plan === 'basic' ? 'Basic' : 'Pro'}
+        </Badge>
+      </div>
+      
+      <Progress 
+        value={percentage} 
+        className={`h-2 ${isAtLimit ? 'bg-red-100' : 'bg-slate-100'}`}
+      />
+      
+      {isAtLimit && (
+        <p className="text-xs text-red-600 dark:text-red-400">
+          Limite atingido. Exclua projetos existentes para criar novos.
+        </p>
+      )}
+    </div>
+  );
+};

@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
-import { SmartLoading } from '@/components/ui/smart-loading';
+import { ProjectLimitBar } from '@/components/layout/ProjectLimitBar';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useProjectStore } from '@/stores/projectStore';
@@ -52,11 +52,9 @@ const Dashboard = () => {
         <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
           <div className="flex items-center justify-between w-full mb-6">
             <EnhancedBreadcrumb />
-            <SmartLoading 
-              isLoading={isLoadingProjects} 
-              hasData={projects.length > 0}
-              successText={`${projects.length} projetos carregados`}
-              loadingText="Carregando projetos..."
+            <ProjectLimitBar 
+              currentProjects={projects.length} 
+              plan="basic" 
             />
           </div>
           

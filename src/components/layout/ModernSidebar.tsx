@@ -22,13 +22,17 @@ import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
-export const ModernSidebar = () => {
+interface ModernSidebarProps {
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSidebarProps = {}) => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const userGender = user?.user_metadata?.gender;
@@ -76,7 +80,7 @@ export const ModernSidebar = () => {
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    setIsMobileOpen(false);
+    onMobileClose?.();
   };
 
   const handleLogout = async () => {
@@ -138,37 +142,14 @@ export const ModernSidebar = () => {
   };
 
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="bg-white dark:bg-slate-900 shadow-lg border-slate-200 dark:border-slate-700"
-        >
-          {isMobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-        </Button>
-      </div>
-
-      {/* Mobile Overlay */}
-      {isMobileOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
-          onClick={() => setIsMobileOpen(false)} 
-        />
-      )}
-
-      {/* Sidebar */}
-      <div className={cn(
-        "bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300",
-        // Desktop
-        "hidden lg:flex h-screen",
-        isCollapsed ? "w-16" : "w-72",
-        // Mobile
-        "lg:relative lg:translate-x-0",
-        isMobileOpen && "fixed inset-y-0 left-0 z-50 flex w-72 shadow-2xl"
-      )}>
+    <div className={cn(
+      "bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300 h-full",
+      // Desktop
+      "hidden lg:flex lg:h-screen",
+      isCollapsed ? "w-16" : "w-72",
+      // Mobile - usado quando passado como prop do header
+      "lg:relative lg:translate-x-0"
+    )}>
         
         {/* Header */}
         <div className={cn(
@@ -290,6 +271,5 @@ export const ModernSidebar = () => {
           </div>
         </div>
       </div>
-    </>
   );
 };
