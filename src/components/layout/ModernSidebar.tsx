@@ -9,7 +9,6 @@ import {
   HelpCircle,
   MessageCircle,
   LogOut,
-  X,
   Crown,
   ChevronLeft,
   ChevronRight
@@ -24,17 +23,17 @@ import { ProjectLimitBar } from './ProjectLimitBar';
 import { cn } from '@/lib/utils';
 
 interface ModernSidebarProps {
-  isMobileOpen?: boolean;
-  onMobileClose?: () => void;
+  isMobile?: boolean;
+  onNavigate?: () => void;
 }
 
-export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSidebarProps = {}) => {
+export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarProps) => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(!isMobile);
 
   const userGender = user?.user_metadata?.gender;
   const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
@@ -80,7 +79,7 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
 
   const handleNavigation = (path: string) => {
     navigate(path);
-    onMobileClose?.(); // Fechar sidebar mobile ao navegar
+    onNavigate?.(); // Fechar sidebar mobile ao navegar
   };
 
   const handleLogout = async () => {
@@ -91,7 +90,7 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
         description: "Você foi desconectado com sucesso.",
       });
       navigate('/');
-      onMobileClose?.(); // Fechar sidebar mobile após logout
+      onNavigate?.(); // Fechar sidebar mobile após logout
     } catch (error) {
       console.error('Erro no logout:', error);
       toast({
@@ -102,37 +101,18 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
     }
   };
 
-  // Determinar se é mobile ou desktop
-  const isMobile = window.innerWidth < 1024;
-
   return (
     <div className={cn(
       "bg-white border-r border-slate-200 flex flex-col h-full transition-all duration-300",
-      // Desktop - sempre visível
-      !isMobile && "hidden lg:flex",
-      !isMobile && (isCollapsed ? "w-16" : "w-72"),
-      // Mobile - controlado por props
-      isMobile && "w-72"
+      isMobile ? "w-72" : (isCollapsed ? "w-16" : "w-72")
     )}>
       
-      {/* Header do Sidebar - Apenas Mobile mostra X */}
-      {isMobile && (
-        <div className="flex items-center justify-end p-4 border-b border-slate-200">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onMobileClose}
-            className="p-2"
-          >
-            <X className="h-5 w-5" />
-          </Button>
+      {/* Barra de Limite de Projetos - acima da navegação */}
+      {(!isCollapsed || isMobile) && (
+        <div className="p-4 border-b border-slate-200">
+          <ProjectLimitBar currentProjects={3} plan="basic" />
         </div>
       )}
-
-      {/* Barra de Limite de Projetos - acima da navegação */}
-      <div className="p-4 border-b border-slate-200">
-        <ProjectLimitBar currentProjects={3} plan="basic" />
-      </div>
 
       {/* Navegação Principal */}
       <div className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -145,7 +125,7 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
                 className={cn(
                   "w-full flex items-center rounded-xl transition-all duration-200 relative p-3",
                   "hover:bg-slate-50",
-                  isCollapsed && !isMobile ? "justify-center" : "",
+                  (isCollapsed && !isMobile) ? "justify-center" : "",
                   item.isActive && "bg-blue-50 text-blue-600"
                 )}
               >
@@ -188,7 +168,7 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
         {/* Perfil & Upgrade */}
         <div className={cn(
           "bg-slate-50 rounded-xl p-3 transition-all",
-          isCollapsed && !isMobile && "p-2"
+          (isCollapsed && !isMobile) && "p-2"
         )}>
           {(!isCollapsed || isMobile) ? (
             <>
@@ -243,7 +223,7 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-200 p-3",
               "hover:bg-red-50 text-red-600",
-              isCollapsed && !isMobile && "justify-center"
+              (isCollapsed && !isMobile) && "justify-center"
             )}
           >
             <LogOut className={cn("h-5 w-5 flex-shrink-0", (!isCollapsed || isMobile) && "mr-3")} />

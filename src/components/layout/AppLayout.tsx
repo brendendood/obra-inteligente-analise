@@ -1,8 +1,7 @@
 
 import { ReactNode } from 'react';
 import { MemberFooter } from './MemberFooter';
-import { ModernSidebar } from './ModernSidebar';
-import { MobileHeaderWithSidebar } from './MobileHeaderWithSidebar';
+import { ResponsiveSidebarLayout } from './ResponsiveSidebarLayout';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AppLayoutProps {
@@ -29,13 +28,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col w-full bg-gray-50">
-      {/* Mobile Header com Sidebar integrado */}
-      <MobileHeaderWithSidebar />
-      
-      <div className="flex flex-1 w-full">
-        {/* Desktop Sidebar */}
-        <ModernSidebar />
-        
+      <ResponsiveSidebarLayout>
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 min-h-screen">
           <div className="flex-1 overflow-auto">
@@ -45,7 +38,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
           <MemberFooter />
         </main>
-      </div>
+      </ResponsiveSidebarLayout>
     </div>
   );
 };

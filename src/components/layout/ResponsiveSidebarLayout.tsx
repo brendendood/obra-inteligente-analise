@@ -1,0 +1,118 @@
+
+import { useState, useEffect, ReactNode } from 'react';
+import { Menu, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ModernSidebar } from './ModernSidebar';
+import { cn } from '@/lib/utils';
+
+interface ResponsiveSidebarLayoutProps {
+  children: ReactNode;
+}
+
+export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutProps) => {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar se é mobile de forma responsiva
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  // Fechar sidebar mobile quando a tela for redimensionada para desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setIsMobileSidebarOpen(false);
+    }
+  }, [isMobile]);
+
+  return (
+    <>
+      {/* Mobile Header - Apenas no mobile */}
+      {isMobile && (
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+          <div className="flex items-center justify-between p-4">
+            {/* Logo */}
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                <div className="w-4 h-4 bg-white rounded-sm"></div>
+              </div>
+              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                MadenAI
+              </span>
+            </div>
+            
+            {/* Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="p-2"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
+      )}
+
+      <div className="flex flex-1 w-full">
+        {/* Desktop Sidebar - Sempre visível no desktop */}
+        {!isMobile && (
+          <div className="flex-shrink-0">
+            <ModernSidebar />
+          </div>
+        )}
+
+        {/* Mobile Overlay */}
+        {isMobile && isMobileSidebarOpen && (
+          <div 
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" 
+            onClick={() => setIsMobileSidebarOpen(false)} 
+          />
+        )}
+
+        {/* Mobile Sidebar Overlay */}
+        {isMobile && (
+          <div className={cn(
+            "fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transition-transform duration-300",
+            isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          )}>
+            {/* Header do Mobile Sidebar */}
+            <div className="flex items-center justify-between p-4 border-b border-slate-200">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-4 h-4 bg-white rounded-sm"></div>
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  MadenAI
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="p-2"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            
+            {/* Sidebar Content para Mobile */}
+            <ModernSidebar 
+              isMobile={true}
+              onNavigate={() => setIsMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        {children}
+      </div>
+    </>
+  );
+};
