@@ -91,8 +91,14 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
         description: "Você foi desconectado com sucesso.",
       });
       navigate('/');
+      onMobileClose?.(); // Fechar sidebar mobile após logout
     } catch (error) {
       console.error('Erro no logout:', error);
+      toast({
+        title: "Erro no logout",
+        description: "Ocorreu um erro ao tentar fazer logout.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -109,43 +115,19 @@ export const ModernSidebar = ({ isMobileOpen = false, onMobileClose }: ModernSid
       isMobile && "w-72"
     )}>
       
-      {/* Header do Sidebar */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200">
-        {!isMobile && !isCollapsed && (
-          <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <div className="w-4 h-4 bg-white rounded-sm"></div>
-            </div>
-            <span className="ml-3 text-lg font-bold text-slate-900">MadenAI</span>
-          </div>
-        )}
-        
-        {!isMobile && isCollapsed && (
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
-          </div>
-        )}
-
-        {/* Mobile Header com Logo e X */}
-        {isMobile && (
-          <>
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              <span className="ml-3 text-lg font-bold text-slate-900">MadenAI</span>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onMobileClose}
-              className="p-2"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </>
-        )}
-      </div>
+      {/* Header do Sidebar - Apenas Mobile mostra X */}
+      {isMobile && (
+        <div className="flex items-center justify-end p-4 border-b border-slate-200">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onMobileClose}
+            className="p-2"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
 
       {/* Barra de Limite de Projetos - acima da navegação */}
       <div className="p-4 border-b border-slate-200">
