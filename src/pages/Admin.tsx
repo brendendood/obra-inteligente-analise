@@ -73,9 +73,15 @@ const Admin = () => {
   if (authLoading || adminLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Verificando permissões...</p>
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Carregando...</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="text-sm text-primary hover:underline cursor-pointer"
+          >
+            Recarregar se demorar muito
+          </button>
         </div>
       </div>
     );

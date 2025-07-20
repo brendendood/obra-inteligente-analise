@@ -37,13 +37,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Memoized auth check to avoid unnecessary re-renders
   const checkAdminPermissions = useCallback(async (user: User) => {
     try {
-      const { data } = await supabase
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Admin check timeout')), 3000)
+      );
+      
+      const adminCheckPromise = supabase
         .from('admin_permissions')
         .select('user_id')
         .eq('user_id', user.id)
-        .single();
+        .eq('active', true)
+        .maybeSingle();
+      
+      const { data } = await Promise.race([adminCheckPromise, timeoutPromise]) as any;
       return !!data;
-    } catch {
+    } catch (error) {
+      console.error('Admin permission check failed:', error);
       return false;
     }
   }, []);

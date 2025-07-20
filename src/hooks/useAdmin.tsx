@@ -40,8 +40,17 @@ export function useAdmin() {
       try {
         console.log('🔍 ADMIN: Verificando status admin para:', user.email);
         
-        // Verificar se é admin através da nova função
-        const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin_user');
+        // Timeout para evitar loading infinito
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Admin check timeout')), 5000)
+        );
+        
+        const adminCheckPromise = supabase.rpc('is_admin_user');
+        
+        const { data: adminCheck, error: adminError } = await Promise.race([
+          adminCheckPromise, 
+          timeoutPromise
+        ]) as any;
         
         if (adminError) {
           console.error('❌ ADMIN: Erro ao verificar status admin:', adminError);
@@ -52,18 +61,24 @@ export function useAdmin() {
           
           // Se for admin, buscar o role específico
           if (adminCheck) {
-            const { data: roleData, error: roleError } = await supabase
-              .from('admin_permissions')
-              .select('role')
-              .eq('user_id', user.id)
-              .eq('active', true)
-              .single();
-            
-            if (!roleError && roleData) {
-              console.log('👑 ADMIN: Role encontrado:', roleData.role);
-              setUserRole(roleData.role);
-            } else {
-              console.log('⚠️ ADMIN: Erro ao buscar role ou role não encontrado:', roleError);
+            try {
+              const { data: roleData, error: roleError } = await supabase
+                .from('admin_permissions')
+                .select('role')
+                .eq('user_id', user.id)
+                .eq('active', true)
+                .maybeSingle();
+              
+              if (!roleError && roleData) {
+                console.log('👑 ADMIN: Role encontrado:', roleData.role);
+                setUserRole(roleData.role);
+              } else {
+                console.log('⚠️ ADMIN: Role não encontrado, usando super_admin como fallback');
+                setUserRole('super_admin');
+              }
+            } catch (roleErr) {
+              console.error('Error fetching user role:', roleErr);
+              setUserRole('super_admin');
             }
           }
         }
