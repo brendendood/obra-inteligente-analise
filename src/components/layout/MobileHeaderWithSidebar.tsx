@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ModernSidebar } from './ModernSidebar';
 import { cn } from '@/lib/utils';
@@ -13,18 +14,23 @@ export const MobileHeaderWithSidebar = () => {
       <header className="lg:hidden bg-white border-b border-slate-200 sticky top-0 z-40">
         <div className="flex items-center justify-between p-4">
           {/* Logo */}
-          <div className="font-bold text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            MadenAI
+          <div className="flex items-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+              <div className="w-4 h-4 bg-white rounded-sm"></div>
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              MadenAI
+            </span>
           </div>
           
           {/* Menu Button */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => setIsSidebarOpen(true)}
             className="p-2"
           >
-            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <Menu className="h-5 w-5" />
           </Button>
         </div>
       </header>

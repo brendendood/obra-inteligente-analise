@@ -5,7 +5,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
-import { ProjectLimitBar } from '@/components/layout/ProjectLimitBar';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useProjectStore } from '@/stores/projectStore';
@@ -48,14 +47,10 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <div className="flex flex-col space-y-6 w-full min-w-0 max-w-7xl mx-auto">
-        {/* Header com breadcrumb e status alinhados */}
+        {/* Header com breadcrumb */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
           <div className="flex items-center justify-between w-full mb-6">
             <EnhancedBreadcrumb />
-            <ProjectLimitBar 
-              currentProjects={projects.length} 
-              plan="basic" 
-            />
           </div>
           
           <div className="min-w-0 flex-1">

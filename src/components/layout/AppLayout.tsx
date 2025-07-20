@@ -4,7 +4,6 @@ import { MemberFooter } from './MemberFooter';
 import { ModernSidebar } from './ModernSidebar';
 import { MobileHeaderWithSidebar } from './MobileHeaderWithSidebar';
 import { useAuth } from '@/hooks/useAuth';
-import { SidebarProvider } from '@/components/ui/sidebar';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -29,26 +28,24 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex flex-col w-full bg-gray-50 dark:bg-gray-900">
-        {/* Mobile Header com Sidebar integrado */}
-        <MobileHeaderWithSidebar />
+    <div className="min-h-screen flex flex-col w-full bg-gray-50">
+      {/* Mobile Header com Sidebar integrado */}
+      <MobileHeaderWithSidebar />
+      
+      <div className="flex flex-1 w-full">
+        {/* Desktop Sidebar */}
+        <ModernSidebar />
         
-        <div className="flex flex-1 w-full">
-          {/* Desktop Sidebar */}
-          <ModernSidebar />
-          
-          {/* Main Content */}
-          <main className="flex-1 flex flex-col min-w-0 min-h-screen">
-            <div className="flex-1 overflow-auto">
-              <div className="h-full p-4 sm:p-6 lg:p-8">
-                {children}
-              </div>
+        {/* Main Content */}
+        <main className="flex-1 flex flex-col min-w-0 min-h-screen">
+          <div className="flex-1 overflow-auto">
+            <div className="h-full p-4 sm:p-6 lg:p-8">
+              {children}
             </div>
-            <MemberFooter />
-          </main>
-        </div>
+          </div>
+          <MemberFooter />
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
