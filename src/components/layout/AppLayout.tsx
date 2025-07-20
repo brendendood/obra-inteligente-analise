@@ -1,8 +1,10 @@
 
 import { ReactNode } from 'react';
 import { MemberFooter } from './MemberFooter';
-import { ResponsiveSidebarLayout } from './ResponsiveSidebarLayout';
+import { Sidebar } from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -10,6 +12,33 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { user, loading } = useAuth();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detectar mobile e carregar estado do sidebar
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    
+    const loadSidebarState = () => {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      if (saved) {
+        setIsCollapsed(JSON.parse(saved));
+      }
+    };
+
+    checkIsMobile();
+    loadSidebarState();
+    
+    window.addEventListener('resize', checkIsMobile);
+    window.addEventListener('storage', loadSidebarState);
+    
+    return () => {
+      window.removeEventListener('resize', checkIsMobile);
+      window.removeEventListener('storage', loadSidebarState);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -28,17 +57,21 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col w-full bg-gray-50">
-      <ResponsiveSidebarLayout>
-        {/* Main Content */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-screen">
-          <div className="flex-1 overflow-auto">
-            <div className="h-full p-4 sm:p-6 lg:p-8">
-              {children}
-            </div>
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <main className={cn(
+        "flex-1 flex flex-col min-h-screen transition-all duration-300",
+        !isMobile && (isCollapsed ? "ml-16" : "ml-72")
+      )}>
+        <div className="flex-1 overflow-auto">
+          <div className="h-full p-4 sm:p-6 lg:p-8">
+            {children}
           </div>
-          <MemberFooter />
-        </main>
-      </ResponsiveSidebarLayout>
+        </div>
+        <MemberFooter />
+      </main>
     </div>
   );
 };
