@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Bot,
@@ -25,15 +24,21 @@ import { cn } from '@/lib/utils';
 interface ModernSidebarProps {
   isMobile?: boolean;
   onNavigate?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarProps) => {
+export const ModernSidebar = ({ 
+  isMobile = false, 
+  onNavigate,
+  isCollapsed = false,
+  onToggleCollapse
+}: ModernSidebarProps) => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
-  const [isCollapsed, setIsCollapsed] = useState(!isMobile);
 
   const userGender = user?.user_metadata?.gender;
   const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
@@ -103,7 +108,7 @@ export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarPro
 
   return (
     <div className={cn(
-      "bg-white border-r border-slate-200 flex flex-col h-full transition-all duration-300",
+      "bg-white border-r border-slate-200 flex flex-col h-full transition-all duration-300 ease-in-out",
       isMobile ? "w-72" : (isCollapsed ? "w-16" : "w-72")
     )}>
       
@@ -152,7 +157,7 @@ export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarPro
 
               {/* Tooltip para estado colapsado no desktop */}
               {isCollapsed && !isMobile && (
-                <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none shadow-lg">
+                <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 whitespace-nowrap pointer-events-none shadow-lg">
                   {item.label}
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45" />
                 </div>
@@ -167,8 +172,8 @@ export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarPro
         
         {/* Perfil & Upgrade */}
         <div className={cn(
-          "bg-slate-50 rounded-xl p-3 transition-all",
-          (isCollapsed && !isMobile) && "p-2"
+          "bg-slate-50 rounded-xl transition-all duration-300",
+          (isCollapsed && !isMobile) ? "p-2" : "p-3"
         )}>
           {(!isCollapsed || isMobile) ? (
             <>
@@ -231,7 +236,7 @@ export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarPro
           </button>
           
           {isCollapsed && !isMobile && (
-            <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none shadow-lg">
+            <div className="absolute left-full ml-3 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 whitespace-nowrap pointer-events-none shadow-lg">
               Sair
               <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45" />
             </div>
@@ -239,12 +244,12 @@ export const ModernSidebar = ({ isMobile = false, onNavigate }: ModernSidebarPro
         </div>
 
         {/* Toggle de Colapso - Apenas Desktop */}
-        {!isMobile && (
+        {!isMobile && onToggleCollapse && (
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={onToggleCollapse}
             className={cn(
               "w-full flex items-center rounded-xl transition-all duration-200 p-3",
-              "hover:bg-slate-50 text-slate-500",
+              "hover:bg-slate-50 text-slate-500 hover:text-slate-700",
               isCollapsed && "justify-center"
             )}
           >

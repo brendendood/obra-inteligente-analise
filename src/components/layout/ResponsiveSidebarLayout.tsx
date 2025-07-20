@@ -12,6 +12,7 @@ interface ResponsiveSidebarLayoutProps {
 export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutProps) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
 
   // Detectar se é mobile de forma responsiva
   useEffect(() => {
@@ -23,6 +24,21 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
     window.addEventListener('resize', checkIsMobile);
     return () => window.removeEventListener('resize', checkIsMobile);
   }, []);
+
+  // Carregar estado do sidebar desktop do localStorage
+  useEffect(() => {
+    const savedState = localStorage.getItem('desktop-sidebar-collapsed');
+    if (savedState) {
+      setIsDesktopSidebarCollapsed(JSON.parse(savedState));
+    }
+  }, []);
+
+  // Salvar estado do sidebar desktop no localStorage
+  const toggleDesktopSidebar = () => {
+    const newState = !isDesktopSidebarCollapsed;
+    setIsDesktopSidebarCollapsed(newState);
+    localStorage.setItem('desktop-sidebar-collapsed', JSON.stringify(newState));
+  };
 
   // Fechar sidebar mobile quando a tela for redimensionada para desktop
   useEffect(() => {
@@ -63,8 +79,14 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
       <div className="flex flex-1 w-full">
         {/* Desktop Sidebar - Sempre visível no desktop */}
         {!isMobile && (
-          <div className="flex-shrink-0">
-            <ModernSidebar />
+          <div className={cn(
+            "flex-shrink-0 transition-all duration-300 ease-in-out",
+            isDesktopSidebarCollapsed ? "w-16" : "w-72"
+          )}>
+            <ModernSidebar 
+              isCollapsed={isDesktopSidebarCollapsed}
+              onToggleCollapse={toggleDesktopSidebar}
+            />
           </div>
         )}
 
@@ -111,7 +133,13 @@ export const ResponsiveSidebarLayout = ({ children }: ResponsiveSidebarLayoutPro
         )}
 
         {/* Main Content Area */}
-        {children}
+        <div className={cn(
+          "flex-1 transition-all duration-300 ease-in-out",
+          !isMobile && isDesktopSidebarCollapsed && "ml-0",
+          !isMobile && !isDesktopSidebarCollapsed && "ml-0"
+        )}>
+          {children}
+        </div>
       </div>
     </>
   );
