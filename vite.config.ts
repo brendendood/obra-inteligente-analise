@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -20,42 +21,67 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Otimizações de build para performance
+    // Performance optimizations
     target: 'esnext',
     minify: mode === 'production' ? 'esbuild' : false,
     sourcemap: mode === 'development',
     
-    // Code splitting otimizado
+    // Optimized chunk splitting for better caching
     rollupOptions: {
       output: {
         manualChunks: {
-          // Vendor chunks separados
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-toast'],
-          'supabase-vendor': ['@supabase/supabase-js'],
-          'chart-vendor': ['recharts'],
-          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
-          'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge'],
+          // Core React chunks
+          'react-core': ['react', 'react-dom'],
+          'react-router': ['react-router-dom'],
+          
+          // UI Library chunks
+          'ui-radix': [
+            '@radix-ui/react-dialog', 
+            '@radix-ui/react-dropdown-menu', 
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-select'
+          ],
+          
+          // Backend & Data
+          'supabase': ['@supabase/supabase-js'],
+          'data': ['@tanstack/react-query', 'zustand'],
+          
+          // Charts & Visualization
+          'charts': ['recharts'],
+          
+          // Forms & Validation
+          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          
+          // Utilities
+          'utils': ['date-fns', 'clsx', 'tailwind-merge', 'lucide-react'],
+          
+          // File handling
+          'files': ['react-dropzone', 'file-saver', 'html2canvas', 'jspdf'],
         },
       },
     },
     
-    // Chunks size otimizado
-    chunkSizeWarningLimit: 1000,
+    // Optimized chunk sizes
+    chunkSizeWarningLimit: 800,
     
-    // Otimização de assets
-    assetsInlineLimit: 4096,
+    // Asset optimization
+    assetsInlineLimit: 2048,
+    
+    // CSS code splitting
+    cssCodeSplit: true,
   },
   
-  // Otimizações de performance
+  // Enhanced optimization
   optimizeDeps: {
     include: [
       'react',
       'react-dom',
       'react-router-dom',
       '@supabase/supabase-js',
+      '@tanstack/react-query',
+      'zustand',
       'lucide-react',
-      'recharts',
       'date-fns',
       'clsx',
       'tailwind-merge'
@@ -63,10 +89,24 @@ export default defineConfig(({ mode }) => ({
     exclude: ['@vite/client', '@vite/env'],
   },
   
-  // Cache headers para desenvolvimento
+  // Performance settings
+  esbuild: {
+    // Remove console.log in production
+    drop: mode === 'production' ? ['console', 'debugger'] : [],
+  },
+  
+  // Cache optimization
   preview: {
     headers: {
       'Cache-Control': 'public, max-age=31536000, immutable',
     },
   },
+  
+  // Development optimizations
+  ...(mode === 'development' && {
+    define: {
+      // Reduce React DevTools overhead
+      __REACT_DEVTOOLS_GLOBAL_HOOK__: '({ isDisabled: true })',
+    }
+  })
 }));
