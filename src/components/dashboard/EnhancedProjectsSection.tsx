@@ -10,6 +10,7 @@ import {
   Search, 
   Filter
 } from 'lucide-react';
+import sadAI from '@/assets/sad-ai.png';
 import {
   Select,
   SelectContent,
@@ -102,12 +103,13 @@ export const EnhancedProjectsSection = ({
       <Card className="border border-gray-200 bg-white w-full">
         <CardContent className="p-12 text-center">
           <div className="bg-gray-50 rounded-2xl p-8 border-2 border-dashed border-gray-200">
-            <FolderOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Nenhum projeto ainda
-            </h3>
-            <p className="text-gray-500 mb-6 max-w-md mx-auto">
-              Comece criando seu primeiro projeto. Faça upload de plantas, documentos ou dados do seu projeto.
+            <img 
+              src={sadAI} 
+              alt="IA Triste" 
+              className="h-24 w-auto mx-auto mb-4 object-contain"
+            />
+            <p className="text-lg text-gray-600 mb-6 max-w-md mx-auto">
+              Você ainda não me trouxe nenhum projeto...
             </p>
             <Button 
               onClick={() => navigate('/upload')}
