@@ -18,7 +18,7 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: 'basic', // Fallback padrão para 'basic'
+    plan: 'free', // Fallback padrão para 'free'
     projectCount: 0,
     subscription: null,
     profile: null
@@ -36,7 +36,7 @@ export const useUserData = () => {
     if (!isAuthenticated || !user) {
       console.log('⚠️ useUserData: User not authenticated, setting defaults');
       setUserData({
-        plan: 'basic',
+        plan: 'free',
         projectCount: 0,
         subscription: null,
         profile: null
@@ -88,13 +88,13 @@ export const useUserData = () => {
         projectCountPromise
       ]);
 
-      // Processar subscription com fallback para 'basic'
+      // Processar subscription com fallback para 'free'
       let subscription = null;
-      let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'basic';
+      let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'free';
       
       if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.data) {
         subscription = subscriptionResult.value.data;
-        plan = subscription.plan || 'basic';
+        plan = subscription.plan || 'free';
       } else if (subscriptionResult.status === 'rejected') {
         console.warn('⚠️ Erro ao buscar assinatura:', subscriptionResult.reason);
       }
@@ -131,7 +131,7 @@ export const useUserData = () => {
       
       // Fallback para dados básicos em caso de erro crítico
       setUserData({
-        plan: 'basic',
+        plan: 'free',
         projectCount: 0,
         subscription: null,
         profile: null

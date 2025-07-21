@@ -14,10 +14,30 @@ export const MemberFooter = () => {
 
   const getPlanDisplayName = (plan: string) => {
     switch (plan) {
+      case 'free': return 'Free';
       case 'basic': return 'Basic';
       case 'pro': return 'Pro';
       case 'enterprise': return 'Enterprise';
-      default: return 'Basic';
+      default: return 'Free';
+    }
+  };
+
+  const getPlanBadgeVariant = (plan: string) => {
+    switch (plan) {
+      case 'free': return 'outline';
+      case 'basic': return 'secondary';
+      case 'pro': return 'default';
+      case 'enterprise': return 'default';
+      default: return 'outline';
+    }
+  };
+
+  const getPlanBadgeStyle = (plan: string) => {
+    switch (plan) {
+      case 'enterprise': return 'bg-gradient-to-r from-purple-500 to-purple-600 text-white';
+      case 'pro': return 'bg-blue-600 text-white';
+      case 'basic': return 'bg-blue-100 text-blue-800';
+      default: return '';
     }
   };
 
@@ -128,7 +148,10 @@ export const MemberFooter = () => {
               </div>
               <div className="text-sm text-gray-600">
                 <span className="font-medium">Plano:</span><br />
-                <Badge variant="secondary" className="text-xs">
+                <Badge 
+                  variant={getPlanBadgeVariant(userData.plan)} 
+                  className={`text-xs ${getPlanBadgeStyle(userData.plan)}`}
+                >
                   {getPlanDisplayName(userData.plan)}
                 </Badge>
               </div>

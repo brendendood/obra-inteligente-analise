@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle } from 'lucide-react';
+import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle, X, Loader2 } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,32 +17,35 @@ const Plan = () => {
 
   const getPlanDisplayName = (plan: string) => {
     switch (plan) {
+      case 'free': return 'Free';
       case 'basic': return 'Basic';
       case 'pro': return 'Pro';
       case 'enterprise': return 'Enterprise';
-      default: return 'Basic';
+      default: return 'Free';
     }
   };
 
   const getPlanLimits = (plan: string) => {
     switch (plan) {
-      case 'basic': return 10;
-      case 'pro': return 50;
+      case 'free': return 1;
+      case 'basic': return 3;
+      case 'pro': return 25;
       case 'enterprise': return 999;
-      default: return 10;
+      default: return 1;
     }
   };
 
   const getPlanPrice = (plan: string) => {
     switch (plan) {
-      case 'basic': return 0;
-      case 'pro': return 49;
-      case 'enterprise': return 149;
+      case 'free': return 0;
+      case 'basic': return 49;
+      case 'pro': return 149;
+      case 'enterprise': return 299;
       default: return 0;
     }
   };
 
-  const handleUpgrade = async (targetPlan: 'pro' | 'enterprise') => {
+  const handleUpgrade = async (targetPlan: 'basic' | 'pro' | 'enterprise') => {
     setUpgrading(true);
     try {
       toast({
@@ -173,12 +176,70 @@ const Plan = () => {
         </Card>
 
         {/* Planos Disponíveis */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Plano Basic */}
-          <Card className={`${userData.plan === 'basic' ? 'border-blue-500 bg-blue-50/50' : ''}`}>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Plano Free */}
+          <Card className={`${userData.plan === 'free' ? 'border-gray-500 bg-gray-50/50' : 'border-gray-200'}`}>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Basic</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-xl">🆓</span>
+                  Free
+                </span>
+                {userData.plan === 'free' && (
+                  <Badge variant="outline" className="bg-gray-100 text-gray-700">
+                    Atual
+                  </Badge>
+                )}
+              </CardTitle>
+              <CardDescription>Para experimentar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-3xl font-bold text-gray-600">
+                  Grátis
+                </div>
+                <ul className="space-y-2">
+                  {[
+                    '1 projeto',
+                    'Análise básica',
+                    'Visualização simples'
+                  ].map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-green-600" />
+                      {feature}
+                    </li>
+                  ))}
+                  {[
+                    'Sem orçamentos',
+                    'Sem cronogramas'
+                  ].map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm">
+                      <X className="h-4 w-4 text-gray-400" />
+                      <span className="text-gray-400">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                {userData.plan === 'free' ? (
+                  <Button disabled className="w-full" variant="outline">
+                    Plano Atual
+                  </Button>
+                ) : (
+                  <Button variant="outline" className="w-full" disabled>
+                    Gratuito
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Plano Basic */}
+          <Card className={`${userData.plan === 'basic' ? 'border-blue-500 bg-blue-50/50' : 'border-blue-200'}`}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <span className="text-xl">📘</span>
+                  Basic
+                </span>
                 {userData.plan === 'basic' && (
                   <Badge variant="default" className="bg-blue-600">
                     Atual
@@ -189,12 +250,12 @@ const Plan = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-bold">
-                  Grátis
+                <div className="text-3xl font-bold text-blue-600">
+                  R$ 49<span className="text-lg text-slate-600">/mês</span>
                 </div>
                 <ul className="space-y-2">
                   {[
-                    'Até 10 projetos',
+                    'Até 3 projetos',
                     'Análise básica de IA',
                     'Orçamentos simples',
                     'Suporte por email',
@@ -207,12 +268,29 @@ const Plan = () => {
                   ))}
                 </ul>
                 {userData.plan === 'basic' ? (
-                  <Button disabled className="w-full">
-                    Plano Atual
+                  <Button 
+                    onClick={handleManageSubscription}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    Gerenciar Assinatura
                   </Button>
                 ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    Plano Básico
+                  <Button 
+                    onClick={() => handleUpgrade('basic')}
+                    disabled={upgrading}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    {upgrading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Crown className="h-4 w-4 mr-2" />
+                        Escolher Basic
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
@@ -220,34 +298,37 @@ const Plan = () => {
           </Card>
 
           {/* Plano Pro */}
-          <Card className={`${userData.plan === 'pro' ? 'border-blue-500 bg-blue-50/50' : 'border-blue-200 bg-blue-50/20'}`}>
-            <CardHeader>
+          <Card className={`${userData.plan === 'pro' ? 'border-indigo-500 bg-indigo-50/50' : 'border-indigo-200 bg-indigo-50/20'} relative`}>
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <Badge className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
+                Mais Popular
+              </Badge>
+            </div>
+            <CardHeader className="pt-8">
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-blue-600" />
+                  <Star className="h-5 w-5 text-indigo-600" />
                   Pro
                 </span>
-                {userData.plan === 'pro' ? (
-                  <Badge variant="default" className="bg-blue-600">
+                {userData.plan === 'pro' && (
+                  <Badge variant="default" className="bg-indigo-600">
                     Atual
                   </Badge>
-                ) : (
-                  <Badge className="bg-blue-600">Recomendado</Badge>
                 )}
               </CardTitle>
               <CardDescription>Para profissionais</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-bold text-blue-600">
-                  R$ 49<span className="text-lg text-slate-600">/mês</span>
+                <div className="text-3xl font-bold text-indigo-600">
+                  R$ 149<span className="text-lg text-slate-600">/mês</span>
                 </div>
                 <ul className="space-y-2">
                   {[
-                    'Até 50 projetos',
-                    'IA avançada com análise detalhada',
-                    'Cronogramas inteligentes',
-                    'Relatórios completos',
+                    'Até 25 projetos',
+                    'IA avançada com insights',
+                    'Cronogramas automatizados',
+                    'Relatórios detalhados',
                     'Suporte prioritário',
                     'Exportação avançada',
                     'Integrações API'
@@ -261,7 +342,7 @@ const Plan = () => {
                 {userData.plan === 'pro' ? (
                   <Button 
                     onClick={handleManageSubscription}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
                   >
                     Gerenciar Assinatura
                   </Button>
@@ -269,17 +350,17 @@ const Plan = () => {
                   <Button 
                     onClick={() => handleUpgrade('pro')}
                     disabled={upgrading}
-                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
                   >
                     {upgrading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         Processando...
                       </>
                     ) : (
                       <>
                         <Crown className="h-4 w-4 mr-2" />
-                        Upgrade para Pro
+                        Escolher Pro
                       </>
                     )}
                   </Button>
@@ -307,7 +388,7 @@ const Plan = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-3xl font-bold text-purple-600">
-                  R$ 149<span className="text-lg text-slate-600">/mês</span>
+                  R$ 299<span className="text-lg text-slate-600">/mês</span>
                 </div>
                 <ul className="space-y-2">
                   {[
@@ -341,13 +422,13 @@ const Plan = () => {
                   >
                     {upgrading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         Processando...
                       </>
                     ) : (
                       <>
                         <Crown className="h-4 w-4 mr-2" />
-                        Upgrade para Enterprise
+                        Escolher Enterprise
                       </>
                     )}
                   </Button>
@@ -370,7 +451,7 @@ const Plan = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {userData.plan === 'basic' ? (
+              {userData.plan === 'free' ? (
                 <div className="text-center py-8">
                   <div className="flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-lg">
                     <Calendar className="h-8 w-8 text-slate-400" />

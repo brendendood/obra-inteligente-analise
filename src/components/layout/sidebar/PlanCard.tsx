@@ -30,26 +30,30 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
 
   const getPlanDisplayName = () => {
     switch (userData.plan) {
+      case 'free': return 'Free';
       case 'basic': return 'Basic';
       case 'pro': return 'Pro';
       case 'enterprise': return 'Enterprise';
-      default: return 'Basic';
+      default: return 'Free';
     }
   };
 
   const getPlanColor = () => {
     switch (userData.plan) {
+      case 'free': return 'from-gray-400 to-gray-500';
+      case 'basic': return 'from-blue-400 to-blue-500';
       case 'pro': return 'from-blue-500 to-blue-600';
       case 'enterprise': return 'from-purple-500 to-purple-600';
-      default: return 'from-gray-500 to-gray-600';
+      default: return 'from-gray-400 to-gray-500';
     }
   };
 
   const getUpgradeTarget = () => {
     switch (userData.plan) {
+      case 'free': return 'Basic';
       case 'basic': return 'Pro';
       case 'pro': return 'Enterprise';
-      default: return 'Pro';
+      default: return 'Basic';
     }
   };
 
@@ -67,7 +71,7 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
           </div>
           <div className="text-xs text-blue-700 dark:text-blue-300">
             {userData.projectCount}/
-            {userData.plan === 'basic' ? '10' : userData.plan === 'pro' ? '50' : '∞'}
+            {userData.plan === 'free' ? '1' : userData.plan === 'basic' ? '3' : userData.plan === 'pro' ? '25' : '∞'}
           </div>
         </div>
         
