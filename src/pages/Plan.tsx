@@ -194,12 +194,14 @@ const Plan = () => {
                   ))}
                 </ul>
                 {userData.plan === 'free' ? (
-                  <Button disabled className="w-full" variant="outline">
+                  <Button disabled className="w-full bg-gray-100 text-gray-500" variant="outline">
+                    <Crown className="h-4 w-4 mr-2" />
                     Plano Atual
                   </Button>
                 ) : (
                   <Button variant="outline" className="w-full" disabled>
-                    Gratuito
+                    <Crown className="h-4 w-4 mr-2" />
+                    Escolher Free
                   </Button>
                 )}
               </div>
@@ -240,7 +242,8 @@ const Plan = () => {
                     onClick={handleManageSubscription}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                   >
-                    Gerenciar Assinatura
+                    <Crown className="h-4 w-4 mr-2" />
+                    Plano Atual
                   </Button>
                 ) : (
                   <Button 
@@ -304,7 +307,8 @@ const Plan = () => {
                     onClick={handleManageSubscription}
                     className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
                   >
-                    Gerenciar Assinatura
+                    <Crown className="h-4 w-4 mr-2" />
+                    Plano Atual
                   </Button>
                 ) : (
                   <Button 
@@ -359,19 +363,13 @@ const Plan = () => {
                   ))}
                 </ul>
                 {userData.plan === 'enterprise' ? (
-                  <div className="space-y-2">
-                    <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <span className="text-sm font-medium text-purple-800">
-                        ✅ Plano máximo ativo
-                      </span>
-                    </div>
-                    <Button 
-                      onClick={handleManageSubscription}
-                      className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-                    >
-                      Gerenciar Assinatura
-                    </Button>
-                  </div>
+                  <Button 
+                    disabled
+                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Plano Atual
+                  </Button>
                 ) : (
                   <Button 
                     onClick={() => handleUpgrade('enterprise')}

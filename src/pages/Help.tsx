@@ -80,37 +80,94 @@ const Help = () => {
   ];
 
   const faqs = [
+    // Seção: Uploads e Formatos
     {
-      question: "Como fazer upload de um projeto?",
-      answer: "Para fazer upload de um projeto, vá para a seção 'Upload' no menu lateral, clique em 'Novo Projeto' ou arraste seu arquivo para a área de upload. Suportamos formatos PDF, DWG, JPG, PNG e outros documentos de projeto."
+      question: "Quais tipos de arquivo de projeto posso enviar para análise?",
+      answer: "O MadenAI aceita plantas em PDF, arquivos DWG/AutoCAD, imagens de projetos (JPG, PNG), planilhas de orçamento (Excel, CSV) e documentos técnicos (Word, PDF). Para melhores resultados na análise de IA, recomendamos plantas em PDF de alta qualidade ou arquivos DWG nativos."
     },
     {
-      question: "Quais tipos de arquivo são suportados?",
-      answer: "Suportamos arquivos PDF, DWG, AutoCAD, imagens (JPG, PNG, GIF), planilhas (Excel, CSV) e documentos de texto (Word, TXT). Para melhores resultados, recomendamos arquivos PDF ou DWG."
+      question: "Como faço upload dos meus projetos de construção?",
+      answer: "Acesse 'Upload' no menu lateral, clique em 'Novo Projeto', dê um nome ao projeto e arraste seus arquivos (plantas, memoriais, planilhas) para a área de upload. O sistema organizará automaticamente os documentos por tipo e iniciará a análise com IA."
     },
     {
-      question: "Como funciona a análise de IA?",
-      answer: "Nossa IA analisa automaticamente seus projetos, identifica componentes, calcula áreas, sugere materiais e gera orçamentos. O processo leva alguns minutos e você recebe notificações quando concluído."
+      question: "Há limite de tamanho para os arquivos de projeto?",
+      answer: "Arquivos individuais podem ter até 50MB. Para projetos grandes com múltiplas pranchas, recomendamos compactar em ZIP ou enviar por partes. Planos pagos têm limites maiores e processamento prioritário."
+    },
+    
+    // Seção: Análise com IA
+    {
+      question: "Como a IA analisa plantas arquitetônicas e projetos de engenharia?",
+      answer: "Nossa IA identifica automaticamente ambientes, calcula áreas úteis e construídas, reconhece elementos estruturais, detecta instalações (elétrica, hidráulica) e gera quantitativos de materiais. O processo leva 3-10 minutos dependendo da complexidade do projeto."
     },
     {
-      question: "Posso exportar os orçamentos?",
-      answer: "Sim! Você pode exportar orçamentos em formato PDF, Excel ou CSV. Vá para a seção 'Orçamento' do seu projeto e clique em 'Exportar'."
+      question: "A IA consegue analisar projetos em AutoCAD (.dwg)?",
+      answer: "Sim! A IA processa arquivos DWG nativos, extraindo informações de layers, blocos, cotas e textos. Isso garante maior precisão nos cálculos de área, quantitativos e identificação de elementos construtivos comparado a PDFs."
     },
     {
-      question: "Como alterar meu plano?",
-      answer: "Acesse 'Plano e Pagamentos' no menu lateral, escolha o plano desejado e clique em 'Upgrade'. O processo é instantâneo e você terá acesso imediato aos novos recursos."
+      question: "Posso confiar nos orçamentos gerados pela IA?",
+      answer: "Os orçamentos são estimativas baseadas em dados do mercado e análise técnica do projeto. Recomendamos sempre revisar e ajustar os valores conforme sua região e fornecedores. A IA serve como ponto de partida profissional para seus orçamentos."
+    },
+    
+    // Seção: Planos e Limites
+    {
+      question: "Qual a diferença entre os planos Free, Basic, Pro e Enterprise?",
+      answer: "Free: 1 projeto para teste. Basic: 10 projetos + orçamentos básicos (R$ 49/mês). Pro: 50 projetos + cronogramas + exportações avançadas (R$ 149/mês). Enterprise: projetos ilimitados + colaboração em equipe + suporte prioritário (R$ 299/mês)."
     },
     {
-      question: "Meus dados estão seguros?",
-      answer: "Sim! Utilizamos criptografia de ponta a ponta, servidores seguros e seguimos as melhores práticas de segurança. Seus projetos são privados e protegidos."
+      question: "O que acontece quando atinjo o limite de projetos do meu plano?",
+      answer: "Você pode visualizar projetos existentes, mas não conseguirá criar novos até fazer upgrade ou excluir projetos antigos. Recomendamos o upgrade para Basic ou Pro para profissionais ativos na construção civil."
     },
     {
-      question: "Como entrar em contato com o suporte?",
-      answer: "Você pode entrar em contato através da seção 'Contato' no menu lateral, por email (suporte@maden.ai) ou pelo chat ao vivo disponível 24/7."
+      question: "Posso fazer downgrade do meu plano?",
+      answer: "Sim, mas projetos excedentes ficarão em 'modo somente leitura'. Por exemplo, se você tem 15 projetos no Pro e muda para Basic (10 projetos), os 5 mais antigos ficam bloqueados até o upgrade ou exclusão."
+    },
+    
+    // Seção: Funcionalidades Específicas
+    {
+      question: "Como exportar orçamentos para apresentar ao cliente?",
+      answer: "Na aba 'Orçamento' do projeto, clique em 'Exportar' e escolha PDF (apresentação), Excel (edição) ou CSV (integração). O PDF inclui logo, resumo executivo e detalhamento por ambiente - ideal para apresentações profissionais."
     },
     {
-      question: "Posso colaborar com minha equipe?",
-      answer: "Com o plano Enterprise, você pode convidar membros da equipe, definir permissões e colaborar em projetos. Cada membro tem acesso aos projetos compartilhados."
+      question: "O cronograma gerado considera as fases reais da obra?",
+      answer: "Sim! O cronograma segue a sequência lógica: fundação → estrutura → alvenaria → instalações → acabamentos → limpeza. Você pode ajustar prazos e dependências conforme sua metodologia construtiva."
+    },
+    {
+      question: "Posso usar o MadenAI para reformas e ampliações?",
+      answer: "Perfeitamente! A IA analisa plantas de reforma, identifica elementos existentes vs. novos, calcula materiais para demolição/construção e gera orçamentos específicos para reformas. Muito útil para arquitetos e engenheiros especializados em retrofit."
+    },
+    
+    // Seção: Colaboração e Equipe
+    {
+      question: "Como compartilhar projetos com minha equipe técnica?",
+      answer: "No plano Enterprise, acesse 'Configurações do Projeto' → 'Compartilhar' → adicione emails dos membros da equipe (engenheiros, arquitetos, orçamentistas). Cada membro pode visualizar, editar ou apenas comentar, conforme as permissões definidas."
+    },
+    {
+      question: "Posso integrar o MadenAI com outros softwares da construção?",
+      answer: "Atualmente exportamos dados em formatos padrão (Excel, CSV, PDF) compatíveis com softwares como Sienge, TQS, AltoQi e planilhas personalizadas. Integrações diretas estão em desenvolvimento."
+    },
+    
+    // Seção: Suporte e Conta
+    {
+      question: "Como alterar dados da minha conta ou empresa?",
+      answer: "Acesse 'Conta & Preferências' no menu lateral. Lá você pode atualizar informações pessoais, dados da empresa, CNPJ (para notas fiscais), endereço e preferências de notificação."
+    },
+    {
+      question: "Esqueci minha senha. Como redefinir?",
+      answer: "Na tela de login, clique em 'Esqueci minha senha', digite seu email cadastrado e siga as instruções enviadas. O link de recuperação expira em 24 horas por segurança."
+    },
+    {
+      question: "Como entrar em contato com o suporte técnico?",
+      answer: "Email: suporte@maden.ai (resposta em até 4h). Chat ao vivo: disponível no canto inferior direito (horário comercial). WhatsApp: para clientes Enterprise. Também temos tutoriais em vídeo na seção 'Ajuda'."
+    },
+    
+    // Seção: Segurança e Dados
+    {
+      question: "Meus projetos e dados técnicos estão seguros?",
+      answer: "Sim! Usamos criptografia SSL/TLS, servidores na AWS com backup automático, acesso restrito por login e senhas seguras. Seus projetos são privados - apenas você e membros autorizados têm acesso. Não compartilhamos dados com terceiros."
+    },
+    {
+      question: "Posso excluir permanentemente um projeto?",
+      answer: "Sim. Em 'Projetos' → clique no projeto → 'Configurações' → 'Excluir Projeto'. ATENÇÃO: Esta ação é irreversível. Recomendamos fazer backup/download dos arquivos importantes antes da exclusão."
     }
   ];
 
