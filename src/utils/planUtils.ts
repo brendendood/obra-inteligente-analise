@@ -1,3 +1,4 @@
+
 // Utilitários centralizados para planos de usuário
 
 export type PlanType = 'free' | 'basic' | 'pro' | 'enterprise';
@@ -21,7 +22,7 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     price: 0,
     projectLimit: 1,
     icon: '🆓',
-    color: 'from-gray-400 to-gray-500',
+    color: '#6B7280',
     badgeStyle: 'bg-gray-100 text-gray-600 border-gray-300',
     features: [
       '1 projeto',
@@ -37,12 +38,12 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'basic',
     displayName: 'Basic',
     price: 49,
-    projectLimit: 3,
+    projectLimit: 10,
     icon: '📘',
-    color: 'from-blue-400 to-blue-500',
+    color: '#3B82F6',
     badgeStyle: 'bg-blue-100 text-blue-800 border-blue-300',
     features: [
-      'Até 3 projetos',
+      'Até 10 projetos',
       'Análise básica de IA',
       'Orçamentos simples',
       'Suporte por email',
@@ -53,12 +54,12 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'pro',
     displayName: 'Pro',
     price: 149,
-    projectLimit: 25,
+    projectLimit: 50,
     icon: '⭐',
-    color: 'from-blue-500 to-blue-600',
+    color: '#2563EB',
     badgeStyle: 'bg-blue-600 text-white border-blue-600',
     features: [
-      'Até 25 projetos',
+      'Até 50 projetos',
       'IA avançada com insights',
       'Cronogramas automatizados',
       'Relatórios detalhados',
@@ -73,7 +74,7 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     price: 299,
     projectLimit: 999,
     icon: '👑',
-    color: 'from-purple-500 to-purple-600',
+    color: '#8B5CF6',
     badgeStyle: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-600',
     features: [
       'Projetos ilimitados',

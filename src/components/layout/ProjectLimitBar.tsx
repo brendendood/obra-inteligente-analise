@@ -1,6 +1,8 @@
+
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Crown } from 'lucide-react';
+import { getPlanDisplayName, getPlanLimit, getPlanIcon, getPlanBadgeStyle } from '@/utils/planUtils';
 
 interface ProjectLimitBarProps {
   currentProjects: number;
@@ -8,6 +10,11 @@ interface ProjectLimitBarProps {
 }
 
 export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {
+  const maxProjects = getPlanLimit(plan);
+  const planDisplayName = getPlanDisplayName(plan);
+  const planIcon = getPlanIcon(plan);
+  const badgeStyle = getPlanBadgeStyle(plan);
+
   // Enterprise tem projetos ilimitados
   if (plan === 'enterprise') {
     return (
@@ -16,9 +23,9 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
           <span className="text-slate-600 dark:text-slate-400">
             Projetos: {currentProjects}
           </span>
-          <Badge variant="default" className="text-xs bg-gradient-to-r from-purple-500 to-purple-600">
+          <Badge variant="default" className={badgeStyle}>
             <Crown className="h-3 w-3 mr-1" />
-            Enterprise
+            {planDisplayName}
           </Badge>
         </div>
         <div className="text-xs text-slate-500">
@@ -28,18 +35,8 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
     );
   }
 
-  const maxProjects = plan === 'free' ? 3 : plan === 'basic' ? 10 : 50;
   const percentage = (currentProjects / maxProjects) * 100;
   const isAtLimit = currentProjects >= maxProjects;
-
-  const getPlanName = () => {
-    switch (plan) {
-      case 'free': return 'Free';
-      case 'basic': return 'Basic';
-      case 'pro': return 'Pro';
-      default: return 'Basic';
-    }
-  };
 
   return (
     <div className="space-y-2">
@@ -49,10 +46,11 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
         </span>
         <Badge 
           variant={plan === 'pro' ? 'default' : 'secondary'} 
-          className="text-xs"
+          className={`text-xs ${badgeStyle}`}
         >
           {plan === 'pro' && <Crown className="h-3 w-3 mr-1" />}
-          {getPlanName()}
+          <span className="mr-1">{planIcon}</span>
+          {planDisplayName}
         </Badge>
       </div>
       

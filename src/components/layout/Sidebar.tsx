@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -22,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ProjectLimitBar } from './ProjectLimitBar';
 import { useUserData } from '@/hooks/useUserData';
 import { cn } from '@/lib/utils';
+import { getPlanDisplayName, getUpgradeMessage, canUpgrade } from '@/utils/planUtils';
 
 interface SidebarProps {
   className?: string;
@@ -233,18 +233,18 @@ export const Sidebar = ({ className }: SidebarProps) => {
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
               <p className="text-xs text-slate-500 truncate">
-                Plano {userData.plan === 'free' ? 'Free' : userData.plan === 'basic' ? 'Basic' : userData.plan === 'pro' ? 'Pro' : userData.plan === 'enterprise' ? 'Enterprise' : 'Free'}
+                Plano {getPlanDisplayName(userData.plan)}
               </p>
             </div>
           </div>
-          {userData.plan !== 'enterprise' && (
+          {canUpgrade(userData.plan) && (
             <Button 
               size="sm" 
               className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm"
               onClick={() => handleNavigation('/plano')}
             >
               <Crown className="h-3 w-3 mr-2" />
-              {userData.plan === 'free' ? 'Upgrade para Basic' : userData.plan === 'basic' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
+              {getUpgradeMessage(userData.plan)}
             </Button>
           )}
         </div>

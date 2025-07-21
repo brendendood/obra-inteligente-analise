@@ -9,41 +9,23 @@ import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTria
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { 
+  getPlanDisplayName, 
+  getPlanLimit, 
+  getPlanPrice, 
+  getPlanFeatures,
+  getPlanLimitations,
+  getPlanUsagePercentage,
+  shouldShowUpgradeWarning,
+  canUpgrade,
+  formatPlanPrice,
+  isMaxPlan
+} from '@/utils/planUtils';
 
 const Plan = () => {
   const { userData, loading, refetch } = useUserData();
   const { toast } = useToast();
   const [upgrading, setUpgrading] = useState(false);
-
-  const getPlanDisplayName = (plan: string) => {
-    switch (plan) {
-      case 'free': return 'Free';
-      case 'basic': return 'Basic';
-      case 'pro': return 'Pro';
-      case 'enterprise': return 'Enterprise';
-      default: return 'Free';
-    }
-  };
-
-  const getPlanLimits = (plan: string) => {
-    switch (plan) {
-      case 'free': return 1;
-      case 'basic': return 3;
-      case 'pro': return 25;
-      case 'enterprise': return 999;
-      default: return 1;
-    }
-  };
-
-  const getPlanPrice = (plan: string) => {
-    switch (plan) {
-      case 'free': return 0;
-      case 'basic': return 49;
-      case 'pro': return 149;
-      case 'enterprise': return 299;
-      default: return 0;
-    }
-  };
 
   const handleUpgrade = async (targetPlan: 'basic' | 'pro' | 'enterprise') => {
     setUpgrading(true);
@@ -95,7 +77,7 @@ const Plan = () => {
     }
   };
 
-  const usagePercentage = (userData.projectCount / getPlanLimits(userData.plan)) * 100;
+  const usagePercentage = getPlanUsagePercentage(userData.projectCount, userData.plan);
 
   if (loading) {
     return (
@@ -138,8 +120,7 @@ const Plan = () => {
                   </Badge>
                 </div>
                 <p className="text-2xl font-bold text-slate-900">
-                  R$ {getPlanPrice(userData.plan)}
-                  <span className="text-sm font-normal text-slate-500">/mês</span>
+                  {formatPlanPrice(userData.plan)}
                 </p>
               </div>
 
@@ -147,11 +128,11 @@ const Plan = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Uso de Projetos</span>
                   <span className="text-sm text-slate-500">
-                    {userData.projectCount} / {getPlanLimits(userData.plan)}
+                    {userData.projectCount} / {getPlanLimit(userData.plan) === 999 ? '∞' : getPlanLimit(userData.plan)}
                   </span>
                 </div>
                 <Progress value={usagePercentage} className="h-2" />
-                {usagePercentage >= 80 && (
+                {shouldShowUpgradeWarning(userData.projectCount, userData.plan) && (
                   <div className="flex items-center gap-1 text-orange-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
                     Limite próximo! Considere fazer upgrade.
@@ -199,20 +180,13 @@ const Plan = () => {
                   Grátis
                 </div>
                 <ul className="space-y-2">
-                  {[
-                    '1 projeto',
-                    'Análise básica',
-                    'Visualização simples'
-                  ].map((feature, index) => (
+                  {getPlanFeatures('free').map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
                     </li>
                   ))}
-                  {[
-                    'Sem orçamentos',
-                    'Sem cronogramas'
-                  ].map((feature, index) => (
+                  {getPlanLimitations('free').map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm">
                       <X className="h-4 w-4 text-gray-400" />
                       <span className="text-gray-400">{feature}</span>
@@ -251,16 +225,10 @@ const Plan = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-3xl font-bold text-blue-600">
-                  R$ 49<span className="text-lg text-slate-600">/mês</span>
+                  {formatPlanPrice('basic')}
                 </div>
                 <ul className="space-y-2">
-                  {[
-                    'Até 3 projetos',
-                    'Análise básica de IA',
-                    'Orçamentos simples',
-                    'Suporte por email',
-                    'Exportação em PDF'
-                  ].map((feature, index) => (
+                  {getPlanFeatures('basic').map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
@@ -321,18 +289,10 @@ const Plan = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-3xl font-bold text-indigo-600">
-                  R$ 149<span className="text-lg text-slate-600">/mês</span>
+                  {formatPlanPrice('pro')}
                 </div>
                 <ul className="space-y-2">
-                  {[
-                    'Até 25 projetos',
-                    'IA avançada com insights',
-                    'Cronogramas automatizados',
-                    'Relatórios detalhados',
-                    'Suporte prioritário',
-                    'Exportação avançada',
-                    'Integrações API'
-                  ].map((feature, index) => (
+                  {getPlanFeatures('pro').map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
@@ -388,19 +348,10 @@ const Plan = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-3xl font-bold text-purple-600">
-                  R$ 299<span className="text-lg text-slate-600">/mês</span>
+                  {formatPlanPrice('enterprise')}
                 </div>
                 <ul className="space-y-2">
-                  {[
-                    'Projetos ilimitados',
-                    'IA personalizada para sua empresa',
-                    'Dashboard avançado',
-                    'Relatórios personalizados',
-                    'Suporte dedicado 24/7',
-                    'Integrações customizadas',
-                    'Treinamento da equipe',
-                    'SLA garantido'
-                  ].map((feature, index) => (
+                  {getPlanFeatures('enterprise').map((feature, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
@@ -408,12 +359,19 @@ const Plan = () => {
                   ))}
                 </ul>
                 {userData.plan === 'enterprise' ? (
-                  <Button 
-                    onClick={handleManageSubscription}
-                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-                  >
-                    Gerenciar Assinatura
-                  </Button>
+                  <div className="space-y-2">
+                    <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <span className="text-sm font-medium text-purple-800">
+                        ✅ Plano máximo ativo
+                      </span>
+                    </div>
+                    <Button 
+                      onClick={handleManageSubscription}
+                      className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+                    >
+                      Gerenciar Assinatura
+                    </Button>
+                  </div>
                 ) : (
                   <Button 
                     onClick={() => handleUpgrade('enterprise')}
@@ -466,9 +424,9 @@ const Plan = () => {
               ) : (
                 <div className="space-y-3">
                   {[
-                    { date: '2024-01-15', amount: 'R$ 49,00', status: 'Pago', method: 'Cartão •••• 4532' },
-                    { date: '2023-12-15', amount: 'R$ 49,00', status: 'Pago', method: 'Cartão •••• 4532' },
-                    { date: '2023-11-15', amount: 'R$ 49,00', status: 'Pago', method: 'Cartão •••• 4532' },
+                    { date: '2024-01-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
+                    { date: '2023-12-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
+                    { date: '2023-11-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
                   ].map((payment, index) => (
                     <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <div className="flex items-center gap-3">
