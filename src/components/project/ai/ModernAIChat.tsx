@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,11 +9,16 @@ import {
   User,
   Copy,
   CheckCircle,
-  Hammer 
+  Wifi,
+  WifiOff,
+  AlertTriangle
 } from 'lucide-react';
 import { Project } from '@/types/project';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/hooks/useAuth';
+import { sendMessageToAgent } from '@/utils/sendToAgent';
+import { Badge } from '@/components/ui/badge';
 
 interface ChatMessage {
   id: string;
@@ -40,10 +44,12 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'fallback' | 'error'>('connected');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -70,26 +76,45 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsTyping(true);
+    setConnectionStatus('connected');
     
     try {
-      setTimeout(() => {
-        const aiResponse: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: `Entendi sua pergunta sobre "${inputMessage}". Como especialista no projeto ${project.name}, posso fornecer informações detalhadas baseadas na análise técnica.\n\nEsta é uma resposta simulada que será substituída pela integração com o N8N.`,
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, aiResponse]);
-        setIsTyping(false);
-      }, 2000);
+      console.log('📤 Enviando mensagem do projeto com contexto:', {
+        user_id: user?.id,
+        project_id: project.id,
+        project_name: project.name
+      });
+
+      const response = await sendMessageToAgent(inputMessage, {
+        user,
+        project
+      });
+      
+      // Detectar se é resposta simulada
+      const isSimulated = response.includes('*Nota: Esta é uma resposta simulada');
+      if (isSimulated) {
+        setConnectionStatus('fallback');
+      }
+      
+      const aiResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: response,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      setIsTyping(false);
+      console.error('❌ Erro ao enviar mensagem:', error);
+      setConnectionStatus('error');
+      
       toast({
         title: "Erro na comunicação",
         description: "Não foi possível obter resposta da IA. Tente novamente.",
         variant: "destructive"
       });
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -115,6 +140,45 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
         description: "Não foi possível copiar a mensagem.",
         variant: "destructive"
       });
+    }
+  };
+
+  const getStatusIcon = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return <Wifi className="h-3 w-3 text-green-600" />;
+      case 'fallback':
+        return <AlertTriangle className="h-3 w-3 text-amber-600" />;
+      case 'error':
+        return <WifiOff className="h-3 w-3 text-red-600" />;
+      default:
+        return <Wifi className="h-3 w-3 text-green-600" />;
+    }
+  };
+
+  const getStatusText = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return 'Conectado';
+      case 'fallback':
+        return 'Modo Backup';
+      case 'error':
+        return 'Desconectado';
+      default:
+        return 'Conectado';
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'fallback':
+        return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'error':
+        return 'bg-red-50 text-red-700 border-red-200';
+      default:
+        return 'bg-green-50 text-green-700 border-green-200';
     }
   };
 
@@ -190,10 +254,13 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
         <Bot className="h-4 w-4 text-white" />
       </div>
       <div className="bg-gray-50 rounded-2xl p-4">
-        <div className="flex gap-1">
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          </div>
+          <span className="text-sm text-gray-600 ml-2">Conectando com a IA especializada...</span>
         </div>
       </div>
     </div>
@@ -201,16 +268,23 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Header minimalista */}
+      {/* Header with connection status */}
       <div className="shrink-0 p-6 border-b border-gray-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
-            <Bot className="h-5 w-5 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center">
+              <Bot className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">MadenAI</h3>
+              <p className="text-sm text-gray-500">{project.name}</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-gray-900">MadenAI</h3>
-            <p className="text-sm text-gray-500">{project.name}</p>
-          </div>
+          
+          <Badge variant="outline" className={`text-xs ${getStatusColor()}`}>
+            {getStatusIcon()}
+            <span className="ml-1">{getStatusText()}</span>
+          </Badge>
         </div>
       </div>
 
@@ -250,9 +324,7 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
               className="bg-blue-600 hover:bg-blue-700 rounded-xl w-12 h-12 p-0 shrink-0"
             >
               {isTyping ? (
-                 <div className="animate-hammer">
-                   <Hammer className="h-4 w-4 text-orange-500" />
-                 </div>
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Send className="h-4 w-4" />
               )}

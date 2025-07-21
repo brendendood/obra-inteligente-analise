@@ -1,34 +1,26 @@
 
-import { useRef, useEffect } from 'react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChatInputProps {
   inputMessage: string;
   setInputMessage: (message: string) => void;
   sendMessage: () => void;
   isLoading: boolean;
+  projectName?: string;
 }
 
 export const ChatInput = ({ 
   inputMessage, 
   setInputMessage, 
   sendMessage, 
-  isLoading 
+  isLoading,
+  projectName 
 }: ChatInputProps) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [inputMessage]);
-
-  const adjustTextareaHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const newHeight = Math.min(textareaRef.current.scrollHeight, 100);
-      textareaRef.current.style.height = newHeight + 'px';
-    }
-  };
+  const isMobile = useIsMobile();
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -37,28 +29,47 @@ export const ChatInput = ({
     }
   };
 
+  const getPlaceholder = () => {
+    if (projectName) {
+      return `Pergunte sobre ${projectName}...`;
+    }
+    return 'Pergunte sobre arquitetura, engenharia, normas técnicas...';
+  };
+
   return (
-    <div className="flex-shrink-0 p-4 border-t border-gray-100">
+    <div className="border-t border-gray-100 p-4 bg-white">
       <div className="flex items-end gap-3">
-        <div className="flex-1 min-w-0">
+        <div className="flex-1">
           <Textarea
-            ref={textareaRef}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Pergunte algo sobre arquitetura ou engenharia civil..."
-            className="resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-h-[32px] max-h-[100px] w-full py-2"
+            placeholder={getPlaceholder()}
             disabled={isLoading}
+            className="min-h-[50px] max-h-32 resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+            style={isMobile ? { fontSize: '16px' } : {}}
           />
         </div>
-        <button
+        
+        <Button 
           onClick={sendMessage}
           disabled={!inputMessage.trim() || isLoading}
-          className="p-2 disabled:opacity-50 disabled:cursor-not-disabled"
+          className="bg-blue-600 hover:bg-blue-700 h-[50px] px-4"
         >
-          <Send className="h-5 w-5 text-blue-600" />
-        </button>
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+        </Button>
       </div>
+      
+      {isLoading && (
+        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+          <span>Conectando com a IA especializada...</span>
+        </div>
+      )}
     </div>
   );
 };

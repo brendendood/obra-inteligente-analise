@@ -1,91 +1,142 @@
 
+import { User } from '@supabase/supabase-js';
+import { Project } from '@/types/project';
+
+interface SendMessageContext {
+  user?: User | null;
+  project?: Project | null;
+}
+
 /**
- * Função para enviar mensagens para o agente de IA via N8N
- * 
- * TODO: Implementar integração real com N8N
- * - Substituir a simulação por chamada HTTP real
- * - Adicionar tratamento de erros específicos
- * - Implementar retry logic se necessário
+ * Envia mensagem para o assistente IA via webhook N8N
  */
-
-export const sendMessageToAgent = async (message: string): Promise<string> => {
-  // Simular delay de processamento (1-3 segundos)
-  const delay = 1500 + Math.random() * 1500;
-  await new Promise(resolve => setTimeout(resolve, delay));
-
-  // Respostas simuladas baseadas no contexto da mensagem
-  const responses = getContextualResponse(message);
+export const sendToN8N = async (
+  message: string, 
+  context: SendMessageContext = {}
+): Promise<string> => {
+  const webhookUrl = 'https://mandenai.app.n8n.cloud/webhook-test/ia-assistente';
   
-  return responses[Math.floor(Math.random() * responses.length)];
+  // Preparar payload com contexto rico
+  const payload = {
+    message: message.trim(),
+    user_id: context.user?.id || null,
+    timestamp: new Date().toISOString(),
+    project_id: context.project?.id || null
+  };
+
+  console.log('🚀 Enviando mensagem para N8N:', { message: message.substring(0, 50) + '...', payload });
+
+  try {
+    // Timeout de 30 segundos
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.response) {
+      throw new Error('Resposta inválida do webhook N8N');
+    }
+
+    console.log('✅ Resposta recebida do N8N');
+    return data.response;
+
+  } catch (error) {
+    console.error('❌ Erro na comunicação com N8N:', error);
+    
+    // Se for erro de timeout
+    if (error.name === 'AbortError') {
+      throw new Error('timeout');
+    }
+    
+    // Outros erros de rede ou servidor
+    throw new Error('network');
+  }
 };
 
-const getContextualResponse = (message: string): string[] => {
+/**
+ * Função principal para enviar mensagens com fallback inteligente
+ */
+export const sendMessageToAgent = async (
+  message: string,
+  context: SendMessageContext = {}
+): Promise<string> => {
+  try {
+    // Primeira tentativa: N8N
+    const response = await sendToN8N(message, context);
+    return response;
+    
+  } catch (error) {
+    console.log('🔄 Primeira tentativa falhou, tentando novamente...');
+    
+    try {
+      // Segunda tentativa: N8N (retry)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await sendToN8N(message, context);
+      return response;
+      
+    } catch (retryError) {
+      console.error('🆘 Ambas tentativas falharam, usando fallback simulado');
+      
+      // Mensagem de erro específica baseada no tipo de erro
+      if (error.message === 'timeout') {
+        return "Houve um tempo limite ao conectar com o assistente de IA. Tente novamente em alguns instantes.";
+      }
+      
+      if (error.message === 'network') {
+        return "Houve um erro ao conectar com o assistente de IA. Tente novamente em alguns instantes.";
+      }
+      
+      // Fallback para resposta simulada
+      return getSimulatedResponse(message, context);
+    }
+  }
+};
+
+/**
+ * Respostas simuladas como fallback
+ */
+const getSimulatedResponse = (message: string, context: SendMessageContext): string => {
   const lowerMessage = message.toLowerCase();
+  const projectName = context.project?.name || 'seu projeto';
   
   // Respostas sobre estruturas
   if (lowerMessage.includes('estrutura') || lowerMessage.includes('concreto') || lowerMessage.includes('aço')) {
-    return [
-      "Para dimensionamento estrutural, é fundamental seguir a NBR 6118 (estruturas de concreto) e NBR 8800 (estruturas de aço). Precisa de cálculos específicos para algum elemento?",
-      "Em projetos estruturais, sempre considero a combinação de cargas conforme NBR 6120. Qual tipo de estrutura você está desenvolvendo?",
-      "O dimensionamento adequado depende das cargas atuantes e do tipo de solo. Posso ajudar com cálculos de fundação ou superestrutura?"
-    ];
+    return `Para dimensionamento estrutural no ${projectName}, é fundamental seguir a NBR 6118 (estruturas de concreto) e NBR 8800 (estruturas de aço). Precisa de cálculos específicos para algum elemento?\n\n*Nota: Esta é uma resposta simulada. O assistente especializado está temporariamente indisponível.*`;
   }
   
   // Respostas sobre arquitetura
   if (lowerMessage.includes('projeto') || lowerMessage.includes('planta') || lowerMessage.includes('arquitetura')) {
-    return [
-      "No desenvolvimento de projetos arquitetônicos, sempre priorizo funcionalidade, acessibilidade e conformidade com o código de obras local. Em que posso ajudar?",
-      "Para elaboração de plantas, é importante considerar circulação, ventilação natural e orientação solar. Qual ambiente você está projetando?",
-      "Cada projeto deve atender às necessidades específicas do cliente e às normas técnicas vigentes. Precisa de orientações sobre algum ambiente específico?"
-    ];
+    return `No desenvolvimento do ${projectName}, sempre priorizo funcionalidade, acessibilidade e conformidade com o código de obras local. Em que posso ajudar?\n\n*Nota: Esta é uma resposta simulada. O assistente especializado está temporariamente indisponível.*`;
   }
   
   // Respostas sobre normas
   if (lowerMessage.includes('norma') || lowerMessage.includes('nbr') || lowerMessage.includes('código')) {
-    return [
-      "As normas técnicas brasileiras são fundamentais para garantir segurança e qualidade. Sobre qual NBR específica você gostaria de saber?",
-      "Sempre consulto as normas atualizadas da ABNT. Posso esclarecer dúvidas sobre aplicação de normas específicas no seu projeto.",
-      "O cumprimento das normas técnicas é obrigatório. Qual aspecto normativo precisa esclarecer?"
-    ];
-  }
-  
-  // Respostas sobre materiais
-  if (lowerMessage.includes('material') || lowerMessage.includes('tijolo') || lowerMessage.includes('bloco')) {
-    return [
-      "A escolha de materiais deve considerar durabilidade, custo-benefício e adequação ao clima local. Qual material você deseja especificar?",
-      "Para alvenaria, recomendo blocos cerâmicos ou de concreto, dependendo da aplicação. Precisa de especificações técnicas?",
-      "Cada material tem suas características e aplicações específicas. Posso ajudar na especificação adequada para seu projeto."
-    ];
+    return `As normas técnicas brasileiras são fundamentais para garantir segurança e qualidade no ${projectName}. Sobre qual NBR específica você gostaria de saber?\n\n*Nota: Esta é uma resposta simulada. O assistente especializado está temporariamente indisponível.*`;
   }
   
   // Respostas gerais
-  return [
-    "Sou especialista em arquitetura e engenharia civil. Como posso ajudar com seu projeto?",
-    "Posso auxiliar com cálculos estruturais, especificações técnicas, normas brasileiras e desenvolvimento de projetos. O que você precisa?",
-    "Estou aqui para esclarecer dúvidas técnicas sobre construção civil. Qual sua pergunta específica?",
-    "Com minha experiência em projetos, posso orientar sobre estruturas, instalações, materiais e normas técnicas. Como posso ajudar?"
+  const responses = [
+    `Sou especialista em arquitetura e engenharia civil, com foco no ${projectName}. Como posso ajudar com seu projeto?`,
+    `Posso auxiliar com cálculos estruturais, especificações técnicas, normas brasileiras e desenvolvimento do ${projectName}. O que você precisa?`,
+    `Estou aqui para esclarecer dúvidas técnicas sobre construção civil relacionadas ao ${projectName}. Qual sua pergunta específica?`,
+    `Com minha experiência em projetos como o ${projectName}, posso orientar sobre estruturas, instalações, materiais e normas técnicas. Como posso ajudar?`
   ];
-};
-
-// Função futura para integração real com N8N
-export const sendToN8N = async (message: string): Promise<string> => {
-  // TODO: Implementar quando N8N estiver configurado
-  /*
-  const response = await fetch('/api/n8n-webhook', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ message }),
-  });
   
-  if (!response.ok) {
-    throw new Error('Erro na comunicação com o assistente');
-  }
-  
-  const data = await response.json();
-  return data.response;
-  */
-  
-  return sendMessageToAgent(message);
+  const selectedResponse = responses[Math.floor(Math.random() * responses.length)];
+  return `${selectedResponse}\n\n*Nota: Esta é uma resposta simulada. O assistente especializado está temporariamente indisponível.*`;
 };
