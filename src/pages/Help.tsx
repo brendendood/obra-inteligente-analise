@@ -20,7 +20,8 @@ import {
   Calendar,
   Bot,
   ExternalLink,
-  HelpCircle
+  HelpCircle,
+  Mail
 } from 'lucide-react';
 
 const Help = () => {
