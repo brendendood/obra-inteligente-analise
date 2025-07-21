@@ -4,10 +4,30 @@ import { Crown } from 'lucide-react';
 
 interface ProjectLimitBarProps {
   currentProjects: number;
-  plan: 'basic' | 'pro';
+  plan: 'basic' | 'pro' | 'enterprise';
 }
 
 export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {
+  // Enterprise tem projetos ilimitados
+  if (plan === 'enterprise') {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-slate-600 dark:text-slate-400">
+            Projetos: {currentProjects}
+          </span>
+          <Badge variant="default" className="text-xs bg-gradient-to-r from-purple-500 to-purple-600">
+            <Crown className="h-3 w-3 mr-1" />
+            Enterprise
+          </Badge>
+        </div>
+        <div className="text-xs text-slate-500">
+          ✨ Projetos ilimitados
+        </div>
+      </div>
+    );
+  }
+
   const maxProjects = plan === 'basic' ? 10 : 50;
   const percentage = (currentProjects / maxProjects) * 100;
   const isAtLimit = currentProjects >= maxProjects;

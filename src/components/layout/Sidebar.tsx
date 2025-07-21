@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectLimitBar } from './ProjectLimitBar';
+import { useUserData } from '@/hooks/useUserData';
 import { cn } from '@/lib/utils';
 
 interface SidebarProps {
@@ -32,6 +33,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
+  const { userData } = useUserData();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -176,7 +178,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
       {/* Project Limit Bar */}
       <div className="p-6 border-b border-slate-200/60">
-        <ProjectLimitBar currentProjects={3} plan="basic" />
+        <ProjectLimitBar 
+          currentProjects={userData.projectCount} 
+          plan={userData.plan} 
+        />
       </div>
 
       {/* Navigation */}
@@ -228,18 +233,20 @@ export const Sidebar = ({ className }: SidebarProps) => {
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
               <p className="text-xs text-slate-500 truncate">
-                Plano Basic
+                Plano {userData.plan === 'basic' ? 'Basic' : userData.plan === 'pro' ? 'Pro' : 'Enterprise'}
               </p>
             </div>
           </div>
-          <Button 
-            size="sm" 
-            className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm"
-            onClick={() => handleNavigation('/plano')}
-          >
-            <Crown className="h-3 w-3 mr-2" />
-            Upgrade para Pro
-          </Button>
+          {userData.plan !== 'enterprise' && (
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm"
+              onClick={() => handleNavigation('/plano')}
+            >
+              <Crown className="h-3 w-3 mr-2" />
+              {userData.plan === 'basic' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
+            </Button>
+          )}
         </div>
 
         {/* Logout */}
