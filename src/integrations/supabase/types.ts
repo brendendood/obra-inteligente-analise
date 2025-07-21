@@ -704,10 +704,6 @@ export type Database = {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
       }
-      check_admin_access: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
       example_function: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -762,6 +758,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_superuser: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }

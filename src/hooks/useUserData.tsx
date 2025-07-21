@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserData {
-  plan: 'basic' | 'pro' | 'enterprise';
+  plan: 'free' | 'basic' | 'pro' | 'enterprise';
   projectCount: number;
   subscription: {
     status: string;
@@ -18,7 +18,7 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: 'basic',
+    plan: 'free',
     projectCount: 0,
     subscription: null,
     profile: null
@@ -26,10 +26,11 @@ export const useUserData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadUserData = async () => {
+  // Memoizar função para evitar re-renders desnecessários
+  const loadUserData = useCallback(async () => {
     if (!isAuthenticated || !user) {
       setUserData({
-        plan: 'basic',
+        plan: 'free',
         projectCount: 0,
         subscription: null,
         profile: null
@@ -48,54 +49,49 @@ export const useUserData = () => {
           .from('user_subscriptions')
           .select('plan, status, current_period_end')
           .eq('user_id', user.id)
-          .single(),
+          .maybeSingle(), // Usar maybeSingle em vez de single
         supabase
           .from('user_profiles')
           .select('full_name, company')
           .eq('user_id', user.id)
-          .single(),
+          .maybeSingle(), // Usar maybeSingle em vez de single
         supabase
           .from('projects')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', user.id)
       ]);
 
-      // Processar subscription com fallback
+      // Processar subscription com fallback mais simples
       let subscription = null;
-      if (subscriptionResult.status === 'fulfilled' && !subscriptionResult.value.error) {
+      if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.data) {
         subscription = subscriptionResult.value.data;
-      } else if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.error?.code !== 'PGRST116') {
-        console.warn('Erro ao buscar assinatura:', subscriptionResult.value.error);
       }
 
-      // Processar profile com fallback
+      // Processar profile com fallback mais simples
       let profile = null;
-      if (profileResult.status === 'fulfilled' && !profileResult.value.error) {
+      if (profileResult.status === 'fulfilled' && profileResult.value.data) {
         profile = profileResult.value.data;
-      } else if (profileResult.status === 'fulfilled' && profileResult.value.error?.code !== 'PGRST116') {
-        console.warn('Erro ao buscar perfil:', profileResult.value.error);
       }
 
-      // Processar projectCount com fallback
+      // Processar projectCount com fallback mais simples
       let projectCount = 0;
       if (projectCountResult.status === 'fulfilled' && !projectCountResult.value.error) {
         projectCount = projectCountResult.value.count || 0;
-      } else if (projectCountResult.status === 'fulfilled' && projectCountResult.value.error) {
-        console.warn('Erro ao contar projetos:', projectCountResult.value.error);
       }
 
       setUserData({
-        plan: (subscription?.plan === 'free' ? 'basic' : subscription?.plan) || 'basic',
+        plan: subscription?.plan || 'free', // Usar 'free' como padrão
         projectCount,
         subscription,
         profile
       });
 
     } catch (err) {
-      console.warn('Erro ao carregar dados do usuário:', err);
+      console.error('Erro crítico ao carregar dados do usuário:', err);
+      setError('Erro ao carregar dados do usuário');
       // Manter dados padrão em caso de erro total
       setUserData({
-        plan: 'basic',
+        plan: 'free',
         projectCount: 0,
         subscription: null,
         profile: null
@@ -103,26 +99,21 @@ export const useUserData = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Carregar dados iniciais
-  useEffect(() => {
-    loadUserData();
   }, [isAuthenticated, user]);
 
-  // Recarregar dados quando auth mudar
+  // Carregar dados iniciais - apenas uma vez
   useEffect(() => {
-    if (isAuthenticated) {
-      loadUserData();
-    }
-  }, [isAuthenticated]);
+    loadUserData();
+  }, [loadUserData]);
 
-  // Configurar realtime para atualizações automáticas
+  // Configurar realtime para atualizações automáticas - com cleanup adequado
   useEffect(() => {
     if (!isAuthenticated || !user) return;
 
+    // Criar canal único com ID específico para evitar múltiplas subscrições
+    const channelId = `user_data_${user.id}_${Date.now()}`;
     const channel = supabase
-      .channel('user_data_changes')
+      .channel(channelId)
       .on(
         'postgres_changes',
         {
@@ -131,7 +122,10 @@ export const useUserData = () => {
           table: 'user_subscriptions',
           filter: `user_id=eq.${user.id}`
         },
-        () => loadUserData()
+        () => {
+          console.log('🔄 Subscription changed, reloading user data...');
+          loadUserData();
+        }
       )
       .on(
         'postgres_changes',
@@ -141,14 +135,19 @@ export const useUserData = () => {
           table: 'projects',
           filter: `user_id=eq.${user.id}`
         },
-        () => loadUserData()
+        () => {
+          console.log('🔄 Projects changed, reloading user data...');
+          loadUserData();
+        }
       )
       .subscribe();
 
+    // Cleanup adequado para evitar múltiplas subscrições
     return () => {
+      console.log('🧹 Cleaning up user data subscription...');
       supabase.removeChannel(channel);
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, loadUserData]);
 
   return {
     userData,

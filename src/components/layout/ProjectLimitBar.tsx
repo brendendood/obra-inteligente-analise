@@ -4,7 +4,7 @@ import { Crown } from 'lucide-react';
 
 interface ProjectLimitBarProps {
   currentProjects: number;
-  plan: 'basic' | 'pro' | 'enterprise';
+  plan: 'free' | 'basic' | 'pro' | 'enterprise';
 }
 
 export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {
@@ -28,9 +28,18 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
     );
   }
 
-  const maxProjects = plan === 'basic' ? 10 : 50;
+  const maxProjects = plan === 'free' ? 3 : plan === 'basic' ? 10 : 50;
   const percentage = (currentProjects / maxProjects) * 100;
   const isAtLimit = currentProjects >= maxProjects;
+
+  const getPlanName = () => {
+    switch (plan) {
+      case 'free': return 'Free';
+      case 'basic': return 'Basic';
+      case 'pro': return 'Pro';
+      default: return 'Basic';
+    }
+  };
 
   return (
     <div className="space-y-2">
@@ -43,7 +52,7 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
           className="text-xs"
         >
           {plan === 'pro' && <Crown className="h-3 w-3 mr-1" />}
-          {plan === 'basic' ? 'Basic' : 'Pro'}
+          {getPlanName()}
         </Badge>
       </div>
       
