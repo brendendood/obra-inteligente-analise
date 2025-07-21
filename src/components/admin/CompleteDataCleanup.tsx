@@ -13,55 +13,22 @@ export const CompleteDataCleanup = () => {
   const handleCompleteCleanup = async () => {
     setIsClearing(true);
     try {
-      console.log('🧹 LIMPEZA COMPLETA: Iniciando limpeza total do sistema...');
+      console.log('🧹 FINALIZANDO LIMPEZA: Limpando cache frontend...');
 
-      // Limpar localStorage do navegador
+      // Limpar localStorage e sessionStorage
       localStorage.clear();
       sessionStorage.clear();
-      console.log('✅ Cache local limpo');
-
-      // Limpar dados de análises primeiro (devido às foreign keys)
-      const { error: analysesError } = await supabase
-        .from('project_analyses')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-
-      if (analysesError) {
-        console.error('❌ Erro ao limpar análises:', analysesError);
-      } else {
-        console.log('✅ Análises removidas');
-      }
-
-      // Limpar conversas
-      const { error: conversationsError } = await supabase
-        .from('project_conversations')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-
-      if (conversationsError) {
-        console.error('❌ Erro ao limpar conversas:', conversationsError);
-      } else {
-        console.log('✅ Conversas removidas');
-      }
-
-      // Limpar projetos
-      const { error: projectsError } = await supabase
-        .from('projects')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
-
-      if (projectsError) {
-        console.error('❌ Erro ao limpar projetos:', projectsError);
-        throw projectsError;
-      } else {
-        console.log('✅ Projetos removidos');
-      }
-
-      console.log('🎉 LIMPEZA COMPLETA: Sistema completamente limpo!');
+      
+      // Limpar cache específico dos projetos
+      const cacheKey = 'madenai_projects_cache';
+      localStorage.removeItem(cacheKey);
+      
+      console.log('✅ Cache frontend limpo');
+      console.log('🎉 LIMPEZA COMPLETA FINALIZADA: Todos os usuários agora estão como contas novas!');
       
       toast({
-        title: "🧹 Sistema Completamente Limpo!",
-        description: "Todos os projetos fictícios foram removidos. A plataforma está pronta para receber projetos reais e treinar a IA com dados precisos.",
+        title: "🎉 Limpeza Completa Finalizada!",
+        description: "Sistema resetado - todos os usuários agora estão como contas novas com plano Free.",
         duration: 5000,
       });
 
@@ -71,10 +38,10 @@ export const CompleteDataCleanup = () => {
       }, 2000);
 
     } catch (error) {
-      console.error('💥 Erro durante limpeza completa:', error);
+      console.error('💥 Erro durante limpeza frontend:', error);
       toast({
         title: "❌ Erro na Limpeza",
-        description: "Não foi possível limpar todos os dados. Tente novamente.",
+        description: "Erro ao limpar cache frontend.",
         variant: "destructive",
       });
     } finally {
