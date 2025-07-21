@@ -139,78 +139,42 @@ export const useUserData = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?.id]); // Removido loadUserData das dependências
 
   // Carregar dados iniciais
   useEffect(() => {
     loadUserData();
   }, [loadUserData]);
 
-  // Configurar realtime com cleanup adequado
+  // DESABILITADO TEMPORARIAMENTE: Realtime causando múltiplas subscrições
+  // TODO: Reativar quando Supabase resolver o problema de múltiplas subscrições
   useEffect(() => {
-    if (!isAuthenticated || !user) {
-      console.log('🧹 useUserData: Cleaning up realtime (user not authenticated)');
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-      return;
-    }
-
-    // Limpar canal anterior se existir
+    // Cleanup de qualquer canal existente
     if (channelRef.current) {
-      console.log('🧹 useUserData: Cleaning up previous realtime channel');
-      supabase.removeChannel(channelRef.current);
+      console.log('🧹 useUserData: Limpando canais existentes');
+      try {
+        supabase.removeChannel(channelRef.current);
+      } catch (error) {
+        console.warn('Erro ao limpar canal:', error);
+      }
       channelRef.current = null;
     }
 
-    // Criar novo canal com ID único
-    const channelId = `user_data_${user.id}_${Date.now()}`;
-    console.log('📡 useUserData: Setting up realtime channel:', channelId);
-
-    const channel = supabase
-      .channel(channelId)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_subscriptions',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('🔄 Subscription changed, reloading...', payload);
-          loadUserData();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'projects',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          console.log('🔄 Projects changed, reloading...', payload);
-          loadUserData();
-        }
-      )
-      .subscribe((status) => {
-        console.log('📡 Realtime subscription status:', status);
-      });
-
-    channelRef.current = channel;
-
-    // Cleanup na desmontagem
+    console.log('⚠️ useUserData: Realtime DESABILITADO para evitar múltiplas subscrições');
+    console.log('💡 useUserData: Dados serão atualizados apenas no reload da página');
+    
+    // Sem realtime por enquanto - apenas cleanup
     return () => {
-      console.log('🧹 useUserData: Cleaning up realtime subscription');
       if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
+        try {
+          supabase.removeChannel(channelRef.current);
+        } catch (error) {
+          console.warn('Erro no cleanup final:', error);
+        }
         channelRef.current = null;
       }
     };
-  }, [isAuthenticated, user, loadUserData]);
+  }, []); // Array vazio - executa apenas uma vez
 
   return {
     userData,
