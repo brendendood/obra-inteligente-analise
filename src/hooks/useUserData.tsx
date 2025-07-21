@@ -42,48 +42,64 @@ export const useUserData = () => {
       setLoading(true);
       setError(null);
 
-      // Buscar dados de assinatura
-      const { data: subscription, error: subError } = await supabase
-        .from('user_subscriptions')
-        .select('plan, status, current_period_end')
-        .eq('user_id', user.id)
-        .single();
+      // Usar Promise.allSettled para evitar que um erro quebre tudo
+      const [subscriptionResult, profileResult, projectCountResult] = await Promise.allSettled([
+        supabase
+          .from('user_subscriptions')
+          .select('plan, status, current_period_end')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('user_profiles')
+          .select('full_name, company')
+          .eq('user_id', user.id)
+          .single(),
+        supabase
+          .from('projects')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+      ]);
 
-      if (subError && subError.code !== 'PGRST116') {
-        console.error('Erro ao buscar assinatura:', subError);
+      // Processar subscription com fallback
+      let subscription = null;
+      if (subscriptionResult.status === 'fulfilled' && !subscriptionResult.value.error) {
+        subscription = subscriptionResult.value.data;
+      } else if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.error?.code !== 'PGRST116') {
+        console.warn('Erro ao buscar assinatura:', subscriptionResult.value.error);
       }
 
-      // Buscar perfil do usuário
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('full_name, company')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError && profileError.code !== 'PGRST116') {
-        console.error('Erro ao buscar perfil:', profileError);
+      // Processar profile com fallback
+      let profile = null;
+      if (profileResult.status === 'fulfilled' && !profileResult.value.error) {
+        profile = profileResult.value.data;
+      } else if (profileResult.status === 'fulfilled' && profileResult.value.error?.code !== 'PGRST116') {
+        console.warn('Erro ao buscar perfil:', profileResult.value.error);
       }
 
-      // Contar projetos reais do usuário
-      const { count: projectCount, error: projectError } = await supabase
-        .from('projects')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-
-      if (projectError) {
-        console.error('Erro ao contar projetos:', projectError);
+      // Processar projectCount com fallback
+      let projectCount = 0;
+      if (projectCountResult.status === 'fulfilled' && !projectCountResult.value.error) {
+        projectCount = projectCountResult.value.count || 0;
+      } else if (projectCountResult.status === 'fulfilled' && projectCountResult.value.error) {
+        console.warn('Erro ao contar projetos:', projectCountResult.value.error);
       }
 
       setUserData({
         plan: (subscription?.plan === 'free' ? 'basic' : subscription?.plan) || 'basic',
-        projectCount: projectCount || 0,
+        projectCount,
         subscription,
         profile
       });
 
     } catch (err) {
-      console.error('Erro ao carregar dados do usuário:', err);
-      setError('Erro ao carregar dados do usuário');
+      console.warn('Erro ao carregar dados do usuário:', err);
+      // Manter dados padrão em caso de erro total
+      setUserData({
+        plan: 'basic',
+        projectCount: 0,
+        subscription: null,
+        profile: null
+      });
     } finally {
       setLoading(false);
     }
