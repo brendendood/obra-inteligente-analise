@@ -233,7 +233,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
               <p className="text-xs text-slate-500 truncate">
-                Plano {userData.plan === 'basic' ? 'Basic' : userData.plan === 'pro' ? 'Pro' : 'Enterprise'}
+                Plano {userData.plan === 'free' ? 'Free' : userData.plan === 'basic' ? 'Basic' : userData.plan === 'pro' ? 'Pro' : userData.plan === 'enterprise' ? 'Enterprise' : 'Free'}
               </p>
             </div>
           </div>
@@ -244,7 +244,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               onClick={() => handleNavigation('/plano')}
             >
               <Crown className="h-3 w-3 mr-2" />
-              {userData.plan === 'basic' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
+              {userData.plan === 'free' ? 'Upgrade para Basic' : userData.plan === 'basic' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
             </Button>
           )}
         </div>
