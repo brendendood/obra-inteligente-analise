@@ -30,7 +30,7 @@ export function useAdminStats() {
         console.log('🔄 ADMIN: Iniciando verificação admin...');
         
         // ÚNICA chamada admin check
-        const { data: adminCheck, error: adminError } = await supabase.rpc('is_admin_user');
+        const { data: adminCheck, error: adminError } = await supabase.rpc('is_superuser');
         
         if (!mountedRef.current) return;
         

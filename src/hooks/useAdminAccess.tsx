@@ -31,7 +31,7 @@ export function useAdminAccess() {
       try {
         console.log('🔍 ADMIN: Verificando status admin para:', user.email);
         
-        const { data: adminCheck, error } = await supabase.rpc('is_admin_user');
+        const { data: adminCheck, error } = await supabase.rpc('is_superuser');
         
         if (error) {
           console.error('❌ ADMIN: Erro ao verificar status:', error);

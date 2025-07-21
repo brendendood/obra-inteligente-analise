@@ -34,24 +34,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAdmin: false,
   });
 
-  // Memoized auth check to avoid unnecessary re-renders
+  // Memoized auth check usando is_superuser para evitar recursão
   const checkAdminPermissions = useCallback(async (user: User) => {
     try {
+      console.log('🔍 AuthProvider: Verificando permissões admin com is_superuser...');
+      
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Admin check timeout')), 3000)
       );
       
-      const adminCheckPromise = supabase
-        .from('admin_permissions')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .eq('active', true)
-        .maybeSingle();
+      const adminCheckPromise = supabase.rpc('is_superuser');
       
       const { data } = await Promise.race([adminCheckPromise, timeoutPromise]) as any;
+      console.log('✅ AuthProvider: Resultado check admin:', data);
       return !!data;
     } catch (error) {
-      console.error('Admin permission check failed:', error);
+      console.error('❌ AuthProvider: Admin permission check failed:', error);
       return false;
     }
   }, []);

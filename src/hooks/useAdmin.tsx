@@ -45,7 +45,7 @@ export function useAdmin() {
           setTimeout(() => reject(new Error('Admin check timeout')), 5000)
         );
         
-        const adminCheckPromise = supabase.rpc('is_admin_user');
+        const adminCheckPromise = supabase.rpc('is_superuser');
         
         const { data: adminCheck, error: adminError } = await Promise.race([
           adminCheckPromise, 
@@ -59,27 +59,10 @@ export function useAdmin() {
           console.log('🎯 ADMIN: Status verificado:', adminCheck ? 'É ADMIN' : 'NÃO É ADMIN');
           setIsAdmin(adminCheck || false);
           
-          // Se for admin, buscar o role específico
+          // Se for admin, usar super_admin como role padrão (não consultar admin_permissions)
           if (adminCheck) {
-            try {
-              const { data: roleData, error: roleError } = await supabase
-                .from('admin_permissions')
-                .select('role')
-                .eq('user_id', user.id)
-                .eq('active', true)
-                .maybeSingle();
-              
-              if (!roleError && roleData) {
-                console.log('👑 ADMIN: Role encontrado:', roleData.role);
-                setUserRole(roleData.role);
-              } else {
-                console.log('⚠️ ADMIN: Role não encontrado, usando super_admin como fallback');
-                setUserRole('super_admin');
-              }
-            } catch (roleErr) {
-              console.error('Error fetching user role:', roleErr);
-              setUserRole('super_admin');
-            }
+            console.log('👑 ADMIN: Definindo role como super_admin (fallback seguro)');
+            setUserRole('super_admin');
           }
         }
       } catch (error) {
@@ -127,57 +110,9 @@ export function useAdmin() {
   };
 
   const createAdminUser = async (email: string, role: 'super_admin' | 'marketing' | 'financial' | 'support') => {
-    if (!isAdmin || userRole !== 'super_admin') {
-      console.log('🚫 ADMIN: Sem permissão para criar admin');
-      return false;
-    }
-
-    try {
-      // Buscar o usuário pelo email na tabela user_profiles
-      const { data: profileData, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('user_id')
-        .ilike('full_name', `%${email}%`)
-        .single();
-      
-      if (profileError || !profileData) {
-        console.error('❌ ADMIN: Usuário não encontrado:', profileError);
-        return false;
-      }
-
-      // Adicionar permissão administrativa
-      const { error: permError } = await supabase
-        .from('admin_permissions')
-        .insert({
-          user_id: profileData.user_id,
-          role: role,
-          granted_by: user?.id,
-          active: true
-        });
-
-      if (permError) {
-        if (permError.code === '23505') { // Unique constraint violation
-          console.error('⚠️ ADMIN: Usuário já possui permissões admin');
-          return false;
-        }
-        throw permError;
-      }
-
-      // Log da ação
-      await supabase.from('admin_audit_logs').insert({
-        admin_user_id: user?.id,
-        action_type: 'admin_created',
-        target_type: 'user',
-        target_id: profileData.user_id,
-        new_values: { role, email }
-      });
-
-      console.log('✅ ADMIN: Usuário admin criado com sucesso');
-      return true;
-    } catch (error) {
-      console.error('💥 ADMIN: Erro ao criar usuário admin:', error);
-      return false;
-    }
+    console.log('⚠️ ADMIN: createAdminUser temporariamente desabilitado para evitar recursão');
+    console.log('💡 ADMIN: Use SQL direto ou aguarde refatoração completa da gestão de admins');
+    return false;
   };
 
   return {

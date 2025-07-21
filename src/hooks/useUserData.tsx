@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -18,80 +18,120 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: 'free',
+    plan: 'basic', // Fallback padrão para 'basic'
     projectCount: 0,
     subscription: null,
     profile: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ref para evitar múltiplas subscrições
+  const channelRef = useRef<any>(null);
 
-  // Memoizar função para evitar re-renders desnecessários
+  // Função para carregar dados com fallbacks robustos
   const loadUserData = useCallback(async () => {
+    console.log('🔄 useUserData: Loading user data...', { isAuthenticated, user: !!user });
+
     if (!isAuthenticated || !user) {
+      console.log('⚠️ useUserData: User not authenticated, setting defaults');
       setUserData({
-        plan: 'free',
+        plan: 'basic',
         projectCount: 0,
         subscription: null,
         profile: null
       });
       setLoading(false);
+      setError(null);
       return;
     }
 
     try {
       setLoading(true);
       setError(null);
+      console.log('📡 useUserData: Fetching data for user:', user.id);
 
-      // Usar Promise.allSettled para evitar que um erro quebre tudo
+      // Buscar dados com fallbacks
+      const subscriptionPromise = supabase
+        .from('user_subscriptions')
+        .select('plan, status, current_period_end')
+        .eq('user_id', user.id)
+        .maybeSingle()
+        .then(result => {
+          console.log('📋 Subscription result:', result);
+          return result;
+        });
+
+      const profilePromise = supabase
+        .from('user_profiles')
+        .select('full_name, company')
+        .eq('user_id', user.id)
+        .maybeSingle()
+        .then(result => {
+          console.log('👤 Profile result:', result);
+          return result;
+        });
+
+      const projectCountPromise = supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .then(result => {
+          console.log('📊 Project count result:', result);
+          return result;
+        });
+
+      // Aguardar todas as consultas com Promise.allSettled
       const [subscriptionResult, profileResult, projectCountResult] = await Promise.allSettled([
-        supabase
-          .from('user_subscriptions')
-          .select('plan, status, current_period_end')
-          .eq('user_id', user.id)
-          .maybeSingle(), // Usar maybeSingle em vez de single
-        supabase
-          .from('user_profiles')
-          .select('full_name, company')
-          .eq('user_id', user.id)
-          .maybeSingle(), // Usar maybeSingle em vez de single
-        supabase
-          .from('projects')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', user.id)
+        subscriptionPromise,
+        profilePromise,
+        projectCountPromise
       ]);
 
-      // Processar subscription com fallback mais simples
+      // Processar subscription com fallback para 'basic'
       let subscription = null;
+      let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'basic';
+      
       if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.data) {
         subscription = subscriptionResult.value.data;
+        plan = subscription.plan || 'basic';
+      } else if (subscriptionResult.status === 'rejected') {
+        console.warn('⚠️ Erro ao buscar assinatura:', subscriptionResult.reason);
       }
 
-      // Processar profile com fallback mais simples
+      // Processar profile
       let profile = null;
       if (profileResult.status === 'fulfilled' && profileResult.value.data) {
         profile = profileResult.value.data;
+      } else if (profileResult.status === 'rejected') {
+        console.warn('⚠️ Erro ao buscar perfil:', profileResult.reason);
       }
 
-      // Processar projectCount com fallback mais simples
+      // Processar projectCount
       let projectCount = 0;
       if (projectCountResult.status === 'fulfilled' && !projectCountResult.value.error) {
         projectCount = projectCountResult.value.count || 0;
+      } else if (projectCountResult.status === 'rejected') {
+        console.warn('⚠️ Erro ao contar projetos:', projectCountResult.reason);
       }
 
-      setUserData({
-        plan: subscription?.plan || 'free', // Usar 'free' como padrão
+      const newUserData = {
+        plan,
         projectCount,
         subscription,
         profile
-      });
+      };
+
+      console.log('✅ useUserData: Data loaded successfully:', newUserData);
+      setUserData(newUserData);
 
     } catch (err) {
-      console.error('Erro crítico ao carregar dados do usuário:', err);
+      console.error('❌ ERRO CRÍTICO ao carregar dados do usuário:', err);
       setError('Erro ao carregar dados do usuário');
-      // Manter dados padrão em caso de erro total
+      
+      // Fallback para dados básicos em caso de erro crítico
       setUserData({
-        plan: 'free',
+        plan: 'basic',
         projectCount: 0,
         subscription: null,
         profile: null
@@ -101,17 +141,33 @@ export const useUserData = () => {
     }
   }, [isAuthenticated, user]);
 
-  // Carregar dados iniciais - apenas uma vez
+  // Carregar dados iniciais
   useEffect(() => {
     loadUserData();
   }, [loadUserData]);
 
-  // Configurar realtime para atualizações automáticas - com cleanup adequado
+  // Configurar realtime com cleanup adequado
   useEffect(() => {
-    if (!isAuthenticated || !user) return;
+    if (!isAuthenticated || !user) {
+      console.log('🧹 useUserData: Cleaning up realtime (user not authenticated)');
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+      return;
+    }
 
-    // Criar canal único com ID específico para evitar múltiplas subscrições
+    // Limpar canal anterior se existir
+    if (channelRef.current) {
+      console.log('🧹 useUserData: Cleaning up previous realtime channel');
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
+    // Criar novo canal com ID único
     const channelId = `user_data_${user.id}_${Date.now()}`;
+    console.log('📡 useUserData: Setting up realtime channel:', channelId);
+
     const channel = supabase
       .channel(channelId)
       .on(
@@ -122,8 +178,8 @@ export const useUserData = () => {
           table: 'user_subscriptions',
           filter: `user_id=eq.${user.id}`
         },
-        () => {
-          console.log('🔄 Subscription changed, reloading user data...');
+        (payload) => {
+          console.log('🔄 Subscription changed, reloading...', payload);
           loadUserData();
         }
       )
@@ -135,17 +191,24 @@ export const useUserData = () => {
           table: 'projects',
           filter: `user_id=eq.${user.id}`
         },
-        () => {
-          console.log('🔄 Projects changed, reloading user data...');
+        (payload) => {
+          console.log('🔄 Projects changed, reloading...', payload);
           loadUserData();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
 
-    // Cleanup adequado para evitar múltiplas subscrições
+    channelRef.current = channel;
+
+    // Cleanup na desmontagem
     return () => {
-      console.log('🧹 Cleaning up user data subscription...');
-      supabase.removeChannel(channel);
+      console.log('🧹 useUserData: Cleaning up realtime subscription');
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, [isAuthenticated, user, loadUserData]);
 
