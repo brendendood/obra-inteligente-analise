@@ -1,4 +1,5 @@
 
+
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -9,7 +10,10 @@ import {
   MessageSquare, 
   FileText, 
   Settings,
-  Shield
+  Shield,
+  User,
+  HelpCircle,
+  MessageCircle
 } from 'lucide-react';
 import { 
   SidebarGroup,
@@ -55,6 +59,12 @@ export const SidebarNavigation = () => {
     { icon: Calculator, label: 'Orçamento', path: '/orcamento' },
     { icon: Calendar, label: 'Cronograma', path: '/cronograma' },
     { icon: FileText, label: 'Documentos', path: '/documentos' }
+  ];
+
+  const supportItems = [
+    { icon: User, label: 'Conta & Preferências', path: '/account' },
+    { icon: HelpCircle, label: 'Ajuda e FAQs', path: '/help' },
+    { icon: MessageCircle, label: 'Fale com a Gente', path: '/contact' }
   ];
 
   const isActive = (path: string) => {
@@ -132,6 +142,37 @@ export const SidebarNavigation = () => {
         </SidebarGroupContent>
       </SidebarGroup>
 
+      {/* Support & Account */}
+      <SidebarGroup>
+        <SidebarGroupLabel>Suporte</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {supportItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              
+              return (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={active}
+                    tooltip={!open ? item.label : undefined}
+                  >
+                    <button 
+                      onClick={() => handleNavigate(item.path)}
+                      className="w-full flex items-center"
+                    >
+                      <Icon />
+                      {open && <span>{item.label}</span>}
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
       {/* Admin Access */}
       {isAdmin && (
         <SidebarGroup>
@@ -184,3 +225,4 @@ export const SidebarNavigation = () => {
     </div>
   );
 };
+
