@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Bot, Home, User, CreditCard, HelpCircle, MessageCircle, Folder, Calendar, BarChart3 } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -68,9 +68,9 @@ export const CustomSidebar = ({ isCollapsed, onToggle }: CustomSidebarProps) => 
             const active = isActive(item.path);
             
             return (
-              <a
+              <Link
                 key={item.path}
-                href={item.path}
+                to={item.path}
                 className={cn(
                   "flex items-center rounded-md transition-all duration-200 text-sm font-medium h-10",
                   "hover:bg-sidebar-accent",
@@ -87,7 +87,7 @@ export const CustomSidebar = ({ isCollapsed, onToggle }: CustomSidebarProps) => 
                     {item.label}
                   </span>
                 )}
-              </a>
+              </Link>
             );
           })}
         </div>
