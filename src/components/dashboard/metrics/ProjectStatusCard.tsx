@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { CheckCircle, Calendar, FileText } from 'lucide-react';
@@ -52,7 +53,7 @@ export const ProjectStatusCard = ({ projectStatus }: ProjectStatusCardProps) => 
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <FileText className="h-5 w-5 text-orange-600" />
-          <span>Status dos Projetos</span>
+          <span className="whitespace-nowrap">Status Projetos</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>

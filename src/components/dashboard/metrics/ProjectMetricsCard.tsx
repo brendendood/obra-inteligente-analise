@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Building, Calculator, BarChart3 } from 'lucide-react';
@@ -42,7 +43,7 @@ export const ProjectMetricsCard = ({ projectMetrics }: ProjectMetricsCardProps) 
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
           <Building className="h-5 w-5 text-blue-600" />
-          <span>Métricas dos Projetos</span>
+          <span className="whitespace-nowrap">Métricas Projetos</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>

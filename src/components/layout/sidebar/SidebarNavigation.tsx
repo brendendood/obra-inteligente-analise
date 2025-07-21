@@ -1,3 +1,4 @@
+
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -34,6 +35,11 @@ export const SidebarNavigation = () => {
       path: '/painel'
     },
     { 
+      icon: MessageSquare, 
+      label: 'Assistente IA', 
+      path: '/ia'
+    },
+    { 
       icon: FolderOpen, 
       label: 'Projetos', 
       path: '/projetos'
@@ -48,7 +54,6 @@ export const SidebarNavigation = () => {
   const toolsItems = [
     { icon: Calculator, label: 'Orçamento', path: '/orcamento' },
     { icon: Calendar, label: 'Cronograma', path: '/cronograma' },
-    { icon: MessageSquare, label: 'Assistente IA', path: '/ia' },
     { icon: FileText, label: 'Documentos', path: '/documentos' }
   ];
 
