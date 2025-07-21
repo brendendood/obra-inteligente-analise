@@ -1,6 +1,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserData } from '@/hooks/useUserData';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Heart, Shield, FileText, HelpCircle } from 'lucide-react';
@@ -8,7 +9,17 @@ import { ExternalLink, Heart, Shield, FileText, HelpCircle } from 'lucide-react'
 export const MemberFooter = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { userData } = useUserData();
   const currentYear = new Date().getFullYear();
+
+  const getPlanDisplayName = (plan: string) => {
+    switch (plan) {
+      case 'basic': return 'Basic';
+      case 'pro': return 'Pro';
+      case 'enterprise': return 'Enterprise';
+      default: return 'Basic';
+    }
+  };
 
   return (
     <footer className="bg-white border-t border-gray-200 mt-auto w-full">
@@ -118,7 +129,7 @@ export const MemberFooter = () => {
               <div className="text-sm text-gray-600">
                 <span className="font-medium">Plano:</span><br />
                 <Badge variant="secondary" className="text-xs">
-                  Gratuito
+                  {getPlanDisplayName(userData.plan)}
                 </Badge>
               </div>
             </div>
