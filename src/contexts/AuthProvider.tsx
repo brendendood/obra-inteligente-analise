@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -33,6 +33,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: false,
     isAdmin: false,
   });
+
+  // Use refs to prevent unnecessary re-renders during HMR
+  const lastAuthEventRef = useRef<string | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Memoized auth check usando is_superuser para evitar recursão
   const checkAdminPermissions = useCallback(async (user: User) => {
@@ -86,28 +90,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Initial auth check
     refreshAuth();
 
-    // Auth state listener with debouncing
+    // Auth state listener with improved HMR handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
         
-        console.log('🔄 AUTH: State change:', event);
+        // Prevent duplicate events during HMR
+        const eventKey = `${event}-${session?.user?.id || 'null'}`;
+        if (lastAuthEventRef.current === eventKey) {
+          console.log('🔄 AUTH: Duplicate event ignored for HMR:', event);
+          return;
+        }
+        lastAuthEventRef.current = eventKey;
         
-        const user = session?.user || null;
-        const isAdmin = user ? await checkAdminPermissions(user) : false;
+        // Clear existing debounce timer
+        if (debounceTimerRef.current) {
+          clearTimeout(debounceTimerRef.current);
+        }
+        
+        // Debounce auth state changes for better HMR
+        debounceTimerRef.current = setTimeout(async () => {
+          console.log('🔄 AUTH: Processing state change:', event);
+          
+          const user = session?.user || null;
+          const isAdmin = user ? await checkAdminPermissions(user) : false;
 
-        setState({
-          user,
-          session,
-          loading: false,
-          isAuthenticated: !!user && !!session,
-          isAdmin,
-        });
+          setState({
+            user,
+            session,
+            loading: false,
+            isAuthenticated: !!user && !!session,
+            isAdmin,
+          });
+        }, import.meta.env.DEV ? 100 : 0); // Small delay in development
       }
     );
 
     return () => {
       mounted = false;
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
       subscription.unsubscribe();
     };
   }, [refreshAuth, checkAdminPermissions]);

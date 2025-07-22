@@ -20,8 +20,8 @@ interface ProjectState {
   getProjectById: (projectId: string) => Project | null;
 }
 
-// Cache configuration
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// Cache configuration - less aggressive in development for better HMR
+const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000; // 30s in dev, 5min in prod
 const CACHE_KEY = 'madenai_projects_cache';
 
 // Cache helpers
@@ -66,9 +66,10 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         fetchProjects: async () => {
           const state = get();
           
-          // Check if already loading or recently fetched
+          // Check if already loading or recently fetched - reduce cooldown in dev
           if (state.isLoading) return;
-          if (state.hasFetched && Date.now() - state.lastFetch < 30000) return; // 30s cooldown
+          const cooldown = import.meta.env.DEV ? 5000 : 30000; // 5s in dev, 30s in prod
+          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) return;
           
           // Try cache first
           const cached = getCache();
