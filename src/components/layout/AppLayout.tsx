@@ -1,7 +1,7 @@
 
 import { ReactNode, memo, useMemo, useState, useEffect } from 'react';
 import { MemberFooter } from './MemberFooter';
-import { CustomSidebar } from './CustomSidebar';
+import { Sidebar } from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
@@ -27,21 +27,28 @@ const useOptimizedMediaQuery = (query: string) => {
   return matches;
 };
 
+// Memoized sidebar component
+const MemoizedSidebar = memo(Sidebar);
+MemoizedSidebar.displayName = 'MemoizedSidebar';
+
+// Memoized footer component  
+const MemoizedFooter = memo(MemberFooter);
+MemoizedFooter.displayName = 'MemoizedFooter';
+
 export const AppLayout = memo<AppLayoutProps>(({ children }) => {
   const { user, loading } = useAuth();
   const isMobile = useOptimizedMediaQuery('(max-width: 1023px)');
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
     container: "min-h-screen flex flex-col w-full bg-gray-50",
     main: cn(
-      "flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
-      !isMobile && (isCollapsed ? "ml-16" : "ml-64")
+      "flex-1 flex flex-col min-h-screen transition-none",
+      !isMobile && "ml-[280px]"
     ),
     content: "flex-1 overflow-auto",
     innerContent: "h-full p-4 sm:p-6 lg:p-8"
-  }), [isMobile, isCollapsed]);
+  }), [isMobile]);
 
   // Early return for loading state with unified loading
   if (loading) {
@@ -55,17 +62,14 @@ export const AppLayout = memo<AppLayoutProps>(({ children }) => {
 
   return (
     <div className={layoutClasses.container}>
-      <CustomSidebar 
-        isCollapsed={isCollapsed} 
-        onToggle={() => setIsCollapsed(!isCollapsed)} 
-      />
+      <MemoizedSidebar />
       <main className={layoutClasses.main}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
           </div>
         </div>
-        <MemberFooter />
+        <MemoizedFooter />
       </main>
     </div>
   );
