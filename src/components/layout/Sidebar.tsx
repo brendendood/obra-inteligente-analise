@@ -12,8 +12,8 @@ import {
   Crown,
   Menu,
   X,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
   Zap
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -241,7 +241,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               )}
 
               <Icon className={cn(
-                "h-6 w-6 flex-shrink-0",
+                "h-8 w-8 flex-shrink-0",
                 (!isMobile && !isCollapsed) && "mr-3",
                 item.isActive ? "text-blue-600" : "text-slate-500"
               )} />
@@ -268,7 +268,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               className="p-3 hover:bg-slate-100 bg-slate-50 border border-slate-200"
               title="Recolher menu"
             >
-              <ChevronLeft className="h-7 w-7 text-slate-700" />
+              <PanelLeftClose className="h-7 w-7 text-slate-700" />
             </Button>
           </div>
 
@@ -343,7 +343,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
             className="p-3 hover:bg-slate-100 bg-slate-50 border border-slate-200"
             title="Expandir menu"
           >
-            <ChevronRight className="h-7 w-7 text-slate-700" />
+            <PanelLeftOpen className="h-7 w-7 text-slate-700" />
           </Button>
         </div>
       )}
