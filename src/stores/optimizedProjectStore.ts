@@ -20,13 +20,28 @@ interface ProjectState {
   getProjectById: (projectId: string) => Project | null;
 }
 
-// Cache configuration
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// Cache configuration - reduzir cache em desenvolvimento para melhor HMR
+const CACHE_TTL = import.meta.env.DEV ? 1 * 60 * 1000 : 5 * 60 * 1000; // 1min dev, 5min prod
 const CACHE_KEY = 'madenai_projects_cache';
+const FETCH_COOLDOWN = import.meta.env.DEV ? 5000 : 30000; // 5s dev, 30s prod
 
 // Cache helpers
 const getCache = () => {
   try {
+    // Em desenvolvimento, usar cache menos agressivo
+    if (import.meta.env.DEV) {
+      const cached = sessionStorage.getItem(CACHE_KEY); // sessionStorage em dev
+      if (!cached) return null;
+      
+      const { data, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp > CACHE_TTL) {
+        sessionStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+      
+      return data;
+    }
+    
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
     
@@ -44,7 +59,8 @@ const getCache = () => {
 
 const setCache = (data: Project[]) => {
   try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
+    const storage = import.meta.env.DEV ? sessionStorage : localStorage;
+    storage.setItem(CACHE_KEY, JSON.stringify({
       data,
       timestamp: Date.now()
     }));
@@ -68,17 +84,19 @@ export const useOptimizedProjectStore = create<ProjectState>()(
           
           // Check if already loading or recently fetched
           if (state.isLoading) return;
-          if (state.hasFetched && Date.now() - state.lastFetch < 30000) return; // 30s cooldown
+          if (state.hasFetched && Date.now() - state.lastFetch < FETCH_COOLDOWN) return;
           
-          // Try cache first
-          const cached = getCache();
-          if (cached && cached.length > 0) {
-            set({ 
-              projects: cached, 
-              hasFetched: true, 
-              lastFetch: Date.now() 
-            });
-            return;
+          // Try cache first (menos agressivo em dev)
+          if (!import.meta.env.DEV) {
+            const cached = getCache();
+            if (cached && cached.length > 0) {
+              set({ 
+                projects: cached, 
+                hasFetched: true, 
+                lastFetch: Date.now() 
+              });
+              return;
+            }
           }
 
           set({ isLoading: true, error: null });
@@ -174,7 +192,11 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         }
       })
     ),
-    { name: 'optimized-project-store' }
+    { 
+      name: 'optimized-project-store',
+      // Melhor devtools em desenvolvimento
+      enabled: import.meta.env.DEV
+    }
   )
 );
 

@@ -10,7 +10,7 @@ interface ProjectState {
   isLoading: boolean;
   error: string | null;
   lastRefresh: number;
-  hasLoadedOnce: boolean; // NOVO: Flag para evitar múltiplas cargas
+  hasLoadedOnce: boolean;
   
   // Ações assíncronas
   fetchProjects: () => Promise<void>;
@@ -24,6 +24,9 @@ interface ProjectState {
   getProjectById: (projectId: string) => Project | null;
 }
 
+// Cache menos agressivo em desenvolvimento para melhor HMR
+const COOLDOWN_TIME = import.meta.env.DEV ? 5000 : 30000; // 5s dev, 30s prod
+
 export const useProjectStore = create<ProjectState>()(
   devtools(
     (set, get) => ({
@@ -32,14 +35,14 @@ export const useProjectStore = create<ProjectState>()(
       isLoading: false,
       error: null,
       lastRefresh: 0,
-      hasLoadedOnce: false, // NOVO
+      hasLoadedOnce: false,
 
       // Buscar projetos com cache inteligente
       fetchProjects: async () => {
         const state = get();
         
-        // CACHE INTELIGENTE: Só carrega se nunca carregou ou se forçado
-        if (state.hasLoadedOnce && state.projects.length > 0) {
+        // CACHE INTELIGENTE: Menos agressivo em desenvolvimento
+        if (!import.meta.env.DEV && state.hasLoadedOnce && state.projects.length > 0) {
           console.log('📦 STORE: Usando cache - projetos já carregados');
           return;
         }
@@ -49,48 +52,51 @@ export const useProjectStore = create<ProjectState>()(
           return;
         }
         
-        set({ isLoading: true, error: null });
-        
-        try {
-          console.log('🔄 STORE: Carregando projetos da API...');
+        // Em desenvolvimento, permitir refresh mais frequente
+        if (import.meta.env.DEV || !state.hasLoadedOnce || Date.now() - state.lastRefresh > COOLDOWN_TIME) {
+          set({ isLoading: true, error: null });
           
-          // Obter usuário atual
-          const { data: { user }, error: authError } = await supabase.auth.getUser();
-          
-          if (authError || !user) {
-            throw new Error('Usuário não autenticado');
+          try {
+            console.log('🔄 STORE: Carregando projetos da API...');
+            
+            // Obter usuário atual
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            
+            if (authError || !user) {
+              throw new Error('Usuário não autenticado');
+            }
+
+            // Buscar projetos do usuário
+            const { data: projects, error } = await supabase
+              .from('projects')
+              .select('*')
+              .eq('user_id', user.id)
+              .order('created_at', { ascending: false });
+
+            if (error) {
+              throw error;
+            }
+
+            set({ 
+              projects: projects || [], 
+              isLoading: false, 
+              error: null,
+              lastRefresh: Date.now(),
+              hasLoadedOnce: true
+            });
+            
+            console.log('✅ STORE: Projetos carregados com sucesso:', projects?.length || 0);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar projetos';
+            console.error('❌ STORE: Erro ao buscar projetos:', error);
+            
+            set({ 
+              projects: [], 
+              isLoading: false, 
+              error: errorMessage,
+              hasLoadedOnce: true
+            });
           }
-
-          // Buscar projetos do usuário
-          const { data: projects, error } = await supabase
-            .from('projects')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
-
-          if (error) {
-            throw error;
-          }
-
-          set({ 
-            projects: projects || [], 
-            isLoading: false, 
-            error: null,
-            lastRefresh: Date.now(),
-            hasLoadedOnce: true // IMPORTANTE: Marca como carregado
-          });
-          
-          console.log('✅ STORE: Projetos carregados com sucesso:', projects?.length || 0);
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Erro ao carregar projetos';
-          console.error('❌ STORE: Erro ao buscar projetos:', error);
-          
-          set({ 
-            projects: [], 
-            isLoading: false, 
-            error: errorMessage,
-            hasLoadedOnce: true // Marca como tentou carregar
-          });
         }
       },
 
@@ -166,7 +172,7 @@ export const useProjectStore = create<ProjectState>()(
       // Forçar refresh completo
       forceRefresh: async () => {
         console.log('🔄 STORE: Forçando refresh completo...');
-        set({ hasLoadedOnce: false }); // Reset flag
+        set({ hasLoadedOnce: false, lastRefresh: 0 }); // Reset flags
         await get().fetchProjects();
       },
 
@@ -176,7 +182,9 @@ export const useProjectStore = create<ProjectState>()(
       }
     }),
     {
-      name: 'project-store'
+      name: 'project-store',
+      // Melhor devtools em desenvolvimento
+      enabled: import.meta.env.DEV
     }
   )
 );
