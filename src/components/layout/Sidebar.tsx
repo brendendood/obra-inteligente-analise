@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -152,8 +153,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
     <header className="lg:hidden bg-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center p-2.5 mr-3 shadow-lg">
+            <Zap className="w-6 h-6 text-white" />
           </div>
           <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             MadenAI
@@ -180,8 +181,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Header - Logo sempre visível */}
       <div className="flex items-center justify-center p-6 border-b border-slate-200/60 h-[88px]">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center p-2.5 shadow-lg">
+            <Zap className="w-6 h-6 text-white" />
           </div>
           {(!isMobile && !isCollapsed) && (
             <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-3">
@@ -255,21 +256,6 @@ export const Sidebar = ({ className }: SidebarProps) => {
         })}
       </div>
 
-      {/* Botão de Toggle - Desktop collapsed */}
-      {(!isMobile && isCollapsed) && (
-        <div className="p-4 border-t border-slate-200/60">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleCollapsed}
-            className="w-full p-2 hover:bg-slate-100 flex justify-center"
-            title="Expandir menu"
-          >
-            <ChevronRight className="h-4 w-4 text-slate-500" />
-          </Button>
-        </div>
-      )}
-
       {/* Footer - Versão expandida */}
       {(!isMobile && !isCollapsed) && (
         <div className="border-t border-slate-200/60 p-4 space-y-4">
@@ -279,10 +265,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
               variant="ghost"
               size="sm"
               onClick={toggleCollapsed}
-              className="p-2 hover:bg-slate-100"
+              className="p-3 hover:bg-slate-100 bg-slate-50 border border-slate-200"
               title="Recolher menu"
             >
-              <ChevronLeft className="h-4 w-4 text-slate-500" />
+              <ChevronLeft className="h-6 w-6 text-slate-700" />
             </Button>
           </div>
 
@@ -327,15 +313,38 @@ export const Sidebar = ({ className }: SidebarProps) => {
         </div>
       )}
 
-      {/* Collapsed Footer - Avatar only */}
+      {/* Footer Colapsado - Avatar + Logout + Toggle */}
       {(!isMobile && isCollapsed) && (
-        <div className="border-t border-slate-200/60 p-4 flex justify-center">
-          <Avatar className="h-8 w-8 ring-2 ring-white shadow-sm" title={user?.user_metadata?.full_name || 'Usuário'}>
+        <div className="border-t border-slate-200/60 p-4 space-y-3 flex flex-col items-center">
+          {/* Avatar */}
+          <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm" title={user?.user_metadata?.full_name || 'Usuário'}>
             <AvatarImage src={avatarUrl} />
-            <AvatarFallback className="bg-blue-500 text-white text-xs font-medium">
+            <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">
               {getAvatarFallback(userGender)}
             </AvatarFallback>
           </Avatar>
+
+          {/* Botão Sair */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="p-2 hover:bg-red-50 text-red-600"
+            title="Sair"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+
+          {/* Botão de Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleCollapsed}
+            className="p-3 hover:bg-slate-100 bg-slate-50 border border-slate-200"
+            title="Expandir menu"
+          >
+            <ChevronRight className="h-6 w-6 text-slate-700" />
+          </Button>
         </div>
       )}
     </div>
