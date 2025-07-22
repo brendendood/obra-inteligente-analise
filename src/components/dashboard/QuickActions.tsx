@@ -8,12 +8,12 @@ import {
   Settings
 } from 'lucide-react';
 import { useProjectMigration } from '@/hooks/useProjectMigration';
-import { useAdminAccess } from '@/hooks/useAdminAccess';
+import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 
 export const QuickActions = () => {
   const navigate = useNavigate();
   const { migrateProjects, isMigrating } = useProjectMigration();
-  const { isAdmin, isLoading: adminLoading } = useAdminAccess();
+  const { isAdmin, loading: adminLoading } = useUnifiedAdmin();
 
   const handleMigration = async () => {
     try {

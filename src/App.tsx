@@ -27,7 +27,6 @@ const Help = lazy(() => import("./pages/Help"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
-const Admin = lazy(() => import("./pages/Admin"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -114,7 +113,7 @@ const App = () => {
                     <Route path="/cadastro" element={<Signup />} />
                     <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
                     <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
-                    <Route path="/admin" element={<LazyWrapper><Admin /></LazyWrapper>} />
+                    <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
                     
                     <Route path="/admin-panel" element={
                       <ProtectedRoute>

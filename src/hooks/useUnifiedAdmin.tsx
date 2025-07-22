@@ -3,14 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-interface AdminStats {
-  total_users: number;
-  total_projects: number;
-  active_subscriptions: number;
-  monthly_revenue: number;
-  new_users_this_month: number;
-  ai_usage_this_month: number;
-}
+import { AdminStats } from '@/types/admin';
 
 export function useUnifiedAdmin() {
   const { user, isAuthenticated } = useAuth();
@@ -51,45 +44,15 @@ export function useUnifiedAdmin() {
           console.log('⚠️ UNIFIED ADMIN: Query direta não encontrou permissões:', { directError, directCheck });
         }
 
-        // SEGUNDA TENTATIVA: Usar RPC com user_id como parâmetro
-        console.log('🔧 UNIFIED ADMIN: Tentativa 2 - RPC check_user_admin_status...');
-        const { data: rpcCheck, error: rpcError } = await supabase.rpc('check_user_admin_status', {
-          target_user_id: user.id
-        });
-        
-        if (!rpcError && rpcCheck) {
-          console.log('✅ UNIFIED ADMIN: RPC check_user_admin_status bem-sucedido:', rpcCheck);
-          setIsAdmin(true);
-          setLoading(false);
-          return;
-        } else {
-          console.log('⚠️ UNIFIED ADMIN: RPC check_user_admin_status falhou:', { rpcError, rpcCheck });
-        }
-
-        // TERCEIRA TENTATIVA: Verificar na tabela admin_users por email
-        console.log('📧 UNIFIED ADMIN: Tentativa 3 - Verificação por email na admin_users...');
-        const { data: emailCheck, error: emailError } = await supabase.rpc('check_admin_by_email', {
-          user_email: user.email
-        });
-        
-        if (!emailError && emailCheck) {
-          console.log('✅ UNIFIED ADMIN: Verificação por email bem-sucedida:', emailCheck);
-          setIsAdmin(true);
-          setLoading(false);
-          return;
-        } else {
-          console.log('⚠️ UNIFIED ADMIN: Verificação por email falhou:', { emailError, emailCheck });
-        }
-
-        // FALLBACK FINAL: Verificar se é superuser PostgreSQL
-        console.log('🔄 UNIFIED ADMIN: Tentativa final - is_superuser...');
+        // SEGUNDA TENTATIVA: Usar is_superuser() como função unificada
+        console.log('🔧 UNIFIED ADMIN: Tentativa 2 - is_superuser...');
         const { data: superuserCheck, error: superuserError } = await supabase.rpc('is_superuser');
         
         if (!superuserError && superuserCheck) {
-          console.log('✅ UNIFIED ADMIN: Superuser check bem-sucedido:', superuserCheck);
+          console.log('✅ UNIFIED ADMIN: is_superuser bem-sucedido:', superuserCheck);
           setIsAdmin(true);
         } else {
-          console.log('❌ UNIFIED ADMIN: Todas as verificações falharam - NÃO É ADMIN');
+          console.log('❌ UNIFIED ADMIN: Verificações falharam - NÃO É ADMIN');
           setIsAdmin(false);
         }
 

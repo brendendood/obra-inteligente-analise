@@ -878,14 +878,6 @@ export type Database = {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
       }
-      check_admin_by_email: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
-      check_user_admin_status: {
-        Args: { target_user_id: string }
-        Returns: boolean
-      }
       example_function: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -903,16 +895,6 @@ export type Database = {
           monthly_revenue: number
           new_users_this_month: number
           ai_usage_this_month: number
-        }[]
-      }
-      get_admin_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          total_users: number
-          total_projects: number
-          total_analyses: number
-          recent_projects: number
-          active_users_week: number
         }[]
       }
       get_advanced_admin_analytics: {
@@ -934,10 +916,6 @@ export type Database = {
           user_id: string
           engagement_score: number
         }[]
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
       }
       is_superuser: {
         Args: Record<PropertyKey, never>

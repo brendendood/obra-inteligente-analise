@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
 import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
-import { AdminAnalytics } from '@/components/admin/AdminAnalytics';
+
 import { AdminPayments } from '@/components/admin/AdminPayments';
 import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
 import { AdminAdvancedAnalytics } from '@/components/admin/AdminAdvancedAnalytics';
@@ -171,12 +171,6 @@ const AdminPanel = () => {
       component: <AdminAlertsManager />
     },
     {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      component: <AdminAnalytics />
-    },
-    {
       id: 'advanced-analytics',
       label: 'Analytics Avançado',
       icon: Brain,
@@ -241,7 +235,7 @@ const AdminPanel = () => {
       {/* Conteúdo principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 mb-8">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
             {tabItems.map((tab) => {
               const Icon = tab.icon;
               return (
