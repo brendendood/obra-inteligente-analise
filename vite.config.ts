@@ -9,14 +9,6 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    // Configurações otimizadas para HMR
-    hmr: {
-      overlay: true,
-    },
-    // Melhor handling de arquivos estáticos
-    fs: {
-      strict: false,
-    },
   },
   plugins: [
     react(),
@@ -110,14 +102,11 @@ export default defineConfig(({ mode }) => ({
     },
   },
   
-  // Development optimizations específicas para HMR
+  // Development optimizations
   ...(mode === 'development' && {
     define: {
-      // Melhor suporte ao React DevTools
-      __REACT_DEVTOOLS_GLOBAL_HOOK__: 'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__',
-    },
-    css: {
-      devSourcemap: true,
+      // Reduce React DevTools overhead
+      __REACT_DEVTOOLS_GLOBAL_HOOK__: JSON.stringify({ isDisabled: true }),
     }
   })
 }));

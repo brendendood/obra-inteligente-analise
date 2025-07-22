@@ -1,7 +1,6 @@
 
 import { useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useDashboardData } from '@/hooks/useDashboardData';
@@ -53,35 +52,17 @@ const Dashboard = memo(() => {
   return (
     <AppLayout>
       <div className="flex flex-col space-y-6 w-full min-w-0 max-w-7xl mx-auto">
-        {/* Header com Logo */}
-        <div className="relative bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/20 border border-gray-200 rounded-xl p-6 sm:p-8 w-full overflow-hidden">
-          {/* Background decorativo */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-100/30 to-indigo-100/20 rounded-full blur-3xl -translate-y-32 translate-x-32"></div>
+        {/* Memoized header */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
+          <div className="flex items-center justify-between w-full mb-6">
+            <MemoizedBreadcrumb />
+          </div>
           
-          <div className="relative z-10">
-            <div className="flex items-center justify-between w-full mb-8">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center p-3 shadow-lg shadow-blue-600/25 mr-4">
-                  <Zap className="w-7 h-7 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    MadenAI
-                  </h1>
-                  <p className="text-sm text-gray-600 font-medium">
-                    Inteligência Artificial para Construção
-                  </p>
-                </div>
-              </div>
-              <MemoizedBreadcrumb />
-            </div>
-            
-            <div className="min-w-0 flex-1">
-              <MemoizedGreeting userName={userName} />
-              <p className="text-base sm:text-lg text-gray-600 mt-2">
-                Gerencie seus projetos de construção com IA
-              </p>
-            </div>
+          <div className="min-w-0 flex-1">
+            <MemoizedGreeting userName={userName} />
+            <p className="text-base sm:text-lg text-gray-600">
+              Gerencie seus projetos de construção com IA
+            </p>
           </div>
         </div>
 
