@@ -1,13 +1,37 @@
 
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, FolderOpen, CreditCard, TrendingUp, UserPlus, Brain } from 'lucide-react';
-import { useAdminStats } from '@/hooks/useAdminStats';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Users, FolderOpen, CreditCard, TrendingUp, UserPlus, Brain, RefreshCw, AlertCircle } from 'lucide-react';
+import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 
 export const AdminDashboard = () => {
-  const { stats, loading } = useAdminStats();
+  const { adminStats, loadAdminStats, error, forceRefresh } = useUnifiedAdmin();
 
-  if (loading) {
+  useEffect(() => {
+    loadAdminStats();
+  }, []);
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {error}
+            <Button onClick={forceRefresh} variant="outline" size="sm" className="ml-4">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Tentar Novamente
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (!adminStats) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -27,14 +51,6 @@ export const AdminDashboard = () => {
     );
   }
 
-  if (!stats) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Erro ao carregar estatísticas do dashboard.</p>
-      </div>
-    );
-  }
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -45,7 +61,7 @@ export const AdminDashboard = () => {
   const statsCards = [
     {
       title: 'Total de Usuários',
-      value: stats.total_users,
+      value: adminStats.total_users,
       description: 'Usuários registrados na plataforma',
       icon: Users,
       color: 'text-blue-600',
@@ -53,7 +69,7 @@ export const AdminDashboard = () => {
     },
     {
       title: 'Total de Projetos',
-      value: stats.total_projects,
+      value: adminStats.total_projects,
       description: 'Projetos criados pelos usuários',
       icon: FolderOpen,
       color: 'text-green-600',
@@ -61,7 +77,7 @@ export const AdminDashboard = () => {
     },
     {
       title: 'Assinaturas Ativas',
-      value: stats.active_subscriptions,
+      value: adminStats.active_subscriptions,
       description: 'Usuários com planos pagos',
       icon: CreditCard,
       color: 'text-purple-600',
@@ -69,7 +85,7 @@ export const AdminDashboard = () => {
     },
     {
       title: 'Receita Mensal',
-      value: formatCurrency(Number(stats.monthly_revenue)),
+      value: formatCurrency(Number(adminStats.monthly_revenue)),
       description: 'Faturamento do mês atual',
       icon: TrendingUp,
       color: 'text-emerald-600',
@@ -78,7 +94,7 @@ export const AdminDashboard = () => {
     },
     {
       title: 'Novos Usuários',
-      value: stats.new_users_this_month,
+      value: adminStats.new_users_this_month,
       description: 'Cadastros neste mês',
       icon: UserPlus,
       color: 'text-orange-600',
@@ -86,7 +102,7 @@ export const AdminDashboard = () => {
     },
     {
       title: 'Uso de IA',
-      value: stats.ai_usage_this_month,
+      value: adminStats.ai_usage_this_month,
       description: 'Interações com IA neste mês',
       icon: Brain,
       color: 'text-pink-600',
@@ -97,9 +113,15 @@ export const AdminDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>
-        <p className="text-gray-600 mt-2">Visão geral da plataforma MadenAI</p>
+      <div className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard Administrativo</h1>
+          <p className="text-gray-600 mt-2">Visão geral da plataforma MadenAI</p>
+        </div>
+        <Button onClick={loadAdminStats} variant="outline">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Atualizar Dados
+        </Button>
       </div>
 
       {/* Stats Grid */}
@@ -145,16 +167,16 @@ export const AdminDashboard = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Taxa de Conversão</span>
                 <Badge variant="secondary">
-                  {stats.active_subscriptions > 0 
-                    ? Math.round((stats.active_subscriptions / stats.total_users) * 100)
+                  {adminStats.active_subscriptions > 0 
+                    ? Math.round((adminStats.active_subscriptions / adminStats.total_users) * 100)
                     : 0}%
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Projetos por Usuário</span>
                 <Badge variant="outline">
-                  {stats.total_users > 0 
-                    ? (stats.total_projects / stats.total_users).toFixed(1)
+                  {adminStats.total_users > 0 
+                    ? (adminStats.total_projects / adminStats.total_users).toFixed(1)
                     : 0}
                 </Badge>
               </div>
@@ -174,15 +196,15 @@ export const AdminDashboard = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Uso Médio por Usuário</span>
                 <Badge variant="secondary">
-                  {stats.total_users > 0 
-                    ? Math.round(stats.ai_usage_this_month / stats.total_users)
+                  {adminStats.total_users > 0 
+                    ? Math.round(adminStats.ai_usage_this_month / adminStats.total_users)
                     : 0} calls
                 </Badge>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Engagement IA</span>
-                <Badge variant={stats.ai_usage_this_month > 100 ? "default" : "outline"}>
-                  {stats.ai_usage_this_month > 100 ? "Alto" : "Baixo"}
+                <Badge variant={adminStats.ai_usage_this_month > 100 ? "default" : "outline"}>
+                  {adminStats.ai_usage_this_month > 100 ? "Alto" : "Baixo"}
                 </Badge>
               </div>
             </div>

@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
 import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
@@ -14,8 +15,7 @@ import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
 import { AdminAdvancedAnalytics } from '@/components/admin/AdminAdvancedAnalytics';
 import { AdminReports } from '@/components/admin/AdminReports';
 import { AdminAlertsManager } from '@/components/admin/AdminAlertsManager';
-import { useAdminStats } from '@/hooks/useAdminStats';
-import { useAuth } from '@/hooks/useAuth';
+import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 import { 
   LayoutDashboard, 
   Users, 
@@ -25,36 +25,76 @@ import {
   Shield,
   Brain,
   FileText,
-  Bell
+  Bell,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 
 const AdminPanel = () => {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const { isAdmin, loading: adminLoading } = useAdminStats();
+  const { isAdmin, loading, error, user, forceRefresh } = useUnifiedAdmin();
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  console.log('🔄 ADMIN PANEL: Renderizando...', { authLoading, adminLoading, isAuthenticated, isAdmin });
+  console.log('🔄 ADMIN PANEL: Renderizando...', { loading, isAdmin, error, user: user?.email });
 
-  // Loading otimizado
-  if (authLoading || adminLoading) {
+  // Loading otimizado com informações de debug
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
+        <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Carregando painel administrativo...</p>
+          <p className="text-sm text-gray-500">Verificando permissões para: {user?.email}</p>
+          <Button variant="outline" onClick={forceRefresh} className="mt-4">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Forçar Atualização
+          </Button>
         </div>
       </div>
     );
   }
 
-  // Redirecionamentos otimizados
-  if (!isAuthenticated) {
+  // Tratamento de erro melhorado
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <CardTitle className="text-xl text-red-700">Erro no Painel Admin</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <Alert variant="destructive">
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600">
+                Usuário: {user?.email}
+              </p>
+              <Button onClick={forceRefresh} className="w-full">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Tentar Novamente
+              </Button>
+              <Button variant="outline" onClick={() => window.location.href = '/painel'}>
+                Voltar ao Dashboard
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Redirecionamento se não autenticado
+  if (!user) {
     console.log('🔒 ADMIN PANEL: Não autenticado, redirecionando para login');
     return <Navigate to="/login" replace />;
   }
 
+  // Acesso negado se não é admin
   if (!isAdmin) {
-    console.log('❌ ADMIN PANEL: Usuário não é admin');
+    console.log('❌ ADMIN PANEL: Usuário não é admin:', user.email);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="w-full max-w-md">
@@ -62,13 +102,22 @@ const AdminPanel = () => {
             <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <CardTitle className="text-xl text-red-700">Acesso Negado</CardTitle>
           </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-gray-600 mb-4">
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
               Você não possui permissões administrativas para acessar este painel.
             </p>
-            <Button onClick={() => window.location.href = '/painel'}>
-              Voltar ao Dashboard
-            </Button>
+            <p className="text-sm text-gray-500">
+              Usuário: {user.email}
+            </p>
+            <div className="space-y-2">
+              <Button onClick={forceRefresh} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Verificar Permissões Novamente
+              </Button>
+              <Button onClick={() => window.location.href = '/painel'}>
+                Voltar ao Dashboard
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -156,7 +205,7 @@ const AdminPanel = () => {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">
-                {user?.email}
+                {user.email}
               </span>
               <Button 
                 variant="outline" 
@@ -170,7 +219,7 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      {/* Conteúdo principal otimizado */}
+      {/* Conteúdo principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 mb-8">

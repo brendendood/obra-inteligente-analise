@@ -8,7 +8,6 @@ interface AuthState {
   session: Session | null;
   loading: boolean;
   isAuthenticated: boolean;
-  isAdmin: boolean;
 }
 
 interface AuthContextType extends AuthState {
@@ -31,32 +30,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session: null,
     loading: true,
     isAuthenticated: false,
-    isAdmin: false,
   });
 
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Memoized auth check usando is_superuser para evitar recursão
-  const checkAdminPermissions = useCallback(async (user: User) => {
-    try {
-      console.log('🔍 AuthProvider: Verificando permissões admin com is_superuser...');
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Admin check timeout')), 3000)
-      );
-      
-      const adminCheckPromise = supabase.rpc('is_superuser');
-      
-      const { data } = await Promise.race([adminCheckPromise, timeoutPromise]) as any;
-      console.log('✅ AuthProvider: Resultado check admin:', data);
-      return !!data;
-    } catch (error) {
-      console.error('❌ AuthProvider: Admin permission check failed:', error);
-      return false;
-    }
-  }, []);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -69,20 +47,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const user = session?.user || null;
-      const isAdmin = user ? await checkAdminPermissions(user) : false;
 
       setState({
         user,
         session,
         loading: false,
         isAuthenticated: !!user && !!session,
-        isAdmin,
       });
     } catch (error) {
       console.error('Auth refresh error:', error);
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [checkAdminPermissions]);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -113,14 +89,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('🔄 AUTH: Processing state change:', event);
           
           const user = session?.user || null;
-          const isAdmin = user ? await checkAdminPermissions(user) : false;
 
           setState({
             user,
             session,
             loading: false,
             isAuthenticated: !!user && !!session,
-            isAdmin,
           });
         }, import.meta.env.DEV ? 100 : 0); // Small delay in development
       }
@@ -133,7 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       subscription.unsubscribe();
     };
-  }, [refreshAuth, checkAdminPermissions]);
+  }, [refreshAuth]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
