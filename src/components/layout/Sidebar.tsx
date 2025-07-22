@@ -177,37 +177,18 @@ export const Sidebar = ({ className }: SidebarProps) => {
       "bg-white border-r border-slate-200/60 flex flex-col h-full shadow-sm transition-all duration-300",
       !isMobile && isCollapsed ? "w-16" : "w-[280px]"
     )}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-slate-200/60 h-[88px]">
-        <div className={cn(
-          "flex items-center transition-opacity duration-200",
-          !isMobile && isCollapsed && "opacity-0"
-        )}>
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+      {/* Header - Logo sempre visível */}
+      <div className="flex items-center justify-center p-6 border-b border-slate-200/60 h-[88px]">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
           </div>
           {(!isMobile && !isCollapsed) && (
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-3">
               MadenAI
             </span>
           )}
         </div>
-        
-        {/* Desktop Toggle Button */}
-        {!isMobile && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleCollapsed}
-            className="p-2 hover:bg-slate-100"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-4 w-4 text-slate-500" />
-            ) : (
-              <ChevronLeft className="h-4 w-4 text-slate-500" />
-            )}
-          </Button>
-        )}
 
         {/* Close Button - mobile only */}
         {isMobile && (
@@ -215,7 +196,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
             variant="ghost"
             size="sm"
             onClick={() => setIsMobileOpen(false)}
-            className="p-2 hover:bg-slate-100"
+            className="absolute right-4 p-2 hover:bg-slate-100"
           >
             <X className="h-5 w-5 text-slate-500" />
           </Button>
@@ -274,9 +255,37 @@ export const Sidebar = ({ className }: SidebarProps) => {
         })}
       </div>
 
-      {/* Footer */}
+      {/* Botão de Toggle - Desktop collapsed */}
+      {(!isMobile && isCollapsed) && (
+        <div className="p-4 border-t border-slate-200/60">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleCollapsed}
+            className="w-full p-2 hover:bg-slate-100 flex justify-center"
+            title="Expandir menu"
+          >
+            <ChevronRight className="h-4 w-4 text-slate-500" />
+          </Button>
+        </div>
+      )}
+
+      {/* Footer - Versão expandida */}
       {(!isMobile && !isCollapsed) && (
         <div className="border-t border-slate-200/60 p-4 space-y-4">
+          {/* Botão de Toggle */}
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleCollapsed}
+              className="p-2 hover:bg-slate-100"
+              title="Recolher menu"
+            >
+              <ChevronLeft className="h-4 w-4 text-slate-500" />
+            </Button>
+          </div>
+
           {/* User Profile & Upgrade */}
           <div className="bg-slate-50/80 rounded-xl p-4">
             <div className="flex items-center mb-3">
@@ -321,7 +330,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Collapsed Footer - Avatar only */}
       {(!isMobile && isCollapsed) && (
         <div className="border-t border-slate-200/60 p-4 flex justify-center">
-          <Avatar className="h-8 w-8 ring-2 ring-white shadow-sm">
+          <Avatar className="h-8 w-8 ring-2 ring-white shadow-sm" title={user?.user_metadata?.full_name || 'Usuário'}>
             <AvatarImage src={avatarUrl} />
             <AvatarFallback className="bg-blue-500 text-white text-xs font-medium">
               {getAvatarFallback(userGender)}
