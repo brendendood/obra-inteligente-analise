@@ -176,7 +176,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
   const SidebarContent = () => (
     <div className={cn(
       "bg-white border-r border-slate-200/60 flex flex-col h-full shadow-sm transition-all duration-300",
-      !isMobile && isCollapsed ? "w-16" : "w-[280px]"
+      !isMobile && isCollapsed ? "w-20" : "w-[280px]"
     )}>
       {/* Header - Logo sempre visível */}
       <div className="flex items-center justify-center p-6 border-b border-slate-200/60 h-[88px]">
@@ -241,7 +241,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               )}
 
               <Icon className={cn(
-                "h-5 w-5 flex-shrink-0",
+                "h-6 w-6 flex-shrink-0",
                 (!isMobile && !isCollapsed) && "mr-3",
                 item.isActive ? "text-blue-600" : "text-slate-500"
               )} />
@@ -268,7 +268,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               className="p-3 hover:bg-slate-100 bg-slate-50 border border-slate-200"
               title="Recolher menu"
             >
-              <ChevronLeft className="h-6 w-6 text-slate-700" />
+              <ChevronLeft className="h-7 w-7 text-slate-700" />
             </Button>
           </div>
 
@@ -332,7 +332,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
             className="p-2 hover:bg-red-50 text-red-600"
             title="Sair"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-6 w-6" />
           </Button>
 
           {/* Botão de Toggle */}
@@ -343,7 +343,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
             className="p-3 hover:bg-slate-100 bg-slate-50 border border-slate-200"
             title="Expandir menu"
           >
-            <ChevronRight className="h-6 w-6 text-slate-700" />
+            <ChevronRight className="h-7 w-7 text-slate-700" />
           </Button>
         </div>
       )}
@@ -359,7 +359,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {!isMobile && (
         <div className={cn(
           "fixed left-0 top-0 h-screen z-40 transition-all duration-300",
-          isCollapsed ? "w-16" : "w-[280px]"
+          isCollapsed ? "w-20" : "w-[280px]"
         )}>
           <SidebarContent />
         </div>
