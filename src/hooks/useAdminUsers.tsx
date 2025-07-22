@@ -53,6 +53,84 @@ export function useAdminUsers() {
 
   useEffect(() => {
     loadUsers();
+    
+    // Configurar realtime subscriptions
+    console.log('🔄 ADMIN USERS: Configurando realtime subscriptions...');
+    
+    const profilesChannel = supabase
+      .channel('admin-user-profiles')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'user_profiles' },
+        (payload) => {
+          console.log('✅ REALTIME: Novo perfil criado:', payload.new);
+          toast({
+            title: "Novo usuário detectado",
+            description: "Um novo usuário se cadastrou na plataforma",
+          });
+          loadUsers(); // Recarregar dados completos
+        }
+      )
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'user_profiles' },
+        (payload) => {
+          console.log('✅ REALTIME: Perfil atualizado:', payload.new);
+          // Atualizar apenas o usuário específico
+          setUsers(prev => prev.map(user => 
+            user.user_id === payload.new.user_id 
+              ? { ...user, ...payload.new }
+              : user
+          ));
+        }
+      )
+      .on('postgres_changes', 
+        { event: 'DELETE', schema: 'public', table: 'user_profiles' },
+        (payload) => {
+          console.log('✅ REALTIME: Perfil removido:', payload.old);
+          setUsers(prev => prev.filter(user => user.user_id !== payload.old.user_id));
+        }
+      )
+      .subscribe();
+
+    const subscriptionsChannel = supabase
+      .channel('admin-user-subscriptions')
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'user_subscriptions' },
+        (payload) => {
+          console.log('✅ REALTIME: Assinatura atualizada:', payload.new);
+          // Atualizar subscription do usuário
+          setUsers(prev => prev.map(user => 
+            user.user_id === payload.new.user_id 
+              ? { 
+                  ...user, 
+                  subscription: { 
+                    plan: payload.new.plan, 
+                    status: payload.new.status 
+                  }
+                }
+              : user
+          ));
+        }
+      )
+      .subscribe();
+
+    const projectsChannel = supabase
+      .channel('admin-user-projects')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'projects' },
+        (payload) => {
+          console.log('✅ REALTIME: Novo projeto criado:', payload.new);
+          // Recarregar dados para atualizar estatísticas de projetos
+          loadUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔄 ADMIN USERS: Removendo realtime subscriptions...');
+      supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(subscriptionsChannel);
+      supabase.removeChannel(projectsChannel);
+    };
   }, []);
 
   const loadUsers = async () => {

@@ -13,7 +13,8 @@ export const AdminUsersManagement = () => {
     filterPlan,
     setFilterPlan,
     updateUserTags,
-    updateUserPlan
+    updateUserPlan,
+    refreshUsers
   } = useAdminUsers();
 
   const clearFilters = () => {
@@ -36,7 +37,11 @@ export const AdminUsersManagement = () => {
 
   return (
     <div className="space-y-6">
-      <UsersHeader totalUsers={users.length} />
+      <UsersHeader 
+        totalUsers={users.length} 
+        onRefresh={refreshUsers}
+        isRefreshing={loading}
+      />
       
       <UsersFilters
         searchTerm={searchTerm}
