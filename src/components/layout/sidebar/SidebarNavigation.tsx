@@ -24,12 +24,12 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar';
-import { useAuth } from '@/hooks/useAuth';
+import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 
 export const SidebarNavigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin } = useUnifiedAdmin();
   const { open } = useSidebar();
 
   const mainNavItems = [

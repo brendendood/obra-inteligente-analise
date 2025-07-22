@@ -36,8 +36,8 @@ export function useUnifiedAdmin() {
           setTimeout(() => reject(new Error('Admin check timeout')), 8000)
         );
         
-        // Tentar primeira abordagem: check_admin_permissions
-        const adminCheckPromise = supabase.rpc('check_admin_permissions');
+        // Tentar primeira abordagem: is_superuser (função que criamos)
+        const adminCheckPromise = supabase.rpc('is_superuser');
         
         const { data: adminCheck, error: adminError } = await Promise.race([
           adminCheckPromise, 
@@ -47,9 +47,9 @@ export function useUnifiedAdmin() {
         if (adminError) {
           console.error('❌ UNIFIED ADMIN: Erro na primeira verificação:', adminError);
           
-          // Fallback: tentar is_superuser
-          console.log('🔄 UNIFIED ADMIN: Tentando fallback com is_superuser...');
-          const { data: fallbackCheck, error: fallbackError } = await supabase.rpc('is_superuser');
+          // Fallback: tentar is_admin (função alternativa)
+          console.log('🔄 UNIFIED ADMIN: Tentando fallback com is_admin...');
+          const { data: fallbackCheck, error: fallbackError } = await supabase.rpc('is_admin');
           
           if (fallbackError) {
             console.error('❌ UNIFIED ADMIN: Erro no fallback:', fallbackError);
