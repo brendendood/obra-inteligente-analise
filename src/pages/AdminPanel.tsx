@@ -36,19 +36,38 @@ const AdminPanel = () => {
 
   console.log('🔄 ADMIN PANEL: Renderizando...', { loading, isAdmin, error, user: user?.email });
 
-  // Loading otimizado com informações de debug
+  // Loading com debug detalhado
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando painel administrativo...</p>
-          <p className="text-sm text-gray-500">Verificando permissões para: {user?.email}</p>
-          <Button variant="outline" onClick={forceRefresh} className="mt-4">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Forçar Atualização
-          </Button>
-        </div>
+        <Card className="w-full max-w-lg">
+          <CardHeader className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <CardTitle>Verificando Acesso Admin</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-gray-600">Email:</span>
+                <p className="break-all">{user?.email || 'Não logado'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-600">Status:</span>
+                <Badge variant="secondary">Verificando...</Badge>
+              </div>
+            </div>
+            
+            <div className="border-t pt-4">
+              <p className="text-sm text-gray-600 mb-3">
+                🔍 Executando verificação tripla de permissões...
+              </p>
+              <Button variant="outline" onClick={forceRefresh} className="w-full">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Forçar Nova Verificação
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

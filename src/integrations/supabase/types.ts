@@ -878,6 +878,14 @@ export type Database = {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
       }
+      check_admin_by_email: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
+      check_user_admin_status: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       example_function: {
         Args: Record<PropertyKey, never>
         Returns: {

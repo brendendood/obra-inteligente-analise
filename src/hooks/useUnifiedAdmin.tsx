@@ -29,42 +29,72 @@ export function useUnifiedAdmin() {
       }
 
       try {
-        console.log('🔍 UNIFIED ADMIN: Verificando status admin para:', user.email);
+        console.log('🔍 UNIFIED ADMIN: Iniciando verificação tripla para:', user.email, 'ID:', user.id);
+        setError(null);
         
-        // Verificar com timeout para evitar loading infinito
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Admin check timeout')), 8000)
-        );
+        // PRIMEIRA TENTATIVA: Query direta na tabela admin_permissions
+        console.log('📊 UNIFIED ADMIN: Tentativa 1 - Query direta admin_permissions...');
+        const { data: directCheck, error: directError } = await supabase
+          .from('admin_permissions')
+          .select('role, active')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .in('role', ['super_admin', 'marketing', 'financial', 'support'])
+          .limit(1);
         
-        // Tentar primeira abordagem: is_superuser (função que criamos)
-        const adminCheckPromise = supabase.rpc('is_superuser');
-        
-        const { data: adminCheck, error: adminError } = await Promise.race([
-          adminCheckPromise, 
-          timeoutPromise
-        ]) as any;
-        
-        if (adminError) {
-          console.error('❌ UNIFIED ADMIN: Erro na primeira verificação:', adminError);
-          
-          // Fallback: tentar is_admin (função alternativa)
-          console.log('🔄 UNIFIED ADMIN: Tentando fallback com is_admin...');
-          const { data: fallbackCheck, error: fallbackError } = await supabase.rpc('is_admin');
-          
-          if (fallbackError) {
-            console.error('❌ UNIFIED ADMIN: Erro no fallback:', fallbackError);
-            setError(`Erro ao verificar permissões: ${fallbackError.message}`);
-            setIsAdmin(false);
-          } else {
-            console.log('✅ UNIFIED ADMIN: Fallback bem-sucedido:', fallbackCheck);
-            setIsAdmin(!!fallbackCheck);
-          }
+        if (!directError && directCheck && directCheck.length > 0) {
+          console.log('✅ UNIFIED ADMIN: Query direta bem-sucedida! Roles encontradas:', directCheck);
+          setIsAdmin(true);
+          setLoading(false);
+          return;
         } else {
-          console.log('✅ UNIFIED ADMIN: Status verificado:', adminCheck ? 'É ADMIN' : 'NÃO É ADMIN');
-          setIsAdmin(!!adminCheck);
+          console.log('⚠️ UNIFIED ADMIN: Query direta não encontrou permissões:', { directError, directCheck });
         }
+
+        // SEGUNDA TENTATIVA: Usar RPC com user_id como parâmetro
+        console.log('🔧 UNIFIED ADMIN: Tentativa 2 - RPC check_user_admin_status...');
+        const { data: rpcCheck, error: rpcError } = await supabase.rpc('check_user_admin_status', {
+          target_user_id: user.id
+        });
+        
+        if (!rpcError && rpcCheck) {
+          console.log('✅ UNIFIED ADMIN: RPC check_user_admin_status bem-sucedido:', rpcCheck);
+          setIsAdmin(true);
+          setLoading(false);
+          return;
+        } else {
+          console.log('⚠️ UNIFIED ADMIN: RPC check_user_admin_status falhou:', { rpcError, rpcCheck });
+        }
+
+        // TERCEIRA TENTATIVA: Verificar na tabela admin_users por email
+        console.log('📧 UNIFIED ADMIN: Tentativa 3 - Verificação por email na admin_users...');
+        const { data: emailCheck, error: emailError } = await supabase.rpc('check_admin_by_email', {
+          user_email: user.email
+        });
+        
+        if (!emailError && emailCheck) {
+          console.log('✅ UNIFIED ADMIN: Verificação por email bem-sucedida:', emailCheck);
+          setIsAdmin(true);
+          setLoading(false);
+          return;
+        } else {
+          console.log('⚠️ UNIFIED ADMIN: Verificação por email falhou:', { emailError, emailCheck });
+        }
+
+        // FALLBACK FINAL: Verificar se é superuser PostgreSQL
+        console.log('🔄 UNIFIED ADMIN: Tentativa final - is_superuser...');
+        const { data: superuserCheck, error: superuserError } = await supabase.rpc('is_superuser');
+        
+        if (!superuserError && superuserCheck) {
+          console.log('✅ UNIFIED ADMIN: Superuser check bem-sucedido:', superuserCheck);
+          setIsAdmin(true);
+        } else {
+          console.log('❌ UNIFIED ADMIN: Todas as verificações falharam - NÃO É ADMIN');
+          setIsAdmin(false);
+        }
+
       } catch (error) {
-        console.error('💥 UNIFIED ADMIN: Erro crítico:', error);
+        console.error('💥 UNIFIED ADMIN: Erro crítico durante verificação:', error);
         setError(`Erro crítico: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
         setIsAdmin(false);
       } finally {
