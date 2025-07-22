@@ -51,7 +51,7 @@ export const AdminUsersManagement = () => {
         {users.map((user) => (
           <UserCard
             key={user.id}
-            user={user}
+            user={{...user, sector: user.company || null}}
             onUpdateTags={updateUserTags}
             onUpdatePlan={updateUserPlan}
           />

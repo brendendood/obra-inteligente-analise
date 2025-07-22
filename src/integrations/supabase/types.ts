@@ -533,13 +533,170 @@ export type Database = {
         }
         Relationships: []
       }
+      user_analytics_enhanced: {
+        Row: {
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          page_url: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
+      user_login_history: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string | null
+          device_type: string | null
+          id: string
+          ip_address: unknown | null
+          latitude: number | null
+          login_at: string | null
+          longitude: number | null
+          os: string | null
+          region: string | null
+          session_duration: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          latitude?: number | null
+          login_at?: string | null
+          longitude?: number | null
+          os?: string | null
+          region?: string | null
+          session_duration?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          latitude?: number | null
+          login_at?: string | null
+          longitude?: number | null
+          os?: string | null
+          region?: string | null
+          session_duration?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_payments: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          invoice_url: string | null
+          next_payment_date: string | null
+          payment_method: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          invoice_url?: string | null
+          next_payment_date?: string | null
+          payment_method?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          invoice_url?: string | null
+          next_payment_date?: string | null
+          payment_method?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
+          avatar_type: string | null
+          avatar_url: string | null
+          bio: string | null
+          cargo: string | null
           city: string | null
           company: string | null
           country: string | null
           created_at: string
+          date_of_birth: string | null
+          empresa: string | null
           full_name: string | null
+          gender: string | null
           id: string
           last_login: string | null
           phone: string | null
@@ -547,6 +704,7 @@ export type Database = {
           sector: string | null
           state: string | null
           tags: string[] | null
+          timezone: string | null
           updated_at: string
           user_id: string | null
           utm_campaign: string | null
@@ -554,11 +712,18 @@ export type Database = {
           utm_source: string | null
         }
         Insert: {
+          avatar_type?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          cargo?: string | null
           city?: string | null
           company?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
+          empresa?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           last_login?: string | null
           phone?: string | null
@@ -566,6 +731,7 @@ export type Database = {
           sector?: string | null
           state?: string | null
           tags?: string[] | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string | null
           utm_campaign?: string | null
@@ -573,11 +739,18 @@ export type Database = {
           utm_source?: string | null
         }
         Update: {
+          avatar_type?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          cargo?: string | null
           city?: string | null
           company?: string | null
           country?: string | null
           created_at?: string
+          date_of_birth?: string | null
+          empresa?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           last_login?: string | null
           phone?: string | null
@@ -585,6 +758,7 @@ export type Database = {
           sector?: string | null
           state?: string | null
           tags?: string[] | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string | null
           utm_campaign?: string | null

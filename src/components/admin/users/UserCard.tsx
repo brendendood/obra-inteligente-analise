@@ -77,8 +77,8 @@ export const UserCard = ({ user, onUpdateTags, onUpdatePlan }: UserCardProps) =>
             </div>
           </div>
           <div className="flex gap-2">
-            <Badge className={getPlanColor(user.subscription?.plan || 'free')}>
-              {user.subscription?.plan?.toUpperCase() || 'FREE'}
+            <Badge className={getPlanColor(user.subscription?.plan || 'basic')}>
+              {user.subscription?.plan?.toUpperCase() || 'BASIC'}
             </Badge>
             <Badge className={getStatusColor(user.subscription?.status || 'active')}>
               {user.subscription?.status || 'active'}
@@ -178,7 +178,7 @@ export const UserCard = ({ user, onUpdateTags, onUpdatePlan }: UserCardProps) =>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="enterprise">Enterprise</SelectItem>
               </SelectContent>

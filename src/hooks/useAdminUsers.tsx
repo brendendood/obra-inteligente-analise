@@ -9,16 +9,38 @@ interface AdminUser {
   email: string;
   full_name: string | null;
   company: string | null;
+  cargo: string | null;
+  empresa: string | null;
   phone: string | null;
   city: string | null;
   state: string | null;
-  sector: string | null;
+  country: string | null;
+  gender: string | null;
+  avatar_url: string | null;
+  avatar_type: string | null;
+  bio: string | null;
   tags: string[] | null;
   last_login: string | null;
   created_at: string;
   subscription: {
     plan: string;
     status: string;
+  } | null;
+  login_history: {
+    total_logins: number;
+    last_ip: string | null;
+    last_location: string | null;
+    last_device: string | null;
+  } | null;
+  projects: {
+    total: number;
+    active: number;
+    last_activity: string | null;
+  } | null;
+  analytics: {
+    total_sessions: number;
+    avg_session_duration: number;
+    last_activity: string | null;
   } | null;
 }
 
@@ -36,8 +58,9 @@ export function useAdminUsers() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔄 ADMIN USERS: Carregando usuários...');
+      console.log('🔄 ADMIN USERS: Carregando usuários completos...');
 
+      // Buscar perfis com assinaturas
       const { data: profiles, error } = await supabase
         .from('user_profiles')
         .select(`
@@ -47,7 +70,7 @@ export function useAdminUsers() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ ADMIN USERS: Erro ao carregar usuários:', error);
+        console.error('❌ ADMIN USERS: Erro ao carregar perfis:', error);
         toast({
           title: "Erro ao carregar usuários",
           description: error.message,
@@ -58,12 +81,32 @@ export function useAdminUsers() {
 
       // Buscar emails dos usuários via auth
       const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      
       if (authError) {
         console.error('❌ ADMIN USERS: Erro ao buscar auth users:', authError);
       }
-
       const authUsers = authData?.users || [];
+
+      // Buscar histórico de login para cada usuário
+      const userIds = (profiles || []).map(p => p.user_id).filter(Boolean);
+      
+      const { data: loginHistory } = await supabase
+        .from('user_login_history')
+        .select('user_id, login_at, ip_address, city, country, device_type, browser')
+        .in('user_id', userIds)
+        .order('login_at', { ascending: false });
+
+      // Buscar projetos para cada usuário
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('user_id, id, project_status, updated_at')
+        .in('user_id', userIds);
+
+      // Buscar analytics para cada usuário
+      const { data: analytics } = await supabase
+        .from('user_analytics_enhanced')
+        .select('user_id, event_type, created_at, session_id')
+        .in('user_id', userIds)
+        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
       // Mapear dados combinados
       const mappedUsers: AdminUser[] = (profiles || []).map(profile => {
@@ -72,24 +115,58 @@ export function useAdminUsers() {
           ? profile.user_subscriptions[0] 
           : null;
 
+        // Calcular estatísticas de login
+        const userLogins = loginHistory?.filter(l => l.user_id === profile.user_id) || [];
+        const lastLogin = userLogins[0];
+
+        // Calcular estatísticas de projetos
+        const userProjects = projects?.filter(p => p.user_id === profile.user_id) || [];
+        const activeProjects = userProjects.filter(p => p.project_status !== 'archived').length;
+
+        // Calcular estatísticas de analytics
+        const userAnalytics = analytics?.filter(a => a.user_id === profile.user_id) || [];
+        const uniqueSessions = new Set(userAnalytics.map(a => a.session_id)).size;
+
         return {
           id: profile.id,
           user_id: profile.user_id || '',
           email: authUser?.email || 'Email não encontrado',
           full_name: profile.full_name,
           company: profile.company,
+          cargo: profile.cargo,
+          empresa: profile.empresa,
           phone: profile.phone,
           city: profile.city,
           state: profile.state,
-          sector: profile.sector,
+          country: profile.country,
+          gender: profile.gender,
+          avatar_url: profile.avatar_url,
+          avatar_type: profile.avatar_type,
+          bio: profile.bio,
           tags: profile.tags,
           last_login: profile.last_login,
           created_at: profile.created_at,
           subscription: subscription,
+          login_history: {
+            total_logins: userLogins.length,
+            last_ip: lastLogin?.ip_address?.toString() || null,
+            last_location: lastLogin ? `${lastLogin.city || ''}, ${lastLogin.country || ''}`.trim().replace(/^,|,$/, '') || null : null,
+            last_device: lastLogin ? `${lastLogin.device_type || ''} - ${lastLogin.browser || ''}`.trim().replace(/^-|-$/, '') || null : null,
+          },
+          projects: {
+            total: userProjects.length,
+            active: activeProjects,
+            last_activity: userProjects.length > 0 ? userProjects[0]?.updated_at || null : null,
+          },
+          analytics: {
+            total_sessions: uniqueSessions,
+            avg_session_duration: 0, // Implementar se necessário
+            last_activity: userAnalytics.length > 0 ? userAnalytics[0]?.created_at || null : null,
+          }
         };
       });
 
-      console.log('✅ ADMIN USERS: Usuários carregados:', mappedUsers.length);
+      console.log('✅ ADMIN USERS: Usuários carregados com dados completos:', mappedUsers.length);
       setUsers(mappedUsers);
     } catch (error) {
       console.error('💥 ADMIN USERS: Erro crítico:', error);
