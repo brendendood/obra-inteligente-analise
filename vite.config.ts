@@ -19,11 +19,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
-    react({
-      // Configurações otimizadas para desenvolvimento
-      fastRefresh: mode === 'development',
-      jsxRuntime: 'automatic',
-    }),
+    react(),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
