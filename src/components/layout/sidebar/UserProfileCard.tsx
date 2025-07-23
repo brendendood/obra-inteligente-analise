@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
-import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
@@ -13,14 +12,26 @@ interface UserProfileCardProps {
 
 export const UserProfileCard = ({ isCollapsed, onClick }: UserProfileCardProps) => {
   const { user } = useAuth();
-  const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
   
   // Estado para dados do perfil
   const [profileData, setProfileData] = useState({
     full_name: '',
-    avatar_url: '',
-    gender: 'neutral'
+    initials: ''
   });
+
+  // Função para gerar iniciais
+  const getInitials = (fullName: string): string => {
+    if (!fullName) return user?.email?.charAt(0)?.toUpperCase() || '?';
+    
+    const names = fullName.trim().split(' ');
+    if (names.length === 1) {
+      return names[0].charAt(0).toUpperCase();
+    }
+    
+    const firstName = names[0].charAt(0).toUpperCase();
+    const lastName = names[names.length - 1].charAt(0).toUpperCase();
+    return `${firstName}${lastName}`;
+  };
 
   // Carregar dados do perfil
   useEffect(() => {
@@ -29,25 +40,40 @@ export const UserProfileCard = ({ isCollapsed, onClick }: UserProfileCardProps) 
     }
   }, [user?.id]);
 
+  // Escutar eventos de atualização de perfil
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      loadUserProfile();
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
+  }, []);
+
   const loadUserProfile = async () => {
     if (!user?.id) return;
 
     try {
       const { data: profile } = await supabase
         .from('user_profiles')
-        .select('full_name, avatar_url, gender')
+        .select('full_name')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (profile) {
-        setProfileData({
-          full_name: profile.full_name || 'Usuário',
-          avatar_url: profile.avatar_url || getDefaultAvatarUrl(profile.gender),
-          gender: profile.gender || 'neutral'
-        });
-      }
+      const fullName = profile?.full_name || user?.user_metadata?.full_name || 'Usuário';
+      setProfileData({
+        full_name: fullName,
+        initials: getInitials(fullName)
+      });
     } catch (error) {
       console.error('Error loading user profile:', error);
+      setProfileData({
+        full_name: 'Usuário',
+        initials: getInitials('')
+      });
     }
   };
 
@@ -62,9 +88,8 @@ export const UserProfileCard = ({ isCollapsed, onClick }: UserProfileCardProps) 
         title={isCollapsed ? profileData.full_name : undefined}
       >
         <Avatar className="h-8 w-8 flex-shrink-0">
-          <AvatarImage src={profileData.avatar_url} />
-          <AvatarFallback className="bg-blue-600 text-white text-xs">
-            {getAvatarFallback(profileData.gender)}
+          <AvatarFallback className="bg-blue-600 text-white text-xs font-medium">
+            {profileData.initials}
           </AvatarFallback>
         </Avatar>
         {!isCollapsed && (
