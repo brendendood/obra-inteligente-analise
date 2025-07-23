@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useProjectStore } from '@/stores/projectStore';
 import { Project } from '@/types/project';
 
 interface ProjectDetailContextType {
@@ -24,23 +25,48 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const { getProjectById, fetchProjects, projects } = useProjectStore();
 
   const fetchProject = useCallback(async () => {
     if (!projectId) {
-      console.log('1. Nenhum projectId fornecido na URL');
+      console.log('🔍 PROJECT DETAIL: Nenhum projectId fornecido na URL');
       setError('ID do projeto não fornecido');
       setIsLoading(false);
       return;
     }
 
-    console.log('1. Iniciando busca de dados para o projeto ID:', projectId);
+    console.log('🔍 PROJECT DETAIL: Iniciando busca inteligente para projeto ID:', projectId);
     
     try {
       setIsLoading(true);
       setError(null);
       
-      console.log('2. Fazendo busca no Supabase...');
+      // 1. PRIMEIRA TENTATIVA: Buscar no ProjectStore (cache)
+      console.log('📦 PROJECT DETAIL: Verificando ProjectStore primeiro...');
+      const cachedProject = getProjectById(projectId);
       
+      if (cachedProject) {
+        console.log('✅ PROJECT DETAIL: Projeto encontrado no cache:', cachedProject.name);
+        setProject(cachedProject);
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. SEGUNDA TENTATIVA: Forçar refresh do ProjectStore
+      console.log('🔄 PROJECT DETAIL: Projeto não encontrado no cache, atualizando dados...');
+      await fetchProjects();
+      
+      // Verificar novamente após o refresh
+      const refreshedProject = getProjectById(projectId);
+      if (refreshedProject) {
+        console.log('✅ PROJECT DETAIL: Projeto encontrado após refresh:', refreshedProject.name);
+        setProject(refreshedProject);
+        setIsLoading(false);
+        return;
+      }
+
+      // 3. TERCEIRA TENTATIVA: Busca direta no Supabase (fallback)
+      console.log('🌐 PROJECT DETAIL: Fazendo busca direta no Supabase como fallback...');
       const { data: projectDataFromAPI, error: fetchError } = await supabase
         .from('projects')
         .select('*')
@@ -48,50 +74,62 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
         .maybeSingle();
 
       if (fetchError) {
-        console.error('3. Erro do Supabase ao buscar dados:', fetchError);
+        console.error('❌ PROJECT DETAIL: Erro do Supabase:', fetchError);
         const errorMessage = `Erro ao carregar projeto: ${fetchError.message}`;
         setError(errorMessage);
         toast({
           title: "Erro ao carregar projeto",
-          description: "Não foi possível carregar os dados do projeto. Tente novamente.",
+          description: "Não foi possível carregar os dados do projeto. Clique em 'Atualizar Projetos' e tente novamente.",
           variant: "destructive",
         });
         return;
       }
 
       if (!projectDataFromAPI) {
-        console.log('3. Nenhum projeto encontrado com o ID fornecido');
-        setError('Projeto não encontrado');
+        console.log('❌ PROJECT DETAIL: Nenhum projeto encontrado');
+        setError('Projeto não encontrado - dados podem não estar sincronizados');
         toast({
           title: "Projeto não encontrado",
-          description: "O projeto que você está tentando acessar não foi encontrado.",
+          description: "Os dados podem não estar sincronizados. Clique em 'Atualizar Projetos' no painel principal.",
           variant: "destructive",
         });
         return;
       }
 
-      console.log('2. Dados recebidos com sucesso:', projectDataFromAPI);
+      console.log('✅ PROJECT DETAIL: Projeto encontrado via Supabase:', projectDataFromAPI.name);
       setProject(projectDataFromAPI);
       
     } catch (error) {
-      console.error('3. Erro inesperado durante a busca:', error);
+      console.error('💥 PROJECT DETAIL: Erro inesperado:', error);
       const errorMessage = 'Erro inesperado ao carregar projeto';
       setError(errorMessage);
       toast({
         title: "Erro ao carregar projeto",
-        description: "Não foi possível carregar os dados do projeto. Tente novamente.",
+        description: "Erro inesperado. Tente atualizar a página ou clique em 'Atualizar Projetos'.",
         variant: "destructive",
       });
     } finally {
-      console.log('4. Busca de dados finalizada. isLoading será definido como false.');
+      console.log('🏁 PROJECT DETAIL: Busca finalizada');
       setIsLoading(false);
     }
-  }, [projectId, toast]);
+  }, [projectId, toast, getProjectById, fetchProjects]);
 
   useEffect(() => {
-    console.log('useEffect disparado. ProjectId atual:', projectId);
+    console.log('🎯 PROJECT DETAIL: useEffect disparado. ProjectId atual:', projectId);
     fetchProject();
   }, [fetchProject]);
+
+  // Auto-sync quando o ProjectStore é atualizado
+  useEffect(() => {
+    if (projectId && projects.length > 0) {
+      const updatedProject = getProjectById(projectId);
+      if (updatedProject && (!project || project.updated_at !== updatedProject.updated_at)) {
+        console.log('🔄 PROJECT DETAIL: Sincronizando com ProjectStore atualizado');
+        setProject(updatedProject);
+        setError(null);
+      }
+    }
+  }, [projects, projectId, getProjectById, project]);
 
   const value: ProjectDetailContextType = {
     project,
@@ -100,12 +138,13 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
     refetchProject: fetchProject
   };
 
-  console.log('Provider renderizado. Estado atual:', {
+  console.log('🎬 PROJECT DETAIL: Provider renderizado. Estado atual:', {
     projectId,
     hasProject: !!project,
     isLoading,
     error,
-    projectName: project?.name
+    projectName: project?.name,
+    cacheSize: projects.length
   });
 
   return (

@@ -13,7 +13,7 @@ export const useProjectMigration = () => {
     setIsMigrating(true);
     
     try {
-      console.log('🔄 Iniciando migração de projetos...');
+      console.log('🔄 Iniciando atualização de projetos...');
       
       const { data, error } = await supabase.functions.invoke('migrate-projects', {
         body: {}
@@ -23,11 +23,11 @@ export const useProjectMigration = () => {
         throw error;
       }
 
-      console.log('✅ Migração concluída:', data);
+      console.log('✅ Atualização concluída:', data);
       
       toast({
-        title: "🎉 Migração concluída!",
-        description: `${data.summary.successfulMigrations} projeto(s) foram atualizados com dados de orçamento e cronograma.`,
+        title: "🎉 Projetos atualizados!",
+        description: `${data.summary.successfulMigrations} projeto(s) foram sincronizados com dados de orçamento e cronograma.`,
       });
 
       // Forçar refresh dos projetos para mostrar os dados atualizados
@@ -35,11 +35,11 @@ export const useProjectMigration = () => {
       
       return data;
     } catch (error) {
-      console.error('❌ Erro na migração:', error);
+      console.error('❌ Erro na atualização:', error);
       
       toast({
-        title: "❌ Erro na migração",
-        description: error instanceof Error ? error.message : "Não foi possível migrar os projetos.",
+        title: "❌ Erro na atualização",
+        description: error instanceof Error ? error.message : "Não foi possível atualizar os projetos.",
         variant: "destructive",
       });
       

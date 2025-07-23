@@ -49,8 +49,8 @@ export const MigrationButton = () => {
         {isMigrating && (
           <>
             <RefreshCw className="h-4 w-4 mr-2 animate-spin text-blue-600" />
-            <span className="hidden sm:inline">Migrando...</span>
-            <span className="sm:hidden">Migrando</span>
+            <span className="hidden sm:inline">Atualizando...</span>
+            <span className="sm:hidden">Atualizando</span>
           </>
         )}
         
@@ -58,8 +58,8 @@ export const MigrationButton = () => {
         {!isMigrating && (
           <>
             <Database className="h-4 w-4 mr-2 text-blue-600" />
-            <span className="hidden sm:inline">Migrar Projetos</span>
-            <span className="sm:hidden">Migrar</span>
+            <span className="hidden sm:inline">Atualizar Projetos</span>
+            <span className="sm:hidden">Atualizar</span>
           </>
         )}
         
