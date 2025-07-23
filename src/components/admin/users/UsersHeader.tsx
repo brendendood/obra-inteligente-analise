@@ -1,36 +1,36 @@
 
-import { Filter, RefreshCw } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Users, RefreshCw } from 'lucide-react';
 
 interface UsersHeaderProps {
   totalUsers: number;
-  onRefresh?: () => void;
-  isRefreshing?: boolean;
+  onRefresh: () => void;
+  isRefreshing: boolean;
 }
 
 export const UsersHeader = ({ totalUsers, onRefresh, isRefreshing }: UsersHeaderProps) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Gestão de Usuários</h1>
-        <p className="text-gray-600 mt-1">
-          {totalUsers} usuários registrados
-          <span className="text-green-600 text-sm ml-2">• Tempo real ativo</span>
-        </p>
-      </div>
-      
-      {onRefresh && (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-2xl font-bold flex items-center gap-2">
+          <Users className="h-6 w-6" />
+          Gerenciamento de Usuários
+        </CardTitle>
         <Button 
+          variant="outline" 
           onClick={onRefresh}
           disabled={isRefreshing}
-          variant="outline"
-          size="sm"
-          className="flex items-center gap-2"
         >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          Atualizar
         </Button>
-      )}
-    </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-sm text-gray-600">
+          Total de {totalUsers} usuários registrados na plataforma
+        </div>
+      </CardContent>
+    </Card>
   );
 };

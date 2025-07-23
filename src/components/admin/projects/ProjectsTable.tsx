@@ -8,22 +8,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Edit, Trash2, MapPin, Calendar, DollarSign, Building } from 'lucide-react';
 
-interface Project {
+interface AdminProject {
   id: string;
   name: string;
   user_id: string;
-  city: string;
-  state: string;
-  project_type: string;
+  city: string | null;
+  state: string | null;
+  project_type: string | null;
   project_status: string;
-  total_area: number;
-  estimated_budget: number;
+  total_area: number | null;
+  estimated_budget: number | null;
   created_at: string;
   updated_at: string;
+  user_name: string | null;
 }
 
 interface ProjectsTableProps {
-  projects: Project[];
+  projects: AdminProject[];
   onUpdateStatus: (projectId: string, newStatus: string) => Promise<void>;
   onDelete: (projectId: string) => Promise<void>;
 }
@@ -42,7 +43,7 @@ export const ProjectsTable = ({ projects, onUpdateStatus, onDelete }: ProjectsTa
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeColor = (type: string | null) => {
     switch (type) {
       case 'residencial': return 'bg-blue-100 text-blue-800';
       case 'comercial': return 'bg-purple-100 text-purple-800';
@@ -69,7 +70,8 @@ export const ProjectsTable = ({ projects, onUpdateStatus, onDelete }: ProjectsTa
     }
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: number | null) => {
+    if (!value) return 'N/A';
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
@@ -100,6 +102,7 @@ export const ProjectsTable = ({ projects, onUpdateStatus, onDelete }: ProjectsTa
           <TableHeader>
             <TableRow>
               <TableHead>Projeto</TableHead>
+              <TableHead>Usuário</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Localização</TableHead>
@@ -117,6 +120,9 @@ export const ProjectsTable = ({ projects, onUpdateStatus, onDelete }: ProjectsTa
                     <p className="font-medium text-gray-900">{project.name}</p>
                     <p className="text-sm text-gray-500">ID: {project.id.slice(0, 8)}...</p>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm">{project.user_name || 'Usuário não encontrado'}</span>
                 </TableCell>
                 <TableCell>
                   <Badge className={getTypeColor(project.project_type)}>
@@ -158,9 +164,7 @@ export const ProjectsTable = ({ projects, onUpdateStatus, onDelete }: ProjectsTa
                 <TableCell>
                   <div className="flex items-center gap-1 text-sm">
                     <DollarSign className="h-4 w-4 text-gray-400" />
-                    <span>
-                      {project.estimated_budget ? formatCurrency(project.estimated_budget) : 'N/A'}
-                    </span>
+                    <span>{formatCurrency(project.estimated_budget)}</span>
                   </div>
                 </TableCell>
                 <TableCell>

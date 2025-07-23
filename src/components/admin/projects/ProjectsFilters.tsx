@@ -1,8 +1,8 @@
 
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, X } from 'lucide-react';
 
 interface ProjectsFiltersProps {
   searchTerm: string;
@@ -24,57 +24,48 @@ export const ProjectsFilters = ({
   onClearFilters
 }: ProjectsFiltersProps) => {
   return (
-    <div className="bg-white p-6 rounded-lg border">
-      <div className="flex items-center gap-2 mb-4">
-        <Filter className="h-5 w-5 text-gray-500" />
-        <h3 className="text-lg font-medium text-gray-900">Filtros de Projeto</h3>
+    <div className="flex gap-4 items-center flex-wrap">
+      <div className="relative flex-1 min-w-[200px]">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        <Input
+          placeholder="Buscar projetos ou usuários..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10"
+        />
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* Busca */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            placeholder="Buscar projetos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+      <Select value={filterStatus} onValueChange={setFilterStatus}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos status</SelectItem>
+          <SelectItem value="draft">Rascunho</SelectItem>
+          <SelectItem value="active">Ativo</SelectItem>
+          <SelectItem value="completed">Concluído</SelectItem>
+          <SelectItem value="archived">Arquivado</SelectItem>
+        </SelectContent>
+      </Select>
 
-        {/* Status */}
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger>
-            <SelectValue placeholder="Status do projeto" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todos os status</SelectItem>
-            <SelectItem value="draft">Rascunho</SelectItem>
-            <SelectItem value="active">Ativo</SelectItem>
-            <SelectItem value="completed">Concluído</SelectItem>
-            <SelectItem value="archived">Arquivado</SelectItem>
-          </SelectContent>
-        </Select>
+      <Select value={filterType} onValueChange={setFilterType}>
+        <SelectTrigger className="w-40">
+          <SelectValue placeholder="Tipo" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todos tipos</SelectItem>
+          <SelectItem value="residencial">Residencial</SelectItem>
+          <SelectItem value="comercial">Comercial</SelectItem>
+          <SelectItem value="industrial">Industrial</SelectItem>
+        </SelectContent>
+      </Select>
 
-        {/* Tipo */}
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger>
-            <SelectValue placeholder="Tipo de projeto" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">Todos os tipos</SelectItem>
-            <SelectItem value="residencial">Residencial</SelectItem>
-            <SelectItem value="comercial">Comercial</SelectItem>
-            <SelectItem value="industrial">Industrial</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Limpar filtros */}
-        <Button variant="outline" onClick={onClearFilters} className="flex items-center gap-2">
-          <X className="h-4 w-4" />
+      {(searchTerm || filterStatus !== 'all' || filterType !== 'all') && (
+        <Button variant="outline" onClick={onClearFilters}>
+          <X className="h-4 w-4 mr-2" />
           Limpar Filtros
         </Button>
-      </div>
+      )}
     </div>
   );
 };

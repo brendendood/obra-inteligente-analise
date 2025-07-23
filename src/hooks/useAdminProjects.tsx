@@ -24,8 +24,8 @@ export const useAdminProjects = () => {
   const [projects, setProjects] = useState<AdminProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  const [filterType, setFilterType] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
   const { toast } = useToast();
 
   const loadProjects = async () => {
@@ -155,8 +155,8 @@ export const useAdminProjects = () => {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setFilterStatus('');
-    setFilterType('');
+    setFilterStatus('all');
+    setFilterType('all');
   };
 
   useEffect(() => {
@@ -169,8 +169,8 @@ export const useAdminProjects = () => {
       project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       project.user_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = !filterStatus || project.project_status === filterStatus;
-    const matchesType = !filterType || project.project_type === filterType;
+    const matchesStatus = filterStatus === 'all' || project.project_status === filterStatus;
+    const matchesType = filterType === 'all' || project.project_type === filterType;
 
     return matchesSearch && matchesStatus && matchesType;
   });

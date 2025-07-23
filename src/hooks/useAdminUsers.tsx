@@ -24,7 +24,7 @@ export const useAdminUsers = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterPlan, setFilterPlan] = useState('');
+  const [filterPlan, setFilterPlan] = useState('all');
   const { toast } = useToast();
 
   const loadUsers = async () => {
@@ -32,7 +32,7 @@ export const useAdminUsers = () => {
       setLoading(true);
       console.log('👥 ADMIN USERS: Carregando usuários reais...');
 
-      // Carregar perfis de usuários com dados de auth.users
+      // Carregar perfis de usuários
       const { data: profiles, error: profilesError } = await supabase
         .from('user_profiles')
         .select('*');
@@ -46,23 +46,7 @@ export const useAdminUsers = () => {
 
       if (subsError) throw subsError;
 
-      // Carregar emails dos usuários autenticados
-      const { data: authUsers, error: authError } = await supabase
-        .from('user_profiles')
-        .select(`
-          user_id,
-          full_name,
-          company,
-          phone,
-          city,
-          state,
-          tags,
-          created_at
-        `);
-
-      if (authError) throw authError;
-
-      // Combinar dados e buscar emails via RPC (se necessário)
+      // Combinar dados
       const combinedUsers: AdminUser[] = [];
 
       for (const profile of profiles || []) {
@@ -198,7 +182,7 @@ export const useAdminUsers = () => {
       user.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesPlan = !filterPlan || user.subscription?.plan === filterPlan;
+    const matchesPlan = filterPlan === 'all' || user.subscription?.plan === filterPlan;
 
     return matchesSearch && matchesPlan;
   });
