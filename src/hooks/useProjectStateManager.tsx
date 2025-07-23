@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useProject } from '@/contexts/ProjectContext';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useProjectStore } from '@/stores/projectStore';
 import { useParams } from 'react-router-dom';
 import { Project } from '@/types/project';
 
@@ -14,7 +14,7 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
   const { autoLoadFromUrl = true, validateOnMount = true } = options;
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { projects, getProjectById } = useOptimizedProjectStore();
+  const { projects, getProjectById } = useProjectStore();
 
   // Sincronizar projeto atual com URL
   const syncProjectWithUrl = useCallback(async () => {
@@ -62,15 +62,15 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
     return true;
   }, [currentProject, getProjectById, setCurrentProject, validateOnMount]);
 
-  // REMOVER auto-sync que causa loops 
-  // useEffect(() => {
-  //   syncProjectWithUrl();
-  // }, [syncProjectWithUrl]);
+  // Auto-sync na montagem e mudanças de URL
+  useEffect(() => {
+    syncProjectWithUrl();
+  }, [syncProjectWithUrl]);
 
-  // REMOVER validação automática que causa loops
-  // useEffect(() => {
-  //   validateCurrentProject();
-  // }, [validateCurrentProject]);
+  // Validar na montagem
+  useEffect(() => {
+    validateCurrentProject();
+  }, [validateCurrentProject]);
 
   const refreshCurrentProject = useCallback(async () => {
     if (!currentProject) return null;

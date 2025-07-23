@@ -4,7 +4,7 @@ import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Download, RefreshCw, TrendingUp, Clock, Calculator } from 'lucide-react';
-import { useProjectDetail } from '@/contexts/ProjectDetailContext';
+import { useProject } from '@/contexts/ProjectContext';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
@@ -15,7 +15,7 @@ import { ScheduleData, ScheduleTask } from '@/types/project';
 
 const ProjectSpecificSchedule = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const { project: currentProject } = useProjectDetail();
+  const { currentProject } = useProject();
   const [scheduleData, setScheduleData] = useState<ScheduleData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);

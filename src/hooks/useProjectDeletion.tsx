@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useProjectStore } from '@/stores/projectStore';
 import { useToast } from '@/hooks/use-toast';
 import { Project } from '@/types/project';
 
@@ -8,7 +8,7 @@ export const useProjectDeletion = () => {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  const deleteProject = useOptimizedProjectStore(state => state.deleteProject);
+  const deleteProject = useProjectStore(state => state.deleteProject);
   const { toast } = useToast();
 
   const confirmDelete = (project: Project) => {

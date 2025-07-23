@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useProjectStore } from '@/stores/projectStore';
 import { Project } from '@/types/project';
 
 interface ProjectDetailContextType {
@@ -25,9 +25,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  
-  // USAR getState() PARA EVITAR DEPENDÊNCIAS INSTÁVEIS
-  const store = useOptimizedProjectStore();
+  const { getProjectById, fetchProjects, projects } = useProjectStore();
 
   const fetchProject = useCallback(async () => {
     if (!projectId) {
@@ -37,29 +35,29 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
       return;
     }
 
-    console.log('🔍 PROJECT DETAIL: Iniciando busca para projeto ID:', projectId);
+    console.log('🔍 PROJECT DETAIL: Iniciando busca inteligente para projeto ID:', projectId);
     
     try {
       setIsLoading(true);
       setError(null);
       
-      // Usar getState() direto para evitar dependências instáveis
-      const state = useOptimizedProjectStore.getState();
-      const cachedProject = state.projects.find(p => p.id === projectId);
+      // 1. PRIMEIRA TENTATIVA: Buscar no ProjectStore (cache)
+      console.log('📦 PROJECT DETAIL: Verificando ProjectStore primeiro...');
+      const cachedProject = getProjectById(projectId);
       
       if (cachedProject) {
-        console.log('✅ PROJECT DETAIL: Projeto encontrado:', cachedProject.name);
+        console.log('✅ PROJECT DETAIL: Projeto encontrado no cache:', cachedProject.name);
         setProject(cachedProject);
         setIsLoading(false);
         return;
       }
 
-      // Se não encontrado, fazer refresh uma vez
-      console.log('🔄 PROJECT DETAIL: Atualizando dados...');
-      await state.fetchProjects();
+      // 2. SEGUNDA TENTATIVA: Forçar refresh do ProjectStore
+      console.log('🔄 PROJECT DETAIL: Projeto não encontrado no cache, atualizando dados...');
+      await fetchProjects();
       
-      const newState = useOptimizedProjectStore.getState();
-      const refreshedProject = newState.projects.find(p => p.id === projectId);
+      // Verificar novamente após o refresh
+      const refreshedProject = getProjectById(projectId);
       if (refreshedProject) {
         console.log('✅ PROJECT DETAIL: Projeto encontrado após refresh:', refreshedProject.name);
         setProject(refreshedProject);
@@ -67,9 +65,9 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
         return;
       }
 
-      // Fallback direto no Supabase
-      console.log('🌐 PROJECT DETAIL: Busca direta no Supabase...');
-      const { data: projectData, error: fetchError } = await supabase
+      // 3. TERCEIRA TENTATIVA: Busca direta no Supabase (fallback)
+      console.log('🌐 PROJECT DETAIL: Fazendo busca direta no Supabase como fallback...');
+      const { data: projectDataFromAPI, error: fetchError } = await supabase
         .from('projects')
         .select('*')
         .eq('id', projectId)
@@ -77,45 +75,61 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
 
       if (fetchError) {
         console.error('❌ PROJECT DETAIL: Erro do Supabase:', fetchError);
-        setError(`Erro ao carregar projeto: ${fetchError.message}`);
+        const errorMessage = `Erro ao carregar projeto: ${fetchError.message}`;
+        setError(errorMessage);
+        toast({
+          title: "Erro ao carregar projeto",
+          description: "Não foi possível carregar os dados do projeto. Clique em 'Atualizar Projetos' e tente novamente.",
+          variant: "destructive",
+        });
         return;
       }
 
-      if (!projectData) {
-        console.log('❌ PROJECT DETAIL: Projeto não encontrado');
-        setError('Projeto não encontrado');
+      if (!projectDataFromAPI) {
+        console.log('❌ PROJECT DETAIL: Nenhum projeto encontrado');
+        setError('Projeto não encontrado - dados podem não estar sincronizados');
+        toast({
+          title: "Projeto não encontrado",
+          description: "Os dados podem não estar sincronizados. Clique em 'Atualizar Projetos' no painel principal.",
+          variant: "destructive",
+        });
         return;
       }
 
-      console.log('✅ PROJECT DETAIL: Projeto carregado via Supabase:', projectData.name);
-      setProject(projectData);
+      console.log('✅ PROJECT DETAIL: Projeto encontrado via Supabase:', projectDataFromAPI.name);
+      setProject(projectDataFromAPI);
       
     } catch (error) {
       console.error('💥 PROJECT DETAIL: Erro inesperado:', error);
-      setError('Erro inesperado ao carregar projeto');
+      const errorMessage = 'Erro inesperado ao carregar projeto';
+      setError(errorMessage);
+      toast({
+        title: "Erro ao carregar projeto",
+        description: "Erro inesperado. Tente atualizar a página ou clique em 'Atualizar Projetos'.",
+        variant: "destructive",
+      });
     } finally {
+      console.log('🏁 PROJECT DETAIL: Busca finalizada');
       setIsLoading(false);
     }
-  }, [projectId]); // APENAS projectId como dependência
+  }, [projectId, toast, getProjectById, fetchProjects]);
 
-  // Effect que carrega o projeto APENAS quando projectId muda
   useEffect(() => {
-    if (projectId) {
-      console.log('🎯 PROJECT DETAIL: Carregando projeto:', projectId);
-      fetchProject();
-    }
-  }, [projectId]); // SEM fetchProject para evitar loop
+    console.log('🎯 PROJECT DETAIL: useEffect disparado. ProjectId atual:', projectId);
+    fetchProject();
+  }, [fetchProject]);
 
-  // REMOVER completamente o auto-sync que causa loops
-  // useEffect(() => {
-  //   if (projectId && projects.length > 0) {
-  //     const storeProject = getProjectById(projectId);
-  //     if (storeProject) {
-  //       setProject(storeProject);
-  //       setError(null);
-  //     }
-  //   }
-  // }, [projects.length, projectId]);
+  // Auto-sync quando o ProjectStore é atualizado
+  useEffect(() => {
+    if (projectId && projects.length > 0) {
+      const updatedProject = getProjectById(projectId);
+      if (updatedProject && (!project || project.updated_at !== updatedProject.updated_at)) {
+        console.log('🔄 PROJECT DETAIL: Sincronizando com ProjectStore atualizado');
+        setProject(updatedProject);
+        setError(null);
+      }
+    }
+  }, [projects, projectId, getProjectById, project]);
 
   const value: ProjectDetailContextType = {
     project,
@@ -129,7 +143,8 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
     hasProject: !!project,
     isLoading,
     error,
-    projectName: project?.name
+    projectName: project?.name,
+    cacheSize: projects.length
   });
 
   return (

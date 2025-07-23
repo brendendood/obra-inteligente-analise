@@ -11,7 +11,7 @@ import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus } from 'lucide-react';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useProjectStore } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 
 export default function Projects() {
@@ -24,7 +24,7 @@ export default function Projects() {
     error, 
     fetchProjects, 
     clearError 
-  } = useOptimizedProjectStore();
+  } = useProjectStore();
   
   // Hook para gerenciar exclusão
   const {
@@ -40,14 +40,11 @@ export default function Projects() {
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
 
-  // CARREGAR projetos apenas se necessário
+  // Carregar projetos ao montar o componente
   useEffect(() => {
     console.log('🔄 PROJETOS: Carregando projetos...');
-    const state = useOptimizedProjectStore.getState();
-    if (state.projects.length === 0) {
-      state.fetchProjects();
-    }
-  }, []); // SEM dependências para evitar loops
+    fetchProjects();
+  }, [fetchProjects]);
 
   // Limpar erro quando houver mudanças
   useEffect(() => {

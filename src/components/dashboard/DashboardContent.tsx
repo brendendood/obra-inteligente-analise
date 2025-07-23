@@ -1,11 +1,11 @@
 
-import { useEffect, memo } from 'react';
+import { useEffect } from 'react';
 import { QuickActions } from './QuickActions';
 import { DashboardStatsGrid } from './DashboardStatsGrid';
 import { MonthlyProductivityChart } from './MonthlyProductivityChart';
 import { EnhancedProjectsSection } from './EnhancedProjectsSection';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
-import { useOptimizedProjectStore, useProjectStats } from '@/stores/optimizedProjectStore';
+import { useProjectStore, useProjectStats } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
 
@@ -15,9 +15,9 @@ interface DashboardContentProps {
   isDataLoading: boolean;
 }
 
-const DashboardContent = memo(({ stats, projects, isDataLoading }: DashboardContentProps) => {
+const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentProps) => {
   // Usar apenas os dados do Zustand - SEM fazer novas requisições
-  const { error, clearError } = useOptimizedProjectStore();
+  const { error, clearError } = useProjectStore();
   
   // Estatísticas dos projetos
   const { recentProjects } = useProjectStats();
@@ -80,8 +80,6 @@ const DashboardContent = memo(({ stats, projects, isDataLoading }: DashboardCont
       />
     </div>
   );
-});
-
-DashboardContent.displayName = 'DashboardContent';
+};
 
 export default DashboardContent;

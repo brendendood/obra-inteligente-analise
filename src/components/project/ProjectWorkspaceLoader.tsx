@@ -2,14 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useProject } from '@/contexts/ProjectContext';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useProjectStore } from '@/stores/projectStore';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 
 export const useProjectLoader = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById } = useOptimizedProjectStore();
+  const { getProjectById } = useProjectStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

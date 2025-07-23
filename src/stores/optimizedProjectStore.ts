@@ -64,24 +64,16 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         hasFetched: false,
 
         fetchProjects: async () => {
-          console.log('🔄 STORE: fetchProjects chamado');
           const state = get();
           
-          // Check if already loading - reduce cooldown for better UX
-          if (state.isLoading) {
-            console.log('📦 STORE: Já está carregando, pulando');
-            return;
-          }
-          const cooldown = import.meta.env.DEV ? 2000 : 10000; // 2s in dev, 10s in prod 
-          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) {
-            console.log('📦 STORE: Cache ainda válido, usando dados existentes');
-            return;
-          }
+          // Check if already loading or recently fetched - reduce cooldown in dev
+          if (state.isLoading) return;
+          const cooldown = import.meta.env.DEV ? 5000 : 30000; // 5s in dev, 30s in prod
+          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) return;
           
           // Try cache first
           const cached = getCache();
           if (cached && cached.length > 0) {
-            console.log('📦 STORE: Usando dados do cache local');
             set({ 
               projects: cached, 
               hasFetched: true, 
@@ -90,7 +82,6 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             return;
           }
 
-          console.log('📦 STORE: Iniciando fetch do Supabase');
           set({ isLoading: true, error: null });
 
           try {
@@ -109,7 +100,6 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             if (error) throw error;
 
             const projectList = projects || [];
-            console.log('📦 STORE: Projetos carregados:', projectList.length);
             
             set({ 
               projects: projectList,
@@ -123,7 +113,6 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             setCache(projectList);
             
           } catch (error) {
-            console.error('❌ STORE: Erro no fetch:', error);
             const errorMessage = error instanceof Error ? error.message : 'Failed to fetch projects';
             set({ 
               projects: [],
@@ -138,61 +127,27 @@ export const useOptimizedProjectStore = create<ProjectState>()(
           const currentProjects = get().projects;
           const projectToDelete = currentProjects.find(p => p.id === projectId);
           
-          if (!projectToDelete) {
-            console.error('❌ STORE: Projeto não encontrado para exclusão:', projectId);
-            return false;
-          }
-
-          console.log('🔄 STORE: Iniciando exclusão FORÇADA do projeto:', projectToDelete.name);
+          if (!projectToDelete) return false;
 
           try {
             // Optimistic update
             const newProjects = currentProjects.filter(p => p.id !== projectId);
             set({ projects: newProjects, error: null });
-            setCache(newProjects);
+            setCache(newProjects); // Update cache immediately
 
-            // EXCLUSÃO FORÇADA - Primeiro remover dados relacionados
-            console.log('🗑️ STORE: Removendo dados relacionados...');
-            
-            // Remover análises relacionadas
-            await supabase
-              .from('project_analyses')
-              .delete()
-              .eq('project_id', projectId);
-            
-            // Remover conversas relacionadas
-            await supabase
-              .from('project_conversations')
-              .delete()
-              .eq('project_id', projectId);
-            
-            // Remover documentos relacionados
-            await supabase
-              .from('project_documents')
-              .delete()
-              .eq('project_id', projectId);
-
-            // Finalmente, remover o projeto principal
-            console.log('🗑️ STORE: Removendo projeto principal...');
             const { error } = await supabase
               .from('projects')
               .delete()
               .eq('id', projectId);
 
-            if (error) {
-              console.error('❌ STORE: Erro na exclusão do projeto:', error);
-              throw error;
-            }
-
-            console.log('✅ STORE: Projeto excluído com sucesso (inclusindo dados relacionados)');
+            if (error) throw error;
             return true;
             
           } catch (error) {
-            console.error('💥 STORE: Falha na exclusão - executando rollback:', error);
             // Rollback
             set({ 
               projects: currentProjects,
-              error: error instanceof Error ? error.message : 'Falha ao excluir projeto'
+              error: error instanceof Error ? error.message : 'Delete failed'
             });
             setCache(currentProjects);
             return false;
@@ -216,11 +171,7 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         clearError: () => set({ error: null }),
 
         getProjectById: (projectId: string) => {
-          console.log('🔍 STORE: getProjectById chamado para:', projectId);
-          const projects = get().projects;
-          const found = projects.find(p => p.id === projectId) || null;
-          console.log('🔍 STORE: Projeto encontrado:', !!found);
-          return found;
+          return get().projects.find(p => p.id === projectId) || null;
         }
       })
     ),
