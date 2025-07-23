@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-import { useLoginTracker } from '@/hooks/useLoginTracker';
 
 interface AuthState {
   user: User | null;
@@ -33,12 +32,70 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: false,
   });
 
-  // Integrar tracking de login
-  const { trackLogin } = useLoginTracker();
-
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Função para tracking de login integrada
+  const trackLoginLocation = useCallback(async (user: User) => {
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            
+            try {
+              // Buscar último login para este usuário
+              const { data: lastLogin, error } = await supabase
+                .from('user_login_history')
+                .select('id')
+                .eq('user_id', user.id)
+                .order('login_at', { ascending: false })
+                .limit(1)
+                .single();
+
+              if (!error && lastLogin) {
+                // Buscar informações da cidade
+                const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=pt`);
+                const locationData = await response.json();
+                
+                // Atualizar com dados reais
+                await supabase
+                  .from('user_login_history')
+                  .update({
+                    latitude: latitude,
+                    longitude: longitude,
+                    city: locationData.city || locationData.locality || 'Desconhecida',
+                    region: locationData.principalSubdivision || 'Desconhecido',
+                    country: locationData.countryName || 'Brasil'
+                  })
+                  .eq('id', lastLogin.id);
+                
+                console.log('📍 Localização real capturada:', {
+                  lat: latitude,
+                  lng: longitude,
+                  city: locationData.city,
+                  region: locationData.principalSubdivision
+                });
+              }
+            } catch (error) {
+              console.error('Erro ao buscar dados de localização:', error);
+            }
+          },
+          (error) => {
+            console.warn('Não foi possível obter localização:', error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000
+          }
+        );
+      }
+    } catch (error) {
+      console.error('Erro no tracking de localização:', error);
+    }
+  }, []);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -104,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Ativar tracking de login quando usuário faz login
           if (event === 'SIGNED_IN' && user) {
             console.log('📍 Iniciando tracking de localização para login real...');
-            setTimeout(() => trackLogin(), 1000);
+            setTimeout(() => trackLoginLocation(user), 1000);
           }
         }, import.meta.env.DEV ? 100 : 0); // Small delay in development
       }
@@ -117,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       subscription.unsubscribe();
     };
-  }, [refreshAuth]);
+  }, [refreshAuth, trackLoginLocation]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
