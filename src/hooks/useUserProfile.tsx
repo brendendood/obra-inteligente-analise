@@ -78,6 +78,18 @@ export const useUserProfile = () => {
     loadProfile();
   }, [user?.id, isAuthenticated]);
 
+  // Listen for avatar updates
+  useEffect(() => {
+    const handleAvatarUpdate = () => {
+      loadProfile();
+    };
+
+    window.addEventListener('avatar-updated', handleAvatarUpdate);
+    return () => {
+      window.removeEventListener('avatar-updated', handleAvatarUpdate);
+    };
+  }, []);
+
   return {
     profileData,
     loading,

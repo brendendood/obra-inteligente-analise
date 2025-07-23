@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -177,6 +176,9 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
         title: "✅ Foto atualizada",
         description: "Sua foto de perfil foi alterada com sucesso.",
       });
+
+      // Forçar refresh dos componentes que usam o avatar
+      window.dispatchEvent(new CustomEvent('avatar-updated'));
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
@@ -215,6 +217,9 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
         title: "✅ Avatar atualizado",
         description: "Seu avatar foi alterado com sucesso.",
       });
+
+      // Forçar refresh dos componentes que usam o avatar
+      window.dispatchEvent(new CustomEvent('avatar-updated'));
     } catch (error) {
       console.error('Error updating avatar:', error);
       toast({
