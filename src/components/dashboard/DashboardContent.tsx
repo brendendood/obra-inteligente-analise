@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 import { QuickActions } from './QuickActions';
 import { DashboardStatsGrid } from './DashboardStatsGrid';
 import { MonthlyProductivityChart } from './MonthlyProductivityChart';
@@ -15,7 +15,7 @@ interface DashboardContentProps {
   isDataLoading: boolean;
 }
 
-const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentProps) => {
+const DashboardContent = memo(({ stats, projects, isDataLoading }: DashboardContentProps) => {
   // Usar apenas os dados do Zustand - SEM fazer novas requisições
   const { error, clearError } = useOptimizedProjectStore();
   
@@ -80,6 +80,8 @@ const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentPr
       />
     </div>
   );
-};
+});
+
+DashboardContent.displayName = 'DashboardContent';
 
 export default DashboardContent;

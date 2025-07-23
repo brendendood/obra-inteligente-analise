@@ -16,7 +16,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   
   const { saveProjectToStorage, getProjectFromStorage, clearProjectFromStorage } = useProjectStorage();
   const { validateProject } = useProjectValidation();
-  const { projects: allProjects } = useOptimizedProjectStore();
+  // Note: allProjects removido para evitar loops de re-renderização
 
   const clearAllProjects = useCallback(() => {
     console.log('🧹 PROJECT CONTEXT: Limpando todos os projetos');
@@ -50,11 +50,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         console.log('📦 PROJECT CONTEXT: Validando projeto do localStorage:', savedProject.name);
         
         // Verificar se o projeto ainda existe na lista atual
-        const projectStillExists = allProjects.some(p => p.id === savedProject.id);
+        const { projects } = useOptimizedProjectStore.getState();
+        const projectStillExists = projects && projects.some(p => p.id === savedProject.id);
         
         if (projectStillExists) {
           // Usar dados mais recentes da lista
-          const updatedProject = allProjects.find(p => p.id === savedProject.id);
+          const updatedProject = projects.find(p => p.id === savedProject.id);
           if (updatedProject) {
             console.log('✅ PROJECT CONTEXT: Projeto atualizado com dados recentes');
             setCurrentProjectState(updatedProject);
@@ -67,37 +68,24 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    if (!loading && allProjects.length >= 0) {
+    if (!loading) {
       validateSavedProject();
     }
-  }, [loading, isAuthenticated, user?.id, allProjects, getProjectFromStorage, clearAllProjects, saveProjectToStorage]);
+  }, [loading, isAuthenticated, user?.id, getProjectFromStorage, clearAllProjects, saveProjectToStorage]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     console.log('📋 PROJECT CONTEXT: Retornando projetos do Zustand store');
     
-    if (!allProjects || allProjects.length === 0) {
+    // Capturar projetos atuais no momento da chamada (não como dependência)
+    const { projects } = useOptimizedProjectStore.getState();
+    
+    if (!projects || projects.length === 0) {
       console.log('📭 PROJECT CONTEXT: Nenhum projeto encontrado');
-      clearAllProjects();
       return [];
     }
     
-    // Se não há projeto atual, definir o mais recente
-    if (!currentProject && allProjects.length > 0) {
-      console.log('📌 PROJECT CONTEXT: Definindo projeto mais recente como atual');
-      setCurrentProject(allProjects[0]);
-    }
-    
-    // Verificar se projeto atual ainda existe
-    if (currentProject) {
-      const projectExists = allProjects.find(p => p.id === currentProject.id);
-      if (!projectExists) {
-        console.log('🗑️ PROJECT CONTEXT: Projeto atual não existe mais');
-        clearAllProjects();
-      }
-    }
-    
-    return allProjects;
-  }, [currentProject, setCurrentProject, clearAllProjects, allProjects]);
+    return projects;
+  }, []);
 
   return (
     <ProjectContext.Provider value={{
