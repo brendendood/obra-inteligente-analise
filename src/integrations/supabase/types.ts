@@ -917,6 +917,10 @@ export type Database = {
           engagement_score: number
         }[]
       }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_superuser: {
         Args: Record<PropertyKey, never>
         Returns: boolean
