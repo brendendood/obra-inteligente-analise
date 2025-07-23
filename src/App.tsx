@@ -15,7 +15,7 @@ import { UnifiedLoading } from "@/components/ui/unified-loading";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
+import SimpleDashboard from "./pages/SimpleDashboard"; // DASHBOARD SIMPLES PARA TESTE
 
 // Lazy loaded pages
 const Upload = lazy(() => import("./pages/Upload"));
@@ -74,7 +74,7 @@ const App = () => {
                   {/* Protected routes */}
                   <Route path="/painel" element={
                     <ProtectedRoute>
-                      <Dashboard />
+                      <SimpleDashboard />
                     </ProtectedRoute>
                   } />
                   <Route path="/projetos" element={
@@ -100,14 +100,14 @@ const App = () => {
           position: 'fixed', 
           top: 10, 
           right: 10, 
-          background: 'green', 
+          background: 'purple', 
           color: 'white', 
           padding: '10px',
           borderRadius: '5px',
           fontSize: '12px'
         }}>
-          <div>✅ SAFE AUTH + IMPERSONATION</div>
-          <div>Se não há loop = TUDO OK!</div>
+          <div>🧪 TESTE: DASHBOARD SIMPLES</div>
+          <div>Se não há loop = Dashboard era o problema</div>
         </div>
       </ImpersonationProvider>
     </AuthProvider>
