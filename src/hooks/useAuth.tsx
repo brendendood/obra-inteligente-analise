@@ -1,3 +1,3 @@
 
-// Este arquivo agora é apenas um re-export do contexto otimizado
-export { useAuth } from '@/contexts/AuthProvider';
+// Re-export do novo SafeAuthProvider que não causa loops
+export { useAuth } from '@/contexts/SafeAuthProvider';
