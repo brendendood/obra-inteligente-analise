@@ -30,18 +30,24 @@ const Dashboard = memo(() => {
 
   // Handle authentication redirect
   useEffect(() => {
+    console.log('📊 DASHBOARD: useEffect de autenticação disparado');
     if (!authLoading && !isAuthenticated) {
+      console.log('📊 DASHBOARD: Redirecionando para login');
       navigate('/login');
     }
   }, [isAuthenticated, authLoading, navigate]);
 
   // CARREGAR projetos apenas UMA VEZ quando autenticado
   useEffect(() => {
+    console.log('📊 DASHBOARD: useEffect de projetos disparado');
     if (isAuthenticated && !authLoading) {
       console.log('📊 DASHBOARD: Carregando projetos...');
       const state = useOptimizedProjectStore.getState();
       if (state.projects.length === 0) {
+        console.log('📊 DASHBOARD: Chamando fetchProjects');
         state.fetchProjects();
+      } else {
+        console.log('📊 DASHBOARD: Projetos já carregados:', state.projects.length);
       }
     }
   }, [isAuthenticated, authLoading]); // SEM fetchProjects nas dependências

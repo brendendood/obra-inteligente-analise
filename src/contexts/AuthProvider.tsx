@@ -25,6 +25,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('🔄 AUTH PROVIDER: Componente renderizado');
+  
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
@@ -35,6 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const renderCountRef = useRef(0);
+  
+  renderCountRef.current += 1;
+  console.log('🔄 AUTH PROVIDER: Render #', renderCountRef.current);
 
   // Função para tracking de login baseado em IP real
   const trackLoginByIP = useCallback(async (user: User) => {
@@ -68,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const refreshAuth = useCallback(async () => {
+    console.log('🔄 AUTH: refreshAuth chamado');
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
       
@@ -78,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const user = session?.user || null;
+      console.log('🔄 AUTH: setState chamado em refreshAuth');
 
       setState({
         user,
@@ -89,9 +97,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Auth refresh error:', error);
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, []);
+  }, []); // SEM DEPENDÊNCIAS para evitar loop
 
   useEffect(() => {
+    console.log('🎯 AUTH: useEffect principal iniciado');
     let mounted = true;
 
     // Initial auth check
@@ -100,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Auth state listener with improved HMR handling
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔄 AUTH: onAuthStateChange disparado:', event);
         if (!mounted) return;
         
         // Prevent duplicate events during HMR
@@ -120,6 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('🔄 AUTH: Processing state change:', event);
           
           const user = session?.user || null;
+          console.log('🔄 AUTH: setState chamado em onAuthStateChange');
 
           setState({
             user,
@@ -138,19 +149,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     return () => {
+      console.log('🧹 AUTH: Cleanup useEffect');
       mounted = false;
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
       subscription.unsubscribe();
     };
-  }, [refreshAuth, trackLoginByIP]);
+  }, []); // SEM refreshAuth e trackLoginByIP para evitar loop!
 
   // Memoize the context value to prevent unnecessary re-renders
-  const contextValue = useMemo(() => ({
-    ...state,
-    refreshAuth,
-  }), [state, refreshAuth]);
+  const contextValue = useMemo(() => {
+    console.log('🔄 AUTH: contextValue memo recalculado');
+    return {
+      ...state,
+      refreshAuth,
+    };
+  }, [state, refreshAuth]);
 
   return (
     <AuthContext.Provider value={contextValue}>

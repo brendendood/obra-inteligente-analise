@@ -64,10 +64,14 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         hasFetched: false,
 
         fetchProjects: async () => {
+          console.log('🔄 STORE: fetchProjects chamado');
           const state = get();
           
           // Check if already loading - reduce cooldown for better UX
-          if (state.isLoading) return;
+          if (state.isLoading) {
+            console.log('📦 STORE: Já está carregando, pulando');
+            return;
+          }
           const cooldown = import.meta.env.DEV ? 2000 : 10000; // 2s in dev, 10s in prod 
           if (state.hasFetched && Date.now() - state.lastFetch < cooldown) {
             console.log('📦 STORE: Cache ainda válido, usando dados existentes');
@@ -77,6 +81,7 @@ export const useOptimizedProjectStore = create<ProjectState>()(
           // Try cache first
           const cached = getCache();
           if (cached && cached.length > 0) {
+            console.log('📦 STORE: Usando dados do cache local');
             set({ 
               projects: cached, 
               hasFetched: true, 
@@ -85,6 +90,7 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             return;
           }
 
+          console.log('📦 STORE: Iniciando fetch do Supabase');
           set({ isLoading: true, error: null });
 
           try {
@@ -103,6 +109,7 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             if (error) throw error;
 
             const projectList = projects || [];
+            console.log('📦 STORE: Projetos carregados:', projectList.length);
             
             set({ 
               projects: projectList,
@@ -116,6 +123,7 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             setCache(projectList);
             
           } catch (error) {
+            console.error('❌ STORE: Erro no fetch:', error);
             const errorMessage = error instanceof Error ? error.message : 'Failed to fetch projects';
             set({ 
               projects: [],
@@ -208,7 +216,11 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         clearError: () => set({ error: null }),
 
         getProjectById: (projectId: string) => {
-          return get().projects.find(p => p.id === projectId) || null;
+          console.log('🔍 STORE: getProjectById chamado para:', projectId);
+          const projects = get().projects;
+          const found = projects.find(p => p.id === projectId) || null;
+          console.log('🔍 STORE: Projeto encontrado:', !!found);
+          return found;
         }
       })
     ),
