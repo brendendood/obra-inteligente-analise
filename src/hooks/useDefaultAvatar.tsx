@@ -7,7 +7,7 @@ export const useDefaultAvatar = () => {
       case 'female':
         return '👩‍💼'; // Emoji feminino profissional  
       default:
-        return '🤖'; // Emoji neutro/robô
+        return '😊'; // Emoji de rosto feliz (padrão)
     }
   };
 
@@ -18,7 +18,7 @@ export const useDefaultAvatar = () => {
       case 'female':
         return '👩‍💼';
       default:
-        return '🤖';
+        return '😊';
     }
   };
 
