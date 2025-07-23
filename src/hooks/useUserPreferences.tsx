@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -13,7 +12,7 @@ interface UserPreferences {
 }
 
 const defaultPreferences: UserPreferences = {
-  theme: 'light',
+  theme: 'system',
   sidebarCollapsed: false,
   projectViewMode: 'grid',
   projectSortBy: 'date',

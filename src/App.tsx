@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { AuthProvider } from "@/contexts/AuthProvider";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import { ThemeProvider } from "@/contexts/ThemeProvider";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
@@ -102,101 +102,103 @@ const App = () => {
       <AuthProvider>
         <ImpersonationProvider>
           <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <ProjectProvider>
-                  <Suspense fallback={<UnifiedLoading />}>
-                  <Routes>
-                    {/* Public routes */}
-                    <Route path="/" element={<LandingPage />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/cadastro" element={<Signup />} />
-                    <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
-                    <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
-                    <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
-                    
-                    <Route path="/admin-panel" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><AdminPanel /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Protected routes */}
-                    <Route path="/painel" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Legacy redirects */}
-                    <Route path="/projetos" element={<Navigate to="/painel" replace />} />
-                    <Route path="/obras" element={<Navigate to="/painel" replace />} />
-                    
-                    <Route path="/upload" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><Upload /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/ia" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><Assistant /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/conta" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><Account /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/plano" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><Plan /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/ajuda" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><Help /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/contato" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><Contact /></LazyWrapper>
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Project specific routes */}
-                    <Route path="/projeto/:projectId" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                      </ProtectedRoute>
-                    }>
-                      <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
-                      <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
-                      <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
-                      <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
-                      <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
-                    </Route>
-                    
-                    <Route path="/ia/:projectId" element={
-                      <ProtectedRoute>
-                        <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                      </ProtectedRoute>
-                    }>
-                      <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
-                    </Route>
+            <ThemeProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ProjectProvider>
+                    <Suspense fallback={<UnifiedLoading />}>
+                    <Routes>
+                      {/* Public routes */}
+                      <Route path="/" element={<LandingPage />} />
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/cadastro" element={<Signup />} />
+                      <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+                      <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+                      <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
+                      
+                      <Route path="/admin-panel" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><AdminPanel /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      {/* Protected routes */}
+                      <Route path="/painel" element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } />
+                      
+                      {/* Legacy redirects */}
+                      <Route path="/projetos" element={<Navigate to="/painel" replace />} />
+                      <Route path="/obras" element={<Navigate to="/painel" replace />} />
+                      
+                      <Route path="/upload" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><Upload /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/ia" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><Assistant /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/conta" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><Account /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/plano" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><Plan /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/ajuda" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><Help /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      <Route path="/contato" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><Contact /></LazyWrapper>
+                        </ProtectedRoute>
+                      } />
+                      
+                      {/* Project specific routes */}
+                      <Route path="/projeto/:projectId" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                        </ProtectedRoute>
+                      }>
+                        <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
+                        <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
+                        <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
+                        <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                        <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
+                      </Route>
+                      
+                      <Route path="/ia/:projectId" element={
+                        <ProtectedRoute>
+                          <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                        </ProtectedRoute>
+                      }>
+                        <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                      </Route>
 
-                    <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
-                  </Routes>
-                  </Suspense>
-                </ProjectProvider>
-              </BrowserRouter>
-            </TooltipProvider>
+                      <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
+                    </Routes>
+                    </Suspense>
+                  </ProjectProvider>
+                </BrowserRouter>
+              </TooltipProvider>
+            </ThemeProvider>
           </QueryClientProvider>
         </ImpersonationProvider>
       </AuthProvider>

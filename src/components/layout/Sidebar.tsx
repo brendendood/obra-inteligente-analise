@@ -127,7 +127,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   // Mobile Header
   const MobileHeader = () => (
-    <header className="lg:hidden bg-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-sm">
+    <header className="lg:hidden bg-background border-b border-border sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
@@ -141,9 +141,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
           variant="ghost"
           size="sm"
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 hover:bg-slate-100"
+          className="p-2 hover:bg-accent"
         >
-          <Menu className="h-5 w-5 text-slate-600" />
+          <Menu className="h-5 w-5 text-muted-foreground" />
         </Button>
       </div>
     </header>
@@ -151,9 +151,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   // Sidebar Content
   const SidebarContent = () => (
-    <div className="w-[280px] bg-white border-r border-slate-200/60 flex flex-col h-full shadow-sm">
+    <div className="w-[280px] bg-background border-r border-border flex flex-col h-full shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-slate-200/60">
+      <div className="flex items-center justify-between p-6 border-b border-border">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
             <div className="w-4 h-4 bg-white rounded-sm"></div>
@@ -169,15 +169,15 @@ export const Sidebar = ({ className }: SidebarProps) => {
             variant="ghost"
             size="sm"
             onClick={() => setIsMobileOpen(false)}
-            className="p-2 hover:bg-slate-100"
+            className="p-2 hover:bg-accent"
           >
-            <X className="h-5 w-5 text-slate-500" />
+            <X className="h-5 w-5 text-muted-foreground" />
           </Button>
         )}
       </div>
 
       {/* Project Limit Bar */}
-      <div className="p-6 border-b border-slate-200/60">
+      <div className="p-6 border-b border-border">
         <ProjectLimitBar 
           currentProjects={userData.projectCount} 
           plan={userData.plan} 
@@ -194,15 +194,15 @@ export const Sidebar = ({ className }: SidebarProps) => {
               onClick={() => handleNavigation(item.path)}
               className={cn(
                 "w-full flex items-center rounded-xl transition-all duration-200 p-3 text-left relative group",
-                "hover:bg-slate-50",
+                "hover:bg-accent",
                 item.isActive 
-                  ? "bg-blue-50/80 text-blue-700 shadow-sm" 
-                  : "text-slate-700 hover:text-slate-900"
+                  ? "bg-accent text-accent-foreground shadow-sm" 
+                  : "text-foreground hover:text-accent-foreground"
               )}
             >
               <Icon className={cn(
                 "h-5 w-5 mr-3 flex-shrink-0",
-                item.isActive ? "text-blue-600" : "text-slate-500"
+                item.isActive ? "text-primary" : "text-muted-foreground"
               )} />
               
               <span className="text-sm font-medium truncate">
@@ -210,7 +210,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               </span>
 
               {item.isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
               )}
             </button>
           );
@@ -218,21 +218,21 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-slate-200/60 p-4 space-y-4">
+      <div className="border-t border-border p-4 space-y-4">
         {/* User Profile & Upgrade */}
-        <div className="bg-slate-50/80 rounded-xl p-4">
+        <div className="bg-muted rounded-xl p-4">
           <div className="flex items-center mb-3">
-            <Avatar className="h-10 w-10 mr-3 ring-2 ring-white shadow-sm">
+            <Avatar className="h-10 w-10 mr-3 ring-2 ring-background shadow-sm">
               <AvatarImage src={avatarUrl} />
-              <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">
+              <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
                 {getAvatarFallback(userGender)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">
+              <p className="text-sm font-medium text-foreground truncate">
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
-              <p className="text-xs text-slate-500 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 Plano {getPlanDisplayName(userData.plan)}
               </p>
             </div>
@@ -252,7 +252,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center rounded-xl transition-all duration-200 p-3 hover:bg-red-50 text-red-600"
+          className="w-full flex items-center rounded-xl transition-all duration-200 p-3 hover:bg-destructive/10 text-destructive"
         >
           <LogOut className="h-5 w-5 mr-3" />
           <span className="text-sm font-medium">Sair</span>
