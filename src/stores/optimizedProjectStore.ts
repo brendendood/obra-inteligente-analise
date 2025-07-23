@@ -66,10 +66,13 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         fetchProjects: async () => {
           const state = get();
           
-          // Check if already loading or recently fetched - reduce cooldown in dev
+          // Check if already loading - reduce cooldown for better UX
           if (state.isLoading) return;
-          const cooldown = import.meta.env.DEV ? 5000 : 30000; // 5s in dev, 30s in prod
-          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) return;
+          const cooldown = import.meta.env.DEV ? 2000 : 10000; // 2s in dev, 10s in prod 
+          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) {
+            console.log('📦 STORE: Cache ainda válido, usando dados existentes');
+            return;
+          }
           
           // Try cache first
           const cached = getCache();
@@ -127,27 +130,61 @@ export const useOptimizedProjectStore = create<ProjectState>()(
           const currentProjects = get().projects;
           const projectToDelete = currentProjects.find(p => p.id === projectId);
           
-          if (!projectToDelete) return false;
+          if (!projectToDelete) {
+            console.error('❌ STORE: Projeto não encontrado para exclusão:', projectId);
+            return false;
+          }
+
+          console.log('🔄 STORE: Iniciando exclusão FORÇADA do projeto:', projectToDelete.name);
 
           try {
             // Optimistic update
             const newProjects = currentProjects.filter(p => p.id !== projectId);
             set({ projects: newProjects, error: null });
-            setCache(newProjects); // Update cache immediately
+            setCache(newProjects);
 
+            // EXCLUSÃO FORÇADA - Primeiro remover dados relacionados
+            console.log('🗑️ STORE: Removendo dados relacionados...');
+            
+            // Remover análises relacionadas
+            await supabase
+              .from('project_analyses')
+              .delete()
+              .eq('project_id', projectId);
+            
+            // Remover conversas relacionadas
+            await supabase
+              .from('project_conversations')
+              .delete()
+              .eq('project_id', projectId);
+            
+            // Remover documentos relacionados
+            await supabase
+              .from('project_documents')
+              .delete()
+              .eq('project_id', projectId);
+
+            // Finalmente, remover o projeto principal
+            console.log('🗑️ STORE: Removendo projeto principal...');
             const { error } = await supabase
               .from('projects')
               .delete()
               .eq('id', projectId);
 
-            if (error) throw error;
+            if (error) {
+              console.error('❌ STORE: Erro na exclusão do projeto:', error);
+              throw error;
+            }
+
+            console.log('✅ STORE: Projeto excluído com sucesso (inclusindo dados relacionados)');
             return true;
             
           } catch (error) {
+            console.error('💥 STORE: Falha na exclusão - executando rollback:', error);
             // Rollback
             set({ 
               projects: currentProjects,
-              error: error instanceof Error ? error.message : 'Delete failed'
+              error: error instanceof Error ? error.message : 'Falha ao excluir projeto'
             });
             setCache(currentProjects);
             return false;

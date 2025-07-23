@@ -1,11 +1,12 @@
 
 import { useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/project';
 
 export const useProjectLoader = () => {
   const { user, isAuthenticated, loading } = useAuth();
+  const { projects, fetchProjects } = useOptimizedProjectStore();
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     // Aguardar auth completar
@@ -18,24 +19,17 @@ export const useProjectLoader = () => {
       return [];
     }
 
+    console.log('🔄 PROJECT LOADER: Usando store otimizado para carregar projetos');
+    
     try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Erro na consulta do ProjectLoader:', error);
-        throw error;
-      }
-      
-      return data || [];
+      // Usar o store otimizado que já tem cache inteligente
+      await fetchProjects();
+      return projects;
     } catch (error) {
       console.error('Erro ao carregar projetos no ProjectLoader:', error);
       return [];
     }
-  }, [isAuthenticated, user, loading]);
+  }, [isAuthenticated, user, loading, fetchProjects, projects]);
 
   return { loadUserProjects };
 };

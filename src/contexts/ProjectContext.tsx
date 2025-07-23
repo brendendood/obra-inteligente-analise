@@ -5,7 +5,7 @@ import { Project, ProjectContextType } from '@/types/project';
 import { useProjectStorage } from '@/hooks/useProjectStorage';
 import { useProjectUpload } from '@/hooks/useProjectUpload';
 import { useProjectValidation } from '@/hooks/useProjectValidation';
-import { useProjectStore } from '@/stores/projectStore';
+import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
@@ -16,7 +16,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   
   const { saveProjectToStorage, getProjectFromStorage, clearProjectFromStorage } = useProjectStorage();
   const { validateProject } = useProjectValidation();
-  const { projects: allProjects } = useProjectStore();
+  const { projects: allProjects } = useOptimizedProjectStore();
 
   const clearAllProjects = useCallback(() => {
     console.log('🧹 PROJECT CONTEXT: Limpando todos os projetos');

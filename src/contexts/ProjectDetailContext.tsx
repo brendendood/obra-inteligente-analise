@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useProjectStore } from '@/stores/projectStore';
+import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 import { Project } from '@/types/project';
 
 interface ProjectDetailContextType {
@@ -25,7 +25,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { getProjectById, fetchProjects, projects } = useProjectStore();
+  const { getProjectById, fetchProjects, projects } = useOptimizedProjectStore();
 
   const fetchProject = useCallback(async () => {
     if (!projectId) {

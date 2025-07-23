@@ -1,7 +1,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useProject } from '@/contexts/ProjectContext';
-import { useProjectStore } from '@/stores/projectStore';
+import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 import { useParams } from 'react-router-dom';
 import { Project } from '@/types/project';
 
@@ -14,7 +14,7 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
   const { autoLoadFromUrl = true, validateOnMount = true } = options;
   const { projectId } = useParams<{ projectId: string }>();
   const { currentProject, setCurrentProject } = useProject();
-  const { projects, getProjectById } = useProjectStore();
+  const { projects, getProjectById } = useOptimizedProjectStore();
 
   // Sincronizar projeto atual com URL
   const syncProjectWithUrl = useCallback(async () => {

@@ -2,12 +2,12 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useProjectStore } from '@/stores/projectStore';
+import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 
 export const useProjectMigration = () => {
   const [isMigrating, setIsMigrating] = useState(false);
   const { toast } = useToast();
-  const { forceRefresh } = useProjectStore();
+  const { fetchProjects } = useOptimizedProjectStore();
 
   const migrateProjects = async () => {
     setIsMigrating(true);
@@ -31,7 +31,7 @@ export const useProjectMigration = () => {
       });
 
       // Forçar refresh dos projetos para mostrar os dados atualizados
-      await forceRefresh();
+      await fetchProjects();
       
       return data;
     } catch (error) {

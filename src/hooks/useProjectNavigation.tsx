@@ -1,12 +1,12 @@
 
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProjectStore } from '@/stores/projectStore';
+import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProjectNavigation = () => {
   const navigate = useNavigate();
-  const { getProjectById } = useProjectStore();
+  const { getProjectById } = useOptimizedProjectStore();
   const { toast } = useToast();
 
   const navigateToProject = useCallback((projectId: string, section?: string) => {
