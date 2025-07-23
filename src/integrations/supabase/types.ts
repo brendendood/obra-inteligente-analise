@@ -968,6 +968,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      update_login_location_by_ip: {
+        Args: {
+          login_id: string
+          ip_address: string
+          city_name: string
+          region_name: string
+          country_name: string
+          lat?: number
+          lng?: number
+        }
+        Returns: undefined
+      }
       update_user_segments: {
         Args: Record<PropertyKey, never>
         Returns: undefined

@@ -1,1 +1,63 @@
 project_id = "mozqijzvtbuwuzgemzsm"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://1f657578-79fb-4f32-8e40-7b6346722964.lovableproject.com"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 10
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[db]
+port = 54322
+
+[functions.upload-project]
+verify_jwt = false
+
+[functions.migrate-projects]
+verify_jwt = false
+
+[functions.webhook-automation]
+verify_jwt = false
+
+[functions.admin-impersonate]
+verify_jwt = true
+
+[functions.admin-end-impersonation]
+verify_jwt = true
+
+[functions.chat-assistant]
+verify_jwt = false
+
+[functions.send-alert-email]
+verify_jwt = false
+
+[functions.ip-geolocation]
+verify_jwt = false
+
+[storage]
+enabled = true
+port = 54323
+file_size_limit = "50MiB"
+
+[edge_runtime]
+enabled = true
+port = 54325
+inspector_port = 5432
+
+[analytics]
+enabled = false
