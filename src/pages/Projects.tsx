@@ -13,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus } from 'lucide-react';
 import { useProjectStore } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
+import { useProjectSync } from '@/hooks/useProjectSync';
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -34,6 +35,9 @@ export default function Projects() {
     cancelDelete,
     executeDelete,
   } = useProjectDeletion();
+  
+  // Hook para sincronização automática
+  useProjectSync();
   
   // Estados locais para filtros
   const [searchTerm, setSearchTerm] = useState('');

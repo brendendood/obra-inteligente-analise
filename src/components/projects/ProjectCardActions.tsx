@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useOptimizedProjectNavigation } from '@/hooks/useOptimizedProjectNavigation';
 
 interface ProjectCardActionsProps {
   project: any;
@@ -17,7 +17,12 @@ interface ProjectCardActionsProps {
 }
 
 export const ProjectCardActions = ({ project, onDelete, onEdit }: ProjectCardActionsProps) => {
-  const navigate = useNavigate();
+  const { navigateToProject } = useOptimizedProjectNavigation();
+
+  const handleViewProject = () => {
+    console.log('🎯 VER PROJETO: Iniciando navegação para projeto:', project.name);
+    navigateToProject(project.id);
+  };
 
   return (
     <DropdownMenu>
@@ -33,7 +38,7 @@ export const ProjectCardActions = ({ project, onDelete, onEdit }: ProjectCardAct
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="bg-white border border-gray-200 shadow-lg">
         <DropdownMenuItem 
-          onClick={() => navigate(`/projeto/${project.id}`)}
+          onClick={handleViewProject}
           className="flex items-center space-x-2 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
         >
           <Eye className="h-4 w-4" />

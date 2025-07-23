@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
+import { useProject } from '@/contexts/ProjectContext';
 import { useToast } from '@/hooks/use-toast';
 import { Project } from '@/types/project';
 
@@ -9,6 +10,7 @@ export const useProjectDeletion = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   
   const deleteProject = useProjectStore(state => state.deleteProject);
+  const { currentProject, setCurrentProject } = useProject();
   const { toast } = useToast();
 
   const confirmDelete = (project: Project) => {
@@ -38,9 +40,15 @@ export const useProjectDeletion = () => {
         console.log('✅ DELETION: Projeto excluído com sucesso da interface e base de dados');
         console.log('📊 DELETION: Dashboard será automaticamente recalculado');
         
+        // Se o projeto excluído era o atual, limpar contexto
+        if (currentProject?.id === projectToDelete.id) {
+          console.log('🧹 DELETION: Limpando projeto atual do contexto');
+          setCurrentProject(null);
+        }
+        
         toast({
           title: "✅ Projeto excluído!",
-          description: `O projeto "${projectToDelete.name}" foi removido permanentemente do sistema.`,
+          description: `O projeto "${projectToDelete.name}" foi removido permanentemente. Limite de projetos atualizado.`,
         });
       } else {
         console.error('❌ DELETION: Falha na exclusão - integridade comprometida');
