@@ -32,7 +32,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
+  const { getAvatarUrl, getAvatarFallback } = useDefaultAvatar();
   const { userData } = useUserData();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -55,8 +55,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
     }
   }, [isMobile]);
 
-  const userGender = user?.user_metadata?.gender;
-  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
+  const fullName = user?.user_metadata?.full_name || '';
+  const avatarUrl = getAvatarUrl(fullName, user?.email);
 
   const navigationItems = [
     { 
@@ -225,7 +225,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
             <Avatar className="h-10 w-10 mr-3 ring-2 ring-white shadow-sm">
               <AvatarImage src={avatarUrl} />
               <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">
-                {getAvatarFallback(userGender)}
+                {getAvatarFallback(fullName)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">

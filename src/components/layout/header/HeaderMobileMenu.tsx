@@ -24,7 +24,7 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
   const { currentProject } = useProject();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
-  const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
+  const { getAvatarUrl, getAvatarFallback } = useDefaultAvatar();
 
   const handleLogout = async () => {
     try {
@@ -52,8 +52,8 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
 
   if (!isOpen) return null;
 
-  const userGender = user?.user_metadata?.gender;
-  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
+  const fullName = user?.user_metadata?.full_name || '';
+  const avatarUrl = getAvatarUrl(fullName, user?.email);
   const isInProject = Boolean(projectId && currentProject);
 
   // Navegação principal
@@ -185,7 +185,7 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={avatarUrl} />
                   <AvatarFallback className="bg-blue-600 text-white text-xs">
-                    {getAvatarFallback(userGender)}
+                    {getAvatarFallback(fullName)}
                   </AvatarFallback>
                 </Avatar>
                 <span className="font-medium">

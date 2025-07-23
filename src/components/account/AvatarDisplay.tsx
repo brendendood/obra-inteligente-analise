@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 
 interface AvatarDisplayProps {
   size?: 'sm' | 'md' | 'lg';
@@ -13,6 +14,8 @@ export const AvatarDisplay = ({
   className = ''
 }: AvatarDisplayProps) => {
   const { user } = useAuth();
+  const { getAvatarUrl, getInitials } = useDefaultAvatar();
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [initials, setInitials] = useState('');
 
   const sizeClasses = {
@@ -21,21 +24,8 @@ export const AvatarDisplay = ({
     lg: 'h-16 w-16'
   };
 
-  const getInitials = (fullName: string): string => {
-    if (!fullName) return user?.email?.charAt(0)?.toUpperCase() || '?';
-    
-    const names = fullName.trim().split(' ');
-    if (names.length === 1) {
-      return names[0].charAt(0).toUpperCase();
-    }
-    
-    const firstName = names[0].charAt(0).toUpperCase();
-    const lastName = names[names.length - 1].charAt(0).toUpperCase();
-    return `${firstName}${lastName}`;
-  };
-
-  // Carregar iniciais do usuário
-  const loadUserInitials = async () => {
+  // Carregar dados do usuário
+  const loadUserAvatar = async () => {
     if (!user?.id) return;
 
     try {
@@ -46,22 +36,28 @@ export const AvatarDisplay = ({
         .maybeSingle();
 
       const fullName = profile?.full_name || user?.user_metadata?.full_name || '';
-      setInitials(getInitials(fullName));
+      const generatedAvatarUrl = getAvatarUrl(fullName, user?.email);
+      const userInitials = getInitials(fullName || user?.email || '');
+      
+      setAvatarUrl(generatedAvatarUrl);
+      setInitials(userInitials);
     } catch (error) {
       console.error('Error loading user profile:', error);
-      setInitials(getInitials(''));
+      const fallbackInitials = getInitials(user?.email || '');
+      setInitials(fallbackInitials);
+      setAvatarUrl(getAvatarUrl('', user?.email));
     }
   };
 
   useEffect(() => {
-    loadUserInitials();
+    loadUserAvatar();
   }, [user?.id]);
 
   // Escutar eventos de atualização de perfil
   useEffect(() => {
     const handleProfileUpdate = () => {
-      console.log('🔄 Profile updated, refreshing initials');
-      loadUserInitials();
+      console.log('🔄 Profile updated, refreshing avatar');
+      loadUserAvatar();
     };
 
     window.addEventListener('profile-updated', handleProfileUpdate);
@@ -73,6 +69,7 @@ export const AvatarDisplay = ({
 
   return (
     <Avatar className={`${sizeClasses[size]} ${className}`}>
+      <AvatarImage src={avatarUrl} />
       <AvatarFallback className="bg-blue-600 text-white font-medium">
         {initials}
       </AvatarFallback>

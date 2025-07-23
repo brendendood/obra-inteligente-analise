@@ -19,7 +19,7 @@ export interface UserProfileData {
 
 export const useUserProfile = () => {
   const { user, isAuthenticated } = useAuth();
-  const { getDefaultAvatarUrl } = useDefaultAvatar();
+  const { getAvatarUrl } = useDefaultAvatar();
   const [profileData, setProfileData] = useState<UserProfileData>({
     full_name: '',
     company: '',
@@ -45,7 +45,7 @@ export const useUserProfile = () => {
         phone: '',
         state: '',
         country: 'Brasil',
-        profilePicture: getDefaultAvatarUrl('neutral'),
+        profilePicture: getAvatarUrl('', user?.email),
         gender: 'neutral',
         avatar_type: 'emoji'
       });
@@ -71,8 +71,10 @@ export const useUserProfile = () => {
       }
 
       if (profile) {
-        const profilePicture = profile.avatar_url || getDefaultAvatarUrl(profile.gender || 'neutral');
-        console.log('🖼️ Setting profile picture:', profilePicture);
+        // Always generate initials avatar regardless of stored avatar_url
+        const fullName = profile.full_name || user?.user_metadata?.full_name || '';
+        const profilePicture = getAvatarUrl(fullName, user?.email);
+        console.log('🖼️ Setting profile picture with initials for:', fullName);
         
         setProfileData({
           full_name: profile.full_name || '',
@@ -84,22 +86,23 @@ export const useUserProfile = () => {
           country: profile.country || 'Brasil',
           profilePicture,
           gender: profile.gender || 'neutral',
-          avatar_type: profile.avatar_type || 'emoji'
+          avatar_type: 'initials'
         });
       } else {
         console.log('🚫 No profile found, using defaults with user metadata');
-        const defaultAvatar = getDefaultAvatarUrl('neutral');
+        const fullName = user?.user_metadata?.full_name || '';
+        const profilePicture = getAvatarUrl(fullName, user?.email);
         setProfileData({
-          full_name: user.user_metadata?.full_name || '',
+          full_name: fullName,
           company: '',
           cargo: '',
           empresa: '',
           phone: '',
           state: '',
           country: 'Brasil',
-          profilePicture: defaultAvatar,
+          profilePicture,
           gender: 'neutral',
-          avatar_type: 'emoji'
+          avatar_type: 'initials'
         });
       }
     } catch (error) {
