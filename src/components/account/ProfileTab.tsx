@@ -49,7 +49,7 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
         .from('user_profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading profile:', error);
@@ -120,9 +120,11 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
   };
 
   const handlePhotoUpdate = (newPhotoUrl: string) => {
+    console.log('🖼️ Photo updated in ProfileTab:', newPhotoUrl);
     setProfileData(prev => ({
       ...prev,
-      profilePicture: newPhotoUrl
+      profilePicture: newPhotoUrl,
+      avatar_type: newPhotoUrl.includes('data:') ? 'emoji' : 'uploaded'
     }));
   };
 

@@ -45,13 +45,11 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
     console.log('🔄 Triggering avatar update event with URL:', newUrl);
     onPhotoUpdate(newUrl);
     
-    // Disparar evento customizado com delay para garantir que o DB foi atualizado
-    setTimeout(() => {
-      console.log('📡 Dispatching avatar-updated event');
-      window.dispatchEvent(new CustomEvent('avatar-updated', { 
-        detail: { avatarUrl: newUrl }
-      }));
-    }, 100);
+    // Disparar evento customizado imediatamente para atualização rápida
+    console.log('📡 Dispatching avatar-updated event');
+    window.dispatchEvent(new CustomEvent('avatar-updated', { 
+      detail: { avatarUrl: newUrl, timestamp: Date.now() }
+    }));
   };
 
   // Função para redimensionar imagem
@@ -182,14 +180,17 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
 
       console.log('🔗 Public URL generated:', data.publicUrl);
 
-      // Atualizar perfil do usuário
+      // Atualizar perfil do usuário (upsert para garantir que funcione)
+      const avatarUrlWithTimestamp = `${data.publicUrl}?t=${Date.now()}`;
       const { error: updateError } = await supabase
         .from('user_profiles')
-        .update({ 
-          avatar_url: data.publicUrl,
+        .upsert({ 
+          user_id: user.id,
+          avatar_url: avatarUrlWithTimestamp,
           avatar_type: 'uploaded'
-        })
-        .eq('user_id', user.id);
+        }, {
+          onConflict: 'user_id'
+        });
 
       console.log('💾 Profile update result:', { updateError });
 
@@ -201,7 +202,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
       console.log('✅ Profile updated successfully');
 
       setShowAvatars(false);
-      triggerAvatarUpdate(data.publicUrl);
+      triggerAvatarUpdate(avatarUrlWithTimestamp);
 
       toast({
         title: "✅ Foto atualizada",
@@ -230,14 +231,17 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
     try {
       console.log('🎭 Updating avatar to emoji:', emoji);
       
-      // Atualizar no user_profiles (fonte primária)
+      // Atualizar no user_profiles com upsert
+      const avatarUrlWithTimestamp = `${avatarUrl}?t=${Date.now()}`;
       const { error } = await supabase
         .from('user_profiles')
-        .update({ 
-          avatar_url: avatarUrl,
+        .upsert({ 
+          user_id: user.id,
+          avatar_url: avatarUrlWithTimestamp,
           avatar_type: 'emoji'
-        })
-        .eq('user_id', user.id);
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) {
         console.error('❌ Error updating emoji avatar:', error);
@@ -247,7 +251,7 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
       console.log('✅ Emoji avatar updated successfully');
 
       setShowAvatars(false);
-      triggerAvatarUpdate(avatarUrl);
+      triggerAvatarUpdate(avatarUrlWithTimestamp);
 
       toast({
         title: "✅ Avatar atualizado",

@@ -280,6 +280,7 @@ export type Database = {
           discount_value: number
           id: string
           max_uses: number | null
+          user_id: string
           valid_from: string | null
           valid_until: string | null
         }
@@ -292,6 +293,7 @@ export type Database = {
           discount_value: number
           id?: string
           max_uses?: number | null
+          user_id: string
           valid_from?: string | null
           valid_until?: string | null
         }
@@ -304,6 +306,7 @@ export type Database = {
           discount_value?: number
           id?: string
           max_uses?: number | null
+          user_id?: string
           valid_from?: string | null
           valid_until?: string | null
         }
