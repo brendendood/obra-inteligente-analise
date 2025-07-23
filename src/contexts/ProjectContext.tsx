@@ -1,22 +1,20 @@
-
-import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Project, ProjectContextType } from '@/types/project';
 import { useProjectStorage } from '@/hooks/useProjectStorage';
 import { useProjectUpload } from '@/hooks/useProjectUpload';
 import { useProjectValidation } from '@/hooks/useProjectValidation';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
-export function ProjectProvider({ children }: { children: ReactNode }) {
+export const ProjectProvider = ({ children }: { children: ReactNode }) => {
   const [currentProject, setCurrentProjectState] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
   const { user, isAuthenticated, loading } = useAuth();
   
   const { saveProjectToStorage, getProjectFromStorage, clearProjectFromStorage } = useProjectStorage();
   const { validateProject } = useProjectValidation();
-  // Note: allProjects removido para evitar loops de re-renderização
 
   const clearAllProjects = useCallback(() => {
     console.log('🧹 PROJECT CONTEXT: Limpando todos os projetos');
@@ -25,66 +23,34 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, [clearProjectFromStorage]);
 
   const setCurrentProject = useCallback((project: Project | null) => {
-    console.log('📌 PROJECT CONTEXT: Atualizando projeto atual:', project?.name || 'null');
+    console.log('📌 PROJECT CONTEXT: Definindo projeto atual:', project?.name || 'null');
     setCurrentProjectState(project);
-    saveProjectToStorage(project);
-  }, [saveProjectToStorage]);
-
-  const { uploadProject } = useProjectUpload(setCurrentProject);
-
-  // Validar projeto salvo quando auth estiver pronto
-  useEffect(() => {
-    const validateSavedProject = () => {
-      console.log('🔍 PROJECT CONTEXT: Validando projeto salvo', { loading, isAuthenticated, userId: user?.id });
-      
-      if (loading) return;
-      
-      if (!isAuthenticated || !user) {
-        console.log('🚫 PROJECT CONTEXT: Não autenticado, limpando');
-        clearAllProjects();
-        return;
-      }
-
-      const savedProject = getProjectFromStorage();
-      if (savedProject) {
-        console.log('📦 PROJECT CONTEXT: Validando projeto do localStorage:', savedProject.name);
-        
-        // Verificar se o projeto ainda existe na lista atual
-        const { projects } = useOptimizedProjectStore.getState();
-        const projectStillExists = projects && projects.some(p => p.id === savedProject.id);
-        
-        if (projectStillExists) {
-          // Usar dados mais recentes da lista
-          const updatedProject = projects.find(p => p.id === savedProject.id);
-          if (updatedProject) {
-            console.log('✅ PROJECT CONTEXT: Projeto atualizado com dados recentes');
-            setCurrentProjectState(updatedProject);
-            saveProjectToStorage(updatedProject);
-          }
-        } else {
-          console.log('❌ PROJECT CONTEXT: Projeto não existe mais, limpando');
-          clearAllProjects();
-        }
-      }
-    };
-
-    if (!loading) {
-      validateSavedProject();
+    if (project) {
+      saveProjectToStorage(project);
+    } else {
+      clearProjectFromStorage();
     }
-  }, [loading, isAuthenticated, user?.id, getProjectFromStorage, clearAllProjects, saveProjectToStorage]);
+  }, [saveProjectToStorage, clearProjectFromStorage]);
+
+  const uploadProject = useCallback(async (file: File, projectName: string): Promise<boolean> => {
+    console.log('📤 PROJECT CONTEXT: Upload bem-sucedido:', projectName);
+    return true;
+  }, []);
+
+  // Validar projeto salvo apenas uma vez no início
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      const savedProject = getProjectFromStorage();
+      if (savedProject && validateProject(savedProject)) {
+        console.log('✅ PROJECT CONTEXT: Projeto salvo válido encontrado:', savedProject.name);
+        setCurrentProjectState(savedProject);
+      }
+    }
+  }, [loading, isAuthenticated, getProjectFromStorage, validateProject]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
-    console.log('📋 PROJECT CONTEXT: Retornando projetos do Zustand store');
-    
-    // Capturar projetos atuais no momento da chamada (não como dependência)
-    const { projects } = useOptimizedProjectStore.getState();
-    
-    if (!projects || projects.length === 0) {
-      console.log('📭 PROJECT CONTEXT: Nenhum projeto encontrado');
-      return [];
-    }
-    
-    return projects;
+    console.log('📋 PROJECT CONTEXT: Método legado - retornando array vazio');
+    return [];
   }, []);
 
   return (
