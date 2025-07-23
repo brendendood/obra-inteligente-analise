@@ -15,7 +15,7 @@ import { UnifiedLoading } from "@/components/ui/unified-loading";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import SimpleDashboard from "./pages/SimpleDashboard"; // DASHBOARD SIMPLES PARA TESTE
+import SafeDashboard from "./pages/SafeDashboard"; // SAFE DASHBOARD - SEM LOOPS
 
 // Lazy loaded pages
 const Upload = lazy(() => import("./pages/Upload"));
@@ -74,7 +74,7 @@ const App = () => {
                   {/* Protected routes */}
                   <Route path="/painel" element={
                     <ProtectedRoute>
-                      <SimpleDashboard />
+                      <SafeDashboard />
                     </ProtectedRoute>
                   } />
                   <Route path="/projetos" element={
@@ -100,14 +100,15 @@ const App = () => {
           position: 'fixed', 
           top: 10, 
           right: 10, 
-          background: 'purple', 
+          background: 'blue', 
           color: 'white', 
           padding: '10px',
           borderRadius: '5px',
           fontSize: '12px'
         }}>
-          <div>🧪 TESTE: DASHBOARD SIMPLES</div>
-          <div>Se não há loop = Dashboard era o problema</div>
+          <div>🔒 SAFE DASHBOARD ATIVO</div>
+          <div>TanStack Query + Memoização</div>
+          <div>Se não há loop = SOLUÇÃO ENCONTRADA!</div>
         </div>
       </ImpersonationProvider>
     </AuthProvider>
