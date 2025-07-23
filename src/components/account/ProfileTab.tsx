@@ -8,9 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { supabase } from '@/integrations/supabase/client';
-import { PhotoUpload } from './PhotoUpload';
 import { GenderSelect } from './GenderSelect';
-import { AvatarTestButton } from './AvatarTestButton';
 
 interface ProfileTabProps {
   isLoading: boolean;
@@ -30,9 +28,7 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
     phone: '',
     state: '',
     country: 'Brasil',
-    profilePicture: '',
-    gender: 'neutral',
-    avatar_type: 'emoji'
+    gender: 'neutral'
   });
 
   // Carregar dados do perfil ao montar o componente
@@ -66,9 +62,7 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
           phone: profile.phone || '',
           state: profile.state || '',
           country: profile.country || 'Brasil',
-          profilePicture: profile.avatar_url || getDefaultAvatarUrl(profile.gender),
-          gender: profile.gender || 'neutral',
-          avatar_type: profile.avatar_type || 'emoji'
+          gender: profile.gender || 'neutral'
         });
       }
     } catch (error) {
@@ -93,8 +87,6 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
           state: profileData.state,
           country: profileData.country,
           gender: profileData.gender,
-          avatar_url: profileData.profilePicture,
-          avatar_type: profileData.avatar_type,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
@@ -106,6 +98,9 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
         title: "✅ Perfil atualizado!",
         description: "Suas informações foram salvas com sucesso.",
       });
+
+      // Disparar evento para atualizar outros componentes
+      window.dispatchEvent(new CustomEvent('profile-updated'));
 
       await loadUserProfile();
     } catch (error) {
@@ -120,27 +115,8 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
     }
   };
 
-  const handlePhotoUpdate = (newPhotoUrl: string) => {
-    console.log('🖼️ Photo updated in ProfileTab:', newPhotoUrl);
-    setProfileData(prev => ({
-      ...prev,
-      profilePicture: newPhotoUrl,
-      avatar_type: newPhotoUrl.includes('data:') ? 'emoji' : 'uploaded'
-    }));
-  };
-
   return (
     <div className="space-y-6">
-      {/* Avatar/Foto */}
-      <div className="text-center">
-        <AvatarTestButton />
-        <PhotoUpload
-          onPhotoUpdate={handlePhotoUpdate}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-        />
-      </div>
-
       {/* Informações Básicas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
