@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogOut, User } from 'lucide-react';
@@ -8,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
 import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 export const HeaderAuthActions = () => {
   const { isAuthenticated, user } = useAuth();
@@ -39,11 +39,10 @@ export const HeaderAuthActions = () => {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center space-x-3">
-        <ThemeToggle />
         <Button 
           variant="outline" 
           onClick={() => navigate('/login')} 
-          className="transition-all duration-200 hover:bg-accent"
+          className="transition-all duration-200 hover:bg-slate-50"
         >
           Entrar
         </Button>
@@ -62,33 +61,29 @@ export const HeaderAuthActions = () => {
 
   return (
     <>
-      <div className="flex items-center space-x-3">
-        <ThemeToggle />
-        
-        <button
-          onClick={() => setShowAccountDialog(true)}
-          className="flex items-center space-x-2 text-sm text-muted-foreground bg-muted px-3 py-2 rounded-lg hover:bg-accent transition-colors"
-        >
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              {getAvatarFallback(userGender)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="max-w-32 truncate">
-            {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-          </span>
-        </button>
-        
-        <Button 
-          variant="outline" 
-          onClick={handleLogout} 
-          className="flex items-center space-x-2 hover:bg-destructive/10 hover:border-destructive/20 hover:text-destructive transition-all duration-200"
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Sair</span>
-        </Button>
-      </div>
+      <button
+        onClick={() => setShowAccountDialog(true)}
+        className="flex items-center space-x-2 text-sm text-slate-600 bg-slate-50 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+      >
+        <Avatar className="h-6 w-6">
+          <AvatarImage src={avatarUrl} />
+          <AvatarFallback className="bg-blue-600 text-white text-xs">
+            {getAvatarFallback(userGender)}
+          </AvatarFallback>
+        </Avatar>
+        <span className="max-w-32 truncate">
+          {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+        </span>
+      </button>
+      
+      <Button 
+        variant="outline" 
+        onClick={handleLogout} 
+        className="flex items-center space-x-2 hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all duration-200"
+      >
+        <LogOut className="h-4 w-4" />
+        <span>Sair</span>
+      </Button>
 
       <MyAccountDialog
         isOpen={showAccountDialog}

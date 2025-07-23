@@ -46,50 +46,36 @@
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 84% 4.9%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  --background: 224 71.4% 4.1%;
+  --foreground: 210 20% 98%;
+  --card: 224 71.4% 4.1%;
+  --card-foreground: 210 20% 98%;
+  --popover: 224 71.4% 4.1%;
+  --popover-foreground: 210 20% 98%;
+  --primary: 210 20% 98%;
+  --primary-foreground: 220.9 39.3% 11%;
+  --secondary: 215 27.9% 16.9%;
+  --secondary-foreground: 210 20% 98%;
+  --muted: 215 27.9% 16.9%;
+  --muted-foreground: 217.9 10.6% 64.9%;
+  --accent: 215 27.9% 16.9%;
+  --accent-foreground: 210 20% 98%;
   --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 94.1%;
+  --destructive-foreground: 210 20% 98%;
+  --border: 215 27.9% 16.9%;
+  --input: 215 27.9% 16.9%;
+  --ring: 216 12.2% 83.9%;
   --chart-1: 220 70% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
-  
-  /* Dark mode premium colors */
-  --electric-blue: 217.2 91.2% 59.8%;
-  --deep-navy: 222.2 84% 4.9%;
-  --pure-white: 210 40% 98%;
-  --soft-gray: 217.2 32.6% 17.5%;
-  --medium-gray: 215 20.2% 65.1%;
-  
-  /* Dark mode sidebar */
-  --sidebar: 222.2 84% 4.9%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-border: 217.2 32.6% 17.5%;
-  --sidebar-accent: 217.2 32.6% 17.5%;
 }
 
 /* Base styles */
 * {
   border-color: hsl(var(--border));
   box-sizing: border-box;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 html {
@@ -108,7 +94,6 @@ body {
   min-width: 0;
   margin: 0;
   padding: 0;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Previne zoom em inputs no mobile - CRÍTICO */
@@ -117,16 +102,10 @@ input, textarea, select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  border-color: hsl(var(--border));
 }
 
 input:focus, textarea:focus, select:focus {
   font-size: 16px !important;
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  border-color: hsl(var(--ring));
 }
 
 /* Container responsivo global */
@@ -134,9 +113,6 @@ input:focus, textarea:focus, select:focus {
   width: 100%;
   min-width: 0;
   overflow-x: hidden;
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -170,8 +146,6 @@ input:focus, textarea:focus, select:focus {
     padding-right: 2rem;
   }
 }
-
-/* ... keep existing code (animations, utilities, and responsive styles) the same ... */
 
 /* Utilitários responsivos */
 .prevent-overflow {
@@ -375,7 +349,7 @@ input:focus, textarea:focus, select:focus {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--accent)));
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
   border-radius: 50%;
   animation: particle-explosion 0.6s ease-out forwards;
   z-index: 10;
@@ -419,26 +393,65 @@ input:focus, textarea:focus, select:focus {
 }
 
 .hover-glow:hover {
-  box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
 }
 
 /* Tech cards e elementos especiais */
 .tech-card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
   padding: 1.5rem;
   transition: all 0.3s ease;
   will-change: transform, box-shadow;
-  color: hsl(var(--card-foreground));
 }
 
 .tech-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px hsl(var(--muted) / 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
-/* ... keep existing code (remaining styles) the same ... */
+.flip-card {
+  perspective: 1000px;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+}
+
+.floating {
+  animation: hero-float 4s ease-in-out infinite;
+  will-change: transform;
+}
 
 /* Scroll customizado OTIMIZADO */
 ::-webkit-scrollbar {
@@ -485,16 +498,16 @@ input:focus, textarea:focus, select:focus {
 
 /* Glassmorphism OTIMIZADO */
 .glassmorphism {
-  background: hsl(var(--background) / 0.1);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid hsl(var(--border) / 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   will-change: transform, background;
 }
 
 .glassmorphism:hover {
-  background: hsl(var(--background) / 0.15);
+  background: rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
 }
 
@@ -518,8 +531,6 @@ input:focus, textarea:focus, select:focus {
   box-sizing: border-box;
   transition: all 0.3s ease;
   will-change: transform, box-shadow;
-  background: hsl(var(--card));
-  color: hsl(var(--card-foreground));
 }
 
 .card-hover {
@@ -529,7 +540,7 @@ input:focus, textarea:focus, select:focus {
 
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px -8px hsl(var(--muted) / 0.3);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.15);
 }
 
 /* Botões responsivos OTIMIZADOS */
@@ -562,8 +573,6 @@ input:focus, textarea:focus, select:focus {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
-    background: hsl(var(--card));
-    color: hsl(var(--card-foreground));
   }
   
   .space-y-6 > * + * {
@@ -607,7 +616,7 @@ input:focus, textarea:focus, select:focus {
 /* Focus styles melhorados */
 .focus-ring:focus {
   outline: none;
-  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.3);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   border-color: hsl(var(--primary));
 }
 
@@ -630,8 +639,8 @@ input:focus, textarea:focus, select:focus {
 /* Grid pattern OTIMIZADO */
 .bg-grid-pattern {
   background-image: 
-    linear-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -652,13 +661,17 @@ input:focus, textarea:focus, select:focus {
 .testimonial-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, box-shadow;
-  background: hsl(var(--card));
-  color: hsl(var(--card-foreground));
 }
 
 .testimonial-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 40px hsl(var(--muted) / 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats counter OTIMIZADO */
+.stats-counter {
+  animation: fade-in-up 1s ease-out forwards;
+  will-change: opacity, transform;
 }
 
 /* Feature image OTIMIZADO */
@@ -669,30 +682,28 @@ input:focus, textarea:focus, select:focus {
 
 .feature-image:hover {
   transform: scale(1.02);
-  box-shadow: 0 25px 50px hsl(var(--muted) / 0.3);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
 }
 
 /* Integration cards OTIMIZADOS */
 .integration-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, box-shadow;
-  background: hsl(var(--card));
-  color: hsl(var(--card-foreground));
 }
 
 .integration-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px hsl(var(--muted) / 0.2);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Premium shadows OTIMIZADOS */
 .premium-shadow {
-  box-shadow: 0 25px 50px -12px hsl(var(--muted) / 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   will-change: box-shadow;
 }
 
 .premium-shadow:hover {
-  box-shadow: 0 35px 60px -12px hsl(var(--muted) / 0.7);
+  box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.35);
 }
 
 /* Cleanup de will-change após animações */
