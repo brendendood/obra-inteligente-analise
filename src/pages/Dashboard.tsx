@@ -9,12 +9,14 @@ import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState'
 import DashboardContent from '@/components/dashboard/DashboardContent';
 import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
 import { SmartGreeting } from '@/components/dashboard/SmartGreeting';
+import { ArchitectQuote } from '@/components/dashboard/ArchitectQuote';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { ImpersonationBanner } from '@/components/admin/ImpersonationBanner';
 
 // Memoized components for better performance
 const MemoizedBreadcrumb = memo(EnhancedBreadcrumb);
 const MemoizedGreeting = memo(SmartGreeting);
+const MemoizedArchitectQuote = memo(ArchitectQuote);
 const MemoizedDashboardContent = memo(DashboardContent);
 
 const Dashboard = memo(() => {
@@ -77,9 +79,7 @@ const Dashboard = memo(() => {
             
             <div className="min-w-0 flex-1">
               <MemoizedGreeting userName={userName} />
-              <p className="text-base sm:text-lg text-gray-600">
-                Gerencie seus projetos de construção com IA
-              </p>
+              <MemoizedArchitectQuote />
             </div>
           </div>
 
