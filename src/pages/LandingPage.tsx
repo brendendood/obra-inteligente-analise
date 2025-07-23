@@ -395,7 +395,7 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Link to="/upload" className="w-full sm:w-auto">
+              <Link to="/signup" className="w-full sm:w-auto">
                 <Button 
                   size="lg" 
                   className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
@@ -893,7 +893,7 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/upload" className="w-full sm:w-auto">
+              <Link to="/signup" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover-lift transition-smooth">
                   Começar Gratuitamente
                   <ArrowRight className="ml-2 h-5 w-5" />
