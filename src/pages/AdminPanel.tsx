@@ -9,25 +9,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
 import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
-
-import { AdminPayments } from '@/components/admin/AdminPayments';
-import { AdminAIMetrics } from '@/components/admin/AdminAIMetrics';
-import { AdminAdvancedAnalytics } from '@/components/admin/AdminAdvancedAnalytics';
-import { AdminReports } from '@/components/admin/AdminReports';
-import { AdminAlertsManager } from '@/components/admin/AdminAlertsManager';
+import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 import { 
   LayoutDashboard, 
   Users, 
   FolderOpen, 
-  BarChart3, 
-  CreditCard, 
   Shield,
-  Brain,
-  FileText,
-  Bell,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Database
 } from 'lucide-react';
 
 const AdminPanel = () => {
@@ -165,34 +156,10 @@ const AdminPanel = () => {
       component: <AdminProjectsManagement />
     },
     {
-      id: 'alerts',
-      label: 'Alertas',
-      icon: Bell,
-      component: <AdminAlertsManager />
-    },
-    {
-      id: 'advanced-analytics',
-      label: 'Analytics Avançado',
-      icon: Brain,
-      component: <AdminAdvancedAnalytics />
-    },
-    {
-      id: 'reports',
-      label: 'Relatórios',
-      icon: FileText,
-      component: <AdminReports />
-    },
-    {
-      id: 'payments',
-      label: 'Pagamentos',
-      icon: CreditCard,
-      component: <AdminPayments />
-    },
-    {
-      id: 'ai-metrics',
-      label: 'IA Metrics',
-      icon: Brain,
-      component: <AdminAIMetrics />
+      id: 'cleanup',
+      label: 'Limpeza',
+      icon: Database,
+      component: <CompleteDataCleanup />
     }
   ];
 
@@ -235,14 +202,14 @@ const AdminPanel = () => {
       {/* Conteúdo principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             {tabItems.map((tab) => {
               const Icon = tab.icon;
               return (
                 <TabsTrigger 
                   key={tab.id} 
                   value={tab.id}
-                  className="flex items-center gap-2 text-xs"
+                  className="flex items-center gap-2 text-sm"
                 >
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{tab.label}</span>

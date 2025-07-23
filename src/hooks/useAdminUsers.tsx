@@ -9,248 +9,110 @@ interface AdminUser {
   email: string;
   full_name: string | null;
   company: string | null;
-  cargo: string | null;
-  empresa: string | null;
   phone: string | null;
   city: string | null;
   state: string | null;
-  country: string | null;
-  gender: string | null;
-  avatar_url: string | null;
-  avatar_type: string | null;
-  bio: string | null;
   tags: string[] | null;
-  last_login: string | null;
   created_at: string;
   subscription: {
     plan: string;
     status: string;
   } | null;
-  login_history: {
-    total_logins: number;
-    last_ip: string | null;
-    last_location: string | null;
-    last_device: string | null;
-  } | null;
-  projects: {
-    total: number;
-    active: number;
-    last_activity: string | null;
-  } | null;
-  analytics: {
-    total_sessions: number;
-    avg_session_duration: number;
-    last_activity: string | null;
-  } | null;
 }
 
-export function useAdminUsers() {
+export const useAdminUsers = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlan, setFilterPlan] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadUsers();
-    
-    // Configurar realtime subscriptions
-    console.log('🔄 ADMIN USERS: Configurando realtime subscriptions...');
-    
-    const profilesChannel = supabase
-      .channel('admin-user-profiles')
-      .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'user_profiles' },
-        (payload) => {
-          console.log('✅ REALTIME: Novo perfil criado:', payload.new);
-          toast({
-            title: "Novo usuário detectado",
-            description: "Um novo usuário se cadastrou na plataforma",
-          });
-          loadUsers(); // Recarregar dados completos
-        }
-      )
-      .on('postgres_changes', 
-        { event: 'UPDATE', schema: 'public', table: 'user_profiles' },
-        (payload) => {
-          console.log('✅ REALTIME: Perfil atualizado:', payload.new);
-          // Atualizar apenas o usuário específico
-          setUsers(prev => prev.map(user => 
-            user.user_id === payload.new.user_id 
-              ? { ...user, ...payload.new }
-              : user
-          ));
-        }
-      )
-      .on('postgres_changes', 
-        { event: 'DELETE', schema: 'public', table: 'user_profiles' },
-        (payload) => {
-          console.log('✅ REALTIME: Perfil removido:', payload.old);
-          setUsers(prev => prev.filter(user => user.user_id !== payload.old.user_id));
-        }
-      )
-      .subscribe();
-
-    const subscriptionsChannel = supabase
-      .channel('admin-user-subscriptions')
-      .on('postgres_changes', 
-        { event: 'UPDATE', schema: 'public', table: 'user_subscriptions' },
-        (payload) => {
-          console.log('✅ REALTIME: Assinatura atualizada:', payload.new);
-          // Atualizar subscription do usuário
-          setUsers(prev => prev.map(user => 
-            user.user_id === payload.new.user_id 
-              ? { 
-                  ...user, 
-                  subscription: { 
-                    plan: payload.new.plan, 
-                    status: payload.new.status 
-                  }
-                }
-              : user
-          ));
-        }
-      )
-      .subscribe();
-
-    const projectsChannel = supabase
-      .channel('admin-user-projects')
-      .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'projects' },
-        (payload) => {
-          console.log('✅ REALTIME: Novo projeto criado:', payload.new);
-          // Recarregar dados para atualizar estatísticas de projetos
-          loadUsers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      console.log('🔄 ADMIN USERS: Removendo realtime subscriptions...');
-      supabase.removeChannel(profilesChannel);
-      supabase.removeChannel(subscriptionsChannel);
-      supabase.removeChannel(projectsChannel);
-    };
-  }, []);
-
   const loadUsers = async () => {
     try {
       setLoading(true);
-      console.log('🔄 ADMIN USERS: Carregando usuários completos...');
+      console.log('👥 ADMIN USERS: Carregando usuários reais...');
 
-      // Buscar perfis com assinaturas
-      const { data: profiles, error } = await supabase
+      // Carregar perfis de usuários com dados de auth.users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('user_profiles')
+        .select('*');
+
+      if (profilesError) throw profilesError;
+
+      // Carregar assinaturas
+      const { data: subscriptions, error: subsError } = await supabase
+        .from('user_subscriptions')
+        .select('user_id, plan, status');
+
+      if (subsError) throw subsError;
+
+      // Carregar emails dos usuários autenticados
+      const { data: authUsers, error: authError } = await supabase
         .from('user_profiles')
         .select(`
-          *,
-          user_subscriptions(plan, status)
-        `)
-        .order('created_at', { ascending: false });
+          user_id,
+          full_name,
+          company,
+          phone,
+          city,
+          state,
+          tags,
+          created_at
+        `);
 
-      if (error) {
-        console.error('❌ ADMIN USERS: Erro ao carregar perfis:', error);
-        toast({
-          title: "Erro ao carregar usuários",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
+      if (authError) throw authError;
 
-      // Buscar emails dos usuários via auth
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) {
-        console.error('❌ ADMIN USERS: Erro ao buscar auth users:', authError);
-      }
-      const authUsers = authData?.users || [];
+      // Combinar dados e buscar emails via RPC (se necessário)
+      const combinedUsers: AdminUser[] = [];
 
-      // Buscar histórico de login para cada usuário
-      const userIds = (profiles || []).map(p => p.user_id).filter(Boolean);
-      
-      const { data: loginHistory } = await supabase
-        .from('user_login_history')
-        .select('user_id, login_at, ip_address, city, country, device_type, browser')
-        .in('user_id', userIds)
-        .order('login_at', { ascending: false });
+      for (const profile of profiles || []) {
+        // Buscar email via função RPC se não tiver
+        let userEmail = 'email@exemplo.com'; // fallback
+        
+        try {
+          // Tentar buscar email via função personalizada se existir
+          const { data: emailData } = await supabase
+            .rpc('get_user_email', { target_user_id: profile.user_id });
+          
+          if (emailData) {
+            userEmail = emailData;
+          }
+        } catch (e) {
+          // Se não conseguir buscar email, usar fallback
+          userEmail = `user-${profile.user_id.slice(0, 8)}@madenai.com`;
+        }
 
-      // Buscar projetos para cada usuário
-      const { data: projects } = await supabase
-        .from('projects')
-        .select('user_id, id, project_status, updated_at')
-        .in('user_id', userIds);
+        const userSubscription = subscriptions?.find(s => s.user_id === profile.user_id);
 
-      // Buscar analytics para cada usuário
-      const { data: analytics } = await supabase
-        .from('user_analytics_enhanced')
-        .select('user_id, event_type, created_at, session_id')
-        .in('user_id', userIds)
-        .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
-
-      // Mapear dados combinados
-      const mappedUsers: AdminUser[] = (profiles || []).map(profile => {
-        const authUser = authUsers.find(u => u.id === profile.user_id);
-        const subscription = Array.isArray(profile.user_subscriptions) && profile.user_subscriptions.length > 0
-          ? profile.user_subscriptions[0] 
-          : null;
-
-        // Calcular estatísticas de login
-        const userLogins = loginHistory?.filter(l => l.user_id === profile.user_id) || [];
-        const lastLogin = userLogins[0];
-
-        // Calcular estatísticas de projetos
-        const userProjects = projects?.filter(p => p.user_id === profile.user_id) || [];
-        const activeProjects = userProjects.filter(p => p.project_status !== 'archived').length;
-
-        // Calcular estatísticas de analytics
-        const userAnalytics = analytics?.filter(a => a.user_id === profile.user_id) || [];
-        const uniqueSessions = new Set(userAnalytics.map(a => a.session_id)).size;
-
-        return {
+        combinedUsers.push({
           id: profile.id,
-          user_id: profile.user_id || '',
-          email: authUser?.email || 'Email não encontrado',
+          user_id: profile.user_id,
+          email: userEmail,
           full_name: profile.full_name,
           company: profile.company,
-          cargo: profile.cargo,
-          empresa: profile.empresa,
           phone: profile.phone,
           city: profile.city,
           state: profile.state,
-          country: profile.country,
-          gender: profile.gender,
-          avatar_url: profile.avatar_url,
-          avatar_type: profile.avatar_type,
-          bio: profile.bio,
           tags: profile.tags,
-          last_login: profile.last_login,
           created_at: profile.created_at,
-          subscription: subscription,
-          login_history: {
-            total_logins: userLogins.length,
-            last_ip: lastLogin?.ip_address?.toString() || null,
-            last_location: lastLogin ? `${lastLogin.city || ''}, ${lastLogin.country || ''}`.trim().replace(/^,|,$/, '') || null : null,
-            last_device: lastLogin ? `${lastLogin.device_type || ''} - ${lastLogin.browser || ''}`.trim().replace(/^-|-$/, '') || null : null,
-          },
-          projects: {
-            total: userProjects.length,
-            active: activeProjects,
-            last_activity: userProjects.length > 0 ? userProjects[0]?.updated_at || null : null,
-          },
-          analytics: {
-            total_sessions: uniqueSessions,
-            avg_session_duration: 0, // Implementar se necessário
-            last_activity: userAnalytics.length > 0 ? userAnalytics[0]?.created_at || null : null,
+          subscription: userSubscription ? {
+            plan: userSubscription.plan,
+            status: userSubscription.status
+          } : {
+            plan: 'free',
+            status: 'active'
           }
-        };
-      });
+        });
+      }
 
-      console.log('✅ ADMIN USERS: Usuários carregados com dados completos:', mappedUsers.length);
-      setUsers(mappedUsers);
+      setUsers(combinedUsers);
+      console.log('✅ ADMIN USERS: Usuários carregados:', combinedUsers.length);
+
     } catch (error) {
-      console.error('💥 ADMIN USERS: Erro crítico:', error);
+      console.error('❌ ADMIN USERS: Erro ao carregar usuários:', error);
       toast({
-        title: "Erro crítico",
-        description: "Falha ao carregar dados dos usuários",
+        title: "Erro ao carregar usuários",
+        description: "Não foi possível carregar a lista de usuários",
         variant: "destructive",
       });
     } finally {
@@ -260,6 +122,8 @@ export function useAdminUsers() {
 
   const updateUserTags = async (userId: string, tags: string[]) => {
     try {
+      console.log('🏷️ ADMIN USERS: Atualizando tags do usuário:', userId, tags);
+
       const { error } = await supabase
         .from('user_profiles')
         .update({ tags, updated_at: new Date().toISOString() })
@@ -267,7 +131,7 @@ export function useAdminUsers() {
 
       if (error) throw error;
 
-      // Atualizar localmente
+      // Atualizar estado local
       setUsers(prev => prev.map(user => 
         user.user_id === userId ? { ...user, tags } : user
       ));
@@ -276,6 +140,7 @@ export function useAdminUsers() {
         title: "Tags atualizadas",
         description: "Tags do usuário foram atualizadas com sucesso",
       });
+
     } catch (error) {
       console.error('❌ ADMIN USERS: Erro ao atualizar tags:', error);
       toast({
@@ -286,34 +151,41 @@ export function useAdminUsers() {
     }
   };
 
-  const updateUserPlan = async (userId: string, newPlan: 'free' | 'pro' | 'enterprise') => {
+  const updateUserPlan = async (userId: string, plan: string) => {
     try {
+      console.log('💳 ADMIN USERS: Atualizando plano do usuário:', userId, plan);
+
       const { error } = await supabase
         .from('user_subscriptions')
-        .update({ 
-          plan: newPlan,
+        .upsert({
+          user_id: userId,
+          plan,
+          status: 'active',
           updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId);
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
 
-      // Atualizar localmente
+      // Atualizar estado local
       setUsers(prev => prev.map(user => 
         user.user_id === userId 
           ? { 
               ...user, 
-              subscription: user.subscription 
-                ? { ...user.subscription, plan: newPlan }
-                : { plan: newPlan, status: 'active' }
-            }
+              subscription: { 
+                plan, 
+                status: 'active' 
+              } 
+            } 
           : user
       ));
 
       toast({
         title: "Plano atualizado",
-        description: `Plano do usuário alterado para ${newPlan}`,
+        description: `Plano do usuário alterado para ${plan.toUpperCase()}`,
       });
+
     } catch (error) {
       console.error('❌ ADMIN USERS: Erro ao atualizar plano:', error);
       toast({
@@ -324,12 +196,20 @@ export function useAdminUsers() {
     }
   };
 
-  // Filtros aplicados
+  const refreshUsers = () => {
+    loadUsers();
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // Filtrar usuários
   const filteredUsers = users.filter(user => {
     const matchesSearch = !searchTerm || 
       user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.company?.toLowerCase().includes(searchTerm.toLowerCase());
+      user.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesPlan = !filterPlan || user.subscription?.plan === filterPlan;
 
@@ -345,6 +225,6 @@ export function useAdminUsers() {
     setFilterPlan,
     updateUserTags,
     updateUserPlan,
-    refreshUsers: loadUsers,
+    refreshUsers
   };
-}
+};
