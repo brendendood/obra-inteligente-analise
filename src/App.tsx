@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/SafeAuthProvider"; // NOVO AUTH PROVIDER SEGURO
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
@@ -41,9 +42,9 @@ const ProjectSpecificAssistant = lazy(() => import("./pages/ProjectSpecificAssis
 const ProjectSpecificDocuments = lazy(() => import("./pages/ProjectSpecificDocuments"));
 // const ProjectNavigationExample = lazy(() => import("./components/examples/ProjectNavigationExample"));
 
-// STEP 1: APP SEM CONTEXTOS PROBLEMÁTICOS
+// STEP 2: APP COM NOVO AuthProvider SEGURO
 const App = () => {
-  console.log('🔥 APP: Renderizado (Sem AuthProvider)');
+  console.log('🔥 APP: Renderizado (Com SafeAuthProvider)');
   
   const queryClient = useMemo(() => new QueryClient({
     defaultOptions: {
@@ -59,7 +60,8 @@ const App = () => {
 
   return (
     <div>
-      <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <BrowserRouter>
             <Suspense fallback={<UnifiedLoading />}>
@@ -71,9 +73,17 @@ const App = () => {
                 <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
                 <Route path="/privacidade" element={<LazyWrapper><Privacy /></LazyWrapper>} />
                 
-                {/* Protected routes SEM AuthProvider por enquanto */}
-                <Route path="/painel" element={<Dashboard />} />
-                <Route path="/projetos" element={<LazyWrapper><Projects /></LazyWrapper>} />
+                {/* Protected routes COM AuthProvider */}
+                <Route path="/painel" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/projetos" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Projects /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
                 
                 {/* Catch all route */}
                 <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
@@ -92,15 +102,16 @@ const App = () => {
         position: 'fixed', 
         top: 10, 
         right: 10, 
-        background: 'green', 
+        background: 'blue', 
         color: 'white', 
         padding: '10px',
         borderRadius: '5px',
         fontSize: '12px'
       }}>
-        <div>STEP 1: SEM AUTH</div>
-        <div>Se não há loop = Auth é o problema</div>
+        <div>STEP 2: COM SAFE AUTH</div>
+        <div>Se não há loop = AUTH fixado!</div>
       </div>
+      </AuthProvider>
     </div>
   );
 };
