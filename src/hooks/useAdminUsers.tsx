@@ -38,15 +38,19 @@ export const useAdminUsers = () => {
       setLoading(true);
       console.log('👥 ADMIN USERS: Carregando usuários reais com dados completos...');
 
-      // Query otimizada para buscar dados reais dos usuários
+      // Buscar perfis de usuário
       const { data: profiles, error: profilesError } = await supabase
         .from('user_profiles')
-        .select(`
-          *,
-          user_subscriptions!inner(plan, status)
-        `);
+        .select('*');
 
       if (profilesError) throw profilesError;
+
+      // Buscar assinaturas separadamente
+      const { data: subscriptions, error: subscriptionsError } = await supabase
+        .from('user_subscriptions')
+        .select('user_id, plan, status');
+
+      if (subscriptionsError) throw subscriptionsError;
 
       // Buscar dados reais do auth.users usando RPC ou função administrativa
       const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
@@ -55,14 +59,15 @@ export const useAdminUsers = () => {
         console.warn('⚠️ Não foi possível buscar dados do auth.users:', authError);
       }
 
-      // Combinar dados de perfis com dados de autenticação
+      // Combinar dados de perfis com dados de autenticação e assinaturas
       const combinedUsers: AdminUser[] = [];
 
       for (const profile of profiles || []) {
         // Encontrar dados correspondentes do auth.users
         const authUser = authUsers?.users?.find((u: any) => u.id === profile.user_id);
         
-        const userSubscription = Array.isArray(profile.user_subscriptions) ? profile.user_subscriptions[0] : profile.user_subscriptions || null;
+        // Encontrar assinatura do usuário
+        const userSubscription = subscriptions?.find(s => s.user_id === profile.user_id);
 
         combinedUsers.push({
           id: profile.id,
@@ -81,7 +86,7 @@ export const useAdminUsers = () => {
           tags: profile.tags,
           created_at: authUser?.created_at || profile.created_at,
           last_sign_in_at: authUser?.last_sign_in_at || null,
-          subscription: userSubscription && typeof userSubscription === 'object' ? {
+          subscription: userSubscription ? {
             plan: userSubscription.plan || 'free',
             status: userSubscription.status || 'active'
           } : {
