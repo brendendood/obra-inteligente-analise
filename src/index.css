@@ -31,17 +31,12 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
   
-  /* Premium colors - MadenAI Brand */
-  --electric-blue: 220 100% 50%;
-  --royal-blue: 230 100% 45%;
+  /* Premium colors */
+  --electric-blue: 249 95% 63%;
   --deep-navy: 220 100% 8%;
   --pure-white: 0 0% 100%;
   --soft-gray: 220 13% 85%;
   --medium-gray: 220 9% 50%;
-  --accent-orange: 25 95% 55%;
-  --gradient-primary: linear-gradient(135deg, hsl(220, 100%, 50%), hsl(230, 100%, 45%));
-  --gradient-secondary: linear-gradient(135deg, hsl(25, 95%, 55%), hsl(15, 95%, 50%));
-  --shadow-brand: 0 25px 50px -12px rgba(30, 64, 175, 0.25);
   
   /* Sidebar variables */
   --sidebar: 220 100% 8%;
