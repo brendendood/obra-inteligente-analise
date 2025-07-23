@@ -10,6 +10,7 @@ import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { supabase } from '@/integrations/supabase/client';
 import { PhotoUpload } from './PhotoUpload';
 import { GenderSelect } from './GenderSelect';
+import { AvatarTestButton } from './AvatarTestButton';
 
 interface ProfileTabProps {
   isLoading: boolean;
@@ -132,6 +133,7 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
     <div className="space-y-6">
       {/* Avatar/Foto */}
       <div className="text-center">
+        <AvatarTestButton />
         <PhotoUpload
           onPhotoUpdate={handlePhotoUpdate}
           isLoading={isLoading}

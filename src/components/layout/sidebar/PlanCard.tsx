@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useUserData } from '@/hooks/useUserData';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
+import { AvatarDisplay } from '@/components/account/AvatarDisplay';
 
 interface PlanCardProps {
   isCollapsed: boolean;
@@ -65,18 +64,12 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
   const navigate = useNavigate();
   const { userData } = useUserData();
   const { profileData } = useUserProfile();
-  const { getAvatarFallback } = useDefaultAvatar();
 
   if (isCollapsed) {
     return (
       <div className="px-2 pb-4">
         <div className="flex flex-col items-center space-y-2">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={profileData.profilePicture} />
-            <AvatarFallback className="bg-blue-600 text-white text-xs">
-              {getAvatarFallback(profileData.gender)}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarDisplay size="sm" />
           <Button
             variant="ghost"
             size="sm"
@@ -100,12 +93,7 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800 transition-all duration-200 hover:shadow-md">
         {/* User Avatar and Info */}
         <div className="flex items-center gap-3 mb-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={profileData.profilePicture} />
-            <AvatarFallback className="bg-blue-600 text-white text-xs">
-              {getAvatarFallback(profileData.gender)}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarDisplay size="sm" />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-blue-900 dark:text-blue-100 truncate">
               {profileData.full_name || 'Usuário'}
