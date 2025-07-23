@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -38,6 +39,20 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
 
   const currentAvatar = user?.user_metadata?.avatar_url || '';
   const userGender = user?.user_metadata?.gender || 'neutral';
+
+  // Função para forçar atualização em todos os componentes
+  const triggerAvatarUpdate = (newUrl: string) => {
+    console.log('🔄 Triggering avatar update event with URL:', newUrl);
+    onPhotoUpdate(newUrl);
+    
+    // Disparar evento customizado com delay para garantir que o DB foi atualizado
+    setTimeout(() => {
+      console.log('📡 Dispatching avatar-updated event');
+      window.dispatchEvent(new CustomEvent('avatar-updated', { 
+        detail: { avatarUrl: newUrl }
+      }));
+    }, 100);
+  };
 
   // Função para redimensionar imagem
   const resizeImage = useCallback((file: File, maxSizeKB: number = 300): Promise<File> => {
@@ -185,18 +200,16 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
 
       console.log('✅ Profile updated successfully');
 
-      onPhotoUpdate(data.publicUrl);
       setShowAvatars(false);
+      triggerAvatarUpdate(data.publicUrl);
 
       toast({
         title: "✅ Foto atualizada",
         description: "Sua foto de perfil foi alterada com sucesso.",
       });
 
-      // Forçar refresh dos componentes que usam o avatar
-      window.dispatchEvent(new CustomEvent('avatar-updated'));
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('💥 Error uploading file:', error);
       toast({
         title: "❌ Erro no upload",
         description: "Não foi possível fazer upload da foto.",
@@ -215,6 +228,8 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
     setSelectedAvatar(emoji);
     
     try {
+      console.log('🎭 Updating avatar to emoji:', emoji);
+      
       // Atualizar no user_profiles (fonte primária)
       const { error } = await supabase
         .from('user_profiles')
@@ -224,20 +239,23 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
         })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error updating emoji avatar:', error);
+        throw error;
+      }
 
-      onPhotoUpdate(avatarUrl);
+      console.log('✅ Emoji avatar updated successfully');
+
       setShowAvatars(false);
+      triggerAvatarUpdate(avatarUrl);
 
       toast({
         title: "✅ Avatar atualizado",
         description: "Seu avatar foi alterado com sucesso.",
       });
 
-      // Forçar refresh dos componentes que usam o avatar
-      window.dispatchEvent(new CustomEvent('avatar-updated'));
     } catch (error) {
-      console.error('Error updating avatar:', error);
+      console.error('💥 Error updating avatar:', error);
       toast({
         title: "❌ Erro",
         description: "Não foi possível atualizar o avatar. Tente novamente.",

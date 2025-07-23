@@ -36,6 +36,19 @@ export const useUserProfile = () => {
 
   const loadProfile = async () => {
     if (!isAuthenticated || !user?.id) {
+      console.log('⚠️ User not authenticated, resetting profile data');
+      setProfileData({
+        full_name: '',
+        company: '',
+        cargo: '',
+        empresa: '',
+        phone: '',
+        state: '',
+        country: 'Brasil',
+        profilePicture: getDefaultAvatarUrl('neutral'),
+        gender: 'neutral',
+        avatar_type: 'emoji'
+      });
       setLoading(false);
       return;
     }
@@ -47,12 +60,12 @@ export const useUserProfile = () => {
         .from('user_profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       console.log('📋 Profile query result:', { profile, error });
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading profile:', error);
+      if (error) {
+        console.error('❌ Error loading profile:', error);
         setLoading(false);
         return;
       }
@@ -74,8 +87,7 @@ export const useUserProfile = () => {
           avatar_type: profile.avatar_type || 'emoji'
         });
       } else {
-        console.log('🚫 No profile found, creating with default avatar');
-        // Se não encontrou perfil, criar um com avatar padrão
+        console.log('🚫 No profile found, using defaults with user metadata');
         const defaultAvatar = getDefaultAvatarUrl('neutral');
         setProfileData({
           full_name: user.user_metadata?.full_name || '',
@@ -91,7 +103,7 @@ export const useUserProfile = () => {
         });
       }
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error('💥 Critical error loading user profile:', error);
     } finally {
       setLoading(false);
     }
@@ -101,17 +113,20 @@ export const useUserProfile = () => {
     loadProfile();
   }, [user?.id, isAuthenticated]);
 
-  // Listen for avatar updates
+  // Listen for avatar updates with improved handling
   useEffect(() => {
     const handleAvatarUpdate = () => {
-      loadProfile();
+      console.log('🔄 Avatar update event received, reloading profile...');
+      setTimeout(() => {
+        loadProfile();
+      }, 500); // Small delay to ensure DB is updated
     };
 
     window.addEventListener('avatar-updated', handleAvatarUpdate);
     return () => {
       window.removeEventListener('avatar-updated', handleAvatarUpdate);
     };
-  }, []);
+  }, [user?.id, isAuthenticated]);
 
   return {
     profileData,
