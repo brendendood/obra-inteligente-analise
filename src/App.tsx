@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { AuthProvider } from "@/contexts/AuthProvider";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
@@ -99,13 +100,14 @@ const App = () => {
   return (
     <PerformantErrorBoundary>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <ProjectProvider>
-                <Suspense fallback={<UnifiedLoading />}>
+        <ImpersonationProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <ProjectProvider>
+                  <Suspense fallback={<UnifiedLoading />}>
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<LandingPage />} />
@@ -191,11 +193,12 @@ const App = () => {
 
                     <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
                   </Routes>
-                </Suspense>
-              </ProjectProvider>
-            </BrowserRouter>
-          </TooltipProvider>
-        </QueryClientProvider>
+                  </Suspense>
+                </ProjectProvider>
+              </BrowserRouter>
+            </TooltipProvider>
+          </QueryClientProvider>
+        </ImpersonationProvider>
       </AuthProvider>
     </PerformantErrorBoundary>
   );

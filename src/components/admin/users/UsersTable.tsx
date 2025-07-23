@@ -107,14 +107,46 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
     }
   };
 
-  const handleImpersonateUser = async (userId: string) => {
+  const handleImpersonateUser = async (userId: string, userEmail: string, userName: string) => {
+    if (!confirm(`Deseja realmente fazer login como ${userName}? Esta ação será registrada nos logs de auditoria.`)) {
+      return;
+    }
+
     try {
-      // Implementar lógica de impersonação aqui
-      toast({
-        title: "Impersonação iniciada",
-        description: "Você agora está logado como este usuário",
+      const { data, error } = await supabase.functions.invoke('admin-impersonate', {
+        body: { 
+          targetUserId: userId,
+          reason: 'Admin support session'
+        }
       });
+
+      if (error) {
+        console.error('Error starting impersonation:', error);
+        toast({
+          title: "Erro na impersonação",
+          description: "Não foi possível iniciar a sessão de impersonação",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.impersonationUrl) {
+        // Store impersonation data for the banner
+        localStorage.setItem('impersonation_data', JSON.stringify({
+          sessionId: data.sessionId,
+          targetUser: data.targetUser,
+          adminId: data.adminId || 'current-admin'
+        }));
+
+        // Open in new tab
+        window.open(data.impersonationUrl, '_blank');
+        toast({
+          title: "Impersonação iniciada",
+          description: `Sessão de impersonação iniciada para ${userName}`,
+        });
+      }
     } catch (error) {
+      console.error('Error impersonating user:', error);
       toast({
         title: "Erro na impersonação",
         description: "Não foi possível fazer login como este usuário",
@@ -201,7 +233,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleImpersonateUser(user.user_id)}
+                      onClick={() => handleImpersonateUser(user.user_id, user.email, user.full_name || user.email)}
                       title="Logar como usuário"
                     >
                       <LogIn className="h-4 w-4" />

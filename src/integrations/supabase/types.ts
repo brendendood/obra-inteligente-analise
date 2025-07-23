@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_impersonation_logs: {
+        Row: {
+          admin_id: string
+          created_at: string
+          duration_minutes: number | null
+          ended_at: string | null
+          id: string
+          ip_address: unknown | null
+          reason: string | null
+          started_at: string
+          user_agent: string | null
+          user_impersonated_id: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          reason?: string | null
+          started_at?: string
+          user_agent?: string | null
+          user_impersonated_id: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          reason?: string | null
+          started_at?: string
+          user_agent?: string | null
+          user_impersonated_id?: string
+        }
+        Relationships: []
+      }
       admin_permissions: {
         Row: {
           active: boolean | null
@@ -877,6 +916,10 @@ export type Database = {
       calculate_user_engagement: {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
+      }
+      end_impersonation_session: {
+        Args: { session_id: string }
+        Returns: undefined
       }
       example_function: {
         Args: Record<PropertyKey, never>
