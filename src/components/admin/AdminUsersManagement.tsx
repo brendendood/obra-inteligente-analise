@@ -41,7 +41,7 @@ export const AdminUsersManagement = () => {
     <div className="space-y-6">
       <UsersHeader 
         totalUsers={users.length}
-        users={users}
+        users={users as any}
         onRefresh={refreshUsers}
         isRefreshing={loading}
       />

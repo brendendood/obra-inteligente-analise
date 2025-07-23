@@ -5,11 +5,26 @@ import { RefreshCw, Users, FileSpreadsheet, FileDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { exportUsersToExcel, exportUsersToCSV } from '@/utils/adminExportUtils';
 import { useToast } from '@/hooks/use-toast';
-import { AdminUser } from '@/types/admin';
+
+interface AdminUserExport {
+  id: string;
+  email: string;
+  full_name?: string | null;
+  created_at: string;
+  last_sign_in_at?: string | null;
+  plan: string;
+  status: string;
+  tags?: string[] | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  company?: string | null;
+  phone?: string | null;
+}
 
 interface UsersHeaderProps {
   totalUsers: number;
-  users: AdminUser[];
+  users: AdminUserExport[];
   onRefresh: () => void;
   isRefreshing: boolean;
 }

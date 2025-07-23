@@ -6,7 +6,7 @@ export const exportScheduleToExcel = (scheduleData: ScheduleData, projectName: s
     const mainData = [
       ['CRONOGRAMA - MADENAI'],
       ['Projeto:', projectName],
-      ['Duração:', `${scheduleData.total_duration} dias`],
+      ['Duração:', `${scheduleData.totalDuration} dias`],
       [''],
       ['ID', 'Atividade', 'Categoria', 'Início', 'Fim', 'Duração'],
       ...scheduleData.tasks.map(task => [

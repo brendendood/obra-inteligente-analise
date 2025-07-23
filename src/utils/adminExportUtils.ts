@@ -1,19 +1,19 @@
 import * as XLSX from 'xlsx';
 
-export interface AdminUser {
+interface AdminUserExport {
   id: string;
   email: string;
-  full_name?: string;
+  full_name?: string | null;
   created_at: string;
-  last_sign_in_at?: string;
+  last_sign_in_at?: string | null;
   plan: string;
-  status: 'active' | 'inactive' | 'suspended';
-  tags?: string[];
-  city?: string;
-  state?: string;
-  country?: string;
-  company?: string;
-  phone?: string;
+  status: string;
+  tags?: string[] | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  company?: string | null;
+  phone?: string | null;
 }
 
 export interface LoginHistoryRecord {
@@ -31,7 +31,7 @@ export interface LoginHistoryRecord {
   longitude?: number;
 }
 
-export const exportUsersToExcel = (users: AdminUser[]) => {
+export const exportUsersToExcel = (users: AdminUserExport[]) => {
   try {
     const mainData = [
       ['RELATÓRIO DE USUÁRIOS - MADENAI'],
@@ -90,7 +90,7 @@ export const exportUsersToExcel = (users: AdminUser[]) => {
   }
 };
 
-export const exportUsersToCSV = (users: AdminUser[]) => {
+export const exportUsersToCSV = (users: AdminUserExport[]) => {
   try {
     // UTF-8 BOM for proper Excel encoding
     const BOM = '\uFEFF';
