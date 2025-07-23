@@ -14,6 +14,10 @@ interface AdminProject {
   user_name: string | null;
   file_size: number | null;
   analysis_data: any;
+  city: string | null;
+  state: string | null;
+  total_area: number | null;
+  estimated_budget: number | null;
 }
 
 export const useAdminProjects = () => {
@@ -41,7 +45,11 @@ export const useAdminProjects = () => {
           project_status,
           project_type,
           file_size,
-          analysis_data
+          analysis_data,
+          city,
+          state,
+          total_area,
+          estimated_budget
         `)
         .order('created_at', { ascending: false });
 

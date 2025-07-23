@@ -66,21 +66,8 @@ export const useAdminUsers = () => {
       const combinedUsers: AdminUser[] = [];
 
       for (const profile of profiles || []) {
-        // Buscar email via função RPC se não tiver
-        let userEmail = 'email@exemplo.com'; // fallback
-        
-        try {
-          // Tentar buscar email via função personalizada se existir
-          const { data: emailData } = await supabase
-            .rpc('get_user_email', { target_user_id: profile.user_id });
-          
-          if (emailData) {
-            userEmail = emailData;
-          }
-        } catch (e) {
-          // Se não conseguir buscar email, usar fallback
-          userEmail = `user-${profile.user_id.slice(0, 8)}@madenai.com`;
-        }
+        // Usar fallback simples para email
+        const userEmail = `user-${profile.user_id.slice(0, 8)}@madenai.com`;
 
         const userSubscription = subscriptions?.find(s => s.user_id === profile.user_id);
 
@@ -159,8 +146,8 @@ export const useAdminUsers = () => {
         .from('user_subscriptions')
         .upsert({
           user_id: userId,
-          plan,
-          status: 'active',
+          plan: plan as 'free' | 'pro' | 'enterprise',
+          status: 'active' as 'active' | 'canceled' | 'past_due' | 'trialing',
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id'
