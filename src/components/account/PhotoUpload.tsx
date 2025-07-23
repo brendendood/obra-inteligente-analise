@@ -141,22 +141,31 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
     if (!user) return;
     
     setIsLoading(true);
+    console.log('📤 Starting file upload for user:', user.id);
     
     try {
       const fileExt = file.name.split('.').pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
+      console.log('📁 Upload path:', filePath);
       
       // Upload do arquivo
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, { upsert: true });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('❌ Storage upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('✅ File uploaded successfully');
 
       // Obter URL pública
       const { data } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
+
+      console.log('🔗 Public URL generated:', data.publicUrl);
 
       // Atualizar perfil do usuário
       const { error: updateError } = await supabase
@@ -167,7 +176,14 @@ export const PhotoUpload = ({ onPhotoUpdate, isLoading, setIsLoading }: PhotoUpl
         })
         .eq('user_id', user.id);
 
-      if (updateError) throw updateError;
+      console.log('💾 Profile update result:', { updateError });
+
+      if (updateError) {
+        console.error('❌ Profile update error:', updateError);
+        throw updateError;
+      }
+
+      console.log('✅ Profile updated successfully');
 
       onPhotoUpdate(data.publicUrl);
       setShowAvatars(false);
