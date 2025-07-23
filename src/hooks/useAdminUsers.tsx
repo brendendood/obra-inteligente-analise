@@ -7,16 +7,19 @@ interface AdminUser {
   id: string;
   user_id: string;
   email: string;
+  email_confirmed_at: string | null;
   full_name: string | null;
   company: string | null;
   phone: string | null;
   city: string | null;
   state: string | null;
+  country: string | null;
   cargo: string | null;
   avatar_url: string | null;
+  gender: string | null;
   tags: string[] | null;
   created_at: string;
-  last_login: string | null;
+  last_sign_in_at: string | null;
   subscription: {
     plan: string;
     status: string;
@@ -33,45 +36,51 @@ export const useAdminUsers = () => {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      console.log('👥 ADMIN USERS: Carregando usuários reais...');
+      console.log('👥 ADMIN USERS: Carregando usuários reais com dados completos...');
 
-      // Carregar perfis de usuários
+      // Query otimizada para buscar dados reais dos usuários
       const { data: profiles, error: profilesError } = await supabase
         .from('user_profiles')
-        .select('*');
+        .select(`
+          *,
+          user_subscriptions!inner(plan, status)
+        `);
 
       if (profilesError) throw profilesError;
 
-      // Carregar assinaturas
-      const { data: subscriptions, error: subsError } = await supabase
-        .from('user_subscriptions')
-        .select('user_id, plan, status');
+      // Buscar dados reais do auth.users usando RPC ou função administrativa
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.warn('⚠️ Não foi possível buscar dados do auth.users:', authError);
+      }
 
-      if (subsError) throw subsError;
-
-      // Combinar dados
+      // Combinar dados de perfis com dados de autenticação
       const combinedUsers: AdminUser[] = [];
 
       for (const profile of profiles || []) {
-        // Usar fallback simples para email
-        const userEmail = `user-${profile.user_id.slice(0, 8)}@madenai.com`;
-
-        const userSubscription = subscriptions?.find(s => s.user_id === profile.user_id);
+        // Encontrar dados correspondentes do auth.users
+        const authUser = authUsers?.users?.find(u => u.id === profile.user_id);
+        
+        const userSubscription = profile.user_subscriptions?.[0] || null;
 
         combinedUsers.push({
           id: profile.id,
           user_id: profile.user_id,
-          email: userEmail,
+          email: authUser?.email || `user-${profile.user_id.slice(0, 8)}@madenai.com`,
+          email_confirmed_at: authUser?.email_confirmed_at || null,
           full_name: profile.full_name,
           company: profile.company,
           phone: profile.phone,
           city: profile.city,
           state: profile.state,
+          country: profile.country,
           cargo: profile.cargo,
-          avatar_url: profile.avatar_url,
+          avatar_url: profile.avatar_url || authUser?.user_metadata?.avatar_url || null,
+          gender: profile.gender || authUser?.user_metadata?.gender || null,
           tags: profile.tags,
-          created_at: profile.created_at,
-          last_login: profile.last_login,
+          created_at: authUser?.created_at || profile.created_at,
+          last_sign_in_at: authUser?.last_sign_in_at || null,
           subscription: userSubscription ? {
             plan: userSubscription.plan,
             status: userSubscription.status
@@ -83,7 +92,7 @@ export const useAdminUsers = () => {
       }
 
       setUsers(combinedUsers);
-      console.log('✅ ADMIN USERS: Usuários carregados:', combinedUsers.length);
+      console.log('✅ ADMIN USERS: Usuários carregados com dados reais:', combinedUsers.length);
 
     } catch (error) {
       console.error('❌ ADMIN USERS: Erro ao carregar usuários:', error);
@@ -235,12 +244,13 @@ export const useAdminUsers = () => {
     loadUsers();
   }, []);
 
-  // Filtrar usuários
+  // Filtrar usuários com base em pesquisa e filtros
   const filteredUsers = users.filter(user => {
     const matchesSearch = !searchTerm || 
       user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.cargo?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesPlan = filterPlan === 'all' || user.subscription?.plan === filterPlan;
 

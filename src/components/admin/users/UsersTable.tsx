@@ -8,25 +8,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, LogIn, Trash2 } from 'lucide-react';
+import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface UserTableProps {
   users: Array<{
     id: string;
     user_id: string;
     email: string;
+    email_confirmed_at: string | null;
     full_name: string | null;
     company: string | null;
     phone: string | null;
     city: string | null;
     state: string | null;
+    country: string | null;
     cargo: string | null;
     avatar_url: string | null;
+    gender: string | null;
+    tags: string[] | null;
     created_at: string;
-    last_login: string | null;
+    last_sign_in_at: string | null;
     subscription: {
       plan: string;
       status: string;
@@ -54,10 +59,49 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
   const getPlanColor = (plan: string) => {
     switch (plan) {
       case 'free': return 'bg-gray-100 text-gray-800';
+      case 'basic': return 'bg-green-100 text-green-800';
       case 'pro': return 'bg-blue-100 text-blue-800';
       case 'enterprise': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Nunca';
+    try {
+      return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: ptBR });
+    } catch {
+      return 'Data inválida';
+    }
+  };
+
+  const formatLocation = (city: string | null, state: string | null, country: string | null) => {
+    const parts = [city, state, country].filter(Boolean);
+    return parts.length > 0 ? parts.join(', ') : 'Não informado';
+  };
+
+  const getAvatarFallback = (user: any) => {
+    if (user.full_name) {
+      const names = user.full_name.split(' ');
+      return names.length > 1 
+        ? `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
+        : names[0][0].toUpperCase();
+    }
+    return user.email[0].toUpperCase();
+  };
+
+  const getGenderBadge = (gender: string | null) => {
+    if (!gender) return null;
+    const colors = {
+      'masculino': 'bg-blue-50 text-blue-700',
+      'feminino': 'bg-pink-50 text-pink-700',
+      'outro': 'bg-purple-50 text-purple-700'
+    };
+    return (
+      <Badge className={colors[gender as keyof typeof colors] || 'bg-gray-50 text-gray-700'}>
+        {gender}
+      </Badge>
+    );
   };
 
   const handleSelectUser = (userId: string, checked: boolean) => {
@@ -157,7 +201,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -167,16 +211,14 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Cargo</TableHead>
-              <TableHead>Empresa</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Telefone</TableHead>
+              <TableHead>Usuário</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Plano</TableHead>
+              <TableHead>Profissão</TableHead>
+              <TableHead>Contato</TableHead>
               <TableHead>Localização</TableHead>
-              <TableHead>Criado em</TableHead>
+              <TableHead>Plano</TableHead>
               <TableHead>Último Login</TableHead>
+              <TableHead>Criado em</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -192,42 +234,125 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                     onCheckedChange={(checked) => handleSelectUser(user.user_id, checked as boolean)}
                   />
                 </TableCell>
-                <TableCell>
+                
+                {/* Usuário */}
+                <TableCell className="min-w-[250px]">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar_url || ''} />
-                      <AvatarFallback>
-                        {user.full_name?.split(' ').map(n => n[0]).join('') || user.email[0].toUpperCase()}
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                        {getAvatarFallback(user)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
-                      <div className="font-medium">{user.full_name || 'Nome não informado'}</div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-gray-900">
+                          {user.full_name || 'Nome não informado'}
+                        </span>
+                        {getGenderBadge(user.gender)}
+                      </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Mail className="h-3 w-3" />
+                        <span>{user.email}</span>
+                        {user.email_confirmed_at ? (
+                          <CheckCircle className="h-3 w-3 text-green-600" title="Email confirmado" />
+                        ) : (
+                          <XCircle className="h-3 w-3 text-red-600" title="Email não confirmado" />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TableCell>
-                <TableCell>{user.cargo || '-'}</TableCell>
-                <TableCell>{user.company || '-'}</TableCell>
-                <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
-                <TableCell>{user.phone || '-'}</TableCell>
+
+                {/* Status */}
                 <TableCell>
-                  <Badge className={getStatusColor(user.subscription?.status || 'active')}>
-                    {user.subscription?.status || 'active'}
-                  </Badge>
+                  <div className="space-y-1">
+                    <Badge className={getStatusColor(user.subscription?.status || 'active')}>
+                      {user.subscription?.status || 'active'}
+                    </Badge>
+                    {user.last_sign_in_at && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Clock className="h-3 w-3" />
+                        Online recentemente
+                      </div>
+                    )}
+                  </div>
                 </TableCell>
+
+                {/* Profissão */}
+                <TableCell>
+                  <div className="space-y-1">
+                    <div className="font-medium text-sm">
+                      {user.cargo || 'Não informado'}
+                    </div>
+                    {user.company && (
+                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                        <Building className="h-3 w-3" />
+                        <span>{user.company}</span>
+                      </div>
+                    )}
+                  </div>
+                </TableCell>
+
+                {/* Contato */}
+                <TableCell>
+                  <div className="space-y-1">
+                    {user.phone && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Phone className="h-3 w-3 text-gray-400" />
+                        <span>{user.phone}</span>
+                      </div>
+                    )}
+                  </div>
+                </TableCell>
+
+                {/* Localização */}
+                <TableCell>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <MapPin className="h-3 w-3 text-gray-400" />
+                    <span className="max-w-[150px] truncate" title={formatLocation(user.city, user.state, user.country)}>
+                      {formatLocation(user.city, user.state, user.country)}
+                    </span>
+                  </div>
+                </TableCell>
+
+                {/* Plano */}
                 <TableCell>
                   <Badge className={getPlanColor(user.subscription?.plan || 'free')}>
                     {(user.subscription?.plan || 'free').toUpperCase()}
                   </Badge>
                 </TableCell>
+
+                {/* Último Login */}
                 <TableCell>
-                  {[user.city, user.state].filter(Boolean).join(', ') || '-'}
+                  <div className="text-sm">
+                    {user.last_sign_in_at ? (
+                      <div className="space-y-1">
+                        <div>{formatDate(user.last_sign_in_at)}</div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(user.last_sign_in_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) 
+                            ? '🟢 Ativo' 
+                            : new Date(user.last_sign_in_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                            ? '🟡 Inativo'
+                            : '🔴 Dormindo'
+                          }
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">Nunca fez login</span>
+                    )}
+                  </div>
                 </TableCell>
+
+                {/* Criado em */}
                 <TableCell>
-                  {format(new Date(user.created_at), 'dd/MM/yyyy')}
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Calendar className="h-3 w-3" />
+                    <span>{formatDate(user.created_at)}</span>
+                  </div>
                 </TableCell>
-                <TableCell>
-                  {user.last_login ? format(new Date(user.last_login), 'dd/MM/yyyy HH:mm') : 'Nunca'}
-                </TableCell>
+
+                {/* Ações */}
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
                     <Button
@@ -248,9 +373,9 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                           <Edit className="h-4 w-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[600px]">
+                      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle>Editar Usuário - {user.full_name}</DialogTitle>
+                          <DialogTitle>Editar Usuário - {user.full_name || user.email}</DialogTitle>
                         </DialogHeader>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
@@ -312,6 +437,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="free">Free</SelectItem>
+                                <SelectItem value="basic">Basic</SelectItem>
                                 <SelectItem value="pro">Pro</SelectItem>
                                 <SelectItem value="enterprise">Enterprise</SelectItem>
                               </SelectContent>
@@ -361,11 +487,11 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
       </div>
       
       {selectedUsers.length > 0 && (
-        <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-md">
-          <span className="text-sm text-blue-800">
+        <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <span className="text-sm text-blue-800 font-medium">
             {selectedUsers.length} usuários selecionados
           </span>
-          <Button size="sm" variant="outline">
+          <Button size="sm" variant="outline" className="ml-auto">
             Ações em lote
           </Button>
         </div>
