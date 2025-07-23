@@ -1,7 +1,7 @@
 
 import { UsersHeader } from './users/UsersHeader';
 import { UsersFilters } from './users/UsersFilters';
-import { UserCard } from './users/UserCard';
+import { UsersTable } from './users/UsersTable';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 
 export const AdminUsersManagement = () => {
@@ -13,7 +13,9 @@ export const AdminUsersManagement = () => {
     filterPlan,
     setFilterPlan,
     updateUserTags,
+    updateUserProfile,
     updateUserPlan,
+    deleteUser,
     refreshUsers
   } = useAdminUsers();
 
@@ -51,17 +53,12 @@ export const AdminUsersManagement = () => {
         onClearFilters={clearFilters}
       />
 
-      {/* Users Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {users.map((user) => (
-          <UserCard
-            key={user.id}
-            user={{...user, sector: user.company || null}}
-            onUpdateTags={updateUserTags}
-            onUpdatePlan={updateUserPlan}
-          />
-        ))}
-      </div>
+      {/* Users Table */}
+      <UsersTable
+        users={users}
+        onUpdateUser={updateUserProfile}
+        onDeleteUser={deleteUser}
+      />
 
       {users.length === 0 && (
         <div className="text-center py-12">

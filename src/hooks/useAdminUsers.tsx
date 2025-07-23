@@ -12,8 +12,11 @@ interface AdminUser {
   phone: string | null;
   city: string | null;
   state: string | null;
+  cargo: string | null;
+  avatar_url: string | null;
   tags: string[] | null;
   created_at: string;
+  last_login: string | null;
   subscription: {
     plan: string;
     status: string;
@@ -64,8 +67,11 @@ export const useAdminUsers = () => {
           phone: profile.phone,
           city: profile.city,
           state: profile.state,
+          cargo: profile.cargo,
+          avatar_url: profile.avatar_url,
           tags: profile.tags,
           created_at: profile.created_at,
+          last_login: profile.last_login,
           subscription: userSubscription ? {
             plan: userSubscription.plan,
             status: userSubscription.status
@@ -122,46 +128,100 @@ export const useAdminUsers = () => {
     }
   };
 
-  const updateUserPlan = async (userId: string, plan: string) => {
+  const updateUserProfile = async (userId: string, data: any) => {
     try {
-      console.log('💳 ADMIN USERS: Atualizando plano do usuário:', userId, plan);
+      console.log('👤 ADMIN USERS: Atualizando perfil do usuário:', userId, data);
 
-      const { error } = await supabase
-        .from('user_subscriptions')
-        .upsert({
-          user_id: userId,
-          plan: plan as 'free' | 'pro' | 'enterprise',
-          status: 'active' as 'active' | 'canceled' | 'past_due' | 'trialing',
+      // Atualizar perfil do usuário
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          full_name: data.full_name,
+          company: data.company,
+          phone: data.phone,
+          city: data.city,
+          state: data.state,
+          cargo: data.cargo,
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'user_id'
-        });
+        })
+        .eq('user_id', userId);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Atualizar assinatura se necessário
+      if (data.plan || data.status) {
+        const { error: subscriptionError } = await supabase
+          .from('user_subscriptions')
+          .upsert({
+            user_id: userId,
+            plan: (data.plan || 'free') as 'free' | 'pro' | 'enterprise',
+            status: (data.status || 'active') as 'active' | 'canceled' | 'past_due' | 'trialing',
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'user_id'
+          });
+
+        if (subscriptionError) throw subscriptionError;
+      }
 
       // Atualizar estado local
       setUsers(prev => prev.map(user => 
         user.user_id === userId 
           ? { 
-              ...user, 
-              subscription: { 
-                plan, 
-                status: 'active' 
-              } 
+              ...user,
+              full_name: data.full_name || user.full_name,
+              company: data.company || user.company,
+              phone: data.phone || user.phone,
+              city: data.city || user.city,
+              state: data.state || user.state,
+              cargo: data.cargo || user.cargo,
+              subscription: data.plan || data.status ? {
+                plan: data.plan || user.subscription?.plan || 'free',
+                status: data.status || user.subscription?.status || 'active'
+              } : user.subscription
             } 
           : user
       ));
 
       toast({
-        title: "Plano atualizado",
-        description: `Plano do usuário alterado para ${plan.toUpperCase()}`,
+        title: "Usuário atualizado",
+        description: "Perfil do usuário foi atualizado com sucesso",
       });
 
     } catch (error) {
-      console.error('❌ ADMIN USERS: Erro ao atualizar plano:', error);
+      console.error('❌ ADMIN USERS: Erro ao atualizar perfil:', error);
       toast({
-        title: "Erro ao atualizar plano",
-        description: "Não foi possível alterar o plano do usuário",
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o perfil do usuário",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateUserPlan = async (userId: string, plan: string) => {
+    await updateUserProfile(userId, { plan });
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      console.log('🗑️ ADMIN USERS: Deletando usuário:', userId);
+
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) throw error;
+
+      // Remover do estado local
+      setUsers(prev => prev.filter(user => user.user_id !== userId));
+
+      toast({
+        title: "Usuário deletado",
+        description: "Usuário foi removido com sucesso",
+      });
+
+    } catch (error) {
+      console.error('❌ ADMIN USERS: Erro ao deletar usuário:', error);
+      toast({
+        title: "Erro ao deletar",
+        description: "Não foi possível remover o usuário",
         variant: "destructive",
       });
     }
@@ -195,7 +255,9 @@ export const useAdminUsers = () => {
     filterPlan,
     setFilterPlan,
     updateUserTags,
+    updateUserProfile,
     updateUserPlan,
+    deleteUser,
     refreshUsers
   };
 };

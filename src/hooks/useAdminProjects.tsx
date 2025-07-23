@@ -31,9 +31,9 @@ export const useAdminProjects = () => {
   const loadProjects = async () => {
     try {
       setLoading(true);
-      console.log('📁 ADMIN PROJECTS: Carregando projetos reais...');
+      console.log('📁 ADMIN PROJECTS: Carregando TODOS os projetos...');
 
-      // Carregar projetos com dados dos usuários
+      // Carregar todos os projetos diretamente (admin pode ver todos)
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select(`
