@@ -1,11 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminUser {
   id: string;
-  user_id: string;
   email: string;
   email_confirmed_at: string | null;
   full_name: string | null;
@@ -20,10 +18,8 @@ interface AdminUser {
   tags: string[] | null;
   created_at: string;
   last_sign_in_at: string | null;
-  subscription: {
-    plan: string;
-    status: string;
-  } | null;
+  plan: string;
+  status: string;
 }
 
 export const useAdminUsers = () => {
@@ -34,92 +30,62 @@ export const useAdminUsers = () => {
   const { toast } = useToast();
 
   const loadUsers = async () => {
+    setLoading(true);
+    
     try {
-      setLoading(true);
-      console.log('👥 ADMIN USERS: Carregando usuários reais com dados completos...');
+      console.log('🔍 ADMIN USERS: Carregando usuários via função SQL...');
+      
+      // Usar a nova função SQL que faz JOIN seguro entre auth.users e user_profiles
+      const { data: usersData, error: usersError } = await supabase
+        .rpc('get_admin_users_with_auth_data');
 
-      // Buscar dados reais do auth.users usando query direta
-      const { data: authUsersData, error: authError } = await supabase
-        .from('user_profiles')
-        .select(`
-          id,
-          user_id,
-          full_name,
-          company,
-          phone,
-          city,
-          state,
-          country,
-          cargo,
-          avatar_url,
-          gender,
-          tags,
-          created_at,
-          updated_at
-        `);
-
-      if (authError) throw authError;
-
-      // Buscar assinaturas
-      const { data: subscriptions, error: subscriptionsError } = await supabase
-        .from('user_subscriptions')
-        .select('user_id, plan, status');
-
-      if (subscriptionsError) throw subscriptionsError;
-
-      // Para cada usuário, buscar o email real do auth.users via RPC administrativa
-      const combinedUsers: AdminUser[] = [];
-
-      for (const profile of authUsersData || []) {
-        // Buscar email real diretamente
-        const { data: authUserData, error: emailError } = await supabase.auth.admin.getUserById(profile.user_id);
-        
-        if (emailError) {
-          console.warn('⚠️ Não foi possível buscar email do usuário:', profile.user_id, emailError);
-          continue; // Pular usuários sem dados de auth válidos
-        }
-
-        // Encontrar assinatura do usuário
-        const userSubscription = subscriptions?.find(s => s.user_id === profile.user_id);
-
-        // Só adicionar usuários com email real válido
-        if (authUserData?.user?.email) {
-          combinedUsers.push({
-            id: profile.id,
-            user_id: profile.user_id,
-            email: authUserData.user.email, // EMAIL REAL
-            email_confirmed_at: authUserData.user.email_confirmed_at || null,
-            full_name: profile.full_name || authUserData.user.user_metadata?.full_name || null,
-            company: profile.company || authUserData.user.user_metadata?.company || null,
-            phone: profile.phone || authUserData.user.user_metadata?.phone || null,
-            city: profile.city || authUserData.user.user_metadata?.city || null,
-            state: profile.state || authUserData.user.user_metadata?.state || null,
-            country: profile.country || authUserData.user.user_metadata?.country || 'Brasil',
-            cargo: profile.cargo || authUserData.user.user_metadata?.cargo || null,
-            avatar_url: profile.avatar_url || authUserData.user.user_metadata?.avatar_url || null,
-            gender: profile.gender || authUserData.user.user_metadata?.gender || null,
-            tags: profile.tags || [],
-            created_at: authUserData.user.created_at || profile.created_at,
-            last_sign_in_at: authUserData.user.last_sign_in_at || null,
-            subscription: userSubscription ? {
-              plan: userSubscription.plan || 'free',
-              status: userSubscription.status || 'active'
-            } : {
-              plan: 'free',
-              status: 'active'
-            }
-          });
-        }
+      if (usersError) {
+        console.error('❌ ADMIN USERS: Erro ao buscar usuários:', usersError);
+        toast({
+          title: "Erro ao carregar usuários",
+          description: `Erro: ${usersError.message}`,
+          variant: "destructive",
+        });
+        return;
       }
 
-      setUsers(combinedUsers);
-      console.log('✅ ADMIN USERS: Usuários carregados com dados reais:', combinedUsers.length);
+      if (!usersData || usersData.length === 0) {
+        console.log('⚠️ ADMIN USERS: Nenhum usuário encontrado');
+        setUsers([]);
+        return;
+      }
 
+      console.log(`📊 ADMIN USERS: ${usersData.length} usuários encontrados`);
+
+      // Mapear os dados para o formato AdminUser
+      const adminUsers: AdminUser[] = usersData.map((userData: any) => ({
+        id: userData.user_id,
+        email: userData.email || '',
+        full_name: userData.full_name || userData.email || '',
+        company: userData.company || '',
+        phone: userData.phone || '',
+        city: userData.city || '',
+        state: userData.state || '',
+        country: userData.country || 'Brasil',
+        cargo: userData.cargo || '',
+        avatar_url: userData.avatar_url,
+        gender: userData.gender || '',
+        tags: userData.tags || [],
+        created_at: userData.created_at,
+        last_sign_in_at: userData.last_sign_in_at,
+        email_confirmed_at: userData.email_confirmed_at,
+        plan: userData.subscription_plan || 'free',
+        status: userData.subscription_status || 'active'
+      }));
+
+      console.log(`🎉 ADMIN USERS: ${adminUsers.length} usuários carregados com sucesso`);
+      setUsers(adminUsers);
+      
     } catch (error) {
-      console.error('❌ ADMIN USERS: Erro ao carregar usuários:', error);
+      console.error('💥 ADMIN USERS: Erro crítico no carregamento:', error);
       toast({
-        title: "Erro ao carregar usuários",
-        description: "Não foi possível carregar a lista de usuários",
+        title: "Erro crítico",
+        description: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         variant: "destructive",
       });
     } finally {
@@ -140,7 +106,7 @@ export const useAdminUsers = () => {
 
       // Atualizar estado local
       setUsers(prev => prev.map(user => 
-        user.user_id === userId ? { ...user, tags } : user
+        user.id === userId ? { ...user, tags } : user
       ));
 
       toast({
@@ -196,7 +162,7 @@ export const useAdminUsers = () => {
 
       // Atualizar estado local
       setUsers(prev => prev.map(user => 
-        user.user_id === userId 
+        user.id === userId 
           ? { 
               ...user,
               full_name: data.full_name || user.full_name,
@@ -205,10 +171,8 @@ export const useAdminUsers = () => {
               city: data.city || user.city,
               state: data.state || user.state,
               cargo: data.cargo || user.cargo,
-              subscription: data.plan || data.status ? {
-                plan: data.plan || user.subscription?.plan || 'free',
-                status: data.status || user.subscription?.status || 'active'
-              } : user.subscription
+              plan: data.plan || user.plan,
+              status: data.status || user.status
             } 
           : user
       ));
@@ -240,7 +204,7 @@ export const useAdminUsers = () => {
       if (error) throw error;
 
       // Remover do estado local
-      setUsers(prev => prev.filter(user => user.user_id !== userId));
+      setUsers(prev => prev.filter(user => user.id !== userId));
 
       toast({
         title: "Usuário deletado",
@@ -273,7 +237,7 @@ export const useAdminUsers = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.cargo?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesPlan = filterPlan === 'all' || user.subscription?.plan === filterPlan;
+    const matchesPlan = filterPlan === 'all' || user.plan === filterPlan;
 
     return matchesSearch && matchesPlan;
   });

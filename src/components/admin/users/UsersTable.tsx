@@ -17,7 +17,6 @@ import { ptBR } from 'date-fns/locale';
 interface UserTableProps {
   users: Array<{
     id: string;
-    user_id: string;
     email: string;
     email_confirmed_at: string | null;
     full_name: string | null;
@@ -32,10 +31,8 @@ interface UserTableProps {
     tags: string[] | null;
     created_at: string;
     last_sign_in_at: string | null;
-    subscription: {
-      plan: string;
-      status: string;
-    } | null;
+    plan: string;
+    status: string;
   }>;
   onUpdateUser: (userId: string, data: any) => void;
   onDeleteUser: (userId: string) => void;
@@ -114,7 +111,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(users.map(user => user.user_id));
+      setSelectedUsers(users.map(user => user.id));
     } else {
       setSelectedUsers([]);
     }
@@ -129,14 +126,14 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
       city: user.city || '', 
       state: user.state || '',
       cargo: user.cargo || '',
-      plan: user.subscription?.plan || 'free',
-      status: user.subscription?.status || 'active'
+      plan: user.plan || 'free',
+      status: user.status || 'active'
     });
   };
 
   const handleSaveEdit = async () => {
     try {
-      await onUpdateUser(editingUser.user_id, editFormData);
+      await onUpdateUser(editingUser.id, editFormData);
       setEditingUser(null);
       toast({
         title: "Usuário atualizado",
@@ -225,13 +222,13 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
           <TableBody>
             {users.map((user) => (
               <TableRow 
-                key={user.user_id}
-                className={selectedUsers.includes(user.user_id) ? 'bg-blue-50' : ''}
+                key={user.id}
+                className={selectedUsers.includes(user.id) ? 'bg-blue-50' : ''}
               >
                 <TableCell>
                   <Checkbox 
-                    checked={selectedUsers.includes(user.user_id)}
-                    onCheckedChange={(checked) => handleSelectUser(user.user_id, checked as boolean)}
+                    checked={selectedUsers.includes(user.id)}
+                    onCheckedChange={(checked) => handleSelectUser(user.id, checked as boolean)}
                   />
                 </TableCell>
                 
@@ -267,8 +264,8 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                 {/* Status */}
                 <TableCell>
                   <div className="space-y-1">
-                    <Badge className={getStatusColor(user.subscription?.status || 'active')}>
-                      {user.subscription?.status || 'active'}
+                    <Badge className={getStatusColor(user.status || 'active')}>
+                      {user.status || 'active'}
                     </Badge>
                     {user.last_sign_in_at && (
                       <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -318,8 +315,8 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
 
                 {/* Plano */}
                 <TableCell>
-                  <Badge className={getPlanColor(user.subscription?.plan || 'free')}>
-                    {(user.subscription?.plan || 'free').toUpperCase()}
+                  <Badge className={getPlanColor(user.plan || 'free')}>
+                    {(user.plan || 'free').toUpperCase()}
                   </Badge>
                 </TableCell>
 
@@ -358,7 +355,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleImpersonateUser(user.user_id, user.email, user.full_name || user.email)}
+                      onClick={() => handleImpersonateUser(user.id, user.email, user.full_name || user.email)}
                       title="Logar como usuário"
                     >
                       <LogIn className="h-4 w-4" />
@@ -473,7 +470,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onDeleteUser(user.user_id)}
+                      onClick={() => onDeleteUser(user.id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <Trash2 className="h-4 w-4" />

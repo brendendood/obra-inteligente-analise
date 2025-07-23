@@ -943,6 +943,29 @@ export type Database = {
           ai_usage_this_month: number
         }[]
       }
+      get_admin_users_with_auth_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          profile_id: string
+          user_id: string
+          email: string
+          email_confirmed_at: string
+          full_name: string
+          company: string
+          phone: string
+          city: string
+          state: string
+          country: string
+          cargo: string
+          avatar_url: string
+          gender: string
+          tags: string[]
+          created_at: string
+          last_sign_in_at: string
+          subscription_plan: string
+          subscription_status: string
+        }[]
+      }
       get_advanced_admin_analytics: {
         Args: Record<PropertyKey, never>
         Returns: {
