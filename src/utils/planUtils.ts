@@ -1,7 +1,7 @@
 
 // Utilitários centralizados para planos de usuário
 
-export type PlanType = 'free' | 'pro' | 'enterprise';
+export type PlanType = 'free' | 'basic' | 'pro' | 'enterprise';
 
 export interface PlanInfo {
   name: string;
@@ -20,12 +20,12 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'free',
     displayName: 'Free',
     price: 0,
-    projectLimit: 3,
+    projectLimit: 2,
     icon: '🆓',
     color: '#6B7280',
     badgeStyle: 'bg-gray-100 text-gray-600 border-gray-300',
     features: [
-      'Até 3 projetos',
+      'Até 2 projetos',
       'Análise básica de IA',
       'Visualização simples',
       'Suporte por email'
@@ -34,6 +34,23 @@ export const PLANS: Record<PlanType, PlanInfo> = {
       'Orçamentos limitados',
       'Sem cronogramas automáticos',
       'Sem exportação avançada'
+    ]
+  },
+  basic: {
+    name: 'basic',
+    displayName: 'Basic',
+    price: 29,
+    projectLimit: 5,
+    icon: '📋',
+    color: '#059669',
+    badgeStyle: 'bg-green-600 text-white border-green-600',
+    features: [
+      'Até 5 projetos',
+      'IA básica com insights',
+      'Orçamentos simples',
+      'Cronogramas básicos',
+      'Suporte por email',
+      'Exportação PDF básica'
     ]
   },
   pro: {
@@ -114,10 +131,11 @@ export const getPlanLimitations = (plan: string | PlanType): string[] => {
 
 export const getNextPlan = (currentPlan: string | PlanType): PlanType | null => {
   switch (currentPlan) {
-    case 'free': return 'pro';
+    case 'free': return 'basic';
+    case 'basic': return 'pro';
     case 'pro': return 'enterprise';
     case 'enterprise': return null; // Já é o plano máximo
-    default: return 'pro';
+    default: return 'basic';
   }
 };
 

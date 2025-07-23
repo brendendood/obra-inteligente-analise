@@ -1013,7 +1013,7 @@ export type Database = {
     }
     Enums: {
       admin_role: "super_admin" | "marketing" | "financial" | "support"
-      subscription_plan: "free" | "pro" | "enterprise"
+      subscription_plan: "free" | "basic" | "pro" | "enterprise"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
       user_event_type:
         | "signup"
@@ -1154,7 +1154,7 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "marketing", "financial", "support"],
-      subscription_plan: ["free", "pro", "enterprise"],
+      subscription_plan: ["free", "basic", "pro", "enterprise"],
       subscription_status: ["active", "canceled", "past_due", "trialing"],
       user_event_type: [
         "signup",

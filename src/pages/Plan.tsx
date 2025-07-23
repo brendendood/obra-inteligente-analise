@@ -27,7 +27,7 @@ const Plan = () => {
   const { toast } = useToast();
   const [upgrading, setUpgrading] = useState(false);
 
-  const handleUpgrade = async (targetPlan: 'pro' | 'enterprise') => {
+  const handleUpgrade = async (targetPlan: 'basic' | 'pro' | 'enterprise') => {
     setUpgrading(true);
     try {
       toast({
@@ -157,7 +157,7 @@ const Plan = () => {
         </Card>
 
         {/* Planos Disponíveis */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Plano Free */}
           <Card className={`${userData.plan === 'free' ? 'border-gray-500 bg-gray-50/50' : 'border-gray-200'}`}>
             <CardHeader>
@@ -208,6 +208,66 @@ const Plan = () => {
             </CardContent>
           </Card>
 
+          {/* Plano Basic */}
+          <Card className={`${userData.plan === 'basic' ? 'border-green-500 bg-green-50/50' : 'border-green-200 bg-green-50/20'}`}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <span className="text-xl">📋</span>
+                  Basic
+                </span>
+                {userData.plan === 'basic' && (
+                  <Badge className="bg-green-600 text-white">
+                    Atual
+                  </Badge>
+                )}
+              </CardTitle>
+              <CardDescription>Para começar</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-3xl font-bold text-green-600">
+                  {formatPlanPrice('basic')}
+                </div>
+                <ul className="space-y-2">
+                  {getPlanFeatures('basic').map((feature, index) => (
+                    <li key={index} className="flex items-center gap-2 text-sm">
+                      <Check className="h-4 w-4 text-green-600" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                {userData.plan === 'basic' ? (
+                  <Button 
+                    onClick={handleManageSubscription}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    <Crown className="h-4 w-4 mr-2" />
+                    Gerenciar Plano
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => handleUpgrade('basic')}
+                    disabled={upgrading}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    {upgrading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Processando...
+                      </>
+                    ) : (
+                      <>
+                        <Crown className="h-4 w-4 mr-2" />
+                        Escolher Basic
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Plano Pro */}
           <Card className={`${userData.plan === 'pro' ? 'border-indigo-500 bg-indigo-50/50' : 'border-indigo-200 bg-indigo-50/20'} relative`}>
             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -248,7 +308,7 @@ const Plan = () => {
                     className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
                   >
                     <Crown className="h-4 w-4 mr-2" />
-                    Plano Atual
+                    Gerenciar Plano
                   </Button>
                 ) : (
                   <Button 
@@ -304,11 +364,11 @@ const Plan = () => {
                 </ul>
                 {userData.plan === 'enterprise' ? (
                   <Button 
-                    disabled
+                    onClick={handleManageSubscription}
                     className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
                   >
                     <Crown className="h-4 w-4 mr-2" />
-                    Plano Atual
+                    Gerenciar Plano
                   </Button>
                 ) : (
                   <Button 

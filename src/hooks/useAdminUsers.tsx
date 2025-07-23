@@ -150,7 +150,7 @@ export const useAdminUsers = () => {
           .from('user_subscriptions')
           .upsert({
             user_id: userId,
-            plan: (data.plan || 'free') as 'free' | 'pro' | 'enterprise',
+            plan: (data.plan || 'free') as 'free' | 'basic' | 'pro' | 'enterprise',
             status: (data.status || 'active') as 'active' | 'canceled' | 'past_due' | 'trialing',
             updated_at: new Date().toISOString()
           }, {

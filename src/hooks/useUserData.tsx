@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserData {
-  plan: 'free' | 'pro' | 'enterprise';
+  plan: 'free' | 'basic' | 'pro' | 'enterprise';
   projectCount: number;
   subscription: {
     status: string;
@@ -87,7 +87,7 @@ export const useUserData = () => {
 
       // Processar subscription com fallback para 'free'
       let subscription = null;
-      let plan: 'free' | 'pro' | 'enterprise' = 'free';
+      let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'free';
       
       if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.data) {
         subscription = subscriptionResult.value.data;

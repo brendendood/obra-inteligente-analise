@@ -9,28 +9,31 @@ export const PlanTab = () => {
 
   const getPlanDisplayName = (plan: string) => {
     switch (plan) {
+      case 'free': return 'Free';
       case 'basic': return 'Basic';
       case 'pro': return 'Pro';
       case 'enterprise': return 'Enterprise';
-      default: return 'Basic';
+      default: return 'Free';
     }
   };
 
   const getPlanDescription = (plan: string) => {
     switch (plan) {
+      case 'free': return 'Você está no plano Free do MadenAI';
       case 'basic': return 'Você está no plano Basic do MadenAI';
       case 'pro': return 'Você está no plano Pro do MadenAI';
       case 'enterprise': return 'Você está no plano Enterprise do MadenAI';
-      default: return 'Você está no plano Basic do MadenAI';
+      default: return 'Você está no plano Free do MadenAI';
     }
   };
 
   const getPlanLimit = (plan: string) => {
     switch (plan) {
-      case 'basic': return 'Até 10 projetos';
-      case 'pro': return 'Até 50 projetos';
+      case 'free': return 'Até 2 projetos';
+      case 'basic': return 'Até 5 projetos';
+      case 'pro': return 'Até 25 projetos';
       case 'enterprise': return 'Projetos ilimitados';
-      default: return 'Até 10 projetos';
+      default: return 'Até 2 projetos';
     }
   };
 
@@ -61,7 +64,9 @@ export const PlanTab = () => {
           </p>
           <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600">
             <Crown className="h-4 w-4 mr-2" />
-            {userData.plan === 'free' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
+            {userData.plan === 'free' ? 'Upgrade para Basic' : 
+             userData.plan === 'basic' ? 'Upgrade para Pro' : 
+             'Upgrade para Enterprise'}
           </Button>
         </div>
       )}
