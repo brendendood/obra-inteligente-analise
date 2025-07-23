@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, User } from 'lucide-react';
@@ -27,6 +27,42 @@ export const UserProfile = () => {
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const { getDefaultAvatarUrl, getAvatarFallback } = useDefaultAvatar();
   const { open } = useSidebar();
+  
+  // Estado para dados do perfil
+  const [profileData, setProfileData] = useState({
+    full_name: '',
+    avatar_url: '',
+    gender: 'neutral'
+  });
+
+  // Carregar dados do perfil
+  useEffect(() => {
+    if (user?.id) {
+      loadUserProfile();
+    }
+  }, [user?.id]);
+
+  const loadUserProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('full_name, avatar_url, gender')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        setProfileData({
+          full_name: profile.full_name || 'Usuário',
+          avatar_url: profile.avatar_url || getDefaultAvatarUrl(profile.gender),
+          gender: profile.gender || 'neutral'
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -42,20 +78,16 @@ export const UserProfile = () => {
     }
   };
 
-  const userGender = user?.user_metadata?.gender;
-  const avatarUrl = user?.user_metadata?.avatar_url || getDefaultAvatarUrl(userGender);
-
   if (!open) {
-    // Estado colapsado - mostrar apenas avatar com dropdown
     return (
       <>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full h-12 p-0 hover:bg-gray-100">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={avatarUrl} />
+                <AvatarImage src={profileData.avatar_url} />
                 <AvatarFallback className="bg-blue-600 text-white text-xs">
-                  {getAvatarFallback(userGender)}
+                  {getAvatarFallback(profileData.gender)}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -63,7 +95,7 @@ export const UserProfile = () => {
           <DropdownMenuContent side="right" align="end" className="w-56">
             <div className="px-2 py-1.5">
               <p className="text-sm font-medium text-gray-900 truncate">
-                {user?.user_metadata?.full_name || 'Usuário'}
+                {profileData.full_name}
               </p>
               <p className="text-xs text-gray-500 truncate">
                 {user?.email}
@@ -82,7 +114,6 @@ export const UserProfile = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Dialog Minha Conta */}
         <MyAccountDialog 
           isOpen={isAccountDialogOpen}
           onClose={() => setIsAccountDialogOpen(false)}
@@ -91,11 +122,9 @@ export const UserProfile = () => {
     );
   }
 
-  // Estado expandido - mostrar interface completa
   return (
     <>
       <div className="space-y-3">
-        {/* Minha Conta */}
         <Button
           variant="outline"
           className="w-full justify-start h-10 text-blue-600 border-blue-200 hover:bg-blue-50"
@@ -105,17 +134,16 @@ export const UserProfile = () => {
           Minha Conta
         </Button>
 
-        {/* User Info */}
         <div className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={avatarUrl} />
+            <AvatarImage src={profileData.avatar_url} />
             <AvatarFallback className="bg-blue-600 text-white">
-              {getAvatarFallback(userGender)}
+              {getAvatarFallback(profileData.gender)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-800 truncate">
-              {user?.user_metadata?.full_name || 'Usuário'}
+              {profileData.full_name}
             </p>
             <p className="text-xs text-gray-500 truncate">
               {user?.email}
@@ -133,7 +161,6 @@ export const UserProfile = () => {
         </Button>
       </div>
 
-      {/* Dialog Minha Conta */}
       <MyAccountDialog 
         isOpen={isAccountDialogOpen}
         onClose={() => setIsAccountDialogOpen(false)}

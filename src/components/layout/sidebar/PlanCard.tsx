@@ -3,19 +3,60 @@ import { Crown, ExternalLink, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useUserData } from '@/hooks/useUserData';
-import { 
-  getPlanDisplayName, 
-  getPlanLimit, 
-  getPlanIcon, 
-  getPlanColor, 
-  getNextPlan,
-  canUpgrade 
-} from '@/utils/planUtils';
 
 interface PlanCardProps {
   isCollapsed: boolean;
   onUpgrade: () => void;
 }
+
+const getPlanDisplayName = (plan: string) => {
+  switch (plan) {
+    case 'free':
+      return 'Free';
+    case 'basic':
+      return 'Basic';
+    case 'pro':
+      return 'Pro';
+    case 'enterprise':
+      return 'Enterprise';
+    default:
+      return 'Free';
+  }
+};
+
+const getPlanLimit = (plan: string) => {
+  switch (plan) {
+    case 'free':
+      return 1;
+    case 'basic':
+      return 10;
+    case 'pro':
+      return 50;
+    case 'enterprise':
+      return 999;
+    default:
+      return 1;
+  }
+};
+
+const getNextPlan = (currentPlan: string) => {
+  switch (currentPlan) {
+    case 'free':
+      return 'basic';
+    case 'basic':
+      return 'pro';
+    case 'pro':
+      return 'enterprise';
+    case 'enterprise':
+      return null;
+    default:
+      return 'basic';
+  }
+};
+
+const canUpgrade = (plan: string) => {
+  return plan !== 'enterprise';
+};
 
 export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
   const navigate = useNavigate();
@@ -37,7 +78,6 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
   }
 
   const planDisplayName = getPlanDisplayName(userData.plan);
-  const planIcon = getPlanIcon(userData.plan);
   const planLimit = getPlanLimit(userData.plan);
   const nextPlan = getNextPlan(userData.plan);
   const userCanUpgrade = canUpgrade(userData.plan);

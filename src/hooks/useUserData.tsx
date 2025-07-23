@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,7 +19,7 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: 'free', // Fallback padrão para 'free'
+    plan: 'free', // Padrão correto: free
     projectCount: 0,
     subscription: null,
     profile: null
@@ -26,17 +27,15 @@ export const useUserData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Ref para evitar múltiplas subscrições
   const channelRef = useRef<any>(null);
 
-  // Função para carregar dados com fallbacks robustos
   const loadUserData = useCallback(async () => {
     console.log('🔄 useUserData: Loading user data...', { isAuthenticated, user: !!user });
 
     if (!isAuthenticated || !user) {
       console.log('⚠️ useUserData: User not authenticated, setting defaults');
       setUserData({
-        plan: 'free',
+        plan: 'free', // Padrão correto: free
         projectCount: 0,
         subscription: null,
         profile: null
@@ -51,7 +50,6 @@ export const useUserData = () => {
       setError(null);
       console.log('📡 useUserData: Fetching data for user:', user.id);
 
-      // Buscar dados com fallbacks
       const subscriptionPromise = supabase
         .from('user_subscriptions')
         .select('plan, status, current_period_end')
@@ -81,7 +79,6 @@ export const useUserData = () => {
           return result;
         });
 
-      // Aguardar todas as consultas com Promise.allSettled
       const [subscriptionResult, profileResult, projectCountResult] = await Promise.allSettled([
         subscriptionPromise,
         profilePromise,
@@ -129,9 +126,8 @@ export const useUserData = () => {
       console.error('❌ ERRO CRÍTICO ao carregar dados do usuário:', err);
       setError('Erro ao carregar dados do usuário');
       
-      // Fallback para dados básicos em caso de erro crítico
       setUserData({
-        plan: 'free',
+        plan: 'free', // Fallback para 'free'
         projectCount: 0,
         subscription: null,
         profile: null
@@ -139,17 +135,13 @@ export const useUserData = () => {
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated, user?.id]); // Removido loadUserData das dependências
+  }, [isAuthenticated, user?.id]);
 
-  // Carregar dados iniciais
   useEffect(() => {
     loadUserData();
   }, [loadUserData]);
 
-  // DESABILITADO TEMPORARIAMENTE: Realtime causando múltiplas subscrições
-  // TODO: Reativar quando Supabase resolver o problema de múltiplas subscrições
   useEffect(() => {
-    // Cleanup de qualquer canal existente
     if (channelRef.current) {
       console.log('🧹 useUserData: Limpando canais existentes');
       try {
@@ -163,7 +155,6 @@ export const useUserData = () => {
     console.log('⚠️ useUserData: Realtime DESABILITADO para evitar múltiplas subscrições');
     console.log('💡 useUserData: Dados serão atualizados apenas no reload da página');
     
-    // Sem realtime por enquanto - apenas cleanup
     return () => {
       if (channelRef.current) {
         try {
@@ -174,7 +165,7 @@ export const useUserData = () => {
         channelRef.current = null;
       }
     };
-  }, []); // Array vazio - executa apenas uma vez
+  }, []);
 
   return {
     userData,

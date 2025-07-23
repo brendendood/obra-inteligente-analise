@@ -2,11 +2,10 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProfileTab } from '@/components/account/ProfileTab';
-import { PlanTab } from '@/components/account/PlanTab';
 import { SecurityTab } from '@/components/account/SecurityTab';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Shield, Crown } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
 
 const Account = () => {
@@ -36,28 +35,23 @@ const Account = () => {
             <div className="text-right">
               <Badge 
                 variant={userData.plan === 'free' ? 'secondary' : 'default'}
-                className={`${userData.plan === 'enterprise' ? 'bg-gradient-to-r from-purple-500 to-purple-600' : userData.plan === 'pro' ? 'bg-blue-600' : ''}`}
+                className={`${userData.plan === 'enterprise' ? 'bg-gradient-to-r from-purple-500 to-purple-600' : userData.plan === 'pro' ? 'bg-blue-600' : userData.plan === 'basic' ? 'bg-green-600' : ''}`}
               >
                 <Crown className="h-3 w-3 mr-1" />
-                {userData.plan === 'free' ? 'FREE' : userData.plan === 'pro' ? 'Pro' : 'Enterprise'}
+                {userData.plan === 'free' ? 'FREE' : userData.plan === 'basic' ? 'Basic' : userData.plan === 'pro' ? 'Pro' : 'Enterprise'}
               </Badge>
             </div>
           </div>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">Perfil</TabsTrigger>
-            <TabsTrigger value="plan">Plano</TabsTrigger>
             <TabsTrigger value="security">Segurança</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
             <ProfileTab isLoading={isLoading} setIsLoading={setIsLoading} />
-          </TabsContent>
-
-          <TabsContent value="plan" className="space-y-6">
-            <PlanTab />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">

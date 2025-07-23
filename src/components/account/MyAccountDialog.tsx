@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User } from 'lucide-react';
 import { ProfileTab } from './ProfileTab';
-import { PlanTab } from './PlanTab';
 import { SecurityTab } from './SecurityTab';
 
 interface MyAccountDialogProps {
@@ -26,18 +25,13 @@ export const MyAccountDialog = ({ isOpen, onClose }: MyAccountDialogProps) => {
         </DialogHeader>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="profile">Perfil</TabsTrigger>
-            <TabsTrigger value="plan">Plano</TabsTrigger>
             <TabsTrigger value="security">Segurança</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
             <ProfileTab isLoading={isLoading} setIsLoading={setIsLoading} />
-          </TabsContent>
-
-          <TabsContent value="plan" className="space-y-6">
-            <PlanTab />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
