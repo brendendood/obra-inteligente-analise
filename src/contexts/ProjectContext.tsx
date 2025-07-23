@@ -37,16 +37,16 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
     return true;
   }, []);
 
-  // Validar projeto salvo apenas uma vez no início
-  useEffect(() => {
-    if (!loading && isAuthenticated) {
-      const savedProject = getProjectFromStorage();
-      if (savedProject && validateProject(savedProject)) {
-        console.log('✅ PROJECT CONTEXT: Projeto salvo válido encontrado:', savedProject.name);
-        setCurrentProjectState(savedProject);
-      }
-    }
-  }, [loading, isAuthenticated, getProjectFromStorage, validateProject]);
+  // REMOVER useEffect que pode causar loops - dados vêm do Layout agora
+  // useEffect(() => {
+  //   if (!loading && isAuthenticated) {
+  //     const savedProject = getProjectFromStorage();
+  //     if (savedProject && validateProject(savedProject)) {
+  //       console.log('✅ PROJECT CONTEXT: Projeto salvo válido encontrado:', savedProject.name);
+  //       setCurrentProjectState(savedProject);
+  //     }
+  //   }
+  // }, [loading, isAuthenticated, getProjectFromStorage, validateProject]);
 
   const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     console.log('📋 PROJECT CONTEXT: Método legado - retornando array vazio');

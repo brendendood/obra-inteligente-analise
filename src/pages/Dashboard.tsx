@@ -35,13 +35,16 @@ const Dashboard = memo(() => {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Optimized project fetching
+  // CARREGAR projetos apenas UMA VEZ quando autenticado
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
-      console.log('🎯 DASHBOARD: Loading projects with optimized cache...');
-      fetchProjects();
+      console.log('📊 DASHBOARD: Carregando projetos...');
+      const state = useOptimizedProjectStore.getState();
+      if (state.projects.length === 0) {
+        state.fetchProjects();
+      }
     }
-  }, [isAuthenticated, authLoading, fetchProjects]);
+  }, [isAuthenticated, authLoading]); // SEM fetchProjects nas dependências
 
   // Early returns for performance
   if (authLoading) {

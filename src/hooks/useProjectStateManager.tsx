@@ -62,15 +62,15 @@ export const useProjectStateManager = (options: UseProjectStateManagerOptions = 
     return true;
   }, [currentProject, getProjectById, setCurrentProject, validateOnMount]);
 
-  // Auto-sync na montagem e mudanças de URL
-  useEffect(() => {
-    syncProjectWithUrl();
-  }, [syncProjectWithUrl]);
+  // REMOVER auto-sync que causa loops 
+  // useEffect(() => {
+  //   syncProjectWithUrl();
+  // }, [syncProjectWithUrl]);
 
-  // Validar na montagem
-  useEffect(() => {
-    validateCurrentProject();
-  }, [validateCurrentProject]);
+  // REMOVER validação automática que causa loops
+  // useEffect(() => {
+  //   validateCurrentProject();
+  // }, [validateCurrentProject]);
 
   const refreshCurrentProject = useCallback(async () => {
     if (!currentProject) return null;

@@ -25,7 +25,9 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const { getProjectById, fetchProjects, projects } = useOptimizedProjectStore();
+  
+  // USAR getState() PARA EVITAR DEPENDÊNCIAS INSTÁVEIS
+  const store = useOptimizedProjectStore();
 
   const fetchProject = useCallback(async () => {
     if (!projectId) {
@@ -41,8 +43,9 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
       setIsLoading(true);
       setError(null);
       
-      // Buscar no ProjectStore primeiro
-      const cachedProject = getProjectById(projectId);
+      // Usar getState() direto para evitar dependências instáveis
+      const state = useOptimizedProjectStore.getState();
+      const cachedProject = state.projects.find(p => p.id === projectId);
       
       if (cachedProject) {
         console.log('✅ PROJECT DETAIL: Projeto encontrado:', cachedProject.name);
@@ -53,9 +56,10 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
 
       // Se não encontrado, fazer refresh uma vez
       console.log('🔄 PROJECT DETAIL: Atualizando dados...');
-      await fetchProjects();
+      await state.fetchProjects();
       
-      const refreshedProject = getProjectById(projectId);
+      const newState = useOptimizedProjectStore.getState();
+      const refreshedProject = newState.projects.find(p => p.id === projectId);
       if (refreshedProject) {
         console.log('✅ PROJECT DETAIL: Projeto encontrado após refresh:', refreshedProject.name);
         setProject(refreshedProject);
@@ -92,27 +96,26 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
     } finally {
       setIsLoading(false);
     }
-  }, [projectId]); // DEPENDÊNCIAS ESTÁVEIS - sem funções que podem mudar
+  }, [projectId]); // APENAS projectId como dependência
 
-  // Effect que carrega o projeto apenas quando projectId muda
+  // Effect que carrega o projeto APENAS quando projectId muda
   useEffect(() => {
     if (projectId) {
       console.log('🎯 PROJECT DETAIL: Carregando projeto:', projectId);
       fetchProject();
     }
-  }, [projectId, fetchProject]);
+  }, [projectId]); // SEM fetchProject para evitar loop
 
-  // Auto-sync com store - SEM dependência em 'project' para evitar loop
-  useEffect(() => {
-    if (projectId && projects.length > 0) {
-      const storeProject = getProjectById(projectId);
-      if (storeProject) {
-        console.log('🔄 PROJECT DETAIL: Sincronizando com store');
-        setProject(storeProject);
-        setError(null);
-      }
-    }
-  }, [projects.length, projectId]); // SEM 'project' nas dependências
+  // REMOVER completamente o auto-sync que causa loops
+  // useEffect(() => {
+  //   if (projectId && projects.length > 0) {
+  //     const storeProject = getProjectById(projectId);
+  //     if (storeProject) {
+  //       setProject(storeProject);
+  //       setError(null);
+  //     }
+  //   }
+  // }, [projects.length, projectId]);
 
   const value: ProjectDetailContextType = {
     project,
@@ -126,8 +129,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
     hasProject: !!project,
     isLoading,
     error,
-    projectName: project?.name,
-    cacheSize: projects.length
+    projectName: project?.name
   });
 
   return (

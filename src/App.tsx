@@ -1,5 +1,6 @@
 
 import React, { Suspense, lazy } from 'react';
+import { ProjectLoopTest } from '@/components/debug/ProjectLoopTest';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -191,17 +192,18 @@ const App = () => {
                       <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
                     </Route>
 
-                    <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
-                  </Routes>
-                  </Suspense>
-                </ProjectProvider>
-              </BrowserRouter>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </ImpersonationProvider>
-      </AuthProvider>
-    </PerformantErrorBoundary>
-  );
-};
+                     <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
+                   </Routes>
+                   </Suspense>
+                 </ProjectProvider>
+               </BrowserRouter>
+               <ProjectLoopTest />
+             </TooltipProvider>
+           </QueryClientProvider>
+         </ImpersonationProvider>
+       </AuthProvider>
+     </PerformantErrorBoundary>
+   );
+ };
 
 export default App;

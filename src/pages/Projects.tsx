@@ -40,11 +40,14 @@ export default function Projects() {
   const [sortBy, setSortBy] = useState<'name' | 'area' | 'date'>('date');
   const [showAnalyzedOnly, setShowAnalyzedOnly] = useState(false);
 
-  // Carregar projetos ao montar o componente
+  // CARREGAR projetos apenas se necessário
   useEffect(() => {
     console.log('🔄 PROJETOS: Carregando projetos...');
-    fetchProjects();
-  }, [fetchProjects]);
+    const state = useOptimizedProjectStore.getState();
+    if (state.projects.length === 0) {
+      state.fetchProjects();
+    }
+  }, []); // SEM dependências para evitar loops
 
   // Limpar erro quando houver mudanças
   useEffect(() => {
