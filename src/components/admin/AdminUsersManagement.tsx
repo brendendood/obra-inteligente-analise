@@ -40,7 +40,8 @@ export const AdminUsersManagement = () => {
   return (
     <div className="space-y-6">
       <UsersHeader 
-        totalUsers={users.length} 
+        totalUsers={users.length}
+        users={users}
         onRefresh={refreshUsers}
         isRefreshing={loading}
       />

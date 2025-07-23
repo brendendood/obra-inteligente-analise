@@ -1,13 +1,33 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Monitor, Smartphone, Tablet, Globe, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MapPin, Monitor, Smartphone, Tablet, Globe, Clock, FileSpreadsheet, RefreshCw } from 'lucide-react';
+import { exportLoginHistoryToExcel } from '@/utils/adminExportUtils';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useAdminLoginHistory } from '@/hooks/useAdminLoginHistory';
 
 export const LoginHistoryTable = () => {
-  const { loginHistory, loading } = useAdminLoginHistory();
+  const { loginHistory, loading, refreshHistory } = useAdminLoginHistory();
+  const { toast } = useToast();
+
+  const handleExportExcel = async () => {
+    const result = exportLoginHistoryToExcel(loginHistory);
+    if (result.success) {
+      toast({
+        title: "✅ Excel exportado",
+        description: `Histórico de logins exportado: ${result.filename}`,
+      });
+    } else {
+      toast({
+        title: "❌ Erro na exportação",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
+  };
 
   const formatDate = (dateString: string) => {
     try {
@@ -62,10 +82,24 @@ export const LoginHistoryTable = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Clock className="h-5 w-5" />
-          Histórico de Logins Reais ({loginHistory.length} registros)
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Histórico de Logins Reais ({loginHistory.length} registros)
+          </CardTitle>
+          <div className="flex gap-2">
+            {loginHistory.length > 0 && (
+              <Button variant="outline" size="sm" onClick={handleExportExcel}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Exportar Excel
+              </Button>
+            )}
+            <Button variant="outline" size="sm" onClick={refreshHistory} disabled={loading}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Atualizar
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {loginHistory.length === 0 ? (

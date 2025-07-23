@@ -46,12 +46,30 @@ export const ScheduleExportDialog = ({
           title: "✅ PDF Exportado",
           description: `Cronograma de ${projectName} exportado com sucesso!`,
         });
-      } else {
-        toast({
-          title: "🚧 Em desenvolvimento",
-          description: `Exportação ${format.toUpperCase()} estará disponível em breve!`,
-          variant: "default",
-        });
+      } else if (format === 'excel') {
+        const { exportScheduleToExcel } = await import('@/utils/scheduleExportUtils');
+        const result = exportScheduleToExcel(scheduleData, projectName);
+        
+        if (result.success) {
+          toast({
+            title: "✅ Excel Exportado",
+            description: `Cronograma ${result.filename} baixado com sucesso!`,
+          });
+        } else {
+          throw new Error(result.error);
+        }
+      } else if (format === 'csv') {
+        const { exportScheduleToCSV } = await import('@/utils/scheduleExportUtils');
+        const result = exportScheduleToCSV(scheduleData, projectName);
+        
+        if (result.success) {
+          toast({
+            title: "✅ CSV Exportado",
+            description: `Cronograma ${result.filename} baixado com sucesso!`,
+          });
+        } else {
+          throw new Error(result.error);
+        }
       }
       
       onOpenChange(false);

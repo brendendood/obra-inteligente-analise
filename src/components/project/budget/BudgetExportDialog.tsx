@@ -46,13 +46,32 @@ export const BudgetExportDialog = ({
           title: "✅ PDF Exportado",
           description: `Orçamento de ${projectName} exportado com sucesso!`,
         });
-      } else {
-        // Implementação futura para Excel e CSV
-        toast({
-          title: "🚧 Em desenvolvimento",
-          description: `Exportação ${format.toUpperCase()} estará disponível em breve!`,
-          variant: "default",
-        });
+      } else if (format === 'excel') {
+        // Usar exportUtils para Excel
+        const { exportToExcel } = await import('@/utils/exportUtils');
+        const result = exportToExcel(budgetData, projectName);
+        
+        if (result.success) {
+          toast({
+            title: "✅ Excel Exportado",
+            description: `Planilha ${result.filename} baixada com sucesso!`,
+          });
+        } else {
+          throw new Error(result.error);
+        }
+      } else if (format === 'csv') {
+        // Usar exportUtils para CSV
+        const { exportToCSV } = await import('@/utils/exportUtils');
+        const result = exportToCSV(budgetData, projectName);
+        
+        if (result.success) {
+          toast({
+            title: "✅ CSV Exportado",
+            description: `Arquivo ${result.filename} baixado com sucesso!`,
+          });
+        } else {
+          throw new Error(result.error);
+        }
       }
       
       onOpenChange(false);

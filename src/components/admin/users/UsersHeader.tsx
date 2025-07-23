@@ -1,15 +1,53 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, RefreshCw } from 'lucide-react';
+import { RefreshCw, Users, FileSpreadsheet, FileDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { exportUsersToExcel, exportUsersToCSV } from '@/utils/adminExportUtils';
+import { useToast } from '@/hooks/use-toast';
+import { AdminUser } from '@/types/admin';
 
 interface UsersHeaderProps {
   totalUsers: number;
+  users: AdminUser[];
   onRefresh: () => void;
   isRefreshing: boolean;
 }
 
-export const UsersHeader = ({ totalUsers, onRefresh, isRefreshing }: UsersHeaderProps) => {
+export const UsersHeader = ({ totalUsers, users, onRefresh, isRefreshing }: UsersHeaderProps) => {
+  const { toast } = useToast();
+
+  const handleExportExcel = async () => {
+    const result = exportUsersToExcel(users);
+    if (result.success) {
+      toast({
+        title: "✅ Excel exportado",
+        description: `Arquivo ${result.filename} baixado com sucesso!`,
+      });
+    } else {
+      toast({
+        title: "❌ Erro na exportação",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportCSV = async () => {
+    const result = exportUsersToCSV(users);
+    if (result.success) {
+      toast({
+        title: "✅ CSV exportado",
+        description: `Arquivo ${result.filename} baixado com sucesso!`,
+      });
+    } else {
+      toast({
+        title: "❌ Erro na exportação",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
+  };
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -17,14 +55,35 @@ export const UsersHeader = ({ totalUsers, onRefresh, isRefreshing }: UsersHeader
           <Users className="h-6 w-6" />
           Gerenciamento de Usuários
         </CardTitle>
-        <Button 
-          variant="outline" 
-          onClick={onRefresh}
-          disabled={isRefreshing}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Atualizar
-        </Button>
+        <div className="flex items-center space-x-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <FileDown className="h-4 w-4 mr-2" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleExportExcel}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Excel (.xlsx)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportCSV}>
+                <FileDown className="h-4 w-4 mr-2" />
+                CSV (.csv)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <Button 
+            variant="outline" 
+            onClick={onRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="text-sm text-gray-600">

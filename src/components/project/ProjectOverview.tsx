@@ -4,6 +4,7 @@ import { useProjectNavigation } from '@/hooks/useProjectNavigation';
 import { useParams } from 'react-router-dom';
 import ProjectActionCard from './ProjectActionCard';
 import { Calculator, Calendar, Bot, FileText, Building2, Ruler, Clock } from 'lucide-react';
+import { ProjectAnalysisExporter } from './ProjectAnalysisExporter';
 import { InlineUnifiedLoading } from '@/components/ui/unified-loading';
 
 export const ProjectOverview = () => {
@@ -58,10 +59,7 @@ export const ProjectOverview = () => {
             <h3 className="text-lg font-semibold text-blue-900 mb-2">
               🎯 Projeto Pronto para Análise
             </h3>
-            <p className="text-blue-800">
-              Seu projeto foi processado com sucesso! Agora você pode acessar todas as funcionalidades avançadas: 
-              orçamento SINAPI, cronograma inteligente, assistente IA especializado e documentos técnicos.
-            </p>
+              <ProjectAnalysisExporter project={project} />
           </div>
         )}
       </div>

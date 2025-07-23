@@ -175,7 +175,12 @@ export const ProjectsTable = ({ projects, onUpdateStatus, onDelete }: ProjectsTa
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" disabled>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => window.open(`/projeto/${project.id}`, '_blank')}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <AlertDialog>
