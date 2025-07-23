@@ -3,13 +3,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/SafeAuthProvider"; // NOVO AUTH PROVIDER SEGURO
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/SafeAuthProvider";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
-// import { ErrorBoundary } from 'react-error-boundary';
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -40,11 +40,9 @@ const ProjectSpecificBudget = lazy(() => import("./pages/ProjectSpecificBudget")
 const ProjectSpecificSchedule = lazy(() => import("./pages/ProjectSpecificSchedule"));
 const ProjectSpecificAssistant = lazy(() => import("./pages/ProjectSpecificAssistant"));
 const ProjectSpecificDocuments = lazy(() => import("./pages/ProjectSpecificDocuments"));
-// const ProjectNavigationExample = lazy(() => import("./components/examples/ProjectNavigationExample"));
 
-// STEP 2: APP COM NOVO AuthProvider SEGURO
 const App = () => {
-  console.log('🔥 APP: Renderizado (Com SafeAuthProvider)');
+  console.log('🔥 APP: Renderizado com SafeAuth + Impersonation');
   
   const queryClient = useMemo(() => new QueryClient({
     defaultOptions: {
@@ -59,60 +57,60 @@ const App = () => {
   }), []);
 
   return (
-    <div>
-      <AuthProvider>
+    <AuthProvider>
+      <ImpersonationProvider>
         <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <BrowserRouter>
-            <Suspense fallback={<UnifiedLoading />}>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
-                <Route path="/privacidade" element={<LazyWrapper><Privacy /></LazyWrapper>} />
-                
-                {/* Protected routes COM AuthProvider */}
-                <Route path="/painel" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/projetos" element={
-                  <ProtectedRoute>
-                    <LazyWrapper><Projects /></LazyWrapper>
-                  </ProtectedRoute>
-                } />
-                
-                {/* Catch all route */}
-                <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-          
-          {/* Toasters */}
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </QueryClientProvider>
-      
-      {/* DEBUG INFO */}
-      <div style={{ 
-        position: 'fixed', 
-        top: 10, 
-        right: 10, 
-        background: 'blue', 
-        color: 'white', 
-        padding: '10px',
-        borderRadius: '5px',
-        fontSize: '12px'
-      }}>
-        <div>STEP 2: COM SAFE AUTH</div>
-        <div>Se não há loop = AUTH fixado!</div>
-      </div>
-      </AuthProvider>
-    </div>
+          <TooltipProvider>
+            <BrowserRouter>
+              <Suspense fallback={<UnifiedLoading />}>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+                  <Route path="/privacidade" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+                  
+                  {/* Protected routes */}
+                  <Route path="/painel" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/projetos" element={
+                    <ProtectedRoute>
+                      <LazyWrapper><Projects /></LazyWrapper>
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Catch all route */}
+                  <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+            
+            {/* Toasters */}
+            <Toaster />
+            <Sonner />
+          </TooltipProvider>
+        </QueryClientProvider>
+        
+        {/* DEBUG INFO */}
+        <div style={{ 
+          position: 'fixed', 
+          top: 10, 
+          right: 10, 
+          background: 'green', 
+          color: 'white', 
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px'
+        }}>
+          <div>✅ SAFE AUTH + IMPERSONATION</div>
+          <div>Se não há loop = TUDO OK!</div>
+        </div>
+      </ImpersonationProvider>
+    </AuthProvider>
   );
 };
 
