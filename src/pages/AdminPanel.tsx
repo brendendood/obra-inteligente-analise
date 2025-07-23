@@ -10,6 +10,7 @@ import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
 import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
 import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
+import { LoginHistoryTable } from '@/components/admin/LoginHistoryTable';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 import { 
   LayoutDashboard, 
@@ -147,7 +148,12 @@ const AdminPanel = () => {
       id: 'users',
       label: 'Usuários',
       icon: Users,
-      component: <AdminUsersManagement />
+      component: (
+        <div className="space-y-6">
+          <AdminUsersManagement />
+          <LoginHistoryTable />
+        </div>
+      )
     },
     {
       id: 'projects',

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { useLoginTracker } from '@/hooks/useLoginTracker';
 
 interface AuthState {
   user: User | null;
@@ -31,6 +32,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading: true,
     isAuthenticated: false,
   });
+
+  // Integrar tracking de login
+  const { trackLogin } = useLoginTracker();
 
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
@@ -96,6 +100,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             loading: false,
             isAuthenticated: !!user && !!session,
           });
+
+          // Ativar tracking de login quando usuário faz login
+          if (event === 'SIGNED_IN' && user) {
+            console.log('📍 Iniciando tracking de localização para login real...');
+            setTimeout(() => trackLogin(), 1000);
+          }
         }, import.meta.env.DEV ? 100 : 0); // Small delay in development
       }
     );
