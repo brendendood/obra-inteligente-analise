@@ -38,62 +38,78 @@ export const useAdminUsers = () => {
       setLoading(true);
       console.log('👥 ADMIN USERS: Carregando usuários reais com dados completos...');
 
-      // Buscar perfis de usuário
-      const { data: profiles, error: profilesError } = await supabase
+      // Buscar dados reais do auth.users usando query direta
+      const { data: authUsersData, error: authError } = await supabase
         .from('user_profiles')
-        .select('*');
+        .select(`
+          id,
+          user_id,
+          full_name,
+          company,
+          phone,
+          city,
+          state,
+          country,
+          cargo,
+          avatar_url,
+          gender,
+          tags,
+          created_at,
+          updated_at
+        `);
 
-      if (profilesError) throw profilesError;
+      if (authError) throw authError;
 
-      // Buscar assinaturas separadamente
+      // Buscar assinaturas
       const { data: subscriptions, error: subscriptionsError } = await supabase
         .from('user_subscriptions')
         .select('user_id, plan, status');
 
       if (subscriptionsError) throw subscriptionsError;
 
-      // Buscar dados reais do auth.users usando RPC ou função administrativa
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.warn('⚠️ Não foi possível buscar dados do auth.users:', authError);
-      }
-
-      // Combinar dados de perfis com dados de autenticação e assinaturas
+      // Para cada usuário, buscar o email real do auth.users via RPC administrativa
       const combinedUsers: AdminUser[] = [];
 
-      for (const profile of profiles || []) {
-        // Encontrar dados correspondentes do auth.users
-        const authUser = authUsers?.users?.find((u: any) => u.id === profile.user_id);
+      for (const profile of authUsersData || []) {
+        // Buscar email real diretamente
+        const { data: authUserData, error: emailError } = await supabase.auth.admin.getUserById(profile.user_id);
         
+        if (emailError) {
+          console.warn('⚠️ Não foi possível buscar email do usuário:', profile.user_id, emailError);
+          continue; // Pular usuários sem dados de auth válidos
+        }
+
         // Encontrar assinatura do usuário
         const userSubscription = subscriptions?.find(s => s.user_id === profile.user_id);
 
-        combinedUsers.push({
-          id: profile.id,
-          user_id: profile.user_id,
-          email: authUser?.email || `user-${profile.user_id.slice(0, 8)}@madenai.com`,
-          email_confirmed_at: authUser?.email_confirmed_at || null,
-          full_name: profile.full_name,
-          company: profile.company,
-          phone: profile.phone,
-          city: profile.city,
-          state: profile.state,
-          country: profile.country,
-          cargo: profile.cargo,
-          avatar_url: profile.avatar_url || authUser?.user_metadata?.avatar_url || null,
-          gender: profile.gender || authUser?.user_metadata?.gender || null,
-          tags: profile.tags,
-          created_at: authUser?.created_at || profile.created_at,
-          last_sign_in_at: authUser?.last_sign_in_at || null,
-          subscription: userSubscription ? {
-            plan: userSubscription.plan || 'free',
-            status: userSubscription.status || 'active'
-          } : {
-            plan: 'free',
-            status: 'active'
-          }
-        });
+        // Só adicionar usuários com email real válido
+        if (authUserData?.user?.email) {
+          combinedUsers.push({
+            id: profile.id,
+            user_id: profile.user_id,
+            email: authUserData.user.email, // EMAIL REAL
+            email_confirmed_at: authUserData.user.email_confirmed_at || null,
+            full_name: profile.full_name || authUserData.user.user_metadata?.full_name || null,
+            company: profile.company || authUserData.user.user_metadata?.company || null,
+            phone: profile.phone || authUserData.user.user_metadata?.phone || null,
+            city: profile.city || authUserData.user.user_metadata?.city || null,
+            state: profile.state || authUserData.user.user_metadata?.state || null,
+            country: profile.country || authUserData.user.user_metadata?.country || 'Brasil',
+            cargo: profile.cargo || authUserData.user.user_metadata?.cargo || null,
+            avatar_url: profile.avatar_url || authUserData.user.user_metadata?.avatar_url || null,
+            gender: profile.gender || authUserData.user.user_metadata?.gender || null,
+            tags: profile.tags || [],
+            created_at: authUserData.user.created_at || profile.created_at,
+            last_sign_in_at: authUserData.user.last_sign_in_at || null,
+            subscription: userSubscription ? {
+              plan: userSubscription.plan || 'free',
+              status: userSubscription.status || 'active'
+            } : {
+              plan: 'free',
+              status: 'active'
+            }
+          });
+        }
       }
 
       setUsers(combinedUsers);
