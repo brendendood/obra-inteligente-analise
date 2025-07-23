@@ -60,9 +60,9 @@ export const useAdminUsers = () => {
 
       for (const profile of profiles || []) {
         // Encontrar dados correspondentes do auth.users
-        const authUser = authUsers?.users?.find(u => u.id === profile.user_id);
+        const authUser = authUsers?.users?.find((u: any) => u.id === profile.user_id);
         
-        const userSubscription = profile.user_subscriptions?.[0] || null;
+        const userSubscription = Array.isArray(profile.user_subscriptions) ? profile.user_subscriptions[0] : profile.user_subscriptions || null;
 
         combinedUsers.push({
           id: profile.id,
@@ -81,9 +81,9 @@ export const useAdminUsers = () => {
           tags: profile.tags,
           created_at: authUser?.created_at || profile.created_at,
           last_sign_in_at: authUser?.last_sign_in_at || null,
-          subscription: userSubscription ? {
-            plan: userSubscription.plan,
-            status: userSubscription.status
+          subscription: userSubscription && typeof userSubscription === 'object' ? {
+            plan: userSubscription.plan || 'free',
+            status: userSubscription.status || 'active'
           } : {
             plan: 'free',
             status: 'active'

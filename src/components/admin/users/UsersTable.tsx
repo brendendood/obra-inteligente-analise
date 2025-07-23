@@ -255,9 +255,9 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                         <Mail className="h-3 w-3" />
                         <span>{user.email}</span>
                         {user.email_confirmed_at ? (
-                          <CheckCircle className="h-3 w-3 text-green-600" title="Email confirmado" />
+                          <CheckCircle className="h-3 w-3 text-green-600" />
                         ) : (
-                          <XCircle className="h-3 w-3 text-red-600" title="Email não confirmado" />
+                          <XCircle className="h-3 w-3 text-red-600" />
                         )}
                       </div>
                     </div>
