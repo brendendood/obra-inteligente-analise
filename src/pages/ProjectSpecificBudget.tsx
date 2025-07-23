@@ -2,10 +2,10 @@
 import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
 import { Calculator } from 'lucide-react';
 import { ProjectBudgetGenerator } from '@/components/project/ProjectBudgetGenerator';
-import { ProjectDetailProvider, useProjectDetail } from '@/contexts/ProjectDetailContext';
+import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 import { InlineUnifiedLoading } from '@/components/ui/unified-loading';
 
-const ProjectSpecificBudgetContent = () => {
+const ProjectSpecificBudget = () => {
   const { project: currentProject, isLoading: isProjectLoaded } = useProjectDetail();
 
   if (!isProjectLoaded || !currentProject) {
@@ -23,14 +23,6 @@ const ProjectSpecificBudgetContent = () => {
     <ProjectWorkspace>
       <ProjectBudgetGenerator project={currentProject} />
     </ProjectWorkspace>
-  );
-};
-
-const ProjectSpecificBudget = () => {
-  return (
-    <ProjectDetailProvider>
-      <ProjectSpecificBudgetContent />
-    </ProjectDetailProvider>
   );
 };
 

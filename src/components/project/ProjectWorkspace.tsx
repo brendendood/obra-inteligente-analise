@@ -1,6 +1,5 @@
 
 import { ProjectWorkspaceContainer } from './ProjectWorkspaceContainer';
-import { ProjectDetailProvider } from '@/contexts/ProjectDetailContext';
 
 interface ProjectWorkspaceProps {
   children: React.ReactNode;
@@ -8,10 +7,8 @@ interface ProjectWorkspaceProps {
 
 export const ProjectWorkspace = ({ children }: ProjectWorkspaceProps) => {
   return (
-    <ProjectDetailProvider>
-      <ProjectWorkspaceContainer>
-        {children}
-      </ProjectWorkspaceContainer>
-    </ProjectDetailProvider>
+    <ProjectWorkspaceContainer>
+      {children}
+    </ProjectWorkspaceContainer>
   );
 };

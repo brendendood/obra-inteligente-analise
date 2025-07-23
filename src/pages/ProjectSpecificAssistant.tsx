@@ -6,7 +6,7 @@ import { ModernAIChat } from '@/components/project/ai/ModernAIChat';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
 import { Card, CardContent } from '@/components/ui/card';
 import { Bot, AlertCircle } from 'lucide-react';
-import { ProjectDetailProvider, useProjectDetail } from '@/contexts/ProjectDetailContext';
+import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 
 const ProjectSpecificAssistantContent = () => {
   const { project: currentProject, isLoading: loading, error } = useProjectDetail();
@@ -125,11 +125,7 @@ const ProjectSpecificAssistant = () => {
     return <Navigate to="/painel" replace />;
   }
 
-  return (
-    <ProjectDetailProvider>
-      <ProjectSpecificAssistantContent />
-    </ProjectDetailProvider>
-  );
+  return <ProjectSpecificAssistantContent />;
 };
 
 export default ProjectSpecificAssistant;
