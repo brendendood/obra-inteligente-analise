@@ -6,7 +6,7 @@ import { getPlanDisplayName, getPlanLimit, getPlanIcon, getPlanBadgeStyle } from
 
 interface ProjectLimitBarProps {
   currentProjects: number;
-  plan: 'free' | 'basic' | 'pro' | 'enterprise';
+  plan: 'free' | 'pro' | 'enterprise';
 }
 
 export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {

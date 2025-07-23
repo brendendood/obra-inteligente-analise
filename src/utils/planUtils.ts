@@ -1,7 +1,7 @@
 
 // Utilitários centralizados para planos de usuário
 
-export type PlanType = 'free' | 'basic' | 'pro' | 'enterprise';
+export type PlanType = 'free' | 'pro' | 'enterprise';
 
 export interface PlanInfo {
   name: string;
@@ -20,58 +20,45 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'free',
     displayName: 'Free',
     price: 0,
-    projectLimit: 1,
+    projectLimit: 3,
     icon: '🆓',
     color: '#6B7280',
     badgeStyle: 'bg-gray-100 text-gray-600 border-gray-300',
     features: [
-      '1 projeto',
-      'Análise básica',
-      'Visualização simples'
+      'Até 3 projetos',
+      'Análise básica de IA',
+      'Visualização simples',
+      'Suporte por email'
     ],
     limitations: [
-      'Sem orçamentos',
-      'Sem cronogramas'
-    ]
-  },
-  basic: {
-    name: 'basic',
-    displayName: 'Basic',
-    price: 49,
-    projectLimit: 10,
-    icon: '📘',
-    color: '#3B82F6',
-    badgeStyle: 'bg-blue-100 text-blue-800 border-blue-300',
-    features: [
-      'Até 10 projetos',
-      'Análise básica de IA',
-      'Orçamentos simples',
-      'Suporte por email',
-      'Exportação em PDF'
+      'Orçamentos limitados',
+      'Sem cronogramas automáticos',
+      'Sem exportação avançada'
     ]
   },
   pro: {
     name: 'pro',
     displayName: 'Pro',
-    price: 149,
-    projectLimit: 50,
+    price: 99,
+    projectLimit: 25,
     icon: '⭐',
     color: '#2563EB',
     badgeStyle: 'bg-blue-600 text-white border-blue-600',
     features: [
-      'Até 50 projetos',
+      'Até 25 projetos',
       'IA avançada com insights',
+      'Orçamentos detalhados',
       'Cronogramas automatizados',
-      'Relatórios detalhados',
+      'Relatórios profissionais',
       'Suporte prioritário',
-      'Exportação avançada',
-      'Integrações API'
+      'Exportação avançada (PDF/Excel)',
+      'API básica'
     ]
   },
   enterprise: {
     name: 'enterprise',
     displayName: 'Enterprise',
-    price: 299,
+    price: 199,
     projectLimit: 999,
     icon: '👑',
     color: '#8B5CF6',
@@ -127,11 +114,10 @@ export const getPlanLimitations = (plan: string | PlanType): string[] => {
 
 export const getNextPlan = (currentPlan: string | PlanType): PlanType | null => {
   switch (currentPlan) {
-    case 'free': return 'basic';
-    case 'basic': return 'pro';
+    case 'free': return 'pro';
     case 'pro': return 'enterprise';
     case 'enterprise': return null; // Já é o plano máximo
-    default: return 'basic';
+    default: return 'pro';
   }
 };
 

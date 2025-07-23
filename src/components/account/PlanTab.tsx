@@ -61,7 +61,7 @@ export const PlanTab = () => {
           </p>
           <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600">
             <Crown className="h-4 w-4 mr-2" />
-            {userData.plan === 'basic' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
+            {userData.plan === 'free' ? 'Upgrade para Pro' : 'Upgrade para Enterprise'}
           </Button>
         </div>
       )}

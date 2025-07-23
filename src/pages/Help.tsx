@@ -110,12 +110,12 @@ const Help = () => {
     
     // Seção: Planos e Limites
     {
-      question: "Qual a diferença entre os planos Free, Basic, Pro e Enterprise?",
-      answer: "Free: 1 projeto para teste. Basic: 10 projetos + orçamentos básicos (R$ 49/mês). Pro: 50 projetos + cronogramas + exportações avançadas (R$ 149/mês). Enterprise: projetos ilimitados + colaboração em equipe + suporte prioritário (R$ 299/mês)."
+      question: "Qual a diferença entre os planos Free, Pro e Enterprise?",
+      answer: "Free: 3 projetos + IA básica (grátis). Pro: 25 projetos + cronogramas + orçamentos detalhados + exportação avançada (R$ 99/mês). Enterprise: projetos ilimitados + IA personalizada + colaboração em equipe + suporte 24/7 (R$ 199/mês)."
     },
     {
       question: "O que acontece quando atinjo o limite de projetos do meu plano?",
-      answer: "Você pode visualizar projetos existentes, mas não conseguirá criar novos até fazer upgrade ou excluir projetos antigos. Recomendamos o upgrade para Basic ou Pro para profissionais ativos na construção civil."
+      answer: "Você pode visualizar projetos existentes, mas não conseguirá criar novos até fazer upgrade ou excluir projetos antigos. Recomendamos o upgrade para Pro para profissionais ativos na construção civil."
     },
     {
       question: "Posso fazer downgrade do meu plano?",
