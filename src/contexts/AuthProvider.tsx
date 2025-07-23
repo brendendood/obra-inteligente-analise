@@ -25,8 +25,6 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  console.log('🔄 AUTH PROVIDER: Componente renderizado');
-  
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
@@ -34,13 +32,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: false,
   });
 
-  // Use refs to prevent unnecessary re-renders during HMR
+  // Use refs to prevent unnecessary re-renders and track state
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const renderCountRef = useRef(0);
+  const isInitializedRef = useRef(false);
+  const stateRef = useRef(state);
   
-  renderCountRef.current += 1;
-  console.log('🔄 AUTH PROVIDER: Render #', renderCountRef.current);
+  // Always keep stateRef updated
+  stateRef.current = state;
 
   // Função para tracking de login baseado em IP real
   const trackLoginByIP = useCallback(async (user: User) => {
@@ -74,7 +73,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const refreshAuth = useCallback(async () => {
-    console.log('🔄 AUTH: refreshAuth chamado');
+    if (isInitializedRef.current) {
+      console.log('🔄 AUTH: refreshAuth ignorado - já inicializado');
+      return;
+    }
+    
+    console.log('🔄 AUTH: refreshAuth executado');
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
       
@@ -85,66 +89,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const user = session?.user || null;
-      console.log('🔄 AUTH: setState chamado em refreshAuth');
-
-      setState({
+      const newState = {
         user,
         session,
         loading: false,
         isAuthenticated: !!user && !!session,
-      });
+      };
+      
+      // Only update if state actually changed
+      if (!stateRef.current.isAuthenticated !== !newState.isAuthenticated || 
+          stateRef.current.user?.id !== newState.user?.id) {
+        console.log('🔄 AUTH: Estado mudou, atualizando');
+        setState(newState);
+      }
+      
+      isInitializedRef.current = true;
     } catch (error) {
       console.error('Auth refresh error:', error);
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, []); // SEM DEPENDÊNCIAS para evitar loop
+  }, []); // EMPTY dependencies
 
   useEffect(() => {
     console.log('🎯 AUTH: useEffect principal iniciado');
     let mounted = true;
 
-    // Initial auth check
-    refreshAuth();
+    // Initial auth check ONLY ONCE
+    if (!isInitializedRef.current) {
+      refreshAuth();
+    }
 
-    // Auth state listener with improved HMR handling
+    // Auth state listener with VERY STRICT filtering
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔄 AUTH: onAuthStateChange disparado:', event);
+        console.log('🔄 AUTH: onAuthStateChange event:', event);
         if (!mounted) return;
         
-        // Prevent duplicate events during HMR
-        const eventKey = `${event}-${session?.user?.id || 'null'}`;
+        // IGNORE token refresh events to prevent loops
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('🔄 AUTH: TOKEN_REFRESHED ignorado para evitar loop');
+          return;
+        }
+        
+        // Prevent duplicate events
+        const eventKey = `${event}-${session?.user?.id || 'null'}-${Date.now()}`;
         if (lastAuthEventRef.current === eventKey) {
-          console.log('🔄 AUTH: Duplicate event ignored for HMR:', event);
+          console.log('🔄 AUTH: Duplicate event ignored:', event);
           return;
         }
         lastAuthEventRef.current = eventKey;
         
-        // Clear existing debounce timer
+        // Clear existing timer
         if (debounceTimerRef.current) {
           clearTimeout(debounceTimerRef.current);
         }
         
-        // Debounce auth state changes for better HMR
+        // Process only SIGNIFICANT auth changes
         debounceTimerRef.current = setTimeout(async () => {
-          console.log('🔄 AUTH: Processing state change:', event);
+          console.log('🔄 AUTH: Processing significant auth change:', event);
           
           const user = session?.user || null;
-          console.log('🔄 AUTH: setState chamado em onAuthStateChange');
-
-          setState({
+          const newState = {
             user,
             session,
             loading: false,
             isAuthenticated: !!user && !!session,
-          });
-
-          // Ativar tracking de login quando usuário faz login
-          if (event === 'SIGNED_IN' && user) {
-            console.log('📍 Iniciando tracking de localização para login real...');
-            setTimeout(() => trackLoginByIP(user), 1000);
+          };
+          
+          // ONLY update if authentication status actually changed
+          if (stateRef.current.isAuthenticated !== newState.isAuthenticated) {
+            console.log('🔄 AUTH: Authentication status changed');
+            setState(newState);
+            
+            // Track login only for real sign-in events
+            if (event === 'SIGNED_IN' && user) {
+              console.log('📍 Tracking login...');
+              setTimeout(() => trackLoginByIP(user), 1000);
+            }
+          } else {
+            console.log('🔄 AUTH: Status não mudou, ignorando update');
           }
-        }, import.meta.env.DEV ? 100 : 0); // Small delay in development
+        }, 300); // Longer debounce
       }
     );
 
@@ -156,16 +181,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       subscription.unsubscribe();
     };
-  }, []); // SEM refreshAuth e trackLoginByIP para evitar loop!
+  }, []); // COMPLETELY EMPTY dependencies!
 
-  // Memoize the context value to prevent unnecessary re-renders
+  // Memoize context value MORE AGGRESSIVELY
   const contextValue = useMemo(() => {
-    console.log('🔄 AUTH: contextValue memo recalculado');
     return {
-      ...state,
+      user: state.user,
+      session: state.session,
+      loading: state.loading,
+      isAuthenticated: state.isAuthenticated,
       refreshAuth,
     };
-  }, [state, refreshAuth]);
+  }, [state.user?.id, state.isAuthenticated, state.loading]); // MINIMAL dependencies
 
   return (
     <AuthContext.Provider value={contextValue}>
