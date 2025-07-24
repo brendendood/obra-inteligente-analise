@@ -102,7 +102,7 @@ export const useProjectSyncManager = () => {
     }
   }, [checkConnection]);
 
-  // Revalidação automática periódica
+  // Revalidação automática periódica - SEM dependências circulares
   useEffect(() => {
     const interval = setInterval(async () => {
       if (isFullyConnected && !isRealtimeConnected) {
@@ -115,7 +115,7 @@ export const useProjectSyncManager = () => {
     }, 30000); // 30 segundos
 
     return () => clearInterval(interval);
-  }, [isFullyConnected, isRealtimeConnected, resyncProjects, detectInconsistencies]);
+  }, [isFullyConnected, isRealtimeConnected]); // REMOVIDO dependências de função
 
   // Adicionar operação à fila de pendências
   const addPendingOperation = useCallback((operation: Omit<SyncOperation, 'id' | 'timestamp' | 'retryCount'>) => {

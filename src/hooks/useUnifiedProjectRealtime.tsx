@@ -144,11 +144,12 @@ export const useUnifiedProjectRealtime = () => {
           if (status === 'SUBSCRIBED') {
             isConnectedRef.current = true;
             isConnectingRef.current = false;
+            const currentAttempts = reconnectAttempts.current;
             reconnectAttempts.current = 0;
             console.log(`✅ UNIFIED REALTIME: Conectado: ${channelName}`);
             
-            // Toast apenas na primeira conexão
-            if (reconnectAttempts.current === 0) {
+            // Toast apenas na primeira conexão (não em reconexões)
+            if (currentAttempts === 0) {
               toast({
                 title: "🔗 Sincronização ativa",
                 description: "Seus projetos serão atualizados automaticamente.",
@@ -190,7 +191,7 @@ export const useUnifiedProjectRealtime = () => {
     }
   }, [user?.id, addProject, updateProject, deleteProject, toast, cleanupAll]);
 
-  // Gerenciamento de ciclo de vida
+  // Gerenciamento de ciclo de vida - SEM dependências circulares
   useEffect(() => {
     if (user?.id) {
       console.log('👤 UNIFIED REALTIME: Usuário disponível, conectando...');
@@ -204,9 +205,9 @@ export const useUnifiedProjectRealtime = () => {
       console.log('🔄 UNIFIED REALTIME: Hook desmontando...');
       cleanupAll();
     };
-  }, [user?.id, connectRealtime, cleanupAll]);
+  }, [user?.id]); // REMOVIDO dependências circulares
 
-  // Reconexão por visibilidade (simplificado)
+  // Reconexão por visibilidade - SEM dependências circulares
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (
@@ -226,7 +227,7 @@ export const useUnifiedProjectRealtime = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [user?.id, connectRealtime]);
+  }, [user?.id]); // REMOVIDO dependência circular
 
   // Ressincronização manual
   const resyncProjects = useCallback(async () => {

@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
     let subscription: any = null;
 
-    console.log('🔄 AUTH: Inicializando AuthProvider...');
+    console.log('🔄 AUTH: Inicializando AuthProvider...', Math.random());
 
     // Initial auth check
     refreshAuth();
