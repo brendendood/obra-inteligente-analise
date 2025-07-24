@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
+import { useGeolocationCapture } from '@/hooks/useGeolocationCapture';
 
 interface AuthState {
   user: User | null;
@@ -25,6 +26,9 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Hook para capturar geolocalização automaticamente
+  useGeolocationCapture();
+  
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
