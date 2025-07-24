@@ -11,6 +11,7 @@ import { Mail, Lock, User, Eye, EyeOff, Building, Briefcase } from 'lucide-react
 import { GenderSelect } from '@/components/account/GenderSelect';
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
+import { validateEmail, formatAuthError } from '@/utils/authValidation';
 
 interface ModernAuthDialogProps {
   isOpen: boolean;
@@ -44,11 +45,6 @@ export const ModernAuthDialog = ({ isOpen, onClose, onSuccess, defaultTab = 'log
     acceptTerms: false
   });
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -70,25 +66,11 @@ export const ModernAuthDialog = ({ isOpen, onClose, onSuccess, defaultTab = 'log
       });
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast({
-            title: "❌ Credenciais inválidas",
-            description: "Email ou senha incorretos.",
-            variant: "destructive",
-          });
-        } else if (error.message.includes('Email not confirmed')) {
-          toast({
-            title: "❌ Email não confirmado",
-            description: "Verifique sua caixa de entrada e confirme seu email.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "❌ Erro no login",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
+        toast({
+          title: "❌ Erro no login",
+          description: formatAuthError(error),
+          variant: "destructive",
+        });
         return;
       }
 
@@ -171,19 +153,11 @@ export const ModernAuthDialog = ({ isOpen, onClose, onSuccess, defaultTab = 'log
       });
 
       if (error) {
-        if (error.message.includes('User already registered')) {
-          toast({
-            title: "❌ Email já cadastrado",
-            description: "Este email já está em uso. Tente fazer login.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "❌ Erro no cadastro",
-            description: error.message,
-            variant: "destructive",
-          });
-        }
+        toast({
+          title: "❌ Erro no cadastro",
+          description: formatAuthError(error),
+          variant: "destructive",
+        });
         return;
       }
 

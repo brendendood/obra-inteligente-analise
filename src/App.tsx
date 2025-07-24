@@ -29,6 +29,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Project specific pages
@@ -113,6 +114,7 @@ const App = () => {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/cadastro" element={<Signup />} />
+                    <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
                     <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
                     <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
                     <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
