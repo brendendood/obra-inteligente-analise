@@ -1023,6 +1023,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      test_login_system: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       update_login_location_by_ip: {
         Args: {
           login_id: string
