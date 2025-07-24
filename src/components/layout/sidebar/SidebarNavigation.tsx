@@ -55,11 +55,8 @@ export const SidebarNavigation = () => {
     },
   ];
 
-  const toolsItems = [
-    { icon: Calculator, label: 'Orçamento', path: '/orcamento' },
-    { icon: Calendar, label: 'Cronograma', path: '/cronograma' },
-    { icon: FileText, label: 'Documentos', path: '/documentos' }
-  ];
+  // Ferramentas específicas de projeto removidas do sidebar principal
+  // Acesso via Dashboard > Projeto > Botões específicos
 
   const supportItems = [
     { icon: User, label: 'Conta & Preferências', path: '/account' },
@@ -111,36 +108,6 @@ export const SidebarNavigation = () => {
         </SidebarGroupContent>
       </SidebarGroup>
 
-      {/* Tools */}
-      <SidebarGroup>
-        <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {toolsItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.path);
-              
-              return (
-                <SidebarMenuItem key={item.path}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={active}
-                    tooltip={!open ? item.label : undefined}
-                  >
-                    <button 
-                      onClick={() => handleNavigate(item.path)}
-                      className="w-full flex items-center"
-                    >
-                      <Icon />
-                      {open && <span>{item.label}</span>}
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
 
       {/* Support & Account */}
       <SidebarGroup>
