@@ -73,56 +73,89 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
+    let subscription: any = null;
+
+    console.log('🔄 AUTH: Inicializando AuthProvider...');
 
     // Initial auth check
     refreshAuth();
 
-    // Auth state listener with improved HMR handling
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
-        
-        // Prevent duplicate events during HMR
-        const eventKey = `${event}-${session?.user?.id || 'null'}`;
-        if (lastAuthEventRef.current === eventKey) {
-          console.log('🔄 AUTH: Duplicate event ignored for HMR:', event);
-          return;
-        }
-        lastAuthEventRef.current = eventKey;
-        
-        // Clear existing debounce timer
-        if (debounceTimerRef.current) {
-          clearTimeout(debounceTimerRef.current);
-        }
-        
-        // Debounce auth state changes for better HMR
-        debounceTimerRef.current = setTimeout(async () => {
-          console.log('🔄 AUTH: Processing state change:', event);
-          
-          const user = session?.user || null;
-
-          setState({
-            user,
-            session,
-            loading: false,
-            isAuthenticated: !!user && !!session,
-          });
-
-          // Ativar tracking de login quando usuário faz login
-          if (event === 'SIGNED_IN' && user) {
-            console.log('📍 Iniciando tracking de localização para login real...');
-            setTimeout(() => trackLogin(user), 1000);
-          }
-        }, import.meta.env.DEV ? 100 : 0); // Small delay in development
+    // Função para configurar listener apenas uma vez
+    const setupAuthListener = () => {
+      if (subscription) {
+        console.log('🔄 AUTH: Listener já existe, pulando...');
+        return;
       }
-    );
+
+      console.log('🔄 AUTH: Configurando listener de autenticação...');
+      
+      const { data } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (!mounted) {
+            console.log('🔄 AUTH: Componente desmontado, ignorando evento:', event);
+            return;
+          }
+          
+          // Prevent duplicate events durante HMR em desenvolvimento
+          const eventKey = `${event}-${session?.user?.id || 'null'}`;
+          if (lastAuthEventRef.current === eventKey) {
+            console.log('🔄 AUTH: Evento duplicado ignorado (HMR):', event);
+            return;
+          }
+          lastAuthEventRef.current = eventKey;
+          
+          // Clear existing debounce timer
+          if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+          }
+          
+          // Debounce para HMR melhor em desenvolvimento
+          debounceTimerRef.current = setTimeout(async () => {
+            if (!mounted) return;
+            
+            console.log('🔄 AUTH: Processando mudança de estado:', event);
+            
+            const user = session?.user || null;
+
+            setState({
+              user,
+              session,
+              loading: false,
+              isAuthenticated: !!user && !!session,
+            });
+
+            // Ativar tracking de login quando usuário faz login real
+            if (event === 'SIGNED_IN' && user) {
+              console.log('📍 Iniciando tracking de localização para login...');
+              // Delay para garantir que o login foi processado
+              setTimeout(() => trackLogin(user), 1000);
+            }
+          }, import.meta.env.DEV ? 50 : 0); // Delay menor para desenvolvimento
+        }
+      );
+      
+      subscription = data.subscription;
+    };
+
+    // Setup do listener
+    setupAuthListener();
 
     return () => {
       mounted = false;
+      console.log('🔄 AUTH: Limpando AuthProvider...');
+      
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-      subscription.unsubscribe();
+      
+      if (subscription) {
+        console.log('🔄 AUTH: Removendo subscription...');
+        subscription.unsubscribe();
+        subscription = null;
+      }
+      
+      // Reset para evitar memory leaks
+      lastAuthEventRef.current = null;
     };
   }, [refreshAuth, trackLogin]);
 

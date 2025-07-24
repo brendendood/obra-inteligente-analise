@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn, UserPlus, Mail, Lock, UserIcon } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AuthComponentProps {
   onAuthSuccess?: (user: User) => void;
@@ -18,28 +19,17 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
+  
+  // Usar o contexto de autenticação existente em vez de criar outro listener
+  const { user, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    // Verificar usuário atual
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user && onAuthSuccess) {
-        onAuthSuccess(user);
-      }
-    });
-
-    // Listener para mudanças de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null);
-      if (session?.user && onAuthSuccess) {
-        onAuthSuccess(session.user);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [onAuthSuccess]);
+  // Chamar callback quando houver usuário
+  React.useEffect(() => {
+    if (user && isAuthenticated && onAuthSuccess) {
+      onAuthSuccess(user);
+    }
+  }, [user, isAuthenticated, onAuthSuccess]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
