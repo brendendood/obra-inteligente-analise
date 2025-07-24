@@ -11,12 +11,22 @@ interface ProjectState {
   lastFetch: number;
   hasFetched: boolean;
   
+  // Debug info
+  debugInfo: {
+    lastCacheCheck: number;
+    lastAuthCheck: number;
+    lastQueryTime: number;
+    retryCount: number;
+  };
+  
   // Optimized actions
   fetchProjects: () => Promise<void>;
   deleteProject: (projectId: string) => Promise<boolean>;
   addProject: (project: Project) => void;
   updateProject: (projectId: string, updates: Partial<Project>) => void;
   clearError: () => void;
+  clearCache: () => void;
+  forceRefresh: () => Promise<void>;
   getProjectById: (projectId: string) => Project | null;
 }
 
@@ -62,18 +72,42 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         error: null,
         lastFetch: 0,
         hasFetched: false,
+        debugInfo: {
+          lastCacheCheck: 0,
+          lastAuthCheck: 0,
+          lastQueryTime: 0,
+          retryCount: 0,
+        },
 
         fetchProjects: async () => {
           const state = get();
+          const timestamp = new Date().toISOString();
+          
+          console.log(`🔄 [${timestamp}] OPTIMIZED STORE: Iniciando fetchProjects...`);
+          console.log(`📊 [${timestamp}] Estado atual:`, {
+            isLoading: state.isLoading,
+            projectsCount: state.projects.length,
+            hasFetched: state.hasFetched,
+            lastFetch: new Date(state.lastFetch).toISOString(),
+            error: state.error
+          });
           
           // Check if already loading or recently fetched - reduce cooldown in dev
-          if (state.isLoading) return;
+          if (state.isLoading) {
+            console.log(`⏸️ [${timestamp}] OPTIMIZED STORE: Já está carregando, cancelando...`);
+            return;
+          }
+          
           const cooldown = import.meta.env.DEV ? 5000 : 30000; // 5s in dev, 30s in prod
-          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) return;
+          if (state.hasFetched && Date.now() - state.lastFetch < cooldown) {
+            console.log(`⏱️ [${timestamp}] OPTIMIZED STORE: Cooldown ativo, cancelando...`);
+            return;
+          }
           
           // Try cache first
           const cached = getCache();
           if (cached && cached.length > 0) {
+            console.log(`💾 [${timestamp}] OPTIMIZED STORE: Usando cache com ${cached.length} projetos`);
             set({ 
               projects: cached, 
               hasFetched: true, 
@@ -82,24 +116,36 @@ export const useOptimizedProjectStore = create<ProjectState>()(
             return;
           }
 
+          console.log(`🌐 [${timestamp}] OPTIMIZED STORE: Cache vazio, buscando do servidor...`);
           set({ isLoading: true, error: null });
 
           try {
+            console.log(`🔐 [${timestamp}] OPTIMIZED STORE: Verificando autenticação...`);
             const { data: { user }, error: authError } = await supabase.auth.getUser();
             
             if (authError || !user) {
-              throw new Error('User not authenticated');
+              throw new Error(`Usuário não autenticado: ${authError?.message || 'User is null'}`);
             }
 
+            console.log(`✅ [${timestamp}] OPTIMIZED STORE: Usuário autenticado: ${user.id}`);
+            
+            console.log(`📡 [${timestamp}] OPTIMIZED STORE: Buscando projetos do usuário...`);
             const { data: projects, error } = await supabase
               .from('projects')
               .select('*')
               .eq('user_id', user.id)
               .order('created_at', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+              console.error(`❌ [${timestamp}] OPTIMIZED STORE: Erro na query:`, error);
+              throw error;
+            }
 
             const projectList = projects || [];
+            console.log(`✅ [${timestamp}] OPTIMIZED STORE: Projetos carregados com sucesso:`, {
+              count: projectList.length,
+              projects: projectList.map(p => ({ id: p.id, name: p.name, created_at: p.created_at }))
+            });
             
             set({ 
               projects: projectList,
@@ -111,9 +157,16 @@ export const useOptimizedProjectStore = create<ProjectState>()(
 
             // Cache the results
             setCache(projectList);
+            console.log(`💾 [${timestamp}] OPTIMIZED STORE: Projetos salvos em cache`);
             
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to fetch projects';
+            console.error(`❌ [${timestamp}] OPTIMIZED STORE: Erro completo:`, {
+              error: errorMessage,
+              fullError: error,
+              stack: error instanceof Error ? error.stack : 'No stack'
+            });
+            
             set({ 
               projects: [],
               isLoading: false,
@@ -169,6 +222,38 @@ export const useOptimizedProjectStore = create<ProjectState>()(
         },
 
         clearError: () => set({ error: null }),
+
+        clearCache: () => {
+          console.log('🗑️ OPTIMIZED STORE: Limpando cache...');
+          localStorage.removeItem(CACHE_KEY);
+          set({ 
+            projects: [], 
+            hasFetched: false, 
+            lastFetch: 0,
+            debugInfo: {
+              lastCacheCheck: Date.now(),
+              lastAuthCheck: 0,
+              lastQueryTime: 0,
+              retryCount: 0,
+            }
+          });
+        },
+
+        forceRefresh: async () => {
+          console.log('🔄 OPTIMIZED STORE: Forçando refresh completo...');
+          localStorage.removeItem(CACHE_KEY);
+          set({ 
+            projects: [], 
+            hasFetched: false, 
+            lastFetch: 0, 
+            isLoading: false,
+            debugInfo: {
+              ...get().debugInfo,
+              retryCount: get().debugInfo.retryCount + 1,
+            }
+          });
+          await get().fetchProjects();
+        },
 
         getProjectById: (projectId: string) => {
           return get().projects.find(p => p.id === projectId) || null;

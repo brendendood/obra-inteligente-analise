@@ -13,11 +13,19 @@ interface DashboardContentProps {
   stats: any;
   projects: any[];
   isDataLoading: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
-const DashboardContent = ({ stats, projects, isDataLoading }: DashboardContentProps) => {
+const DashboardContent = ({ 
+  stats, 
+  projects, 
+  isDataLoading,
+  error,
+  onRetry 
+}: DashboardContentProps) => {
   // Usar apenas os dados do Zustand - SEM fazer novas requisições
-  const { error, clearError } = useProjectStore();
+  const { clearError } = useProjectStore();
   
   // Estatísticas dos projetos
   const { recentProjects } = useProjectStats();
