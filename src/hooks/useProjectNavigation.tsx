@@ -12,27 +12,28 @@ export const useProjectNavigation = () => {
   const navigateToProject = useCallback((projectId: string, section?: string) => {
     console.log('🔄 NAVEGAÇÃO: Navegando para projeto', { projectId, section });
     
-    // Verificar se o projeto existe antes de navegar
-    const project = getProjectById(projectId);
-    if (!project) {
-      console.error('❌ NAVEGAÇÃO: Projeto não encontrado:', projectId);
-      toast({
-        title: "❌ Projeto não encontrado",
-        description: "O projeto que você está tentando acessar não foi encontrado.",
-        variant: "destructive"
-      });
-      navigate('/projetos');
-      return false;
-    }
+    // Aguardar um momento para garantir que os projetos foram carregados
+    setTimeout(() => {
+      const project = getProjectById(projectId);
+      if (!project) {
+        console.error('❌ NAVEGAÇÃO: Projeto não encontrado:', projectId);
+        toast({
+          title: "Projeto não encontrado",
+          description: "O projeto que você está tentando acessar não foi encontrado.",
+          variant: "destructive"
+        });
+        navigate('/painel');
+        return false;
+      }
 
-    console.log('✅ NAVEGAÇÃO: Projeto encontrado:', project.name);
-
-    const basePath = `/projeto/${projectId}`;
-    const targetPath = section ? `${basePath}/${section}` : basePath;
-    
-    console.log('📍 NAVEGAÇÃO: Redirecionando para:', targetPath);
-    navigate(targetPath);
-    return true;
+      console.log('✅ NAVEGAÇÃO: Projeto encontrado:', project.name);
+      const basePath = `/projeto/${projectId}`;
+      const targetPath = section ? `${basePath}/${section}` : basePath;
+      
+      console.log('📍 NAVEGAÇÃO: Redirecionando para:', targetPath);
+      navigate(targetPath);
+      return true;
+    }, 100);
   }, [getProjectById, navigate, toast]);
 
   const navigateToProjectSection = useCallback((projectId: string, section: 'orcamento' | 'cronograma' | 'assistente' | 'documentos') => {

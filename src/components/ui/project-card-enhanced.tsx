@@ -30,8 +30,10 @@ export const ProjectCardEnhanced = ({ project, showQuickActions = false }: Proje
     console.log('🔄 CARD: Abrindo projeto:', project.name);
     setIsLoading(true);
     
-    const success = navigateToProject(project.id);
-    if (!success) {
+    try {
+      navigateToProject(project.id);
+    } catch (error) {
+      console.error('❌ CARD: Erro ao navegar:', error);
       setIsLoading(false);
     }
   };

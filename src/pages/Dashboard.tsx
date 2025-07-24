@@ -11,6 +11,7 @@ import { ImpersonationBanner } from '@/components/admin/ImpersonationBanner';
 import { useProjectRealtime } from '@/hooks/useProjectRealtime';
 import { useProjectSyncManager } from '@/hooks/useProjectSyncManager';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { ConnectionManager } from '@/components/dashboard/ConnectionManager';
 
 // Memoized components for better performance
 const MemoizedOptimizedDashboard = memo(OptimizedDashboard);
@@ -66,6 +67,9 @@ const Dashboard = memo(() => {
 
   return (
     <div className="min-h-screen">
+      {/* Connection Manager - resolve problemas de conexão e projetos não encontrados */}
+      <ConnectionManager />
+      
       {/* Impersonation Banner */}
       {isImpersonating && impersonationData && (
         <ImpersonationBanner
