@@ -38,7 +38,7 @@ import {
   Phone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { AuthDialog } from '@/components/auth/AuthDialog';
+import { ModernAuthDialog } from '@/components/auth/ModernAuthDialog';
 
 // Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
@@ -1070,7 +1070,7 @@ const LandingPage = () => {
       </footer>
 
       {/* Auth Dialog */}
-      <AuthDialog
+      <ModernAuthDialog
         isOpen={showAuthDialog}
         onClose={() => setShowAuthDialog(false)}
         onSuccess={() => {
