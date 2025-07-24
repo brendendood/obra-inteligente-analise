@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
-import { AuthDialog } from '@/components/auth/AuthDialog';
+import { ModernAuthDialog } from '@/components/auth/ModernAuthDialog';
 
 export const HeaderAuthActions = () => {
   const { isAuthenticated, user } = useAuth();
@@ -115,7 +115,7 @@ export const HeaderAuthActions = () => {
           </Button>
         </div>
 
-        <AuthDialog
+        <ModernAuthDialog
           isOpen={showAuthDialog}
           onClose={() => setShowAuthDialog(false)}
           onSuccess={() => navigate('/painel')}
