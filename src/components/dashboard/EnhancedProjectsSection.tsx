@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { 
   FolderOpen, 
   Plus, 
@@ -43,6 +44,7 @@ export const EnhancedProjectsSection = ({
   onDeleteProject 
 }: EnhancedProjectsSectionProps) => {
   const navigate = useNavigate();
+  const { updateProject } = useUnifiedProjectStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'area'>('date');
   const [currentPage, setCurrentPage] = useState(1);
@@ -184,8 +186,7 @@ export const EnhancedProjectsSection = ({
               project={project}
               onDeleteProject={onDeleteProject}
               onProjectUpdate={(updatedProject) => {
-                // Atualizar o projeto na lista se necessário
-                console.log('Projeto atualizado:', updatedProject);
+                updateProject(updatedProject.id, updatedProject);
               }}
             />
           ))}
