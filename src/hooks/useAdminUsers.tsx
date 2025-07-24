@@ -20,6 +20,8 @@ interface AdminUser {
   last_sign_in_at: string | null;
   plan: string;
   status: string;
+  real_location: string;
+  last_login_ip: string | null;
 }
 
 export const useAdminUsers = () => {
@@ -33,11 +35,11 @@ export const useAdminUsers = () => {
     setLoading(true);
     
     try {
-      console.log('🔍 ADMIN USERS: Carregando usuários via função SQL...');
+      console.log('🔍 ADMIN USERS: Carregando usuários com localização REAL...');
       
-      // Usar a nova função SQL que faz JOIN seguro entre auth.users e user_profiles
+      // Usar a nova função SQL que busca localização do último login real
       const { data: usersData, error: usersError } = await supabase
-        .rpc('get_admin_users_with_auth_data');
+        .rpc('get_admin_users_with_real_location');
 
       if (usersError) {
         console.error('❌ ADMIN USERS: Erro ao buscar usuários:', usersError);
@@ -57,16 +59,17 @@ export const useAdminUsers = () => {
 
       console.log(`📊 ADMIN USERS: ${usersData.length} usuários encontrados`);
 
-      // Mapear os dados para o formato AdminUser
+      // Mapear os dados para o formato AdminUser com localização REAL
       const adminUsers: AdminUser[] = usersData.map((userData: any) => ({
         id: userData.user_id,
         email: userData.email || '',
         full_name: userData.full_name || userData.email || '',
         company: userData.company || '',
         phone: userData.phone || '',
-        city: userData.city || '',
-        state: userData.state || '',
-        country: userData.country || 'Brasil',
+        // Usar localização real do último login, não do perfil
+        city: userData.city || null,
+        state: userData.state || null,
+        country: userData.country || null,
         cargo: userData.cargo || '',
         avatar_url: userData.avatar_url,
         gender: userData.gender || '',
@@ -75,7 +78,9 @@ export const useAdminUsers = () => {
         last_sign_in_at: userData.last_sign_in_at,
         email_confirmed_at: userData.email_confirmed_at,
         plan: userData.subscription_plan || 'free',
-        status: userData.subscription_status || 'active'
+        status: userData.subscription_status || 'active',
+        real_location: userData.real_location || 'Localização não disponível',
+        last_login_ip: userData.last_login_ip || null
       }));
 
       console.log(`🎉 ADMIN USERS: ${adminUsers.length} usuários carregados com sucesso`);

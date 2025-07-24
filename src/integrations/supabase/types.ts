@@ -966,6 +966,31 @@ export type Database = {
           subscription_status: string
         }[]
       }
+      get_admin_users_with_real_location: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          profile_id: string
+          user_id: string
+          email: string
+          email_confirmed_at: string
+          full_name: string
+          company: string
+          phone: string
+          city: string
+          state: string
+          country: string
+          cargo: string
+          avatar_url: string
+          gender: string
+          tags: string[]
+          created_at: string
+          last_sign_in_at: string
+          subscription_plan: string
+          subscription_status: string
+          real_location: string
+          last_login_ip: string
+        }[]
+      }
       get_advanced_admin_analytics: {
         Args: Record<PropertyKey, never>
         Returns: {

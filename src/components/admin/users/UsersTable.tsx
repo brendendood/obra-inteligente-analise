@@ -33,6 +33,8 @@ interface UserTableProps {
     last_sign_in_at: string | null;
     plan: string;
     status: string;
+    real_location: string;
+    last_login_ip: string | null;
   }>;
   onUpdateUser: (userId: string, data: any) => void;
   onDeleteUser: (userId: string) => void;
@@ -72,9 +74,25 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
     }
   };
 
-  const formatLocation = (city: string | null, state: string | null, country: string | null) => {
-    const parts = [city, state, country].filter(Boolean);
-    return parts.length > 0 ? parts.join(', ') : 'Não informado';
+  const formatRealLocation = (realLocation: string, lastLoginIp: string | null) => {
+    if (realLocation === 'Localização não disponível') {
+      return (
+        <span className="text-gray-500 italic">
+          {realLocation}
+          {lastLoginIp && (
+            <div className="text-xs text-gray-400">IP: {lastLoginIp}</div>
+          )}
+        </span>
+      );
+    }
+    return (
+      <span>
+        {realLocation}
+        {lastLoginIp && (
+          <div className="text-xs text-gray-400">IP: {lastLoginIp}</div>
+        )}
+      </span>
+    );
   };
 
   const getAvatarFallback = (user: any) => {
@@ -303,13 +321,13 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                   </div>
                 </TableCell>
 
-                {/* Localização */}
+                {/* Localização Real */}
                 <TableCell>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <MapPin className="h-3 w-3 text-gray-400" />
-                    <span className="max-w-[150px] truncate" title={formatLocation(user.city, user.state, user.country)}>
-                      {formatLocation(user.city, user.state, user.country)}
-                    </span>
+                    <div className="max-w-[200px]" title={`${user.real_location}${user.last_login_ip ? ' | IP: ' + user.last_login_ip : ''}`}>
+                      {formatRealLocation(user.real_location, user.last_login_ip)}
+                    </div>
                   </div>
                 </TableCell>
 
