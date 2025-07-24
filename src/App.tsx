@@ -111,7 +111,6 @@ const App = () => {
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<LandingPage />} />
-                    <Route path="/login" element={<Login />} />
                     <Route path="/cadastro" element={<Signup />} />
                     <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
                     <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
