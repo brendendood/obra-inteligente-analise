@@ -1,26 +1,25 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/project';
 import { useToast } from '@/hooks/use-toast';
 
 /**
- * Hook para sincronização em tempo real dos projetos via Supabase Realtime
- * SOLUÇÃO DEFINITIVA para o erro de múltiplas subscrições
+ * Hook unificado para real-time com prevenção total de duplicação
+ * e reconexão automática robusta
  */
-export const useProjectRealtime = () => {
+export const useUnifiedProjectRealtime = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { 
-    projects, 
     addProject, 
     updateProject, 
-    deleteProject: removeProject,
+    deleteProject, 
     forceRefresh 
-  } = useOptimizedProjectStore();
+  } = useUnifiedProjectStore();
   
-  // Estados de controle mais rigorosos
+  // Estados de controle rigorosos
   const channelRef = useRef<any>(null);
   const isConnectedRef = useRef(false);
   const isConnectingRef = useRef(false);
@@ -29,9 +28,9 @@ export const useProjectRealtime = () => {
   const maxReconnectAttempts = 3;
   const channelNameRef = useRef<string | null>(null);
 
-  // Função para limpar completamente todas as conexões
+  // Limpeza completa e robusta
   const cleanupAll = useCallback(() => {
-    console.log('🧹 REALTIME: Limpeza completa iniciada...');
+    console.log('🧹 UNIFIED REALTIME: Limpeza completa iniciada...');
     
     // Limpar timeout de reconexão
     if (reconnectTimeoutRef.current) {
@@ -42,48 +41,47 @@ export const useProjectRealtime = () => {
     // Desconectar canal atual
     if (channelRef.current) {
       try {
-        console.log('🔌 REALTIME: Removendo canal existente...');
+        console.log('🔌 UNIFIED REALTIME: Removendo canal existente...');
         supabase.removeChannel(channelRef.current);
       } catch (error) {
-        console.warn('⚠️ REALTIME: Erro ao remover canal:', error);
+        console.warn('⚠️ UNIFIED REALTIME: Erro ao remover canal:', error);
       }
       channelRef.current = null;
     }
     
-    // Reset de todos os estados
+    // Reset completo dos estados
     isConnectedRef.current = false;
     isConnectingRef.current = false;
     channelNameRef.current = null;
+    reconnectAttempts.current = 0;
     
-    console.log('✅ REALTIME: Limpeza completa finalizada');
+    console.log('✅ UNIFIED REALTIME: Limpeza completa finalizada');
   }, []);
 
-  // Função para conectar (com prevenção total de duplicação)
+  // Conexão robusta com prevenção de duplicação
   const connectRealtime = useCallback(() => {
     if (!user?.id) {
-      console.log('❌ REALTIME: Usuário não disponível');
+      console.log('❌ UNIFIED REALTIME: Usuário não disponível');
       return;
     }
 
     // Prevenção rigorosa de múltiplas conexões
     if (isConnectingRef.current || channelRef.current) {
-      console.log('⚠️ REALTIME: Conexão já em andamento ou canal já existe, cancelando...');
+      console.log('⚠️ UNIFIED REALTIME: Conexão já em andamento, cancelando...');
       return;
     }
 
     isConnectingRef.current = true;
-    const channelName = `projects-${user.id}-${Date.now()}`;
+    const channelName = `unified-projects-${user.id}-${Date.now()}`;
     channelNameRef.current = channelName;
     
-    console.log(`🔗 REALTIME: Iniciando conexão para canal: ${channelName}`);
+    console.log(`🔗 UNIFIED REALTIME: Iniciando conexão: ${channelName}`);
     
     try {
       const channel = supabase
         .channel(channelName, {
           config: {
-            presence: {
-              key: user.id,
-            },
+            presence: { key: user.id },
           },
         })
         .on(
@@ -95,13 +93,13 @@ export const useProjectRealtime = () => {
             filter: `user_id=eq.${user.id}`
           },
           (payload) => {
-            console.log('➕ REALTIME: Novo projeto inserido:', payload.new);
+            console.log('➕ UNIFIED REALTIME: Novo projeto:', payload.new);
             const newProject = payload.new as Project;
             addProject(newProject);
             
             toast({
-              title: "📁 Novo projeto adicionado",
-              description: `Projeto "${newProject.name}" foi criado com sucesso.`,
+              title: "📁 Novo projeto",
+              description: `"${newProject.name}" foi criado com sucesso.`,
             });
           }
         )
@@ -114,7 +112,7 @@ export const useProjectRealtime = () => {
             filter: `user_id=eq.${user.id}`
           },
           (payload) => {
-            console.log('✏️ REALTIME: Projeto atualizado:', payload.new);
+            console.log('✏️ UNIFIED REALTIME: Projeto atualizado:', payload.new);
             const updatedProject = payload.new as Project;
             updateProject(updatedProject.id, updatedProject);
           }
@@ -128,45 +126,52 @@ export const useProjectRealtime = () => {
             filter: `user_id=eq.${user.id}`
           },
           (payload) => {
-            console.log('🗑️ REALTIME: Projeto deletado:', payload.old);
+            console.log('🗑️ UNIFIED REALTIME: Projeto deletado:', payload.old);
             const deletedProject = payload.old as Project;
             
-            const currentProjects = useOptimizedProjectStore.getState().projects;
-            const newProjects = currentProjects.filter(p => p.id !== deletedProject.id);
-            useOptimizedProjectStore.setState({ projects: newProjects });
+            // Usar deleteProject com flag de exclusão externa
+            deleteProject(deletedProject.id, true);
             
             toast({
               title: "🗑️ Projeto removido",
-              description: `Projeto "${deletedProject.name}" foi excluído.`,
+              description: `"${deletedProject.name}" foi excluído.`,
             });
           }
         )
         .subscribe((status) => {
-          console.log(`🔌 REALTIME: Status da conexão [${channelName}]: ${status}`);
+          console.log(`🔌 UNIFIED REALTIME: Status [${channelName}]: ${status}`);
           
           if (status === 'SUBSCRIBED') {
             isConnectedRef.current = true;
             isConnectingRef.current = false;
             reconnectAttempts.current = 0;
-            console.log(`✅ REALTIME: Conectado com sucesso ao canal ${channelName}`);
+            console.log(`✅ UNIFIED REALTIME: Conectado: ${channelName}`);
+            
+            // Toast apenas na primeira conexão
+            if (reconnectAttempts.current === 0) {
+              toast({
+                title: "🔗 Sincronização ativa",
+                description: "Seus projetos serão atualizados automaticamente.",
+              });
+            }
           } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
             isConnectedRef.current = false;
             isConnectingRef.current = false;
             
-            // Só tentar reconectar se este ainda é o canal ativo
+            // Reconexão automática inteligente
             if (channelNameRef.current === channelName && reconnectAttempts.current < maxReconnectAttempts) {
-              console.warn(`❌ REALTIME: Conexão perdida para ${channelName}, tentando reconectar...`);
+              console.warn(`❌ UNIFIED REALTIME: Conexão perdida, reconectando...`);
               
-              const delay = Math.pow(2, reconnectAttempts.current) * 2000; // 2s, 4s, 8s
+              const delay = Math.pow(2, reconnectAttempts.current) * 2000;
               reconnectAttempts.current++;
               
               reconnectTimeoutRef.current = setTimeout(() => {
-                console.log(`🔄 REALTIME: Tentativa de reconexão ${reconnectAttempts.current}/${maxReconnectAttempts}`);
+                console.log(`🔄 UNIFIED REALTIME: Tentativa ${reconnectAttempts.current}/${maxReconnectAttempts}`);
                 cleanupAll();
                 connectRealtime();
               }, delay);
             } else if (reconnectAttempts.current >= maxReconnectAttempts) {
-              console.error('❌ REALTIME: Máximo de tentativas de reconexão atingido');
+              console.error('❌ UNIFIED REALTIME: Máximo de tentativas atingido');
               toast({
                 title: "⚠️ Conexão instável",
                 description: "A sincronização será retomada automaticamente.",
@@ -177,36 +182,41 @@ export const useProjectRealtime = () => {
         });
 
       channelRef.current = channel;
-      console.log(`📋 REALTIME: Canal ${channelName} criado com sucesso`);
+      console.log(`📋 UNIFIED REALTIME: Canal criado: ${channelName}`);
       
     } catch (error) {
-      console.error('💥 REALTIME: Erro ao criar canal:', error);
+      console.error('💥 UNIFIED REALTIME: Erro ao criar canal:', error);
       isConnectingRef.current = false;
     }
-  }, [user?.id, addProject, updateProject, toast, cleanupAll]);
+  }, [user?.id, addProject, updateProject, deleteProject, toast, cleanupAll]);
 
-  // Conectar quando usuário estiver disponível
+  // Gerenciamento de ciclo de vida
   useEffect(() => {
     if (user?.id) {
-      console.log('👤 REALTIME: Usuário disponível, conectando...');
+      console.log('👤 UNIFIED REALTIME: Usuário disponível, conectando...');
       connectRealtime();
     } else {
-      console.log('❌ REALTIME: Usuário não disponível, limpando conexões...');
+      console.log('❌ UNIFIED REALTIME: Usuário indisponível, limpando...');
       cleanupAll();
     }
 
     return () => {
-      console.log('🔄 REALTIME: Hook desmontando, limpando tudo...');
+      console.log('🔄 UNIFIED REALTIME: Hook desmontando...');
       cleanupAll();
     };
   }, [user?.id, connectRealtime, cleanupAll]);
 
-  // Monitorar mudanças de visibilidade da página (simplificado)
+  // Reconexão por visibilidade (simplificado)
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && user?.id && !isConnectedRef.current && !isConnectingRef.current) {
-        console.log('👁️ REALTIME: Página visível, verificando reconexão...');
-        reconnectAttempts.current = 0; // Reset attempts when page becomes visible
+      if (
+        document.visibilityState === 'visible' && 
+        user?.id && 
+        !isConnectedRef.current && 
+        !isConnectingRef.current
+      ) {
+        console.log('👁️ UNIFIED REALTIME: Página visível, reconectando...');
+        reconnectAttempts.current = 0;
         connectRealtime();
       }
     };
@@ -218,16 +228,26 @@ export const useProjectRealtime = () => {
     };
   }, [user?.id, connectRealtime]);
 
-  // Função para ressincronizar projetos
+  // Ressincronização manual
   const resyncProjects = useCallback(async () => {
-    console.log('🔄 REALTIME: Ressincronizando projetos...');
+    console.log('🔄 UNIFIED REALTIME: Ressincronizando projetos...');
     try {
       await forceRefresh();
-      console.log('✅ REALTIME: Ressincronização concluída');
+      console.log('✅ UNIFIED REALTIME: Ressincronização concluída');
+      
+      toast({
+        title: "🔄 Dados atualizados",
+        description: "Seus projetos foram sincronizados com o servidor.",
+      });
     } catch (error) {
-      console.error('❌ REALTIME: Erro na ressincronização:', error);
+      console.error('❌ UNIFIED REALTIME: Erro na ressincronização:', error);
+      toast({
+        title: "❌ Erro na sincronização",
+        description: "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
     }
-  }, [forceRefresh]);
+  }, [forceRefresh, toast]);
 
   return {
     isRealtimeConnected: isConnectedRef.current,

@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useProjectStore } from '@/stores/projectStore';
-import { useProjectRealtime } from './useProjectRealtime';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
+import { useUnifiedProjectRealtime } from './useUnifiedProjectRealtime';
 import { useNetworkStatus } from './useNetworkStatus';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,8 +17,8 @@ interface SyncOperation {
  * Coordena realtime, fallbacks, revalidação e cache de emergência
  */
 export const useProjectSyncManager = () => {
-  const { forceRefresh } = useProjectStore();
-  const { isRealtimeConnected, resyncProjects } = useProjectRealtime();
+  const { forceRefresh } = useUnifiedProjectStore();
+  const { isRealtimeConnected, resyncProjects } = useUnifiedProjectRealtime();
   const { isFullyConnected, checkConnection } = useNetworkStatus();
   const { toast } = useToast();
   

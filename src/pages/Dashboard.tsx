@@ -5,10 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
 import { OptimizedDashboard } from '@/components/dashboard/OptimizedDashboard';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { ImpersonationBanner } from '@/components/admin/ImpersonationBanner';
-import { useProjectRealtime } from '@/hooks/useProjectRealtime';
+import { useUnifiedProjectRealtime } from '@/hooks/useUnifiedProjectRealtime';
 import { useProjectSyncManager } from '@/hooks/useProjectSyncManager';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { ConnectionManager } from '@/components/dashboard/ConnectionManager';
@@ -22,8 +22,8 @@ const Dashboard = memo(() => {
   const navigate = useNavigate();
   
   // Initialize all sync systems
-  const { projects, isLoading: isLoadingProjects, error, fetchProjects, forceRefresh } = useOptimizedProjectStore();
-  const { isRealtimeConnected } = useProjectRealtime();
+  const { projects, isLoading: isLoadingProjects, error, fetchProjects, forceRefresh } = useUnifiedProjectStore();
+  const { isRealtimeConnected } = useUnifiedProjectRealtime();
   const { isFullyConnected } = useNetworkStatus();
   const { forceSyncAll } = useProjectSyncManager();
 

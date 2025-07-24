@@ -1,28 +1,43 @@
 
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useToast } from '@/hooks/use-toast';
 
 export const useProjectNavigation = () => {
   const navigate = useNavigate();
-  const { getProjectById } = useProjectStore();
+  const { getProjectById, fetchProjects, projects } = useUnifiedProjectStore();
   const { toast } = useToast();
 
-  const navigateToProject = useCallback((projectId: string, section?: string) => {
+  const navigateToProject = useCallback(async (projectId: string, section?: string) => {
     console.log('🔄 NAVEGAÇÃO: Navegando para projeto', { projectId, section });
     
-    // Aguardar um momento para garantir que os projetos foram carregados
-    setTimeout(() => {
-      const project = getProjectById(projectId);
+    try {
+      // Primeiro, tentar encontrar o projeto no estado atual
+      let project = getProjectById(projectId);
+      
+      // Se não encontrar e não temos projetos carregados, buscar
+      if (!project && projects.length === 0) {
+        console.log('📥 NAVEGAÇÃO: Projetos não carregados, buscando...');
+        await fetchProjects();
+        project = getProjectById(projectId);
+      }
+      
+      // Se ainda não encontrar, buscar forçadamente
       if (!project) {
-        console.error('❌ NAVEGAÇÃO: Projeto não encontrado:', projectId);
+        console.log('🔄 NAVEGAÇÃO: Projeto não encontrado localmente, forçando refresh...');
+        await fetchProjects();
+        project = getProjectById(projectId);
+      }
+      
+      if (!project) {
+        console.error('❌ NAVEGAÇÃO: Projeto não encontrado após busca:', projectId);
         toast({
           title: "Projeto não encontrado",
-          description: "O projeto que você está tentando acessar não foi encontrado.",
+          description: "O projeto que você está tentando acessar não existe ou foi removido.",
           variant: "destructive"
         });
-        navigate('/painel');
+        navigate('/projetos');
         return false;
       }
 
@@ -33,8 +48,17 @@ export const useProjectNavigation = () => {
       console.log('📍 NAVEGAÇÃO: Redirecionando para:', targetPath);
       navigate(targetPath);
       return true;
-    }, 100);
-  }, [getProjectById, navigate, toast]);
+    } catch (error) {
+      console.error('💥 NAVEGAÇÃO: Erro durante navegação:', error);
+      toast({
+        title: "Erro de navegação",
+        description: "Não foi possível acessar o projeto. Tente novamente.",
+        variant: "destructive"
+      });
+      navigate('/projetos');
+      return false;
+    }
+  }, [getProjectById, fetchProjects, projects.length, navigate, toast]);
 
   const navigateToProjectSection = useCallback((projectId: string, section: 'orcamento' | 'cronograma' | 'assistente' | 'documentos') => {
     return navigateToProject(projectId, section);

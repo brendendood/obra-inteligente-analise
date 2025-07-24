@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useProjectRealtime } from '@/hooks/useProjectRealtime';
+import { useUnifiedProjectRealtime } from '@/hooks/useUnifiedProjectRealtime';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useProjectSyncManager } from '@/hooks/useProjectSyncManager';
 import { EnhancedNotification, useEnhancedNotifications } from '@/components/ui/enhanced-notification';
@@ -13,7 +13,7 @@ import { NotificationContainer } from '@/components/ui/notification-container';
  * 3. Notificações duplicadas
  */
 export const ConnectionManager = () => {
-  const { isRealtimeConnected, reconnectAttempts } = useProjectRealtime();
+  const { isRealtimeConnected, reconnectAttempts } = useUnifiedProjectRealtime();
   const { isFullyConnected, checkConnection } = useNetworkStatus();
   const { forceSyncAll, hasPendingOperations } = useProjectSyncManager();
   const { showError, showInfo, showSuccess, removeNotification } = useEnhancedNotifications();

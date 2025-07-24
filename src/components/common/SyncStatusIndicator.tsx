@@ -3,8 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Wifi, WifiOff, RefreshCw, AlertTriangle, CheckCircle2, Database } from 'lucide-react';
 import { useProjectSyncManager } from '@/hooks/useProjectSyncManager';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
-import { useProjectRealtime } from '@/hooks/useProjectRealtime';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
+import { useUnifiedProjectRealtime } from '@/hooks/useUnifiedProjectRealtime';
 
 /**
  * Indicador visual do status de sincronização
@@ -27,11 +27,11 @@ export const SyncStatusIndicator = () => {
     debugInfo,
     clearCache,
     forceRefresh 
-  } = useOptimizedProjectStore();
+  } = useUnifiedProjectStore();
   
   const {
     reconnectAttempts
-  } = useProjectRealtime();
+  } = useUnifiedProjectRealtime();
 
   const getStatusInfo = () => {
     if (error) {

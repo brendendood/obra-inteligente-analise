@@ -11,7 +11,7 @@ import { EnhancedSkeleton } from '@/components/ui/enhanced-skeleton';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus } from 'lucide-react';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useProjectSync } from '@/hooks/useProjectSync';
 import { SyncStatusIndicator } from '@/components/common/SyncStatusIndicator';
@@ -26,7 +26,7 @@ export default function Projects() {
     error, 
     fetchProjects, 
     clearError 
-  } = useProjectStore();
+  } = useUnifiedProjectStore();
   
   // Hook para gerenciar exclusão
   const {

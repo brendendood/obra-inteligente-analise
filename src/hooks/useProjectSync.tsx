@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useProject } from '@/contexts/ProjectContext';
 import { useProjectSyncManager } from './useProjectSyncManager';
 
@@ -8,7 +8,7 @@ import { useProjectSyncManager } from './useProjectSyncManager';
  * com mudanças no store (exclusões, atualizações, etc.)
  */
 export const useProjectSync = () => {
-  const { projects } = useProjectStore();
+  const { projects } = useUnifiedProjectStore();
   const { currentProject, setCurrentProject } = useProject();
   const { detectInconsistencies } = useProjectSyncManager();
 

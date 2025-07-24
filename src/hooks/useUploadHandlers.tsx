@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { validateCompleteUpload } from '@/utils/uploadValidator';
 
 interface UseUploadHandlersProps {
   file: File | null;
@@ -34,13 +35,44 @@ export const useUploadHandlers = ({
   const navigate = useNavigate();
 
   const handleUpload = async () => {
-    if (!file || !user || !projectName.trim()) {
+    // Validação robusta antes do upload
+    console.log('🔍 UPLOAD: Iniciando validação...');
+    
+    const validation = await validateCompleteUpload(file, projectName);
+    
+    if (!validation.isValid) {
+      console.error('❌ UPLOAD: Validação falhou:', validation.combinedError);
       toast({
-        title: "❌ Campos obrigatórios",
-        description: "Por favor, selecione um arquivo e informe o nome do projeto.",
+        title: "❌ Validação falhou",
+        description: validation.combinedError || "Arquivo ou nome inválido",
         variant: "destructive",
       });
       return;
+    }
+    
+    if (!user) {
+      toast({
+        title: "❌ Usuário não autenticado",
+        description: "Faça login novamente para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log('✅ UPLOAD: Validação aprovada:', {
+      fileName: file?.name,
+      projectName: projectName.trim(),
+      fileSize: validation.fileValidation.fileInfo?.sizeFormatted
+    });
+    
+    // Mostrar avisos se existirem
+    if (validation.fileValidation.warnings && validation.fileValidation.warnings.length > 0) {
+      validation.fileValidation.warnings.forEach(warning => {
+        toast({
+          title: "⚠️ Aviso",
+          description: warning,
+        });
+      });
     }
 
     setUploading(true);

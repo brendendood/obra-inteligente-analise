@@ -5,7 +5,7 @@ import { DashboardStatsGrid } from './DashboardStatsGrid';
 import { MonthlyProductivityChart } from './MonthlyProductivityChart';
 import { EnhancedProjectsSection } from './EnhancedProjectsSection';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
-import { useProjectStore, useProjectStats } from '@/stores/projectStore';
+import { useUnifiedProjectStore, useProjectStats } from '@/stores/unifiedProjectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
 
@@ -25,7 +25,7 @@ const DashboardContent = ({
   onRetry 
 }: DashboardContentProps) => {
   // Usar apenas os dados do Zustand - SEM fazer novas requisições
-  const { clearError } = useProjectStore();
+  const { clearError } = useUnifiedProjectStore();
   
   // Estatísticas dos projetos
   const { recentProjects } = useProjectStats();
