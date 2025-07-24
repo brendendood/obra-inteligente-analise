@@ -4,14 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/project';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 
 export const useProjectUpload = (
   setCurrentProject: (project: Project | null) => void
 ) => {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
-  const { addProject, forceRefresh } = useProjectStore();
+  const { addProject, forceRefresh } = useUnifiedProjectStore();
 
   const uploadProject = useCallback(async (file: File, projectName: string): Promise<boolean> => {
     if (!isAuthenticated || !user) {

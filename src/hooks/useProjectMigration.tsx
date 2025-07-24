@@ -2,12 +2,12 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 
 export const useProjectMigration = () => {
   const [isMigrating, setIsMigrating] = useState(false);
   const { toast } = useToast();
-  const { forceRefresh } = useProjectStore();
+  const { forceRefresh } = useUnifiedProjectStore();
 
   const migrateProjects = async () => {
     setIsMigrating(true);

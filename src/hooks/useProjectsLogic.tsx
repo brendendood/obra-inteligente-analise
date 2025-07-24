@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjectStore } from '@/stores/projectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
@@ -13,7 +13,7 @@ export const useProjectsLogic = () => {
     projects, 
     isLoading, 
     fetchProjects 
-  } = useProjectStore();
+  } = useUnifiedProjectStore();
   
   const [filteredProjects, setFilteredProjects] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');

@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useOptimizedProjectStore } from '@/stores/optimizedProjectStore';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 
 interface DashboardStats {
   totalProjects: number;
@@ -18,7 +18,7 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { projects, isLoading: isLoadingProjects } = useOptimizedProjectStore();
+  const { projects, isLoading: isLoadingProjects } = useUnifiedProjectStore();
   const mountedRef = useRef(true);
   
   // Memoize expensive calculations
