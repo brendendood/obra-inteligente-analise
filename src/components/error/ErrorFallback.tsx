@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 
@@ -16,10 +16,8 @@ export const ErrorFallback: React.FC<ErrorFallbackProps> = ({
   title = "Oops! Algo deu errado",
   message = "Ocorreu um erro inesperado. Tente novamente ou volte para a página inicial."
 }) => {
-  const navigate = useNavigate();
-
   const handleGoHome = () => {
-    navigate('/painel');
+    window.location.href = '/painel';
   };
 
   const handleTryAgain = () => {
