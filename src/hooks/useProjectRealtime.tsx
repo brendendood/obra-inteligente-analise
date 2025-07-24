@@ -27,7 +27,13 @@ export const useProjectRealtime = () => {
 
   // Estabelecer conexão realtime
   const connectRealtime = useCallback(() => {
-    if (!user?.id || channelRef.current) return;
+    if (!user?.id) return;
+    
+    // Sempre desconectar antes de criar nova conexão
+    if (channelRef.current) {
+      console.log('🔌 REALTIME: Canal já existe, desconectando primeiro...');
+      disconnectRealtime();
+    }
 
     console.log('🔗 REALTIME: Conectando ao canal de projetos...');
     
@@ -100,14 +106,13 @@ export const useProjectRealtime = () => {
           isConnectedRef.current = false;
           console.warn('❌ REALTIME: Conexão perdida, tentando reconectar...');
           
-          // Tentativa de reconexão com backoff exponencial
-          if (reconnectAttempts.current < maxReconnectAttempts) {
-            const delay = Math.pow(2, reconnectAttempts.current) * 1000; // 1s, 2s, 4s, 8s, 16s
+          // Evitar reconexões múltiplas em loop
+          if (reconnectAttempts.current < maxReconnectAttempts && !channelRef.current) {
+            const delay = Math.pow(2, reconnectAttempts.current) * 1000;
             reconnectAttempts.current++;
             
             setTimeout(() => {
               console.log(`🔄 REALTIME: Tentativa de reconexão ${reconnectAttempts.current}/${maxReconnectAttempts}`);
-              disconnectRealtime();
               connectRealtime();
             }, delay);
           } else {
@@ -150,15 +155,13 @@ export const useProjectRealtime = () => {
   // Monitorar mudanças de visibilidade da página
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && user?.id) {
-        console.log('👁️ REALTIME: Página visível, verificando conexão...');
-        if (!isConnectedRef.current) {
-          disconnectRealtime();
+        if (document.visibilityState === 'visible' && user?.id && !isConnectedRef.current) {
+          console.log('👁️ REALTIME: Página visível, reconectando...');
+          // Reset reconnection attempts when page becomes visible
+          reconnectAttempts.current = 0;
           connectRealtime();
+          resyncProjects();
         }
-        // Ressincronizar após volta do foco
-        resyncProjects();
-      }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
