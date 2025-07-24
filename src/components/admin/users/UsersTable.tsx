@@ -8,9 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useGeolocationManager } from '@/hooks/useGeolocationManager';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -45,6 +46,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editFormData, setEditFormData] = useState<any>({});
   const { toast } = useToast();
+  const { forceUpdateUserGeolocation, isUpdating } = useGeolocationManager();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -214,6 +216,16 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
     }
   };
 
+  const handleForceGeolocationUpdate = async (userEmail: string) => {
+    const result = await forceUpdateUserGeolocation(userEmail);
+    if (result.success) {
+      // Refresh da lista após alguns segundos
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border overflow-x-auto">
@@ -377,6 +389,15 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                       title="Logar como usuário"
                     >
                       <LogIn className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleForceGeolocationUpdate(user.email)}
+                      disabled={isUpdating}
+                      title="Atualizar localização do IP"
+                    >
+                      <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
                     </Button>
                     <Dialog>
                       <DialogTrigger asChild>

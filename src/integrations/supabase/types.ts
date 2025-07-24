@@ -932,6 +932,10 @@ export type Database = {
           created_at: string
         }[]
       }
+      force_user_geolocation_update: {
+        Args: { user_email: string }
+        Returns: Json
+      }
       get_admin_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
