@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useProjectStore } from '@/stores/projectStore';
 import { useProject } from '@/contexts/ProjectContext';
+import { useProjectSyncManager } from './useProjectSyncManager';
 
 /**
  * Hook para sincronizar automaticamente o contexto do projeto
@@ -9,6 +10,7 @@ import { useProject } from '@/contexts/ProjectContext';
 export const useProjectSync = () => {
   const { projects } = useProjectStore();
   const { currentProject, setCurrentProject } = useProject();
+  const { detectInconsistencies } = useProjectSyncManager();
 
   useEffect(() => {
     if (!currentProject) return;
@@ -25,6 +27,15 @@ export const useProjectSync = () => {
       setCurrentProject(projectExists);
     }
   }, [projects, currentProject, setCurrentProject]);
+
+  // Detectar inconsistências periodicamente
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await detectInconsistencies();
+    }, 60000); // 1 minuto
+
+    return () => clearInterval(interval);
+  }, [detectInconsistencies]);
 
   return {
     isProjectInSync: currentProject ? projects.some(p => p.id === currentProject.id) : true,

@@ -14,6 +14,7 @@ import { Plus } from 'lucide-react';
 import { useProjectStore } from '@/stores/projectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useProjectSync } from '@/hooks/useProjectSync';
+import { SyncStatusIndicator } from '@/components/common/SyncStatusIndicator';
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -131,14 +132,17 @@ export default function Projects() {
                   )}
                 </div>
                 
-                <Button
-                  onClick={() => navigate('/upload')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Novo Projeto</span>
-                  <span className="sm:hidden">Novo</span>
-                </Button>
+                <div className="flex items-center space-x-3">
+                  <SyncStatusIndicator />
+                  <Button
+                    onClick={() => navigate('/upload')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">Novo Projeto</span>
+                    <span className="sm:hidden">Novo</span>
+                  </Button>
+                </div>
               </div>
 
               {/* Stats */}

@@ -4,12 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/project';
+import { useProjectStore } from '@/stores/projectStore';
 
 export const useProjectUpload = (
   setCurrentProject: (project: Project | null) => void
 ) => {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
+  const { addProject, forceRefresh } = useProjectStore();
 
   const uploadProject = useCallback(async (file: File, projectName: string): Promise<boolean> => {
     if (!isAuthenticated || !user) {
@@ -70,10 +72,20 @@ export const useProjectUpload = (
         throw new Error(data?.error || 'Erro no processamento');
       }
       
-      // Atualizar o projeto atual com dados frescos do servidor
+      // SYNC: Atualizar store global e contexto atual
       if (data.project) {
-        console.log('Definindo novo projeto como atual:', data.project);
+        console.log('📦 UPLOAD SYNC: Adicionando projeto ao store global:', data.project.name);
+        
+        // Adicionar ao store global primeiro
+        addProject(data.project);
+        
+        // Definir como projeto atual
+        console.log('📌 UPLOAD SYNC: Definindo como projeto atual:', data.project.name);
         setCurrentProject(data.project);
+        
+        // Forçar refresh para garantir sincronização completa
+        console.log('🔄 UPLOAD SYNC: Forçando refresh da lista de projetos');
+        await forceRefresh();
       }
       
       toast({
@@ -100,7 +112,7 @@ export const useProjectUpload = (
       }
       return false;
     }
-  }, [toast, setCurrentProject, isAuthenticated, user]);
+  }, [toast, setCurrentProject, isAuthenticated, user, addProject, forceRefresh]);
 
   return { uploadProject };
 };

@@ -14,7 +14,7 @@ interface ProjectState {
   
   // Ações assíncronas
   fetchProjects: () => Promise<void>;
-  deleteProject: (projectId: string) => Promise<boolean>;
+  deleteProject: (projectId: string, isExternalDelete?: boolean) => Promise<boolean>;
   addProject: (project: Project) => void;
   updateProject: (projectId: string, updates: Partial<Project>) => void;
   
@@ -95,7 +95,7 @@ export const useProjectStore = create<ProjectState>()(
       },
 
       // Deletar projeto mantendo integridade
-      deleteProject: async (projectId: string) => {
+      deleteProject: async (projectId: string, isExternalDelete = false) => {
         const currentProjects = get().projects;
         const projectToDelete = currentProjects.find(p => p.id === projectId);
         
@@ -113,14 +113,17 @@ export const useProjectStore = create<ProjectState>()(
             error: null 
           });
 
-          // Exclusão na base de dados
-          const { error } = await supabase
-            .from('projects')
-            .delete()
-            .eq('id', projectId);
+          // Se for exclusão externa (via realtime), não chamar API
+          if (!isExternalDelete) {
+            // Exclusão na base de dados
+            const { error } = await supabase
+              .from('projects')
+              .delete()
+              .eq('id', projectId);
 
-          if (error) {
-            throw error;
+            if (error) {
+              throw error;
+            }
           }
 
           console.log('✅ STORE: Exclusão concluída com sucesso');
