@@ -214,7 +214,8 @@ export const ModernAuthDialog = ({ isOpen, onClose, onSuccess, defaultTab = 'log
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-[420px] max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogContent className="sm:max-w-[380px] max-h-[90vh] overflow-y-auto p-0 gap-0">
           {/* Header com gradiente */}
           <div className="bg-gradient-to-r from-primary to-purple-600 p-6 rounded-t-lg">
             <DialogHeader>
