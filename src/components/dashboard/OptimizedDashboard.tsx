@@ -6,7 +6,6 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EnhancedProjectsSection } from '@/components/dashboard/EnhancedProjectsSection';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
 import { MonthlyProductivityChart } from '@/components/dashboard/MonthlyProductivityChart';
-import { SyncStatusIndicator } from '@/components/common/SyncStatusIndicator';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
@@ -48,7 +47,6 @@ const OptimizedDashboard = memo(({
       <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8 w-full">
         <div className="flex items-center justify-between w-full mb-6">
           <EnhancedBreadcrumb />
-          <SyncStatusIndicator />
         </div>
         
         <div className="min-w-0 flex-1">

@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
-import { useGeolocationCapture } from '@/hooks/useGeolocationCapture';
 
 interface AuthState {
   user: User | null;
@@ -26,9 +25,6 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Hook para capturar geolocalização automaticamente (simplificado)
-  const { forceGeolocationCapture } = useGeolocationCapture();
-  
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
@@ -39,16 +35,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Tracking simplificado apenas para logs - sem geolocalização
-  const trackLogin = useCallback(async (user: User) => {
-    try {
-      console.log('📊 AUTH: Login detectado para:', user.email);
-      console.log('✅ AUTH: Tracking simplificado concluído');
-    } catch (error: any) {
-      console.warn('⚠️ AUTH: Erro no tracking básico (não crítico):', error?.message);
-    }
-  }, []);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -78,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
     let subscription: any = null;
 
-    console.log('🔄 AUTH: Inicializando AuthProvider...', Math.random());
+    console.log('🔄 AUTH: Inicializando AuthProvider...');
 
     // Initial auth check
     refreshAuth();
@@ -127,10 +113,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               isAuthenticated: !!user && !!session,
             });
 
-            // Ativar tracking simples de login
+            // Log simples do login
             if (event === 'SIGNED_IN' && user) {
-              console.log('📊 AUTH: Login detectado, fazendo tracking básico...');
-              trackLogin(user);
+              console.log('📊 AUTH: Login detectado para:', user.email);
             }
           }, import.meta.env.DEV ? 50 : 0); // Delay menor para desenvolvimento
         }
@@ -159,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Reset para evitar memory leaks
       lastAuthEventRef.current = null;
     };
-  }, [refreshAuth, trackLogin]);
+  }, [refreshAuth]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({

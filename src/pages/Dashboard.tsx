@@ -9,9 +9,6 @@ import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { ImpersonationBanner } from '@/components/admin/ImpersonationBanner';
 import { useUnifiedProjectRealtime } from '@/hooks/useUnifiedProjectRealtime';
-import { useProjectSyncManager } from '@/hooks/useProjectSyncManager';
-import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { ConnectionManager } from '@/components/dashboard/ConnectionManager';
 
 // Memoized components for better performance
 const MemoizedOptimizedDashboard = memo(OptimizedDashboard);
@@ -21,11 +18,9 @@ const Dashboard = memo(() => {
   const { isImpersonating, impersonationData } = useImpersonation();
   const navigate = useNavigate();
   
-  // Initialize all sync systems
+  // Initialize project store
   const { projects, isLoading: isLoadingProjects, error, fetchProjects, forceRefresh } = useUnifiedProjectStore();
   const { isRealtimeConnected } = useUnifiedProjectRealtime();
-  const { isFullyConnected } = useNetworkStatus();
-  const { forceSyncAll } = useProjectSyncManager();
 
   // Handle authentication redirect
   useEffect(() => {
@@ -38,7 +33,6 @@ const Dashboard = memo(() => {
   useEffect(() => {
     if (isAuthenticated && !authLoading && user) {
       console.log('🚀 DASHBOARD: Usuário autenticado, carregando projetos...');
-      console.log('📊 DASHBOARD: Status da conexão:', { isRealtimeConnected, isFullyConnected });
       fetchProjects();
     }
   }, [isAuthenticated, authLoading, user, fetchProjects]);
@@ -49,10 +43,9 @@ const Dashboard = memo(() => {
       projectsCount: projects.length,
       isLoading: isLoadingProjects,
       error,
-      isRealtimeConnected,
-      isFullyConnected
+      isRealtimeConnected
     });
-  }, [projects.length, isLoadingProjects, error, isRealtimeConnected, isFullyConnected]);
+  }, [projects.length, isLoadingProjects, error, isRealtimeConnected]);
 
   // Early returns for performance
   if (authLoading) {
@@ -67,9 +60,6 @@ const Dashboard = memo(() => {
 
   return (
     <div className="min-h-screen">
-      {/* Connection Manager - resolve problemas de conexão e projetos não encontrados */}
-      <ConnectionManager />
-      
       {/* Impersonation Banner */}
       {isImpersonating && impersonationData && (
         <ImpersonationBanner

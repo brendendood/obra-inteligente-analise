@@ -13,8 +13,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Plus } from 'lucide-react';
 import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
-import { useProjectSync } from '@/hooks/useProjectSync';
-import { SyncStatusIndicator } from '@/components/common/SyncStatusIndicator';
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -37,8 +35,6 @@ export default function Projects() {
     executeDelete,
   } = useProjectDeletion();
   
-  // Hook para sincronização automática
-  useProjectSync();
   
   // Estados locais para filtros
   const [searchTerm, setSearchTerm] = useState('');
@@ -133,7 +129,6 @@ export default function Projects() {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <SyncStatusIndicator />
                   <Button
                     onClick={() => navigate('/upload')}
                     className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
