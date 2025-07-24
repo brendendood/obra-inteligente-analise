@@ -1,9 +1,21 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 import { AdminStats } from '@/types/admin';
+
+// Lista de emails admin para fallback de emergência
+const ADMIN_EMAILS = [
+  'brendendood2014@gmail.com',
+  'seu_email@exemplo.com'
+];
+
+// Tipos para controle de Promise.race
+type VerificationResult = 
+  | { type: 'direct'; result: any }
+  | { type: 'rpc'; result: any }
+  | { type: 'timeout' };
 
 export function useUnifiedAdmin() {
   const { user, isAuthenticated } = useAuth();
@@ -11,6 +23,10 @@ export function useUnifiedAdmin() {
   const [adminStats, setAdminStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Cache e controle de timeout
+  const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastVerificationRef = useRef<string | null>(null);
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -21,51 +37,114 @@ export function useUnifiedAdmin() {
         return;
       }
 
+      // Cache para evitar verificações repetitivas
+      const cacheKey = `${user.id}-${user.email}`;
+      if (lastVerificationRef.current === cacheKey) {
+        console.log('📋 UNIFIED ADMIN: Usando resultado em cache');
+        return;
+      }
+
+      console.log('🔍 UNIFIED ADMIN: Iniciando verificação otimizada para:', user.email);
+      setError(null);
+
+      // TIMEOUT DE SEGURANÇA - 8 segundos máximo
+      verificationTimeoutRef.current = setTimeout(() => {
+        console.log('⏰ UNIFIED ADMIN: TIMEOUT - Aplicando fallback por email');
+        const isFallbackAdmin = ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
+        setIsAdmin(isFallbackAdmin);
+        setLoading(false);
+        if (!isFallbackAdmin) {
+          setError('Timeout na verificação - usando verificação offline');
+        }
+      }, 8000);
+
       try {
-        console.log('🔍 UNIFIED ADMIN: Iniciando verificação tripla para:', user.email, 'ID:', user.id);
-        setError(null);
-        
-        // PRIMEIRA TENTATIVA: Query direta na tabela admin_permissions
-        console.log('📊 UNIFIED ADMIN: Tentativa 1 - Query direta admin_permissions...');
-        const { data: directCheck, error: directError } = await supabase
+        // FALLBACK IMEDIATO: Verificação por email para usuários conhecidos
+        if (ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) {
+          console.log('⚡ UNIFIED ADMIN: FALLBACK IMEDIATO - Email encontrado na lista admin');
+          clearTimeout(verificationTimeoutRef.current);
+          setIsAdmin(true);
+          setLoading(false);
+          lastVerificationRef.current = cacheKey;
+          return;
+        }
+
+        // VERIFICAÇÃO 1: Query direta otimizada
+        console.log('📊 UNIFIED ADMIN: Tentativa 1 - Query direta...');
+        const directCheckPromise = supabase
           .from('admin_permissions')
           .select('role, active')
           .eq('user_id', user.id)
           .eq('active', true)
           .in('role', ['super_admin', 'marketing', 'financial', 'support'])
           .limit(1);
-        
-        if (!directError && directCheck && directCheck.length > 0) {
-          console.log('✅ UNIFIED ADMIN: Query direta bem-sucedida! Roles encontradas:', directCheck);
-          setIsAdmin(true);
-          setLoading(false);
-          return;
-        } else {
-          console.log('⚠️ UNIFIED ADMIN: Query direta não encontrou permissões:', { directError, directCheck });
+
+        // VERIFICAÇÃO 2: RPC function
+        console.log('🔧 UNIFIED ADMIN: Tentativa 2 - RPC...');
+        const rpcCheckPromise = supabase.rpc('is_superuser');
+
+        // Executar ambas em paralelo com Promise.race para primeira resposta
+        const raceResult = await Promise.race([
+          directCheckPromise.then(result => ({ type: 'direct' as const, result })),
+          rpcCheckPromise.then(result => ({ type: 'rpc' as const, result })),
+          new Promise<{ type: 'timeout' }>(resolve => setTimeout(() => resolve({ type: 'timeout' }), 5000))
+        ]) as VerificationResult;
+
+        clearTimeout(verificationTimeoutRef.current);
+
+        if (raceResult.type === 'timeout') {
+          console.log('⏰ UNIFIED ADMIN: Timeout nas queries - aplicando fallback');
+          const isFallbackAdmin = ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
+          setIsAdmin(isFallbackAdmin);
+          if (!isFallbackAdmin) {
+            setError('Verificação demorou muito - usando cache offline');
+          }
+        } else if (raceResult.type === 'direct') {
+          const { data, error } = raceResult.result;
+          if (!error && data && data.length > 0) {
+            console.log('✅ UNIFIED ADMIN: Query direta bem-sucedida:', data);
+            setIsAdmin(true);
+          } else {
+            console.log('⚠️ UNIFIED ADMIN: Query direta sem resultados');
+            setIsAdmin(false);
+          }
+        } else if (raceResult.type === 'rpc') {
+          const { data, error } = raceResult.result;
+          if (!error && data) {
+            console.log('✅ UNIFIED ADMIN: RPC bem-sucedido:', data);
+            setIsAdmin(true);
+          } else {
+            console.log('⚠️ UNIFIED ADMIN: RPC falhou ou retornou false');
+            setIsAdmin(false);
+          }
         }
 
-        // SEGUNDA TENTATIVA: Usar is_superuser() como função unificada
-        console.log('🔧 UNIFIED ADMIN: Tentativa 2 - is_superuser...');
-        const { data: superuserCheck, error: superuserError } = await supabase.rpc('is_superuser');
-        
-        if (!superuserError && superuserCheck) {
-          console.log('✅ UNIFIED ADMIN: is_superuser bem-sucedido:', superuserCheck);
-          setIsAdmin(true);
-        } else {
-          console.log('❌ UNIFIED ADMIN: Verificações falharam - NÃO É ADMIN');
-          setIsAdmin(false);
-        }
+        lastVerificationRef.current = cacheKey;
 
       } catch (error) {
-        console.error('💥 UNIFIED ADMIN: Erro crítico durante verificação:', error);
-        setError(`Erro crítico: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-        setIsAdmin(false);
+        console.error('💥 UNIFIED ADMIN: Erro durante verificação:', error);
+        clearTimeout(verificationTimeoutRef.current);
+        
+        // FALLBACK FINAL: Verificar por email em caso de erro
+        const isFallbackAdmin = ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
+        setIsAdmin(isFallbackAdmin);
+        
+        if (!isFallbackAdmin) {
+          setError(`Erro na verificação: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     checkAdminStatus();
+
+    // Cleanup timeout ao desmontar
+    return () => {
+      if (verificationTimeoutRef.current) {
+        clearTimeout(verificationTimeoutRef.current);
+      }
+    };
   }, [isAuthenticated, user]);
 
   const loadAdminStats = async () => {

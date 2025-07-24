@@ -53,10 +53,19 @@ const AdminPanel = () => {
               <p className="text-sm text-gray-600 mb-3">
                 🔍 Executando verificação tripla de permissões...
               </p>
-              <Button variant="outline" onClick={forceRefresh} className="w-full">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Forçar Nova Verificação
-              </Button>
+              <div className="space-y-2">
+                <Button variant="outline" onClick={forceRefresh} className="w-full">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Forçar Nova Verificação
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => window.location.reload()} 
+                  className="w-full text-xs"
+                >
+                  🆘 Recarregar Página (Emergência)
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

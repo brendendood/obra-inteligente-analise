@@ -26,8 +26,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Hook para capturar geolocalização automaticamente
-  useGeolocationCapture();
+  // Hook para capturar geolocalização automaticamente (simplificado)
+  const { forceGeolocationCapture } = useGeolocationCapture();
   
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -40,35 +40,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Função para tracking de login baseado em IP real
-  const trackLoginByIP = useCallback(async (user: User) => {
-    try {
-      console.log('📍 Iniciando tracking de localização baseado em IP...');
-      
-      // Buscar último login para este usuário
-      const { data: lastLogin, error } = await supabase
-        .from('user_login_history')
-        .select('id')
-        .eq('user_id', user.id)
-        .order('login_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!error && lastLogin) {
-        // Chamar Edge Function para capturar IP e localização
-        const { data, error: functionError } = await supabase.functions.invoke('ip-geolocation', {
-          body: { loginId: lastLogin.id }
-        });
-
-        if (functionError) {
-          console.error('❌ Erro na Edge Function:', functionError);
-        } else {
-          console.log('✅ Localização capturada via IP:', data);
-        }
-      }
-    } catch (error) {
-      console.error('❌ Erro no tracking de localização por IP:', error);
-    }
+  // Simplificado: apenas tracking básico via database trigger
+  const trackLogin = useCallback((user: User) => {
+    console.log('📍 Login registrado automaticamente via database trigger para:', user.email);
+    // O tracking real é feito pelo trigger handle_user_login() no banco
+    // A geolocalização é capturada via pg_notify e edge function
   }, []);
 
   const refreshAuth = useCallback(async () => {
@@ -135,7 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Ativar tracking de login quando usuário faz login
           if (event === 'SIGNED_IN' && user) {
             console.log('📍 Iniciando tracking de localização para login real...');
-            setTimeout(() => trackLoginByIP(user), 1000);
+            setTimeout(() => trackLogin(user), 1000);
           }
         }, import.meta.env.DEV ? 100 : 0); // Small delay in development
       }
@@ -148,7 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       subscription.unsubscribe();
     };
-  }, [refreshAuth, trackLoginByIP]);
+  }, [refreshAuth, trackLogin]);
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = useMemo(() => ({
