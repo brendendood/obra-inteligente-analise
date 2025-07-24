@@ -8,12 +8,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
+import { AuthDialog } from '@/components/auth/AuthDialog';
 
 export const HeaderAuthActions = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authDefaultTab, setAuthDefaultTab] = useState<'login' | 'signup'>('login');
   const [userInitials, setUserInitials] = useState('');
 
   // Função para gerar iniciais
@@ -89,21 +92,36 @@ export const HeaderAuthActions = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center space-x-3">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/login')} 
-          className="transition-all duration-200 hover:bg-slate-50"
-        >
-          Entrar
-        </Button>
-        <Button 
-          onClick={() => navigate('/cadastro')} 
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
-        >
-          Cadastrar
-        </Button>
-      </div>
+      <>
+        <div className="flex items-center space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setAuthDefaultTab('login');
+              setShowAuthDialog(true);
+            }}
+            className="transition-all duration-200 hover:bg-slate-50"
+          >
+            Entrar
+          </Button>
+          <Button 
+            onClick={() => {
+              setAuthDefaultTab('signup');
+              setShowAuthDialog(true);
+            }}
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            Cadastrar
+          </Button>
+        </div>
+
+        <AuthDialog
+          isOpen={showAuthDialog}
+          onClose={() => setShowAuthDialog(false)}
+          onSuccess={() => navigate('/painel')}
+          defaultTab={authDefaultTab}
+        />
+      </>
     );
   }
 

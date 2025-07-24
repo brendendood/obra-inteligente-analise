@@ -38,6 +38,7 @@ import {
   Phone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AuthDialog } from '@/components/auth/AuthDialog';
 
 // Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
@@ -96,6 +97,8 @@ const LandingPage = () => {
   const [totalXP, setTotalXP] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<boolean[]>([false, false, false, false]);
   const [showParticles, setShowParticles] = useState<number | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [authDefaultTab, setAuthDefaultTab] = useState<'login' | 'signup'>('login');
   
   const counter1 = useCountAnimation(2500);
   const counter2 = useCountAnimation(95);
@@ -360,16 +363,25 @@ const LandingPage = () => {
             MadenAI
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            <Link to="/login">
-              <Button variant="ghost" className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2 transition-fast">
-                Entrar
-              </Button>
-            </Link>
-            <Link to="/cadastro">
-              <Button className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2 transition-fast">
-                Começar Grátis
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setAuthDefaultTab('login');
+                setShowAuthDialog(true);
+              }}
+              className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2 transition-fast"
+            >
+              Entrar
+            </Button>
+            <Button 
+              onClick={() => {
+                setAuthDefaultTab('signup');
+                setShowAuthDialog(true);
+              }}
+              className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2 transition-fast"
+            >
+              Começar Grátis
+            </Button>
           </div>
         </div>
       </header>
@@ -395,18 +407,17 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Link to="/cadastro" className="w-full sm:w-auto">
-                <Button 
-                  size="lg" 
-                  className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
-                  onClick={() => {
-                    console.log('Botão Analisar Projeto Grátis clicado - redirecionando para upload');
-                  }}
-                >
-                  Analisar Projeto Grátis
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              <Button 
+                size="lg" 
+                onClick={() => {
+                  setAuthDefaultTab('signup');
+                  setShowAuthDialog(true);
+                }}
+                className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
+              >
+                Analisar Projeto Grátis
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
@@ -1057,6 +1068,16 @@ const LandingPage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Auth Dialog */}
+      <AuthDialog
+        isOpen={showAuthDialog}
+        onClose={() => setShowAuthDialog(false)}
+        onSuccess={() => {
+          window.location.href = '/painel';
+        }}
+        defaultTab={authDefaultTab}
+      />
     </div>
   );
 };
