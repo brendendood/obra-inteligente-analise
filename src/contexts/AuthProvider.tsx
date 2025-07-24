@@ -40,11 +40,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const lastAuthEventRef = useRef<string | null>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Simplificado: apenas tracking básico via database trigger
-  const trackLogin = useCallback((user: User) => {
-    console.log('📍 Login registrado automaticamente via database trigger para:', user.email);
-    // O tracking real é feito pelo trigger handle_user_login() no banco
-    // A geolocalização é capturada via pg_notify e edge function
+  const trackLogin = useCallback(async (user: User) => {
+    try {
+      console.log('📍 Registrando login via frontend para:', user.email);
+      
+      // Capturar IP real via frontend
+      const userAgent = navigator.userAgent;
+      const ipAddress = '127.0.0.1'; // Será detectado pela edge function
+      
+      // Inserir registro de login manual (fallback se trigger não funcionar)
+      const { error } = await supabase.functions.invoke('ip-geolocation', {
+        body: {
+          userId: user.id,
+          ipAddress,
+          userAgent,
+          loginType: 'frontend_manual'
+        }
+      });
+      
+      if (error) {
+        console.error('❌ Erro no tracking de login:', error);
+      } else {
+        console.log('✅ Login registrado com sucesso via frontend');
+      }
+    } catch (error) {
+      console.error('❌ Erro crítico no tracking:', error);
+    }
   }, []);
 
   const refreshAuth = useCallback(async () => {

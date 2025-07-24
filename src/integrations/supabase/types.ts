@@ -1023,6 +1023,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      manual_login_insert: {
+        Args: { p_user_id: string; p_ip_address?: string }
+        Returns: string
+      }
       test_login_system: {
         Args: Record<PropertyKey, never>
         Returns: string
