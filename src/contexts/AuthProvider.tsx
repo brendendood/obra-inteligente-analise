@@ -44,27 +44,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('📍 Registrando login via frontend para:', user.email);
       
-      // Capturar IP real via frontend
-      const userAgent = navigator.userAgent;
-      const ipAddress = '127.0.0.1'; // Será detectado pela edge function
-      
-      // Inserir registro de login manual (fallback se trigger não funcionar)
-      const { error } = await supabase.functions.invoke('ip-geolocation', {
-        body: {
-          userId: user.id,
-          ipAddress,
-          userAgent,
-          loginType: 'frontend_manual'
+      // Primeiro inserir o registro de login no banco
+      const { data: loginRecord, error: insertError } = await supabase
+        .from('user_login_history')
+        .insert({
+          user_id: user.id,
+          login_at: new Date().toISOString(),
+          ip_address: '127.0.0.1',
+          user_agent: navigator.userAgent,
+          device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+          browser: /Chrome/i.test(navigator.userAgent) ? 'Chrome' : 
+                   /Firefox/i.test(navigator.userAgent) ? 'Firefox' : 
+                   /Safari/i.test(navigator.userAgent) ? 'Safari' : 'Other',
+          os: /Windows/i.test(navigator.userAgent) ? 'Windows' :
+              /Mac/i.test(navigator.userAgent) ? 'macOS' :
+              /Linux/i.test(navigator.userAgent) ? 'Linux' : 'Other'
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        console.error('❌ Erro ao inserir login:', insertError);
+        return;
+      }
+
+      if (loginRecord?.id) {
+        console.log('✅ Login registrado no banco, ID:', loginRecord.id);
+        
+        // Agora chamar a função de geolocalização com o loginId correto
+        try {
+          const { error: geoError } = await supabase.functions.invoke('ip-geolocation', {
+            body: {
+              loginId: loginRecord.id
+            }
+          });
+          
+          if (geoError) {
+            console.warn('⚠️ Erro na geolocalização (não crítico):', geoError);
+          } else {
+            console.log('✅ Geolocalização processada com sucesso');
+          }
+        } catch (geoError) {
+          console.warn('⚠️ Falha na geolocalização (não crítico):', geoError);
         }
-      });
-      
-      if (error) {
-        console.error('❌ Erro no tracking de login:', error);
-      } else {
-        console.log('✅ Login registrado com sucesso via frontend');
       }
     } catch (error) {
-      console.error('❌ Erro crítico no tracking:', error);
+      console.warn('⚠️ Erro no tracking (não crítico):', error);
     }
   }, []);
 
