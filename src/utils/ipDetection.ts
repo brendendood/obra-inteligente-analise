@@ -69,7 +69,7 @@ const getCurrentUserIP = async (): Promise<string | null> => {
 
 export const getWelcomeMessage = (ipResult: IPDetectionResult): string => {
   if (ipResult.isReturningUser) {
-    return 'Welcome Back!';
+    return 'Olá, bem-vindo de volta! 👋';
   }
   return 'Crie sua conta gratuita para começar';
 };

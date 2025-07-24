@@ -8,15 +8,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { MyAccountDialog } from '@/components/account/MyAccountDialog';
-import { ModernAuthDialog } from '@/components/auth/ModernAuthDialog';
+
 
 export const HeaderAuthActions = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [authDefaultTab, setAuthDefaultTab] = useState<'login' | 'signup'>('login');
   const [userInitials, setUserInitials] = useState('');
 
   // Função para gerar iniciais
@@ -96,21 +94,11 @@ export const HeaderAuthActions = () => {
         <Button 
           variant="ghost" 
           size="sm"
-          onClick={() => {
-            setAuthDefaultTab('login');
-            setShowAuthDialog(true);
-          }}
+          onClick={() => navigate('/login')}
           className="text-sm font-medium hover:bg-slate-50 transition-colors"
         >
           Entrar
         </Button>
-
-        <ModernAuthDialog
-          isOpen={showAuthDialog}
-          onClose={() => setShowAuthDialog(false)}
-          onSuccess={() => navigate('/painel')}
-          defaultTab={authDefaultTab}
-        />
       </>
     );
   }

@@ -38,7 +38,7 @@ import {
   Phone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ModernAuthDialog } from '@/components/auth/ModernAuthDialog';
+import { useNavigate } from 'react-router-dom';
 
 // Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
@@ -92,13 +92,12 @@ const useCountAnimation = (target: number, duration: number = 2000) => {
 };
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [totalXP, setTotalXP] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<boolean[]>([false, false, false, false]);
   const [showParticles, setShowParticles] = useState<number | null>(null);
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [authDefaultTab, setAuthDefaultTab] = useState<'login' | 'signup'>('login');
   
   const counter1 = useCountAnimation(2500);
   const counter2 = useCountAnimation(95);
@@ -365,19 +364,13 @@ const LandingPage = () => {
           <div className="flex items-center gap-2 md:gap-4">
             <Button 
               variant="ghost" 
-              onClick={() => {
-                setAuthDefaultTab('login');
-                setShowAuthDialog(true);
-              }}
+              onClick={() => navigate('/login')}
               className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2 transition-fast"
             >
               Entrar
             </Button>
             <Button 
-              onClick={() => {
-                setAuthDefaultTab('signup');
-                setShowAuthDialog(true);
-              }}
+              onClick={() => navigate('/cadastro')}
               className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2 transition-fast"
             >
               Começar Grátis
@@ -409,10 +402,7 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
               <Button 
                 size="lg" 
-                onClick={() => {
-                  setAuthDefaultTab('signup');
-                  setShowAuthDialog(true);
-                }}
+                onClick={() => navigate('/cadastro')}
                 className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
               >
                 Analisar Projeto Grátis
@@ -1069,15 +1059,6 @@ const LandingPage = () => {
         </div>
       </footer>
 
-      {/* Auth Dialog */}
-      <ModernAuthDialog
-        isOpen={showAuthDialog}
-        onClose={() => setShowAuthDialog(false)}
-        onSuccess={() => {
-          window.location.href = '/painel';
-        }}
-        defaultTab={authDefaultTab}
-      />
     </div>
   );
 };
