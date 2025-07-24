@@ -1,15 +1,10 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 import { AdminStats } from '@/types/admin';
 
-// Lista de emails admin para fallback de emergência
-const ADMIN_EMAILS = [
-  'brendendood2014@gmail.com',
-  'seu_email@exemplo.com'
-];
+// Secure admin verification without hardcoded emails
 
 // Tipos para controle de Promise.race
 type VerificationResult = 
@@ -49,25 +44,15 @@ export function useUnifiedAdmin() {
 
       // TIMEOUT DE SEGURANÇA - 8 segundos máximo
       verificationTimeoutRef.current = setTimeout(() => {
-        console.log('⏰ UNIFIED ADMIN: TIMEOUT - Aplicando fallback por email');
-        const isFallbackAdmin = ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
-        setIsAdmin(isFallbackAdmin);
+        console.log('⏰ UNIFIED ADMIN: TIMEOUT - Verificação falhou');
+        setIsAdmin(false);
         setLoading(false);
-        if (!isFallbackAdmin) {
-          setError('Timeout na verificação - usando verificação offline');
-        }
+        setError('Timeout na verificação - acesso negado por segurança');
       }, 8000);
 
       try {
-        // FALLBACK IMEDIATO: Verificação por email para usuários conhecidos
-        if (ADMIN_EMAILS.includes(user.email?.toLowerCase() || '')) {
-          console.log('⚡ UNIFIED ADMIN: FALLBACK IMEDIATO - Email encontrado na lista admin');
-          clearTimeout(verificationTimeoutRef.current);
-          setIsAdmin(true);
-          setLoading(false);
-          lastVerificationRef.current = cacheKey;
-          return;
-        }
+        // Secure verification - removed hardcoded email fallback
+        // Admin access must be verified through proper database permissions only
 
         // VERIFICAÇÃO 1: Query direta otimizada
         console.log('📊 UNIFIED ADMIN: Tentativa 1 - Query direta...');
@@ -93,12 +78,9 @@ export function useUnifiedAdmin() {
         clearTimeout(verificationTimeoutRef.current);
 
         if (raceResult.type === 'timeout') {
-          console.log('⏰ UNIFIED ADMIN: Timeout nas queries - aplicando fallback');
-          const isFallbackAdmin = ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
-          setIsAdmin(isFallbackAdmin);
-          if (!isFallbackAdmin) {
-            setError('Verificação demorou muito - usando cache offline');
-          }
+          console.log('⏰ UNIFIED ADMIN: Timeout nas queries - acesso negado');
+          setIsAdmin(false);
+          setError('Verificação demorou muito - acesso negado por segurança');
         } else if (raceResult.type === 'direct') {
           const { data, error } = raceResult.result;
           if (!error && data && data.length > 0) {
@@ -125,13 +107,9 @@ export function useUnifiedAdmin() {
         console.error('💥 UNIFIED ADMIN: Erro durante verificação:', error);
         clearTimeout(verificationTimeoutRef.current);
         
-        // FALLBACK FINAL: Verificar por email em caso de erro
-        const isFallbackAdmin = ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
-        setIsAdmin(isFallbackAdmin);
-        
-        if (!isFallbackAdmin) {
-          setError(`Erro na verificação: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-        }
+        // Secure failure: deny access on any error
+        setIsAdmin(false);
+        setError(`Erro na verificação: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
       } finally {
         setLoading(false);
       }
