@@ -20,7 +20,7 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Desktop Actions - Apenas botões de auth */}
+          {/* Desktop Actions - Apenas botão de auth */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
             <HeaderAuthActions />
           </div>

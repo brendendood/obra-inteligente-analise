@@ -93,27 +93,17 @@ export const HeaderAuthActions = () => {
   if (!isAuthenticated) {
     return (
       <>
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setAuthDefaultTab('login');
-              setShowAuthDialog(true);
-            }}
-            className="transition-all duration-200 hover:bg-slate-50"
-          >
-            Entrar
-          </Button>
-          <Button 
-            onClick={() => {
-              setAuthDefaultTab('signup');
-              setShowAuthDialog(true);
-            }}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            Cadastrar
-          </Button>
-        </div>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={() => {
+            setAuthDefaultTab('login');
+            setShowAuthDialog(true);
+          }}
+          className="text-sm font-medium hover:bg-slate-50 transition-colors"
+        >
+          Entrar
+        </Button>
 
         <ModernAuthDialog
           isOpen={showAuthDialog}

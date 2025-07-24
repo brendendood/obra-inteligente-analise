@@ -207,16 +207,6 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
           ) : (
             <div className="space-y-2 pt-2 border-t border-slate-200">
               <Button 
-                variant="outline" 
-                onClick={() => {
-                  navigate('/login');
-                  onClose();
-                }} 
-                className="w-full justify-start transition-all duration-200"
-              >
-                Entrar
-              </Button>
-              <Button 
                 onClick={() => {
                   navigate('/cadastro');
                   onClose();
