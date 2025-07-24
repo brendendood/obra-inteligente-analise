@@ -1,7 +1,7 @@
-
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 
 interface ErrorFallbackProps {
   error?: Error;
@@ -10,17 +10,19 @@ interface ErrorFallbackProps {
   message?: string;
 }
 
-export const ErrorFallback = ({ 
+export const ErrorFallback: React.FC<ErrorFallbackProps> = ({ 
   error, 
-  resetError, 
+  resetError,
   title = "Oops! Algo deu errado",
   message = "Ocorreu um erro inesperado. Tente novamente ou volte para a página inicial."
-}: ErrorFallbackProps) => {
+}) => {
+  const navigate = useNavigate();
+
   const handleGoHome = () => {
-    window.location.href = '/painel';
+    navigate('/painel');
   };
 
-  const handleRefresh = () => {
+  const handleTryAgain = () => {
     if (resetError) {
       resetError();
     } else {
@@ -29,43 +31,47 @@ export const ErrorFallback = ({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-6">
-          <div className="text-center space-y-6">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-              <AlertTriangle className="h-8 w-8 text-red-600" />
-            </div>
-            
-            <div className="space-y-2">
-              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
-              <p className="text-gray-600 text-sm">{message}</p>
-              
-              {error && process.env.NODE_ENV === 'development' && (
-                <details className="mt-4 p-3 bg-gray-100 rounded text-left">
-                  <summary className="cursor-pointer text-sm font-medium">
-                    Detalhes técnicos
-                  </summary>
-                  <pre className="mt-2 text-xs text-gray-700 whitespace-pre-wrap break-words">
-                    {error.message}
-                  </pre>
-                </details>
-              )}
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button onClick={handleRefresh} variant="outline" className="flex items-center space-x-2">
-                <RefreshCw className="h-4 w-4" />
-                <span>Tentar Novamente</span>
-              </Button>
-              <Button onClick={handleGoHome} className="flex items-center space-x-2">
-                <Home className="h-4 w-4" />
-                <span>Ir para Início</span>
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md w-full mx-4">
+        <div className="mb-6">
+          <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {title}
+          </h1>
+          <p className="text-gray-600">
+            {message}
+          </p>
+          {error && (
+            <details className="mt-4 text-left">
+              <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+                Detalhes técnicos
+              </summary>
+              <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto">
+                {error.message || error.toString()}
+              </pre>
+            </details>
+          )}
+        </div>
+        
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button 
+            onClick={handleTryAgain}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Tentar Novamente
+          </Button>
+          
+          <Button 
+            onClick={handleGoHome}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Ir para Início
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

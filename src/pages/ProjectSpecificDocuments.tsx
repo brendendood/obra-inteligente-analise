@@ -1,204 +1,224 @@
-import { useParams } from 'react-router-dom';
-import { ProjectWorkspace } from '@/components/project/ProjectWorkspace';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Eye, ExternalLink } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useProjectDetail } from '@/contexts/ProjectDetailContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { 
+  FileText, 
+  Download, 
+  ExternalLink,
+  Upload,
+  FileSpreadsheet,
+  Calendar,
+  AlertTriangle
+} from 'lucide-react';
 
 const ProjectSpecificDocuments = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const { project: currentProject } = useProjectDetail();
+  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  const getPdfUrl = () => {
-    if (!currentProject?.file_path) return null;
-    
-    const { data } = supabase.storage
-      .from('project-files')
-      .getPublicUrl(currentProject.file_path);
-    
-    return data?.publicUrl || null;
+  // Função para simular download
+  const handleDownload = (fileName: string) => {
+    const link = document.createElement('a');
+    link.href = getPdfUrl() || '';
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
+  // Função para obter URL do PDF (simulada)
+  const getPdfUrl = () => {
+    return null; // Por enquanto retorna null
+  };
+
+  // Documentos mockados
   const documents = [
     {
-      name: 'Projeto Original',
-      type: 'PDF',
-      description: `${currentProject?.name}.pdf`,
-      icon: FileText,
-      color: 'text-red-500',
-      bgColor: 'bg-red-50',
-      available: !!currentProject?.file_path,
+      id: '1',
+      name: 'Orçamento Detalhado',
+      type: 'xlsx',
+      icon: FileSpreadsheet,
+      description: 'Planilha detalhada com todos os custos do projeto',
+      category: 'orcamento',
+      status: 'ready',
+      size: '2.1 MB',
       actions: [
-        { label: 'Visualizar', icon: Eye, action: () => window.open(getPdfUrl(), '_blank') },
-        { label: 'Download', icon: Download, action: () => {
-          const link = document.createElement('a');
-          link.href = getPdfUrl() || '';
-          link.download = `${currentProject?.name}.pdf`;
-          link.click();
-        }}
+        { label: 'Gerar', icon: ExternalLink, action: () => navigate(`/projeto/${projectId}/orcamento`) }
       ]
     },
     {
-      name: 'Análise Técnica',
-      type: 'JSON',
-      description: 'Dados da análise IA do projeto',
-      icon: FileText,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50',
-      available: !!currentProject?.analysis_data,
+      id: '2',
+      name: 'Cronograma de Execução',
+      type: 'pdf',
+      icon: Calendar,
+      description: 'Cronograma de execução da obra',
+      category: 'cronograma',
+      status: 'ready',
+      size: '1.8 MB',
       actions: [
-        { label: 'Visualizar', icon: Eye, action: () => console.log('Ver análise') },
-        { label: 'Exportar', icon: Download, action: () => console.log('Exportar análise') }
+        { label: 'Gerar', icon: ExternalLink, action: () => navigate(`/projeto/${projectId}/cronograma`) }
       ]
     },
     {
-      name: 'Orçamento SINAPI',
-      type: 'Excel',
-      description: 'Planilha de orçamento detalhado',
+      id: '3',
+      name: 'Memorial Descritivo',
+      type: 'pdf',
       icon: FileText,
-      color: 'text-green-500',
-      bgColor: 'bg-green-50',
-      available: false, // Será true quando orçamento for gerado
+      description: 'Descrição técnica completa do projeto',
+      category: 'memorial',
+      status: 'pending',
+      size: '3.2 MB',
       actions: [
-        { label: 'Gerar', icon: ExternalLink, action: () => window.location.href = `/projeto/${projectId}/orcamento` }
-      ]
-    },
-    {
-      name: 'Cronograma da Obra',
-      type: 'Excel',
-      description: 'Timeline detalhada das etapas',
-      icon: FileText,
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-50',
-      available: false, // Será true quando cronograma for gerado
-      actions: [
-        { label: 'Gerar', icon: ExternalLink, action: () => window.location.href = `/projeto/${projectId}/cronograma` }
-      ]
-    },
-    {
-      name: 'Relatório Final',
-      type: 'PDF',
-      description: 'Compilação completa do projeto',
-      icon: FileText,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-50',
-      available: false, // Funcionalidade futura
-      actions: [
-        { label: 'Em breve', icon: FileText, action: () => console.log('Em desenvolvimento') }
+        { label: 'Download', icon: Download, action: () => handleDownload('memorial-descritivo.pdf') }
       ]
     }
   ];
 
-  if (!currentProject) {
+  const filteredDocuments = selectedCategory === 'all' 
+    ? documents 
+    : documents.filter(doc => doc.category === selectedCategory);
+
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      ready: { label: 'Pronto', color: 'bg-green-100 text-green-800' },
+      pending: { label: 'Pendente', color: 'bg-yellow-100 text-yellow-800' },
+      processing: { label: 'Processando', color: 'bg-blue-100 text-blue-800' }
+    };
+    
+    const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.pending;
+    
     return (
-      <ProjectWorkspace>
-        <div className="text-center py-16">
-          <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Projeto não encontrado</h3>
-          <p className="text-gray-600">Não foi possível carregar os dados do projeto.</p>
-        </div>
-      </ProjectWorkspace>
+      <Badge className={statusInfo.color}>
+        {statusInfo.label}
+      </Badge>
     );
-  }
+  };
 
   return (
-    <ProjectWorkspace>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Documentos - {currentProject.name}</h1>
-            <p className="text-gray-600">Downloads e relatórios específicos deste projeto</p>
-          </div>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Documentos do Projeto
+          </CardTitle>
+          <CardDescription>
+            Gerencie e baixe documentos relacionados ao seu projeto
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {documents.map((doc, index) => (
-            <Card key={index} className={`transition-all duration-200 hover:shadow-lg ${
-              doc.available ? 'border-gray-200' : 'border-gray-100 bg-gray-50'
-            }`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${doc.bgColor}`}>
-                      <doc.icon className={`h-6 w-6 ${doc.color}`} />
+      {/* Filtros */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('all')}
+            >
+              Todos
+            </Button>
+            <Button
+              variant={selectedCategory === 'orcamento' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('orcamento')}
+            >
+              Orçamento
+            </Button>
+            <Button
+              variant={selectedCategory === 'cronograma' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('cronograma')}
+            >
+              Cronograma
+            </Button>
+            <Button
+              variant={selectedCategory === 'memorial' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('memorial')}
+            >
+              Memorial
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Documentos */}
+      <div className="grid gap-4">
+        {filteredDocuments.length > 0 ? (
+          filteredDocuments.map((doc) => (
+            <Card key={doc.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <doc.icon className="h-8 w-8 text-blue-600" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{doc.name}</h3>
-                      <p className="text-sm text-gray-500">{doc.type}</p>
+                    <div className="space-y-2">
+                      <div>
+                        <h3 className="font-semibold text-lg">{doc.name}</h3>
+                        <p className="text-gray-600 text-sm">{doc.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(doc.status)}
+                        <span className="text-sm text-gray-500">
+                          {doc.size}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   
-                  {doc.available && (
-                    <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-green-600 font-medium">Disponível</span>
-                    </div>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent>
-                <p className="text-gray-600 mb-4">{doc.description}</p>
-                
-                <div className="flex space-x-2">
-                  {doc.actions.map((action, actionIndex) => (
-                    <Button
-                      key={actionIndex}
-                      variant={doc.available ? "default" : "outline"}
-                      size="sm"
-                      onClick={action.action}
-                      disabled={!doc.available && action.label !== 'Gerar' && action.label !== 'Em breve'}
-                      className={`flex items-center space-x-1 ${
-                        !doc.available && action.label !== 'Gerar' && action.label !== 'Em breve' 
-                          ? 'opacity-50 cursor-not-allowed' 
-                          : ''
-                      }`}
-                    >
-                      <action.icon className="h-4 w-4" />
-                      <span>{action.label}</span>
-                    </Button>
-                  ))}
+                  <div className="flex gap-2">
+                    {doc.actions.map((action, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        size="sm"
+                        onClick={action.action}
+                        className="flex items-center gap-1"
+                      >
+                        <action.icon className="h-4 w-4" />
+                        {action.label}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-                
-                {!doc.available && doc.name.includes('Orçamento') && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    💡 Vá para a aba Orçamento para gerar este documento
-                  </p>
-                )}
-                
-                {!doc.available && doc.name.includes('Cronograma') && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    💡 Vá para a aba Cronograma para gerar este documento
-                  </p>
-                )}
               </CardContent>
             </Card>
-          ))}
-        </div>
-
-        {/* Informações adicionais */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-start space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FileText className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-blue-900 mb-2">Sobre os Documentos do Projeto</h3>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• <strong>Projeto Original:</strong> Arquivo PDF enviado inicialmente</li>
-                  <li>• <strong>Análise Técnica:</strong> Dados extraídos pela IA sobre o projeto</li>
-                  <li>• <strong>Orçamento SINAPI:</strong> Gerado conforme tabela oficial de preços</li>
-                  <li>• <strong>Cronograma:</strong> Timeline baseada na complexidade do projeto</li>
-                  <li>• <strong>Relatório Final:</strong> Compilação completa (em desenvolvimento)</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          ))
+        ) : (
+          <Alert>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Nenhum documento encontrado para a categoria selecionada.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
-    </ProjectWorkspace>
+
+      {/* Upload Area */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Fazer upload de documentos
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Arraste e solte arquivos aqui ou clique para selecionar
+            </p>
+            <Button variant="outline">
+              Selecionar Arquivos
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

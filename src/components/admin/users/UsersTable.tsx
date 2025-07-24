@@ -219,7 +219,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
   const handleForceGeolocationUpdate = async (userEmail: string) => {
     const result = await forceUpdateUserGeolocation(userEmail);
     if (result.success) {
-      // Refresh da lista após alguns segundos
+      // Refresh da lista após alguns segundos para mostrar a atualização
       setTimeout(() => {
         window.location.reload();
       }, 3000);
