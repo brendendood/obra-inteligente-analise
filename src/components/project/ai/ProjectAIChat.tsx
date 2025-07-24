@@ -7,6 +7,7 @@ import { Send, Loader2, Bot, User, Hammer } from 'lucide-react';
 import { Project } from '@/types/project';
 import { getProjectAIResponse } from '@/utils/projectAIService';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { sanitizeAIContent } from '@/utils/contentSanitizer';
 
 interface ChatMessage {
   id: string;
@@ -132,17 +133,12 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
                 <p key={i} className={`mb-2 last:mb-0 text-sm leading-relaxed ${
                   isUser ? 'text-white' : 'text-gray-900'
                 }`}>
-                  {line.includes('**') ? (
-                    <span dangerouslySetInnerHTML={{
-                      __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    }} />
-                  ) : line.includes('•') ? (
-                    <span dangerouslySetInnerHTML={{
-                      __html: line.replace(/•/g, '<span class="text-blue-600 font-bold">•</span>')
-                    }} />
-                  ) : (
-                    line
-                  )}
+                  <span dangerouslySetInnerHTML={{
+                    __html: sanitizeAIContent(
+                      line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                          .replace(/•/g, '<span class="text-blue-600 font-bold">•</span>')
+                    )
+                  }} />
                 </p>
               ))}
             </div>

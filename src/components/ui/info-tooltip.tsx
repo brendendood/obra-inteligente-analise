@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { sanitizeAIContent } from '@/utils/contentSanitizer';
 
 interface InfoTooltipProps {
   content: string | React.ReactNode;
@@ -35,7 +36,7 @@ export const InfoTooltip = ({ content, className = '' }: InfoTooltipProps) => {
         >
           <div className="max-h-96 overflow-y-auto space-y-2">
             {typeof content === 'string' ? (
-              <div dangerouslySetInnerHTML={{ __html: content }} />
+              <div dangerouslySetInnerHTML={{ __html: sanitizeAIContent(content) }} />
             ) : (
               content
             )}

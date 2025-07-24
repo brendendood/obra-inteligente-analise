@@ -2,6 +2,7 @@
 import { Bot, User, Table, FileText, Home } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { sanitizeAIContent } from '@/utils/contentSanitizer';
 
 interface ChatMessage {
   id: string;
@@ -47,17 +48,12 @@ export const AIMessage = ({ message }: AIMessageProps) => {
                   <p key={i} className={`mb-1 last:mb-0 text-sm leading-relaxed ${
                     isUser ? 'text-white' : 'text-gray-900'
                   }`}>
-                    {line.includes('**') ? (
-                      <span dangerouslySetInnerHTML={{
-                        __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      }} />
-                    ) : line.includes('•') ? (
-                      <span dangerouslySetInnerHTML={{
-                        __html: line.replace(/•/g, '<span class="text-blue-600 font-bold">•</span>')
-                      }} />
-                    ) : (
-                      line
-                    )}
+                    <span dangerouslySetInnerHTML={{
+                      __html: sanitizeAIContent(
+                        line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/•/g, '<span class="text-blue-600 font-bold">•</span>')
+                      )
+                    }} />
                   </p>
                 ))}
               </div>

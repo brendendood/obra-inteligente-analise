@@ -19,6 +19,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { sendMessageToAgent } from '@/utils/sendToAgent';
 import { Badge } from '@/components/ui/badge';
+import { sanitizeAIContent } from '@/utils/contentSanitizer';
 
 interface ChatMessage {
   id: string;
@@ -209,13 +210,11 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
             <div className="text-sm leading-relaxed whitespace-pre-wrap">
               {message.content.split('\n').map((line, i) => (
                 <p key={i} className="mb-1 last:mb-0">
-                  {line.includes('**') ? (
-                    <span dangerouslySetInnerHTML={{
-                      __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    }} />
-                  ) : (
-                    line
-                  )}
+                  <span dangerouslySetInnerHTML={{
+                    __html: sanitizeAIContent(
+                      line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    )
+                  }} />
                 </p>
               ))}
             </div>

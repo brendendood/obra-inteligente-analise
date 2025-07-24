@@ -8,6 +8,7 @@ import { Project } from '@/types/project';
 import { getProjectAIResponse } from '@/utils/projectAIService';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
+import { sanitizeAIContent } from '@/utils/contentSanitizer';
 
 interface ChatMessage {
   id: string;
@@ -106,13 +107,11 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
   const formatMessage = (content: string) => {
     return content.split('\n').map((line, i) => (
       <p key={i} className="mb-2 last:mb-0">
-        {line.includes('**') ? (
-          <span dangerouslySetInnerHTML={{
-            __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          }} />
-        ) : (
-          line
-        )}
+        <span dangerouslySetInnerHTML={{
+          __html: sanitizeAIContent(
+            line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          )
+        }} />
       </p>
     ));
   };
