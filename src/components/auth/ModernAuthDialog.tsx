@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogPortal, DialogOverlay } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -214,8 +214,9 @@ export const ModernAuthDialog = ({ isOpen, onClose, onSuccess, defaultTab = 'log
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogContent className="sm:max-w-[380px] max-h-[90vh] overflow-y-auto p-0 gap-0">
+        <DialogPortal>
+          <DialogOverlay className="bg-black/85 backdrop-blur-sm" />
+          <DialogContent className="sm:max-w-[380px] max-h-[90vh] overflow-y-auto p-0 gap-0">
           {/* Header com gradiente */}
           <div className="bg-gradient-to-r from-primary to-purple-600 p-6 rounded-t-lg">
             <DialogHeader>
@@ -483,8 +484,9 @@ export const ModernAuthDialog = ({ isOpen, onClose, onSuccess, defaultTab = 'log
                 </form>
               </TabsContent>
             </Tabs>
-          </div>
-        </DialogContent>
+           </div>
+          </DialogContent>
+        </DialogPortal>
       </Dialog>
 
       <ForgotPasswordModal 
