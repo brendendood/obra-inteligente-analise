@@ -41,56 +41,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const trackLogin = useCallback(async (user: User) => {
-    try {
-      console.log('📍 Registrando login via frontend para:', user.email);
-      
-      // Primeiro inserir o registro de login no banco
-      const { data: loginRecord, error: insertError } = await supabase
-        .from('user_login_history')
-        .insert({
-          user_id: user.id,
-          login_at: new Date().toISOString(),
-          ip_address: '127.0.0.1',
-          user_agent: navigator.userAgent,
-          device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
-          browser: /Chrome/i.test(navigator.userAgent) ? 'Chrome' : 
-                   /Firefox/i.test(navigator.userAgent) ? 'Firefox' : 
-                   /Safari/i.test(navigator.userAgent) ? 'Safari' : 'Other',
-          os: /Windows/i.test(navigator.userAgent) ? 'Windows' :
-              /Mac/i.test(navigator.userAgent) ? 'macOS' :
-              /Linux/i.test(navigator.userAgent) ? 'Linux' : 'Other'
-        })
-        .select('id')
-        .single();
-
-      if (insertError) {
-        console.error('❌ Erro ao inserir login:', insertError);
-        return;
-      }
-
-      if (loginRecord?.id) {
-        console.log('✅ Login registrado no banco, ID:', loginRecord.id);
+    // Fazer tracking de forma assíncrona e tolerante a falhas
+    setTimeout(async () => {
+      try {
+        console.log('📍 Registrando login para:', user.email);
         
-        // Agora chamar a função de geolocalização com o loginId correto
-        try {
-          const { error: geoError } = await supabase.functions.invoke('ip-geolocation', {
-            body: {
-              loginId: loginRecord.id
-            }
-          });
-          
-          if (geoError) {
-            console.warn('⚠️ Erro na geolocalização (não crítico):', geoError);
-          } else {
-            console.log('✅ Geolocalização processada com sucesso');
-          }
-        } catch (geoError) {
-          console.warn('⚠️ Falha na geolocalização (não crítico):', geoError);
+        // Inserir registro básico de login
+        const { data: loginRecord, error: insertError } = await supabase
+          .from('user_login_history')
+          .insert({
+            user_id: user.id,
+            login_at: new Date().toISOString(),
+            ip_address: '127.0.0.1',
+            user_agent: navigator.userAgent,
+            device_type: /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+            browser: /Chrome/i.test(navigator.userAgent) ? 'Chrome' : 
+                     /Firefox/i.test(navigator.userAgent) ? 'Firefox' : 
+                     /Safari/i.test(navigator.userAgent) ? 'Safari' : 'Other',
+            os: /Windows/i.test(navigator.userAgent) ? 'Windows' :
+                /Mac/i.test(navigator.userAgent) ? 'macOS' :
+                /Linux/i.test(navigator.userAgent) ? 'Linux' : 'Other'
+          })
+          .select('id')
+          .single();
+
+        if (insertError) {
+          console.warn('⚠️ Erro ao registrar login (não crítico):', insertError.message);
+          return;
         }
+
+        console.log('✅ Login registrado com sucesso, ID:', loginRecord?.id);
+        
+        // Tentar geolocalização se login foi inserido com sucesso
+        if (loginRecord?.id) {
+          try {
+            const { error: geoError } = await supabase.functions.invoke('ip-geolocation', {
+              body: { loginId: loginRecord.id }
+            });
+            
+            if (geoError) {
+              console.warn('⚠️ Geolocalização falhou (não crítico):', geoError.message);
+            } else {
+              console.log('✅ Geolocalização processada');
+            }
+          } catch (geoError: any) {
+            console.warn('⚠️ Erro na geolocalização (não crítico):', geoError?.message);
+          }
+        }
+      } catch (error: any) {
+        console.warn('⚠️ Erro geral no tracking (não crítico):', error?.message);
       }
-    } catch (error) {
-      console.warn('⚠️ Erro no tracking (não crítico):', error);
-    }
+    }, 500); // Delay para não bloquear o login
   }, []);
 
   const refreshAuth = useCallback(async () => {

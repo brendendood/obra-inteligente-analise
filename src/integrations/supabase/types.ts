@@ -1031,6 +1031,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      test_manual_login_tracking: {
+        Args: { user_email: string }
+        Returns: string
+      }
       update_login_location_by_ip: {
         Args: {
           login_id: string
