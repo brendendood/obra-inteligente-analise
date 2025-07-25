@@ -1,6 +1,5 @@
 
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ModernAIChat } from '@/components/ai/ModernAIChat';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 
 const Assistant = () => {
@@ -11,8 +10,11 @@ const Assistant = () => {
           <EnhancedBreadcrumb />
         </div>
         
-        <div className="flex-1 min-h-0">
-          <ModernAIChat />
+        <div className="flex-1 min-h-0 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-foreground">Assistente IA</h2>
+            <p className="text-muted-foreground">Base limpa - pronta para nova implementação</p>
+          </div>
         </div>
       </div>
     </AppLayout>
