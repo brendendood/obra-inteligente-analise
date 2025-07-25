@@ -4,7 +4,14 @@ import { BudgetData } from '../budgetGenerator';
 
 export class BudgetPDFGenerator extends BasePDFGenerator {
   async generateBudgetPDF(budgetData: BudgetData, options: PDFExportOptions): Promise<Uint8Array> {
+    console.log('📊 Iniciando geração de PDF de orçamento...', { 
+      itemsCount: budgetData.items.length, 
+      total: budgetData.total,
+      projectName: options.projectName 
+    });
+    
     let currentY = this.addHeader(options);
+    console.log('✅ Header adicionado, posição Y:', currentY);
 
     // Resumo do orçamento
     this.doc.setFontSize(14);
@@ -88,7 +95,11 @@ export class BudgetPDFGenerator extends BasePDFGenerator {
       currentY = this.checkPageBreak(currentY);
     });
 
+    console.log('📄 Adicionando footer...');
     this.addFooter();
-    return this.outputPDF();
+    console.log('💾 Gerando buffer do PDF...');
+    const pdfBuffer = this.outputPDF();
+    console.log('✅ PDF de orçamento finalizado, tamanho do buffer:', pdfBuffer.length);
+    return pdfBuffer;
   }
 }

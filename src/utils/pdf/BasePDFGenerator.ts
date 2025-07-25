@@ -25,9 +25,17 @@ export class BasePDFGenerator {
   protected margin: number = 20;
 
   constructor() {
-    this.doc = new jsPDF();
-    this.pageWidth = this.doc.internal.pageSize.getWidth();
-    this.pageHeight = this.doc.internal.pageSize.getHeight();
+    console.log('🔧 Inicializando BasePDFGenerator...');
+    try {
+      this.doc = new jsPDF();
+      console.log('✅ jsPDF inicializado com sucesso');
+      this.pageWidth = this.doc.internal.pageSize.getWidth();
+      this.pageHeight = this.doc.internal.pageSize.getHeight();
+      console.log('📐 Dimensões da página:', { width: this.pageWidth, height: this.pageHeight });
+    } catch (error) {
+      console.error('❌ Erro ao inicializar jsPDF:', error);
+      throw error;
+    }
   }
 
   protected addHeader(options: PDFExportOptions): number {

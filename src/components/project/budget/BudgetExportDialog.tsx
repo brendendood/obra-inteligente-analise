@@ -32,6 +32,8 @@ export const BudgetExportDialog = ({
 
     try {
       if (format === 'pdf') {
+        console.log('🚀 Iniciando exportação PDF...', { projectName, projectArea, budgetData });
+        
         const options: PDFExportOptions = {
           projectName,
           projectArea,
@@ -40,7 +42,9 @@ export const BudgetExportDialog = ({
           includeLogo: true
         };
 
+        console.log('📋 Opções de exportação:', options);
         await generateProjectPDF('budget', { budget: budgetData }, options);
+        console.log('🎉 PDF exportado com sucesso!');
         
         toast({
           title: "✅ PDF Exportado",
