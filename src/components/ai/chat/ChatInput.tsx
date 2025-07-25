@@ -65,13 +65,13 @@ export const ChatInput = ({
       </div>
       
       {isLoading && (
-        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 mt-3 text-sm text-gray-600 bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-100">
           <div className="flex gap-1">
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
           </div>
-          <span>Consultor especializado analisando...</span>
+          <span className="font-medium">🔧 Especialista MadenAI analisando sua pergunta...</span>
         </div>
       )}
     </div>

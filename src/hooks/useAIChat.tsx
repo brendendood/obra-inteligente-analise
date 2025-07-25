@@ -65,73 +65,143 @@ export const useAIChat = ({ projectId, conversationId }: UseAIChatProps = {}) =>
     setIsLoading(true);
     setConnectionStatus('connected');
 
+    // Timeout para evitar loading infinito
+    const timeoutId = setTimeout(() => {
+      console.error('⏰ Request timeout - forcing completion');
+      setIsLoading(false);
+      setConnectionStatus('error');
+      
+      const timeoutMessage: ChatMessage = {
+        id: `timeout-${Date.now()}`,
+        content: '⏰ **Tempo de resposta esgotado**\n\nO sistema demorou mais que o esperado para responder. Tente novamente com uma pergunta mais específica.\n\n💡 **Sugestão**: "Preciso do orçamento para uma casa de 100m²" ou "Como fazer fundação em terreno inclinado?"',
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev.slice(0, -1), 
+        { ...userMessage, id: `user-${Date.now()}` },
+        timeoutMessage
+      ]);
+    }, 15000); // 15 segundos timeout
+
     let retryCount = 0;
     const maxRetries = 2;
 
-    while (retryCount <= maxRetries) {
-      try {
-        const { data, error } = await supabase.functions.invoke('chat-assistant', {
-          body: {
-            message: content,
-            conversationId: currentConversationId,
-            projectId: projectId || currentProject?.id
+    try {
+      while (retryCount <= maxRetries) {
+        try {
+          console.log(`🚀 Sending message (attempt ${retryCount + 1}):`, content.substring(0, 50));
+          
+          const { data, error } = await supabase.functions.invoke('chat-assistant', {
+            body: {
+              message: content,
+              conversationId: currentConversationId,
+              projectId: projectId || currentProject?.id
+            }
+          });
+
+          if (error) {
+            console.error('❌ Supabase function error:', error);
+            throw error;
           }
-        });
 
-        if (error) throw error;
+          // Validar se a resposta é válida
+          if (!data || !data.response || typeof data.response !== 'string') {
+            console.error('❌ Invalid response data:', data);
+            throw new Error('Resposta inválida do servidor');
+          }
 
-        const assistantMessage: ChatMessage = {
-          id: `ai-${Date.now()}`,
-          content: data.response || 'Resposta vazia do assistente',
-          role: 'assistant',
-          timestamp: new Date(),
-          conversationId: data.conversationId
-        };
-
-        console.log('✅ useAIChat: Assistant message created:', assistantMessage);
-
-        // Update conversation ID if it was created
-        if (data.conversationId && !currentConversationId) {
-          setCurrentConversationId(data.conversationId);
-        }
-
-        setMessages(prev => [...prev.slice(0, -1), 
-          { ...userMessage, id: `user-${Date.now()}`, conversationId: data.conversationId },
-          assistantMessage
-        ]);
-
-        setConnectionStatus('connected');
-        return; // Sucesso, sai da função
-        
-      } catch (error) {
-        console.error(`Error sending message (attempt ${retryCount + 1}):`, error);
-        retryCount++;
-        
-        if (retryCount <= maxRetries) {
-          // Tenta novamente em modo fallback
-          setConnectionStatus('fallback');
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
-        } else {
-          // Falha final
-          setConnectionStatus('error');
-          
-          // Remove the temporary user message on error
-          setMessages(prev => prev.slice(0, -1));
-          
-          // Add enhanced error message
-          const errorMessage: ChatMessage = {
-            id: `error-${Date.now()}`,
-            content: '🔧 **Sistema Temporariamente Indisponível**\n\nNosso assistente especializado está passando por manutenção. Tente novamente em alguns instantes ou reformule sua pergunta.\n\n💡 **Dica**: Para consultas urgentes, você pode acessar as seções de Orçamento e Cronograma do seu projeto.',
+          const assistantMessage: ChatMessage = {
+            id: `ai-${Date.now()}`,
+            content: data.response.trim(),
             role: 'assistant',
-            timestamp: new Date()
+            timestamp: new Date(),
+            conversationId: data.conversationId
           };
+
+          console.log('✅ useAIChat: Assistant message created successfully');
+
+          // Update conversation ID if it was created
+          if (data.conversationId && !currentConversationId) {
+            setCurrentConversationId(data.conversationId);
+          }
+
+          // Clear timeout - sucesso
+          clearTimeout(timeoutId);
+
+          setMessages(prev => [...prev.slice(0, -1), 
+            { ...userMessage, id: `user-${Date.now()}`, conversationId: data.conversationId },
+            assistantMessage
+          ]);
+
+          setConnectionStatus('connected');
+          setIsLoading(false);
+          return; // Sucesso, sai da função
           
-          setMessages(prev => [...prev, errorMessage]);
+        } catch (error) {
+          console.error(`❌ Error sending message (attempt ${retryCount + 1}):`, error);
+          retryCount++;
+          
+          if (retryCount <= maxRetries) {
+            // Tenta novamente em modo fallback
+            setConnectionStatus('fallback');
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+          } else {
+            // Falha final
+            break;
+          }
         }
       }
+
+      // Se chegou aqui, todas as tentativas falharam
+      clearTimeout(timeoutId);
+      setConnectionStatus('error');
+      setIsLoading(false);
+      
+      // Remove the temporary user message on error
+      setMessages(prev => prev.slice(0, -1));
+      
+      // Add enhanced error message with fallback
+      const fallbackMessage: ChatMessage = {
+        id: `fallback-${Date.now()}`,
+        content: `**🔧 MadenAI - Modo Offline Ativado**
+
+Olá! O sistema principal está temporariamente indisponível, mas posso ajudar com informações básicas:
+
+**📊 ORÇAMENTO RESIDENCIAL (2024):**
+• Padrão Popular: R$ 1.200-1.800/m²
+• Padrão Médio: R$ 2.500-3.500/m²
+• Alto Padrão: R$ 3.500-5.000/m²
+
+**⏱️ CRONOGRAMA BÁSICO:**
+• Fundações: 15-30 dias
+• Estrutura: 45-90 dias
+• Acabamentos: 45-60 dias
+
+**🏗️ MATERIAIS PRINCIPAIS:**
+• Concreto: fck 25-30 MPa (NBR 6118)
+• Blocos: 14x19x29cm cerâmico
+• Aço CA-50: conforme projeto
+
+**💡 Para informações detalhadas, tente novamente em alguns minutos ou reformule sua pergunta de forma mais específica.**
+
+Como posso ajudá-lo com esses dados básicos?`,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, 
+        { ...userMessage, id: `user-${Date.now()}` },
+        fallbackMessage
+      ]);
+
+    } catch (finalError) {
+      // Erro catastrófico
+      console.error('❌ Final error in sendMessage:', finalError);
+      clearTimeout(timeoutId);
+      setIsLoading(false);
+      setConnectionStatus('error');
     }
-    
-    setIsLoading(false);
   }, [user, currentConversationId, projectId, currentProject?.id]);
 
   const clearConversation = useCallback(() => {
