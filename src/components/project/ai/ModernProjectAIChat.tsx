@@ -5,7 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User, ArrowLeft, Sparkles } from 'lucide-react';
 import { Project } from '@/types/project';
-import { getProjectAIResponse } from '@/utils/projectAIService';
+import { sendMessageToAgent } from '@/utils/agents/unifiedAgentService';
+import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 import { sanitizeAIContent } from '@/utils/contentSanitizer';
@@ -37,6 +38,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isMobile = useIsMobile();
   const { goBack } = useContextualNavigation(`/projeto/${project.id}`);
+  const { user } = useAuth();
 
   // Auto scroll para a última mensagem
   useEffect(() => {
@@ -66,20 +68,12 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
     setIsTyping(true);
     
     try {
-      // TODO: Integrar com webhook N8N aqui
-      // const response = await fetch('/api/n8n-webhook', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ message: userMessage.content, projectId: project.id })
-      // });
-      
-      // Por enquanto usando resposta local
-      const response = await getProjectAIResponse(inputMessage, project);
+      const response = await sendMessageToAgent(inputMessage, 'project', { user, project });
       
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: response.message,
+        content: response,
         timestamp: new Date()
       };
       

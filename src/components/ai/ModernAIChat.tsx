@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { AITypingIndicator } from './AITypingIndicator';
 import { TypewriterText } from '@/components/ui/TypewriterText';
-import { sendMessageToAgent } from '@/utils/sendToAgent';
+import { sendMessageToAgent } from '@/utils/agents/unifiedAgentService';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -96,7 +96,7 @@ const ModernAIChat = () => {
     await saveMessage(userMessage.content, 'user');
 
     try {
-      const response = await sendMessageToAgent(userMessage.content, { user });
+      const response = await sendMessageToAgent(userMessage.content, 'general', { user });
       
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
