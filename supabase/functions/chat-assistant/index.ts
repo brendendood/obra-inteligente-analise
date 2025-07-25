@@ -1,180 +1,244 @@
-
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
+// Handle CORS preflight requests
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { question, projectId } = await req.json()
-
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+    const { message, conversationId, projectId } = await req.json();
+    
+    // Initialize Supabase client with request authorization
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const authHeader = req.headers.get('Authorization');
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
+      global: {
+        headers: {
+          Authorization: authHeader,
         },
-      }
-    )
+      },
+    });
 
-    // Get user
-    const { data: { user } } = await supabaseClient.auth.getUser()
-    if (!user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Authenticate user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Get project data
-    const { data: project } = await supabaseClient
-      .from('projects')
-      .select('*')
-      .eq('id', projectId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (!project) {
-      return new Response(
-        JSON.stringify({ error: 'Project not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    // Get or create conversation
+    let conversation;
+    if (conversationId) {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('*')
+        .eq('id', conversationId)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error || !data) {
+        return new Response(JSON.stringify({ error: 'Conversation not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      conversation = data;
+    } else {
+      // Create new conversation
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .insert({
+          user_id: user.id,
+          project_id: projectId,
+          title: message.substring(0, 50) + (message.length > 50 ? '...' : '')
+        })
+        .select()
+        .single();
+      
+      if (error || !data) {
+        return new Response(JSON.stringify({ error: 'Failed to create conversation' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      conversation = data;
     }
 
     // Save user message
-    await supabaseClient
-      .from('project_conversations')
+    await supabase
+      .from('ai_messages')
       .insert({
-        project_id: projectId,
-        message: question,
-        sender: 'user'
-      })
+        conversation_id: conversation.id,
+        content: message,
+        role: 'user'
+      });
 
-    // Generate AI response based on project context
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
-    let aiResponse = ''
+    // Get project data if projectId is provided
+    let project = null;
+    if (projectId) {
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .eq('user_id', user.id)
+        .single();
 
+      if (!projectError && projectData) {
+        project = projectData;
+      }
+    }
+
+    // Get conversation history for context
+    const { data: messageHistory } = await supabase
+      .from('ai_messages')
+      .select('content, role')
+      .eq('conversation_id', conversation.id)
+      .order('created_at', { ascending: true })
+      .limit(10);
+
+    let aiResponse: string;
+
+    // Check if OpenAI API key is available
+    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    
     if (openaiApiKey) {
-      const systemPrompt = `Você é um assistente IA especializado em engenharia civil e arquitetura. 
-      Responda baseado nos dados do projeto específico fornecido.
-      
-      DADOS DO PROJETO:
-      ${project.extracted_text}
-      
-      ANÁLISES DISPONÍVEIS:
-      ${JSON.stringify(project.analysis_data, null, 2)}
-      
-      Responda de forma técnica e precisa, sempre referenciando os dados específicos do projeto.
-      Use emojis e formatação markdown para melhor visualização.`
-
       try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        // Prepare messages for OpenAI
+        const messages = [
+          {
+            role: 'system',
+            content: `Você é um assistente especializado em projetos de engenharia civil e arquitetura da plataforma MadenAI.
+
+${project ? `
+Dados do projeto atual:
+- Nome: ${project.name}
+- Tipo: ${project.project_type || 'Não especificado'}
+- Área total: ${project.total_area ? project.total_area + 'm²' : 'Não especificado'}
+- Localização: ${[project.city, project.state, project.country].filter(Boolean).join(', ') || 'Não especificado'}
+- Orçamento estimado: ${project.estimated_budget ? 'R$ ' + project.estimated_budget.toLocaleString('pt-BR') : 'Não calculado'}
+
+Texto extraído: ${project.extracted_text || 'Nenhum texto disponível'}
+Análise técnica: ${project.analysis_data ? JSON.stringify(project.analysis_data) : 'Análise não disponível'}
+` : 'Contexto geral de engenharia civil e arquitetura.'}
+
+Seja técnico, preciso e útil. Foque em soluções práticas para construção, materiais, custos e cronogramas. Use as normas brasileiras quando relevante.`
+          }
+        ];
+
+        // Add conversation history
+        if (messageHistory && messageHistory.length > 1) {
+          messageHistory.slice(0, -1).forEach(msg => {
+            messages.push({
+              role: msg.role as 'user' | 'assistant',
+              content: msg.content
+            });
+          });
+        }
+
+        // Add current message
+        messages.push({
+          role: 'user',
+          content: message
+        });
+
+        // Call OpenAI API
+        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${openaiApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'gpt-4',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: question }
-            ],
-            max_tokens: 500,
-            temperature: 0.7,
+            model: 'gpt-4o-mini',
+            messages: messages,
+            max_tokens: 1000,
+            temperature: 0.7
           }),
-        })
+        });
 
-        const data = await response.json()
-        aiResponse = data.choices[0].message.content
-      } catch (error) {
-        console.error('OpenAI API error:', error)
-        // Fallback to contextual responses
-        aiResponse = generateContextualResponse(question, project)
+        if (!openaiResponse.ok) {
+          throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+        }
+
+        const openaiData = await openaiResponse.json();
+        aiResponse = openaiData.choices[0].message.content;
+      } catch (openaiError) {
+        console.error('OpenAI API error:', openaiError);
+        aiResponse = generateContextualResponse(message, project);
       }
     } else {
-      // Generate contextual response based on project data
-      aiResponse = generateContextualResponse(question, project)
+      // Fallback to contextual response
+      aiResponse = generateContextualResponse(message, project);
     }
 
     // Save AI response
-    await supabaseClient
-      .from('project_conversations')
+    await supabase
+      .from('ai_messages')
       .insert({
-        project_id: projectId,
-        message: aiResponse,
-        sender: 'assistant'
-      })
+        conversation_id: conversation.id,
+        content: aiResponse,
+        role: 'assistant'
+      });
 
-    return new Response(
-      JSON.stringify({ response: aiResponse }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ 
+      response: aiResponse,
+      conversationId: conversation.id 
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
-    console.error('Error:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    console.error('Error in chat-assistant function:', error);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
-})
+});
 
+// Contextual response generator when OpenAI is not available
 function generateContextualResponse(question: string, project: any): string {
-  const lowerQuestion = question.toLowerCase()
-  const analysisData = project.analysis_data || {}
-  const rooms = analysisData.rooms || []
-  const materials = analysisData.materials || {}
-
-  if (lowerQuestion.includes('área') || lowerQuestion.includes('m²')) {
-    if (lowerQuestion.includes('total')) {
-      return `📐 **Área total do projeto:** ${project.total_area}m²\n\n**Distribuição por ambiente:**\n${rooms.map(room => `• ${room.name}: ${room.area}m²`).join('\n')}\n\n💡 **Dica:** Área bem distribuída para projeto residencial.`
-    }
-    
-    if (lowerQuestion.includes('banheiro')) {
-      const bathrooms = rooms.filter(room => room.name.includes('Banheiro'))
-      return `🚿 **Banheiros identificados:**\n${bathrooms.map(room => `• ${room.name}: ${room.area}m²`).join('\n')}\n\n🎨 **Recomendação:** Usar cerâmica antiderrapante no piso.`
-    }
-    
-    if (lowerQuestion.includes('quarto') || lowerQuestion.includes('dormitório')) {
-      const bedrooms = rooms.filter(room => room.name.includes('Dormitório') || room.name.includes('Suíte'))
-      return `🛏️ **Dormitórios do projeto:**\n${bedrooms.map(room => `• ${room.name}: ${room.area}m²`).join('\n')}\n\n📋 **Análise:** Suíte com área adequada, dormitórios secundários bem dimensionados.`
-    }
+  const lowerQuestion = question.toLowerCase();
+  
+  if (lowerQuestion.includes('área') || lowerQuestion.includes('tamanho')) {
+    return project 
+      ? `Com base no projeto "${project.name}", a área total é de ${project.total_area || 'valor não especificado'}m². Esta informação é fundamental para calcular materiais e custos.`
+      : 'Para calcular áreas, preciso de informações específicas do projeto. Você pode compartilhar as plantas ou dimensões?';
   }
-
-  if (lowerQuestion.includes('material') || lowerQuestion.includes('quantidade')) {
-    if (lowerQuestion.includes('alvenaria')) {
-      const alvenaria = materials.alvenaria
-      return `🧱 **Alvenaria:** ${alvenaria?.quantity}${alvenaria?.unit} - ${alvenaria?.description}\n\n💡 **Dica:** Adicionar 5% para perdas e recortes.`
-    }
-    
-    if (lowerQuestion.includes('concreto')) {
-      const concreto = materials.concreto
-      return `🏗️ **Concreto:** ${concreto?.quantity}${concreto?.unit} - ${concreto?.description}\n\n⚠️ **Importante:** Volume para fundações e estrutura. Considerar bombeamento se necessário.`
-    }
-    
-    if (lowerQuestion.includes('ferro') || lowerQuestion.includes('aço')) {
-      const aco = materials.aco
-      return `🔩 **Aço estrutural:** ${aco?.quantity}${aco?.unit} - ${aco?.description}\n\n📋 **Especificação:** Inclui barras longitudinais e estribos conforme projeto estrutural.`
-    }
+  
+  if (lowerQuestion.includes('orçamento') || lowerQuestion.includes('custo')) {
+    return project 
+      ? `Para o projeto "${project.name}", o orçamento estimado é ${project.estimated_budget ? 'R$ ' + project.estimated_budget.toLocaleString('pt-BR') : 'ainda não calculado'}. Posso ajudar a detalhar os custos por categoria.`
+      : 'Para estimar custos, preciso conhecer o tipo de obra, área, localização e padrão de acabamento. Você pode fornecer essas informações?';
   }
-
-  if (lowerQuestion.includes('estrutura') || lowerQuestion.includes('fundação')) {
-    return `🏗️ **Sistema estrutural identificado:**\n• **Fundações:** Sapatas isoladas\n• **Estrutura:** Concreto armado\n• **Cobertura:** Estrutura de madeira com telha cerâmica\n\n⚠️ **Importante:** Verificar características do solo local.`
+  
+  if (lowerQuestion.includes('cronograma') || lowerQuestion.includes('prazo')) {
+    return project 
+      ? `Para o projeto "${project.name}", o cronograma depende da complexidade e recursos disponíveis. Posso ajudar a criar um cronograma detalhado baseado nas etapas da obra.`
+      : 'Para criar um cronograma, preciso entender o escopo do projeto. Que tipo de obra você está planejando?';
   }
-
-  if (lowerQuestion.includes('instalação') || lowerQuestion.includes('hidráulica') || lowerQuestion.includes('elétrica')) {
-    return `⚡ **Instalações previstas:**\n• **Elétrica:** Padrão residencial 220V\n• **Hidráulica:** Água fria e quente\n• **Esgoto:** Conexão rede pública\n• **Gás:** Sistema GLP\n\n🔧 **Recomendação:** Prever quadro de distribuição adequado.`
+  
+  if (lowerQuestion.includes('material') || lowerQuestion.includes('especificação')) {
+    return 'Posso ajudar com especificações de materiais baseadas no tipo de projeto, clima local e orçamento. Sobre qual material específico você gostaria de saber?';
   }
-
-  // Resposta genérica contextualizada
-  return `📋 **Baseado no seu projeto (${project.name}):**\n\nIdentifiquei um projeto residencial de ${project.total_area}m² com ${rooms.length} ambientes.\n\n🔍 **Para análises específicas, pergunte sobre:**\n• Áreas e dimensões\n• Quantitativos de materiais\n• Especificações técnicas\n• Instalações e estrutura\n\n💡 **Dica:** Seja mais específico para respostas detalhadas!`
+  
+  return project 
+    ? `Sobre o projeto "${project.name}": Como especialista em engenharia civil, posso ajudar com análises técnicas, materiais, custos e cronogramas. Em que posso ajudar especificamente?`
+    : 'Olá! Sou seu assistente especializado em engenharia civil e arquitetura. Posso ajudar com projetos, materiais, custos, cronogramas e normas técnicas. Como posso ajudar você hoje?';
 }
