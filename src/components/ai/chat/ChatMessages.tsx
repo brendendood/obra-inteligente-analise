@@ -3,15 +3,10 @@ import { ChatMessage } from './ChatMessage';
 import { ChatEmptyState } from './ChatEmptyState';
 import { AITypingIndicator } from '../AITypingIndicator';
 
-interface ChatMessage {
-  id: string;
-  content: string;
-  sender: 'user' | 'assistant';
-  timestamp: Date;
-}
+// Usar a interface do useAIChat ao invés de duplicar
 
 interface ChatMessagesProps {
-  messages: ChatMessage[];
+  messages: any[]; // Usar any[] para aceitar diferentes formatos
   isLoading: boolean;
   onRegenerate?: () => void;
   onRate?: (messageId: string, rating: number) => void;

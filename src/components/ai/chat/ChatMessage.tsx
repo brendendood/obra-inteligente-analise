@@ -21,6 +21,12 @@ export const ChatMessage = ({ message, onRegenerate, onRate }: ChatMessageProps)
 
   // Função para renderizar markdown básico
   const renderContent = (content: string) => {
+    // Validação para evitar erro se content for undefined/null
+    if (!content || typeof content !== 'string') {
+      console.log('⚠️ ChatMessage: content is undefined or not a string:', content);
+      return <div className="text-sm text-gray-500">Mensagem não disponível</div>;
+    }
+
     return content
       .split('\n')
       .map((line, index) => {

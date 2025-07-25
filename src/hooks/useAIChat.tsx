@@ -82,11 +82,13 @@ export const useAIChat = ({ projectId, conversationId }: UseAIChatProps = {}) =>
 
         const assistantMessage: ChatMessage = {
           id: `ai-${Date.now()}`,
-          content: data.response,
+          content: data.response || 'Resposta vazia do assistente',
           role: 'assistant',
           timestamp: new Date(),
           conversationId: data.conversationId
         };
+
+        console.log('✅ useAIChat: Assistant message created:', assistantMessage);
 
         // Update conversation ID if it was created
         if (data.conversationId && !currentConversationId) {

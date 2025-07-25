@@ -246,8 +246,17 @@ Responda como um profissional experiente com CRA/CREA ativo.`
         role: 'assistant'
       });
 
+    // Validação final da resposta
+    const finalResponse = aiResponse || 'Desculpe, não foi possível gerar uma resposta no momento.';
+    
+    console.log('📤 Edge Function: Sending response:', {
+      response: finalResponse,
+      conversationId: conversation.id,
+      responseLength: finalResponse.length
+    });
+
     return new Response(JSON.stringify({ 
-      response: aiResponse,
+      response: finalResponse,
       conversationId: conversation.id 
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
