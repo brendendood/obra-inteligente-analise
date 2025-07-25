@@ -5,6 +5,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { AITypingIndicator } from './AITypingIndicator';
 import { sendMessageToAgent } from '@/utils/sendToAgent';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ChatMessage {
   id: string;
@@ -19,8 +21,10 @@ const ModernAIChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connected');
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { user } = useAuth();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,6 +33,48 @@ const ModernAIChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping]);
+
+  // Inicializar conversa quando componente carregar
+  useEffect(() => {
+    if (user && !conversationId) {
+      initializeConversation();
+    }
+  }, [user, conversationId]);
+
+  const initializeConversation = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .insert({
+          user_id: user.id,
+          title: 'Conversa com MadenAI',
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setConversationId(data.id);
+    } catch (error) {
+      console.error('Erro ao criar conversa:', error);
+    }
+  };
+
+  const saveMessage = async (content: string, role: 'user' | 'assistant') => {
+    if (!conversationId || !user) return;
+
+    try {
+      await supabase.from('ai_messages').insert({
+        conversation_id: conversationId,
+        content,
+        role
+      });
+    } catch (error) {
+      console.error('Erro ao salvar mensagem:', error);
+    }
+  };
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isTyping) return;
@@ -45,8 +91,11 @@ const ModernAIChat = () => {
     setIsTyping(true);
     setConnectionStatus('connecting');
 
+    // Salvar mensagem do usuário
+    await saveMessage(userMessage.content, 'user');
+
     try {
-      const response = await sendMessageToAgent(userMessage.content);
+      const response = await sendMessageToAgent(userMessage.content, { user });
       
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -57,6 +106,9 @@ const ModernAIChat = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
       setConnectionStatus('connected');
+      
+      // Salvar resposta do assistente
+      await saveMessage(response, 'assistant');
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       setConnectionStatus('disconnected');
@@ -185,7 +237,7 @@ const ModernAIChat = () => {
   const TypingIndicator = () => <AITypingIndicator />;
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-120px)] bg-white rounded-lg border shadow-sm">
+    <div className="flex flex-col h-full max-h-[calc(100vh-60px)] bg-white rounded-lg border shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
         <div className="flex items-center space-x-3">
