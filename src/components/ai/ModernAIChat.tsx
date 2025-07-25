@@ -181,7 +181,7 @@ const ModernAIChat = () => {
   };
 
   const MessageBubble = ({ message }: { message: ChatMessage }) => (
-    <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-6`}>
+    <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-8`}>
       <div className={`flex items-start space-x-3 max-w-[85%] sm:max-w-[70%] ${
         message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
       }`}>
@@ -237,7 +237,7 @@ const ModernAIChat = () => {
   const TypingIndicator = () => <AITypingIndicator />;
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-60px)] bg-white rounded-lg border shadow-sm">
+    <div className="flex flex-col h-full max-h-[calc(100vh-40px)] bg-white rounded-lg border shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
         <div className="flex items-center space-x-3">
@@ -259,7 +259,7 @@ const ModernAIChat = () => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
             <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
