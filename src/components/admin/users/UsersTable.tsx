@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
+import { UserLocationDisplay } from './UserLocationDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useGeolocationManager } from '@/hooks/useGeolocationManager';
@@ -242,7 +243,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
               <TableHead>Status</TableHead>
               <TableHead>Profissão</TableHead>
               <TableHead>Contato</TableHead>
-              <TableHead>Localização</TableHead>
+              <TableHead>Última Localização (IP)</TableHead>
               <TableHead>Plano</TableHead>
               <TableHead>Último Login</TableHead>
               <TableHead>Criado em</TableHead>
@@ -334,13 +335,13 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
                 </TableCell>
 
                 {/* Localização Real */}
-                <TableCell>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <MapPin className="h-3 w-3 text-gray-400" />
-                    <div className="max-w-[200px]" title={`${user.real_location}${user.last_login_ip ? ' | IP: ' + user.last_login_ip : ''}`}>
-                      {formatRealLocation(user.real_location, user.last_login_ip)}
-                    </div>
-                  </div>
+                <TableCell className="max-w-[200px]">
+                  <UserLocationDisplay
+                    realLocation={user.real_location}
+                    lastLoginIp={user.last_login_ip}
+                    lastSignInAt={user.last_sign_in_at}
+                    compact
+                  />
                 </TableCell>
 
                 {/* Plano */}
