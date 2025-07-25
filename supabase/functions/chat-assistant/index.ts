@@ -123,21 +123,41 @@ serve(async (req) => {
         const messages = [
           {
             role: 'system',
-            content: `Você é um assistente especializado em projetos de engenharia civil e arquitetura da plataforma MadenAI.
+            content: `Você é um Engenheiro Civil e Arquiteto Senior especializado em projetos de construção no Brasil, atuando como assistente técnico da plataforma MadenAI.
+
+ESPECIALIZAÇÃO E CONHECIMENTOS:
+- Engenharia Estrutural, Fundações, Geotecnia
+- Arquitetura Residencial e Comercial  
+- Orçamentação, Cronogramas e Planejamento
+- Normas ABNT (NBR 6118, 6120, 6122, 15575, 9050, etc.)
+- Código de Obras Municipal e Estadual
+- Materiais de Construção e Tecnologias Construtivas
+- Sustentabilidade e Eficiência Energética
 
 ${project ? `
-Dados do projeto atual:
+📋 PROJETO ATUAL EM ANÁLISE:
 - Nome: ${project.name}
-- Tipo: ${project.project_type || 'Não especificado'}
-- Área total: ${project.total_area ? project.total_area + 'm²' : 'Não especificado'}
-- Localização: ${[project.city, project.state, project.country].filter(Boolean).join(', ') || 'Não especificado'}
-- Orçamento estimado: ${project.estimated_budget ? 'R$ ' + project.estimated_budget.toLocaleString('pt-BR') : 'Não calculado'}
+- Tipologia: ${project.project_type || 'Não especificado'}
+- Área Construída: ${project.total_area ? project.total_area + 'm²' : 'A definir'}
+- Localização: ${[project.city, project.state, project.country].filter(Boolean).join(', ') || 'Não informado'}
+- Orçamento Previsto: ${project.estimated_budget ? 'R$ ' + project.estimated_budget.toLocaleString('pt-BR') : 'Em elaboração'}
 
-Texto extraído: ${project.extracted_text || 'Nenhum texto disponível'}
-Análise técnica: ${project.analysis_data ? JSON.stringify(project.analysis_data) : 'Análise não disponível'}
-` : 'Contexto geral de engenharia civil e arquitetura.'}
+📄 DOCUMENTOS TÉCNICOS:
+${project.extracted_text ? `Informações extraídas: ${project.extracted_text.substring(0, 500)}...` : 'Aguardando documentos técnicos'}
 
-Seja técnico, preciso e útil. Foque em soluções práticas para construção, materiais, custos e cronogramas. Use as normas brasileiras quando relevante.`
+📊 ANÁLISE TÉCNICA:
+${project.analysis_data ? `Dados processados: ${JSON.stringify(project.analysis_data)}` : 'Análise em andamento'}
+` : '🏗️ Modo Consultoria Geral - Pronto para orientação técnica especializada'}
+
+DIRETRIZES DE RESPOSTA:
+✓ Seja técnico, preciso e fundamentado em normas
+✓ Cite normas ABNT relevantes quando aplicável
+✓ Forneça valores realistas de materiais e custos (mercado brasileiro 2024)
+✓ Considere aspectos de segurança, durabilidade e sustentabilidade
+✓ Use linguagem profissional mas acessível
+✓ Quando possível, sugira alternativas e melhores práticas
+
+Responda como um profissional experiente com CRA/CREA ativo.`
           }
         ];
 
@@ -157,27 +177,57 @@ Seja técnico, preciso e útil. Foque em soluções práticas para construção,
           content: message
         });
 
-        // Call OpenAI API
-        const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: messages,
-            max_tokens: 1000,
-            temperature: 0.7
-          }),
-        });
+        // Call OpenAI API with retry logic
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+          try {
+            const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${openaiApiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: messages,
+                max_tokens: 1500,
+                temperature: 0.3, // Mais técnico e preciso
+                top_p: 0.9,
+                frequency_penalty: 0.0,
+                presence_penalty: 0.0
+              }),
+            });
 
-        if (!openaiResponse.ok) {
-          throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+            if (openaiResponse.status === 429) {
+              // Rate limit - aguarda e tenta novamente
+              console.log(`Rate limit hit, retry ${retryCount + 1}/${maxRetries}`);
+              await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 2000));
+              retryCount++;
+              continue;
+            }
+
+            if (!openaiResponse.ok) {
+              throw new Error(`OpenAI API error: ${openaiResponse.status} - ${await openaiResponse.text()}`);
+            }
+
+            const openaiData = await openaiResponse.json();
+            aiResponse = openaiData.choices[0].message.content;
+            break; // Sucesso, sai do loop
+            
+          } catch (error) {
+            retryCount++;
+            console.error(`OpenAI attempt ${retryCount} failed:`, error);
+            
+            if (retryCount === maxRetries) {
+              throw error; // Falha após todas as tentativas
+            }
+            
+            // Aguarda antes da próxima tentativa
+            await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
+          }
         }
-
-        const openaiData = await openaiResponse.json();
-        aiResponse = openaiData.choices[0].message.content;
       } catch (openaiError) {
         console.error('OpenAI API error:', openaiError);
         aiResponse = generateContextualResponse(message, project);
@@ -212,33 +262,248 @@ Seja técnico, preciso e útil. Foque em soluções práticas para construção,
   }
 });
 
-// Contextual response generator when OpenAI is not available
+// Sistema avançado de respostas contextuais para engenharia civil e arquitetura
 function generateContextualResponse(question: string, project: any): string {
   const lowerQuestion = question.toLowerCase();
   
-  if (lowerQuestion.includes('área') || lowerQuestion.includes('tamanho')) {
+  // Base de conhecimentos técnicos
+  const technicalKnowledge = {
+    foundation: {
+      keywords: ['fundação', 'fundações', 'sapata', 'estaca', 'radier', 'baldrame'],
+      response: (project: any) => `🏗️ **FUNDAÇÕES - Análise Técnica**
+
+${project ? `Para o projeto "${project.name}" (${project.total_area || 'área a definir'}m²):` : 'Orientação geral sobre fundações:'}
+
+**Tipos recomendados conforme NBR 6122:**
+• **Fundações Rasas**: Sapatas isoladas/corridas (até 3 pavimentos)
+• **Fundações Profundas**: Estacas escavadas/hélice contínua (acima de 3 pavimentos)
+• **Radier**: Cargas distribuídas, solos de baixa capacidade
+
+**Fatores determinantes:**
+✓ Investigação geotécnica obrigatória (NBR 8036)
+✓ Cargas da estrutura e tipo de solo
+✓ Presença de água subterrânea
+✓ Economicidade da solução
+
+**Custos estimados (2024):**
+• Sapatas: R$ 80-120/m²
+• Estacas escavadas: R$ 25-40/m linear
+• Radier: R$ 45-65/m²
+
+Precisa de dimensionamento específico?`
+    },
+    
+    structure: {
+      keywords: ['estrutura', 'concreto', 'aço', 'viga', 'pilar', 'laje', 'dimensionamento'],
+      response: (project: any) => `🏢 **ESTRUTURA - Dimensionamento e Especificações**
+
+${project ? `Análise estrutural para "${project.name}":` : 'Orientações estruturais:'}
+
+**Sistemas estruturais recomendados:**
+• **Concreto Armado**: Residencial até 4 pavimentos (NBR 6118)
+• **Alvenaria Estrutural**: Até 5 pavimentos (NBR 15961)
+• **Estrutura Metálica**: Vãos grandes, rapidez executiva
+
+**Materiais conforme norma:**
+✓ Concreto: fck ≥ 25 MPa (residencial), fck ≥ 30 MPa (comercial)
+✓ Aço CA-50 para armaduras principais
+✓ Aço CA-60 para estribos e distribuição
+
+**Custos por m² (estrutura completa):**
+• Concreto armado: R$ 180-250/m²
+• Alvenaria estrutural: R$ 120-180/m²
+• Estrutura metálica: R$ 200-300/m²
+
+Necessita de cálculo estrutural detalhado?`
+    },
+    
+    budget: {
+      keywords: ['orçamento', 'custo', 'preço', 'valor', 'quanto custa'],
+      response: (project: any) => `💰 **ORÇAMENTAÇÃO - Análise de Custos**
+
+${project ? `Orçamento para "${project.name}" (${project.total_area || 'área a definir'}m²):` : 'Estimativas de custos de construção:'}
+
+**Custos por m² - Padrão Brasileiro (2024):**
+
+🏠 **RESIDENCIAL:**
+• Popular: R$ 800-1.200/m²
+• Médio: R$ 1.200-1.800/m²
+• Alto: R$ 1.800-3.000/m²
+• Luxo: R$ 3.000-5.000/m²
+
+🏢 **COMERCIAL:**
+• Básico: R$ 1.000-1.500/m²
+• Corporativo: R$ 1.500-2.500/m²
+
+**Composição típica dos custos:**
+✓ Estrutura: 15-20%
+✓ Alvenaria/Vedações: 12-15%
+✓ Instalações: 20-25%
+✓ Cobertura: 8-12%
+✓ Revestimentos: 15-20%
+✓ Esquadrias: 8-12%
+
+${project?.estimated_budget ? `Orçamento previsto: R$ ${project.estimated_budget.toLocaleString('pt-BR')}` : ''}
+
+Quer detalhamento por etapas?`
+    },
+    
+    materials: {
+      keywords: ['material', 'materiais', 'tijolo', 'bloco', 'cimento', 'cerâmica', 'especificação'],
+      response: (project: any) => `🧱 **MATERIAIS - Especificações Técnicas**
+
+**ALVENARIA (NBR 15270):**
+• Tijolo cerâmico: 9x14x19cm - R$ 0,35-0,45/un
+• Bloco cerâmico: 14x19x29cm - R$ 1,20-1,80/un
+• Bloco de concreto: 14x19x39cm - R$ 2,50-3,50/un
+
+**REVESTIMENTOS:**
+• Argamassa colante: R$ 18-25/saco 20kg
+• Cerâmica 45x45cm: R$ 25-60/m²
+• Porcelanato 60x60cm: R$ 45-120/m²
+
+**COBERTURA:**
+• Telha cerâmica: R$ 2,50-4,00/m²
+• Telha metálica: R$ 15-35/m²
+• Laje impermeabilizada: R$ 45-65/m²
+
+**CRITÉRIOS DE ESCOLHA:**
+✓ Clima e exposição
+✓ Durabilidade e manutenção
+✓ Desempenho térmico/acústico
+✓ Relação custo-benefício
+
+${project ? `Para ${project.name}, qual material específico?` : 'Qual material precisa especificar?'}`
+    },
+    
+    schedule: {
+      keywords: ['cronograma', 'prazo', 'tempo', 'etapas', 'duração'],
+      response: (project: any) => `⏱️ **CRONOGRAMA - Planejamento Executivo**
+
+${project ? `Cronograma para "${project.name}" (${project.total_area || 'área a definir'}m²):` : 'Prazos típicos de construção:'}
+
+**PRAZOS POR TIPOLOGIA:**
+
+🏠 **Residencial:**
+• Casa popular (até 80m²): 6-9 meses
+• Casa padrão (80-150m²): 8-12 meses
+• Casa alto padrão (+150m²): 12-18 meses
+
+🏢 **Comercial:**
+• Edifício baixo (até 3 pav): 12-18 meses
+• Edifício médio (4-10 pav): 18-24 meses
+
+**ETAPAS PRINCIPAIS:**
+1. **Fundações**: 15-20% do prazo
+2. **Estrutura**: 25-30% do prazo
+3. **Alvenaria**: 20-25% do prazo
+4. **Instalações**: 15-20% do prazo
+5. **Acabamentos**: 20-25% do prazo
+
+**FATORES QUE INFLUENCIAM:**
+✓ Complexidade do projeto
+✓ Disponibilidade de mão-de-obra
+✓ Condições climáticas
+✓ Logística de materiais
+
+Precisa de cronograma detalhado?`
+    },
+    
+    norms: {
+      keywords: ['norma', 'nbr', 'abnt', 'código', 'lei', 'regulamento'],
+      response: (project: any) => `📋 **NORMAS TÉCNICAS - Conformidade Legal**
+
+**NORMAS ABNT FUNDAMENTAIS:**
+
+🏗️ **ESTRUTURAS:**
+• NBR 6118: Projeto de estruturas de concreto
+• NBR 8800: Projeto de estruturas de aço
+• NBR 6122: Projeto e execução de fundações
+
+🏠 **DESEMPENHO:**
+• NBR 15575: Edificações habitacionais - Desempenho
+• NBR 9050: Acessibilidade
+• NBR 15220: Desempenho térmico
+
+🔧 **INSTALAÇÕES:**
+• NBR 5410: Instalações elétricas
+• NBR 8160: Sistemas prediais de esgoto
+• NBR 5626: Sistemas prediais de água fria
+
+**CÓDIGOS MUNICIPAIS:**
+✓ Código de Obras local
+✓ Lei de Uso e Ocupação do Solo
+✓ Normas de segurança contra incêndio
+
+${project ? `Para o projeto em ${project.city || 'sua cidade'}, verificar legislação específica.` : ''}
+
+Qual norma específica precisa consultar?`
+    }
+  };
+
+  // Verificar palavras-chave e retornar resposta especializada
+  for (const [category, data] of Object.entries(technicalKnowledge)) {
+    if (data.keywords.some(keyword => lowerQuestion.includes(keyword))) {
+      return data.response(project);
+    }
+  }
+
+  // Respostas para saudações e perguntas gerais
+  if (lowerQuestion.includes('olá') || lowerQuestion.includes('oi') || lowerQuestion.includes('bom dia') || lowerQuestion.includes('boa tarde')) {
     return project 
-      ? `Com base no projeto "${project.name}", a área total é de ${project.total_area || 'valor não especificado'}m². Esta informação é fundamental para calcular materiais e custos.`
-      : 'Para calcular áreas, preciso de informações específicas do projeto. Você pode compartilhar as plantas ou dimensões?';
+      ? `🏗️ Olá! Sou seu consultor especializado em engenharia civil e arquitetura. Estou analisando o projeto "${project.name}" e posso ajudar com:
+
+✓ Dimensionamento estrutural e fundações
+✓ Orçamentação detalhada e cronograma
+✓ Especificação de materiais e técnicas construtivas
+✓ Conformidade com normas ABNT e códigos locais
+✓ Otimização de custos e prazos
+
+Em que posso ajudar especificamente?`
+      : `🏗️ Olá! Sou seu consultor especializado em **Engenharia Civil e Arquitetura**. 
+
+Posso ajudar com:
+✓ **Projetos estruturais** e dimensionamento
+✓ **Orçamentação** e análise de custos
+✓ **Cronogramas** e planejamento executivo
+✓ **Especificação de materiais** e técnicas
+✓ **Normas ABNT** e legislação construtiva
+
+Tem algum projeto ou dúvida técnica específica?`;
   }
-  
-  if (lowerQuestion.includes('orçamento') || lowerQuestion.includes('custo')) {
-    return project 
-      ? `Para o projeto "${project.name}", o orçamento estimado é ${project.estimated_budget ? 'R$ ' + project.estimated_budget.toLocaleString('pt-BR') : 'ainda não calculado'}. Posso ajudar a detalhar os custos por categoria.`
-      : 'Para estimar custos, preciso conhecer o tipo de obra, área, localização e padrão de acabamento. Você pode fornecer essas informações?';
-  }
-  
-  if (lowerQuestion.includes('cronograma') || lowerQuestion.includes('prazo')) {
-    return project 
-      ? `Para o projeto "${project.name}", o cronograma depende da complexidade e recursos disponíveis. Posso ajudar a criar um cronograma detalhado baseado nas etapas da obra.`
-      : 'Para criar um cronograma, preciso entender o escopo do projeto. Que tipo de obra você está planejando?';
-  }
-  
-  if (lowerQuestion.includes('material') || lowerQuestion.includes('especificação')) {
-    return 'Posso ajudar com especificações de materiais baseadas no tipo de projeto, clima local e orçamento. Sobre qual material específico você gostaria de saber?';
-  }
-  
+
+  // Resposta padrão técnica
   return project 
-    ? `Sobre o projeto "${project.name}": Como especialista em engenharia civil, posso ajudar com análises técnicas, materiais, custos e cronogramas. Em que posso ajudar especificamente?`
-    : 'Olá! Sou seu assistente especializado em engenharia civil e arquitetura. Posso ajudar com projetos, materiais, custos, cronogramas e normas técnicas. Como posso ajudar você hoje?';
+    ? `🏗️ **Projeto "${project.name}" em análise**
+
+Como **Engenheiro Civil especialista**, posso orientar sobre:
+
+📊 **Análise Técnica**: Estruturas, fundações, materiais
+💰 **Orçamentação**: Custos detalhados por etapa
+⏱️ **Cronograma**: Planejamento executivo otimizado
+📋 **Conformidade**: Normas ABNT e códigos locais
+
+**Dados do projeto:**
+• Área: ${project.total_area || 'A definir'}m²
+• Localização: ${[project.city, project.state].filter(Boolean).join(', ') || 'A definir'}
+• Orçamento: ${project.estimated_budget ? 'R$ ' + project.estimated_budget.toLocaleString('pt-BR') : 'Em elaboração'}
+
+Sobre qual aspecto técnico você gostaria de orientação?`
+    : `🏗️ **Consultoria Especializada em Engenharia Civil**
+
+Sou seu consultor técnico especializado. Posso ajudar com:
+
+🔹 **Projetos estruturais** e fundações
+🔹 **Orçamentação** profissional detalhada  
+🔹 **Cronogramas** e planejamento de obra
+🔹 **Materiais** e especificações técnicas
+🔹 **Normas ABNT** e legislação vigente
+
+**Exemplos do que posso orientar:**
+• "Como dimensionar fundações para casa de 120m²?"
+• "Qual o custo por m² para construção padrão médio?"
+• "Cronograma para edifício de 4 pavimentos"
+• "Especificações de materiais para região Sul"
+
+Qual sua dúvida técnica específica?`;
 }

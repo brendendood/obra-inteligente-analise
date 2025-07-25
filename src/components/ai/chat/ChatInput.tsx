@@ -31,9 +31,9 @@ export const ChatInput = ({
 
   const getPlaceholder = () => {
     if (projectName) {
-      return `Pergunte sobre ${projectName}...`;
+      return `Ex: "Como dimensionar fundações para ${projectName}?" ou "Orçamento por etapas"`;
     }
-    return 'Pergunte sobre arquitetura, engenharia, normas técnicas...';
+    return 'Ex: "Custo por m² construção padrão médio" ou "NBR para estruturas de concreto"';
   };
 
   return (
@@ -66,8 +66,12 @@ export const ChatInput = ({
       
       {isLoading && (
         <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-          <span>Conectando com a IA especializada...</span>
+          <div className="flex gap-1">
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+          </div>
+          <span>Consultor especializado analisando...</span>
         </div>
       )}
     </div>

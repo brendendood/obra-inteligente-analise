@@ -56,7 +56,7 @@ export const ChatHeader = ({ connectionStatus = 'connected', projectName }: Chat
         <div>
           <h3 className="font-semibold text-gray-900">MadenAI</h3>
           <p className="text-xs text-gray-500">
-            {projectName ? `Especialista em ${projectName}` : 'Assistente de Arquitetura e Engenharia'}
+            {projectName ? `Consultor especializado - Projeto ${projectName}` : 'Engenheiro Civil & Arquiteto | CRA/CREA'}
           </p>
         </div>
       </div>

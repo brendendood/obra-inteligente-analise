@@ -65,55 +65,71 @@ export const useAIChat = ({ projectId, conversationId }: UseAIChatProps = {}) =>
     setIsLoading(true);
     setConnectionStatus('connected');
 
-    try {
-      const { data, error } = await supabase.functions.invoke('chat-assistant', {
-        body: {
-          message: content,
-          conversationId: currentConversationId,
-          projectId: projectId || currentProject?.id
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    while (retryCount <= maxRetries) {
+      try {
+        const { data, error } = await supabase.functions.invoke('chat-assistant', {
+          body: {
+            message: content,
+            conversationId: currentConversationId,
+            projectId: projectId || currentProject?.id
+          }
+        });
+
+        if (error) throw error;
+
+        const assistantMessage: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          content: data.response,
+          role: 'assistant',
+          timestamp: new Date(),
+          conversationId: data.conversationId
+        };
+
+        // Update conversation ID if it was created
+        if (data.conversationId && !currentConversationId) {
+          setCurrentConversationId(data.conversationId);
         }
-      });
 
-      if (error) throw error;
+        setMessages(prev => [...prev.slice(0, -1), 
+          { ...userMessage, id: `user-${Date.now()}`, conversationId: data.conversationId },
+          assistantMessage
+        ]);
 
-      const assistantMessage: ChatMessage = {
-        id: `ai-${Date.now()}`,
-        content: data.response,
-        role: 'assistant',
-        timestamp: new Date(),
-        conversationId: data.conversationId
-      };
-
-      // Update conversation ID if it was created
-      if (data.conversationId && !currentConversationId) {
-        setCurrentConversationId(data.conversationId);
+        setConnectionStatus('connected');
+        return; // Sucesso, sai da função
+        
+      } catch (error) {
+        console.error(`Error sending message (attempt ${retryCount + 1}):`, error);
+        retryCount++;
+        
+        if (retryCount <= maxRetries) {
+          // Tenta novamente em modo fallback
+          setConnectionStatus('fallback');
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        } else {
+          // Falha final
+          setConnectionStatus('error');
+          
+          // Remove the temporary user message on error
+          setMessages(prev => prev.slice(0, -1));
+          
+          // Add enhanced error message
+          const errorMessage: ChatMessage = {
+            id: `error-${Date.now()}`,
+            content: '🔧 **Sistema Temporariamente Indisponível**\n\nNosso assistente especializado está passando por manutenção. Tente novamente em alguns instantes ou reformule sua pergunta.\n\n💡 **Dica**: Para consultas urgentes, você pode acessar as seções de Orçamento e Cronograma do seu projeto.',
+            role: 'assistant',
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+        }
       }
-
-      setMessages(prev => [...prev.slice(0, -1), 
-        { ...userMessage, id: `user-${Date.now()}`, conversationId: data.conversationId },
-        assistantMessage
-      ]);
-
-      setConnectionStatus('connected');
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setConnectionStatus('error');
-      
-      // Remove the temporary user message on error
-      setMessages(prev => prev.slice(0, -1));
-      
-      // Add error message
-      const errorMessage: ChatMessage = {
-        id: `error-${Date.now()}`,
-        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.',
-        role: 'assistant',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   }, [user, currentConversationId, projectId, currentProject?.id]);
 
   const clearConversation = useCallback(() => {

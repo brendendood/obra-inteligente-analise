@@ -13,9 +13,11 @@ interface ChatMessage {
 interface ChatMessagesProps {
   messages: ChatMessage[];
   isLoading: boolean;
+  onRegenerate?: () => void;
+  onRate?: (messageId: string, rating: number) => void;
 }
 
-export const ChatMessages = ({ messages, isLoading }: ChatMessagesProps) => {
+export const ChatMessages = ({ messages, isLoading, onRegenerate, onRate }: ChatMessagesProps) => {
   return (
     <div 
       className="flex-1 p-4 overflow-y-auto scrollbar-hide"
@@ -33,7 +35,12 @@ export const ChatMessages = ({ messages, isLoading }: ChatMessagesProps) => {
         {messages.length === 0 && <ChatEmptyState />}
 
         {messages.map((message) => (
-          <ChatMessage key={message.id} message={message} />
+          <ChatMessage 
+            key={message.id} 
+            message={message} 
+            onRegenerate={onRegenerate}
+            onRate={onRate}
+          />
         ))}
 
         {isLoading && <AITypingIndicator />}

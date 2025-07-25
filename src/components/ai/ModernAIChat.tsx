@@ -16,7 +16,8 @@ export const ModernAIChat = () => {
     messages, 
     isLoading, 
     connectionStatus, 
-    sendMessage: sendAIMessage 
+    sendMessage: sendAIMessage,
+    rateMessage 
   } = useAIChat({ 
     projectId: currentProject?.id 
   });
@@ -34,6 +35,19 @@ export const ModernAIChat = () => {
     setInputMessage('');
   };
 
+  const handleRegenerate = async () => {
+    if (messages.length > 0) {
+      const lastUserMessage = messages.find(msg => msg.role === 'user');
+      if (lastUserMessage) {
+        await sendAIMessage(lastUserMessage.content);
+      }
+    }
+  };
+
+  const handleRate = async (messageId: string, rating: number) => {
+    await rateMessage(messageId, rating);
+  };
+
   // Convert messages to the format expected by ChatMessages
   const formattedMessages = messages.map(msg => ({
     id: msg.id,
@@ -45,7 +59,12 @@ export const ModernAIChat = () => {
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-120px)] bg-white rounded-xl border border-gray-200 shadow-sm">
       <ChatHeader connectionStatus={connectionStatus} projectName={currentProject?.name} />
-      <ChatMessages messages={formattedMessages} isLoading={isLoading} />
+      <ChatMessages 
+        messages={formattedMessages} 
+        isLoading={isLoading} 
+        onRegenerate={handleRegenerate}
+        onRate={handleRate}
+      />
       <ChatInput
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
