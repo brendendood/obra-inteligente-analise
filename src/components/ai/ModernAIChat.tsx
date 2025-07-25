@@ -237,7 +237,7 @@ const ModernAIChat = () => {
   const TypingIndicator = () => <AITypingIndicator />;
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-40px)] bg-white rounded-lg border shadow-sm">
+    <div className="flex flex-col h-full bg-white rounded-lg border shadow-sm m-4">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
         <div className="flex items-center space-x-3">
