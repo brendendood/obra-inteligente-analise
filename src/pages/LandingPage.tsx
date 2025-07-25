@@ -106,8 +106,8 @@ const LandingPage = () => {
     const daysDifference = Math.floor((currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
     
     return {
-      activeUsers: 1200 + (daysDifference * 5), // Começar com 1200, +5 por dia
-      analyzedProjects: 2500 + (daysDifference * 12), // Começar com 2500, +12 por dia
+      activeUsers: 8 + (daysDifference * 5), // Começar com 8, +5 por dia
+      analyzedProjects: 80 + (daysDifference * 12), // Começar com 80, +12 por dia
       precision: 95, // Valor fixo
       timeSaved: 80 // Valor fixo
     };
