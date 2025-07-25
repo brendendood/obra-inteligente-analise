@@ -24,7 +24,9 @@ export const AdminUsersManagement = () => {
     updateUserProfile,
     updateUserPlan,
     deleteUser,
-    refreshUsers
+    refreshUsers,
+    totalUsers,
+    allUsers
   } = useAdminUsers();
 
   const clearFilters = () => {
@@ -148,8 +150,9 @@ export const AdminUsersManagement = () => {
       </div>
       
       <UsersHeader 
-        totalUsers={users.length}
-        users={users as any}
+        totalUsers={totalUsers}
+        filteredCount={users.length}
+        users={allUsers as any} 
         onRefresh={refreshUsers}
         isRefreshing={loading}
       />

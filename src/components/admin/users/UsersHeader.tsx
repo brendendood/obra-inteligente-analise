@@ -24,12 +24,13 @@ interface AdminUserExport {
 
 interface UsersHeaderProps {
   totalUsers: number;
+  filteredCount: number;
   users: AdminUserExport[];
   onRefresh: () => void;
   isRefreshing: boolean;
 }
 
-export const UsersHeader = ({ totalUsers, users, onRefresh, isRefreshing }: UsersHeaderProps) => {
+export const UsersHeader = ({ totalUsers, filteredCount, users, onRefresh, isRefreshing }: UsersHeaderProps) => {
   const { toast } = useToast();
 
   const handleExportExcel = async () => {
@@ -103,6 +104,7 @@ export const UsersHeader = ({ totalUsers, users, onRefresh, isRefreshing }: User
       <CardContent>
         <div className="text-sm text-gray-600">
           Total de {totalUsers} usuários registrados na plataforma
+          {filteredCount !== totalUsers && ` (${filteredCount} visíveis após filtros)`}
         </div>
       </CardContent>
     </Card>

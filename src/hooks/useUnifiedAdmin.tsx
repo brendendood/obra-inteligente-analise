@@ -132,20 +132,49 @@ export function useUnifiedAdmin() {
     }
 
     try {
-      console.log('📊 UNIFIED ADMIN: Carregando estatísticas...');
+      console.log('📊 UNIFIED ADMIN: Carregando estatísticas via RPC corrigida...');
       
       const { data: stats, error } = await supabase.rpc('get_admin_dashboard_stats');
       
       if (error) {
         console.error('❌ UNIFIED ADMIN: Erro ao carregar stats:', error);
         setError(`Erro ao carregar estatísticas: ${error.message}`);
+        // Valores padrão em caso de erro
+        setAdminStats({
+          total_users: 0,
+          total_projects: 0,
+          active_subscriptions: 0,
+          monthly_revenue: 0,
+          new_users_this_month: 0,
+          ai_usage_this_month: 0
+        });
       } else if (stats && stats.length > 0) {
         console.log('✅ UNIFIED ADMIN: Stats carregadas:', stats[0]);
         setAdminStats(stats[0] as AdminStats);
+      } else {
+        console.warn('⚠️ UNIFIED ADMIN: RPC retornou dados vazios');
+        // Valores padrão quando não há dados
+        setAdminStats({
+          total_users: 0,
+          total_projects: 0,
+          active_subscriptions: 0,
+          monthly_revenue: 0,
+          new_users_this_month: 0,
+          ai_usage_this_month: 0
+        });
       }
     } catch (error) {
       console.error('💥 UNIFIED ADMIN: Erro crítico ao carregar stats:', error);
       setError(`Erro ao carregar dados: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      // Valores padrão em caso de erro crítico
+      setAdminStats({
+        total_users: 0,
+        total_projects: 0,
+        active_subscriptions: 0,
+        monthly_revenue: 0,
+        new_users_this_month: 0,
+        ai_usage_this_month: 0
+      });
     }
   };
 

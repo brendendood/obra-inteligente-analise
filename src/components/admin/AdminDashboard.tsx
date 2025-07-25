@@ -15,10 +15,13 @@ import {
 } from 'lucide-react';
 
 interface DashboardStats {
-  totalUsers: number;
-  activeUsers: number;
-  lastRegistration: string | null;
-  planDistribution: {
+  total_users: number;
+  total_projects: number;
+  active_subscriptions: number;
+  monthly_revenue: number;
+  new_users_this_month: number;
+  ai_usage_this_month: number;
+  planDistribution?: {
     free: number;
     pro: number;
     enterprise: number;
@@ -35,61 +38,70 @@ export const AdminDashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('📊 DASHBOARD: Carregando estatísticas reais...');
+      console.log('📊 DASHBOARD: Carregando estatísticas via RPC corrigida...');
 
-      // Carregar usuários totais
-      const { data: allUsers, error: usersError } = await supabase
-        .from('user_profiles')
-        .select('user_id, created_at');
+      // Usar a função RPC corrigida
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_admin_dashboard_stats');
+      
+      if (rpcError) {
+        console.error('❌ DASHBOARD: Erro na RPC:', rpcError);
+        throw rpcError;
+      }
 
-      if (usersError) throw usersError;
+      if (!rpcData || rpcData.length === 0) {
+        console.warn('⚠️ DASHBOARD: RPC retornou dados vazios');
+        throw new Error('Nenhum dado retornado da função RPC');
+      }
 
-      // Carregar distribuição de planos
-      const { data: subscriptions, error: subsError } = await supabase
+      const rpcStats = rpcData[0];
+      console.log('✅ DASHBOARD: Dados RPC recebidos:', rpcStats);
+
+      // Buscar distribuição de planos separadamente para compatibilidade
+      const { data: subscriptionsData } = await supabase
         .from('user_subscriptions')
         .select('plan');
 
-      if (subsError) throw subsError;
-
-      // Calcular estatísticas
-      const totalUsers = allUsers?.length || 0;
-      
-      // Usuários ativos (com perfil criado nos últimos 30 dias)
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      const activeUsers = allUsers?.filter(user => 
-        new Date(user.created_at) > thirtyDaysAgo
-      ).length || 0;
-
-      // Último registro
-      const lastRegistration = allUsers && allUsers.length > 0 
-        ? allUsers.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0].created_at
-        : null;
-
-      // Distribuição de planos
-      const planDistribution = {
-        free: subscriptions?.filter(s => s.plan === 'free').length || 0,
-        pro: subscriptions?.filter(s => s.plan === 'pro').length || 0,
-        enterprise: subscriptions?.filter(s => s.plan === 'enterprise').length || 0,
-      };
+      const planDistribution = subscriptionsData?.reduce((acc: any, sub: any) => {
+        acc[sub.plan] = (acc[sub.plan] || 0) + 1;
+        return acc;
+      }, {}) || {};
 
       const dashboardStats: DashboardStats = {
-        totalUsers,
-        activeUsers,
-        lastRegistration,
-        planDistribution
+        total_users: Number(rpcStats.total_users) || 0,
+        total_projects: Number(rpcStats.total_projects) || 0,
+        active_subscriptions: Number(rpcStats.active_subscriptions) || 0,
+        monthly_revenue: Number(rpcStats.monthly_revenue) || 0,
+        new_users_this_month: Number(rpcStats.new_users_this_month) || 0,
+        ai_usage_this_month: Number(rpcStats.ai_usage_this_month) || 0,
+        planDistribution: {
+          free: planDistribution.free || 0,
+          pro: planDistribution.pro || 0,
+          enterprise: planDistribution.enterprise || 0
+        }
       };
 
       setStats(dashboardStats);
-      console.log('✅ DASHBOARD: Estatísticas carregadas:', dashboardStats);
-
+      console.log('✅ DASHBOARD: Estatísticas processadas:', dashboardStats);
+      
     } catch (error) {
-      console.error('❌ DASHBOARD: Erro ao carregar estatísticas:', error);
+      console.error('💥 DASHBOARD: Erro ao carregar estatísticas:', error);
       setError(error instanceof Error ? error.message : 'Erro desconhecido');
+      
       toast({
-        title: "Erro ao carregar dados",
-        description: "Não foi possível carregar as estatísticas do dashboard",
+        title: "Erro ao carregar dashboard",
+        description: "Não foi possível carregar as estatísticas. Tentando novamente...",
         variant: "destructive",
+      });
+
+      // Fallback: definir valores padrão
+      setStats({
+        total_users: 0,
+        total_projects: 0,
+        active_subscriptions: 0,
+        monthly_revenue: 0,
+        new_users_this_month: 0,
+        ai_usage_this_month: 0,
+        planDistribution: { free: 0, pro: 0, enterprise: 0 }
       });
     } finally {
       setLoading(false);
@@ -183,7 +195,7 @@ export const AdminDashboard = () => {
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
+            <div className="text-2xl font-bold">{stats.total_users}</div>
             <p className="text-xs text-gray-500 mt-1">
               Usuários registrados na plataforma
             </p>
@@ -193,14 +205,14 @@ export const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Usuários Ativos (30d)
+              Total de Projetos
             </CardTitle>
             <UserCheck className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.activeUsers}</div>
+            <div className="text-2xl font-bold">{stats.total_projects}</div>
             <p className="text-xs text-gray-500 mt-1">
-              Registrados nos últimos 30 dias
+              Projetos criados na plataforma
             </p>
           </CardContent>
         </Card>
@@ -208,19 +220,14 @@ export const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Último Registro
+              Novos Usuários (Mês)
             </CardTitle>
             <Calendar className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">
-              {stats.lastRegistration 
-                ? new Date(stats.lastRegistration).toLocaleDateString('pt-BR')
-                : 'Nenhum'
-              }
-            </div>
+            <div className="text-2xl font-bold">{stats.new_users_this_month}</div>
             <p className="text-xs text-gray-500 mt-1">
-              Data do último cadastro
+              Cadastros este mês
             </p>
           </CardContent>
         </Card>
@@ -228,19 +235,16 @@ export const AdminDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">
-              Taxa de Conversão
+              Receita Mensal
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.totalUsers > 0 
-                ? ((stats.planDistribution.pro + stats.planDistribution.enterprise) / stats.totalUsers * 100).toFixed(1)
-                : '0.0'
-              }%
+              R$ {stats.monthly_revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Free → Paid
+              Receita deste mês
             </p>
           </CardContent>
         </Card>
@@ -256,10 +260,10 @@ export const AdminDashboard = () => {
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">Free</span>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">{stats.planDistribution.free} usuários</Badge>
+                <Badge variant="outline">{stats.planDistribution?.free || 0} usuários</Badge>
                 <span className="text-sm text-gray-500">
-                  {stats.totalUsers > 0 
-                    ? (stats.planDistribution.free / stats.totalUsers * 100).toFixed(1)
+                  {stats.total_users > 0 
+                    ? ((stats.planDistribution?.free || 0) / stats.total_users * 100).toFixed(1)
                     : '0'
                   }%
                 </span>
@@ -270,11 +274,11 @@ export const AdminDashboard = () => {
               <span className="text-sm font-medium">Pro</span>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="border-blue-200 text-blue-700">
-                  {stats.planDistribution.pro} usuários
+                  {stats.planDistribution?.pro || 0} usuários
                 </Badge>
                 <span className="text-sm text-gray-500">
-                  {stats.totalUsers > 0 
-                    ? (stats.planDistribution.pro / stats.totalUsers * 100).toFixed(1)
+                  {stats.total_users > 0 
+                    ? ((stats.planDistribution?.pro || 0) / stats.total_users * 100).toFixed(1)
                     : '0'
                   }%
                 </span>
@@ -285,11 +289,11 @@ export const AdminDashboard = () => {
               <span className="text-sm font-medium">Enterprise</span>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="border-purple-200 text-purple-700">
-                  {stats.planDistribution.enterprise} usuários
+                  {stats.planDistribution?.enterprise || 0} usuários
                 </Badge>
                 <span className="text-sm text-gray-500">
-                  {stats.totalUsers > 0 
-                    ? (stats.planDistribution.enterprise / stats.totalUsers * 100).toFixed(1)
+                  {stats.total_users > 0 
+                    ? ((stats.planDistribution?.enterprise || 0) / stats.total_users * 100).toFixed(1)
                     : '0'
                   }%
                 </span>

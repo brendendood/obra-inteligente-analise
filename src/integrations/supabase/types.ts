@@ -1008,6 +1008,10 @@ export type Database = {
           top_features: Json
         }[]
       }
+      get_total_users_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_user_engagement: {
         Args: Record<PropertyKey, never>
         Returns: {

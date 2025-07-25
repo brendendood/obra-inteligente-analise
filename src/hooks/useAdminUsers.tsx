@@ -29,68 +29,76 @@ export const useAdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterPlan, setFilterPlan] = useState('all');
+  const [totalUsers, setTotalUsers] = useState<number>(0);
   const { toast } = useToast();
 
   const loadUsers = async () => {
+    console.log('🔄 ADMIN USERS: Iniciando carregamento de usuários...');
     setLoading(true);
     
     try {
-      console.log('🔍 ADMIN USERS: Carregando usuários com localização REAL...');
+      // Carregar total de usuários e dados dos usuários em paralelo
+      const [usersResponse, totalResponse] = await Promise.all([
+        supabase.rpc('get_admin_users_with_real_location'),
+        supabase.rpc('get_total_users_count')
+      ]);
       
-      // Usar a nova função SQL que busca localização do último login real
-      const { data: usersData, error: usersError } = await supabase
-        .rpc('get_admin_users_with_real_location');
-
-      if (usersError) {
-        console.error('❌ ADMIN USERS: Erro ao buscar usuários:', usersError);
+      if (usersResponse.error) {
+        console.error('❌ ADMIN USERS: Erro na RPC users:', usersResponse.error);
         toast({
           title: "Erro ao carregar usuários",
-          description: `Erro: ${usersError.message}`,
+          description: "Não foi possível carregar a lista de usuários",
           variant: "destructive",
         });
         return;
       }
 
-      if (!usersData || usersData.length === 0) {
-        console.log('⚠️ ADMIN USERS: Nenhum usuário encontrado');
+      if (totalResponse.error) {
+        console.error('❌ ADMIN USERS: Erro na RPC total:', totalResponse.error);
+      } else {
+        console.log('📊 ADMIN USERS: Total de usuários:', totalResponse.data);
+        setTotalUsers(totalResponse.data || 0);
+      }
+
+      if (!usersResponse.data) {
+        console.warn('⚠️ ADMIN USERS: RPC retornou null');
         setUsers([]);
         return;
       }
 
-      console.log(`📊 ADMIN USERS: ${usersData.length} usuários encontrados`);
+      console.log('✅ ADMIN USERS: RPC retornou:', usersResponse.data.length, 'usuários');
 
-      // Mapear os dados para o formato AdminUser com localização REAL
-      const adminUsers: AdminUser[] = usersData.map((userData: any) => ({
-        id: userData.user_id,
-        email: userData.email || '',
-        full_name: userData.full_name || userData.email || '',
-        company: userData.company || '',
-        phone: userData.phone || '',
-        // Usar localização real do último login, não do perfil
-        city: userData.city || null,
-        state: userData.state || null,
-        country: userData.country || null,
-        cargo: userData.cargo || '',
-        avatar_url: userData.avatar_url,
-        gender: userData.gender || '',
-        tags: userData.tags || [],
-        created_at: userData.created_at,
-        last_sign_in_at: userData.last_sign_in_at,
-        email_confirmed_at: userData.email_confirmed_at,
-        plan: userData.subscription_plan || 'free',
-        status: userData.subscription_status || 'active',
-        real_location: userData.real_location || 'Localização não disponível',
-        last_login_ip: userData.last_login_ip || null
+      const mappedUsers: AdminUser[] = usersResponse.data.map((user: any) => ({
+        id: user.user_id,
+        email: user.email,
+        full_name: user.full_name,
+        created_at: user.created_at,
+        last_sign_in_at: user.last_sign_in_at,
+        plan: user.subscription_plan,
+        status: user.subscription_status === 'active' ? 'active' : 'inactive',
+        tags: user.tags || [],
+        engagement_metrics: null,
+        company: user.company,
+        phone: user.phone,
+        city: user.city,
+        state: user.state,
+        country: user.country,
+        cargo: user.cargo,
+        avatar_url: user.avatar_url,
+        gender: user.gender,
+        real_location: user.real_location,
+        last_login_ip: user.last_login_ip,
+        email_confirmed_at: user.email_confirmed_at
       }));
 
-      console.log(`🎉 ADMIN USERS: ${adminUsers.length} usuários carregados com sucesso`);
-      setUsers(adminUsers);
+      console.log('✅ ADMIN USERS: Usuários mapeados:', mappedUsers.length);
+      setUsers(mappedUsers);
       
     } catch (error) {
-      console.error('💥 ADMIN USERS: Erro crítico no carregamento:', error);
+      console.error('💥 ADMIN USERS: Erro crítico:', error);
       toast({
         title: "Erro crítico",
-        description: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        description: "Falha ao carregar dados dos usuários",
         variant: "destructive",
       });
     } finally {
@@ -258,6 +266,8 @@ export const useAdminUsers = () => {
     updateUserProfile,
     updateUserPlan,
     deleteUser,
-    refreshUsers
+    refreshUsers,
+    totalUsers,
+    allUsers: users // Para exportação completa
   };
 };
