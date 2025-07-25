@@ -6,7 +6,7 @@ import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 const Assistant = () => {
   return (
     <AppLayout>
-      <div className="absolute inset-0 flex flex-col">
+      <div className="flex flex-col h-full">
         <ModernAIChat />
       </div>
     </AppLayout>
