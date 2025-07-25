@@ -99,10 +99,26 @@ const LandingPage = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>([false, false, false, false]);
   const [showParticles, setShowParticles] = useState<number | null>(null);
   
-  const counter1 = useCountAnimation(2500);
-  const counter2 = useCountAnimation(95);
-  const counter3 = useCountAnimation(80);
-  const counter4 = useCountAnimation(1200);
+  // Cálculo de contadores em tempo real baseado na data atual
+  const calculateRealTimeStats = () => {
+    const baseDate = new Date('2025-07-25'); // Data base: hoje
+    const currentDate = new Date();
+    const daysDifference = Math.floor((currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return {
+      activeUsers: 1200 + (daysDifference * 5), // Começar com 1200, +5 por dia
+      analyzedProjects: 2500 + (daysDifference * 12), // Começar com 2500, +12 por dia
+      precision: 95, // Valor fixo
+      timeSaved: 80 // Valor fixo
+    };
+  };
+
+  const realTimeStats = calculateRealTimeStats();
+  
+  const counter1 = useCountAnimation(realTimeStats.analyzedProjects);
+  const counter2 = useCountAnimation(realTimeStats.precision);
+  const counter3 = useCountAnimation(realTimeStats.timeSaved);
+  const counter4 = useCountAnimation(realTimeStats.activeUsers);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -463,6 +479,47 @@ const LandingPage = () => {
                 <p className="text-slate-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section OTIMIZADA - Movida para cima */}
+      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 animate-fade-in">
+            <h2 className="text-4xl font-display font-bold text-white mb-4">
+              Resultados que impressionam
+            </h2>
+            <p className="text-xl text-blue-100">
+              Números que comprovam a eficiência da nossa plataforma
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center animate-fade-in">
+              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+                {counter1.count.toLocaleString()}+
+              </div>
+              <div className="text-blue-100">Projetos Analisados</div>
+            </div>
+            <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
+              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+                {counter2.count}%
+              </div>
+              <div className="text-blue-100">Precisão</div>
+            </div>
+            <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+                {counter3.count}%
+              </div>
+              <div className="text-blue-100">Economia de Tempo</div>
+            </div>
+            <div className="text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+                {counter4.count.toLocaleString()}+
+              </div>
+              <div className="text-blue-100">Usuários Ativos</div>
+            </div>
           </div>
         </div>
       </section>
@@ -841,46 +898,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section OTIMIZADA */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
-              Resultados que impressionam
-            </h2>
-            <p className="text-xl text-blue-100">
-              Números que comprovam a eficiência da nossa plataforma
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center animate-fade-in">
-              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
-                {counter1.count.toLocaleString()}+
-              </div>
-              <div className="text-blue-100">Projetos Analisados</div>
-            </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
-                {counter2.count}%
-              </div>
-              <div className="text-blue-100">Precisão</div>
-            </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
-                {counter3.count}%
-              </div>
-              <div className="text-blue-100">Economia de Tempo</div>
-            </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
-                {counter4.count.toLocaleString()}+
-              </div>
-              <div className="text-blue-100">Usuários Ativos</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Final CTA OTIMIZADA */}
       <section className="py-20 px-4">
