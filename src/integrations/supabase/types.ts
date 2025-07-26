@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          action_count_required: number | null
+          action_type: string | null
+          code: string
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          is_active: boolean | null
+          name: string
+          points_required: number | null
+        }
+        Insert: {
+          action_count_required?: number | null
+          action_type?: string | null
+          code: string
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          points_required?: number | null
+        }
+        Update: {
+          action_count_required?: number | null
+          action_type?: string | null
+          code?: string
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          points_required?: number | null
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action_type: string
@@ -431,6 +470,33 @@ export type Database = {
         }
         Relationships: []
       }
+      gamification_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          points_awarded: number | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          points_awarded?: number | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          points_awarded?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -742,6 +808,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_gamification: {
+        Row: {
+          achievements: Json | null
+          created_at: string | null
+          current_level: number | null
+          current_level_points: number | null
+          daily_streak: number | null
+          id: string
+          last_action_date: string | null
+          last_login_date: string | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievements?: Json | null
+          created_at?: string | null
+          current_level?: number | null
+          current_level_points?: number | null
+          daily_streak?: number | null
+          id?: string
+          last_action_date?: string | null
+          last_login_date?: string | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievements?: Json | null
+          created_at?: string | null
+          current_level?: number | null
+          current_level_points?: number | null
+          daily_streak?: number | null
+          id?: string
+          last_action_date?: string | null
+          last_login_date?: string | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_login_history: {
         Row: {
           browser: string | null
@@ -854,13 +962,17 @@ export type Database = {
           company: string | null
           country: string | null
           created_at: string
+          credits: number | null
           date_of_birth: string | null
           empresa: string | null
           full_name: string | null
           gender: string | null
+          has_created_first_project: boolean | null
           id: string
           last_login: string | null
           phone: string | null
+          ref_code: string | null
+          referred_by: string | null
           referrer: string | null
           sector: string | null
           state: string | null
@@ -881,13 +993,17 @@ export type Database = {
           company?: string | null
           country?: string | null
           created_at?: string
+          credits?: number | null
           date_of_birth?: string | null
           empresa?: string | null
           full_name?: string | null
           gender?: string | null
+          has_created_first_project?: boolean | null
           id?: string
           last_login?: string | null
           phone?: string | null
+          ref_code?: string | null
+          referred_by?: string | null
           referrer?: string | null
           sector?: string | null
           state?: string | null
@@ -908,13 +1024,17 @@ export type Database = {
           company?: string | null
           country?: string | null
           created_at?: string
+          credits?: number | null
           date_of_birth?: string | null
           empresa?: string | null
           full_name?: string | null
           gender?: string | null
+          has_created_first_project?: boolean | null
           id?: string
           last_login?: string | null
           phone?: string | null
+          ref_code?: string | null
+          referred_by?: string | null
           referrer?: string | null
           sector?: string | null
           state?: string | null
@@ -925,6 +1045,39 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+        }
+        Relationships: []
+      }
+      user_referrals: {
+        Row: {
+          created_at: string | null
+          credits_awarded: boolean | null
+          id: string
+          referral_code: string
+          referred_user_first_project: boolean | null
+          referred_user_id: string
+          referrer_user_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          credits_awarded?: boolean | null
+          id?: string
+          referral_code: string
+          referred_user_first_project?: boolean | null
+          referred_user_id: string
+          referrer_user_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          credits_awarded?: boolean | null
+          id?: string
+          referral_code?: string
+          referred_user_first_project?: boolean | null
+          referred_user_id?: string
+          referrer_user_id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1035,6 +1188,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_points: {
+        Args: {
+          target_user_id: string
+          points: number
+          action_type: string
+          details?: Json
+        }
+        Returns: undefined
+      }
+      calculate_level_from_points: {
+        Args: { points: number }
+        Returns: number
+      }
       calculate_user_engagement: {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
@@ -1130,6 +1296,10 @@ export type Database = {
           conversion_rate: number
           top_features: Json
         }[]
+      }
+      get_level_info: {
+        Args: { level_num: number }
+        Returns: Json
       }
       get_total_users_count: {
         Args: Record<PropertyKey, never>

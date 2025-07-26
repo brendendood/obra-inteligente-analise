@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Building, Briefcase, Eye, EyeOff, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,8 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -44,6 +46,19 @@ function Signup() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signInWithGoogle, signInWithApple, loading: socialLoading } = useSocialAuth();
+
+  // Check for referral code on component mount
+  useEffect(() => {
+    const refParam = searchParams.get('ref');
+    if (refParam) {
+      setReferralCode(refParam);
+      toast({
+        title: "🎉 Indicação detectada!",
+        description: "Você receberá 5 créditos gratuitos ao criar sua conta.",
+        duration: 5000,
+      });
+    }
+  }, [searchParams, toast]);
 
   const updateFormData = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -121,17 +136,24 @@ function Signup() {
     setLoading(true);
 
     try {
+      const userData: any = {
+        full_name: formData.fullName,
+        company: formData.company,
+        cargo: formData.position,
+        avatar_type: 'initials',
+        gender: 'male'
+      };
+
+      // Add referral code if present
+      if (referralCode) {
+        userData.ref_code = referralCode;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          data: {
-            full_name: formData.fullName,
-            company: formData.company,
-            cargo: formData.position,
-            avatar_type: 'initials',
-            gender: 'male'
-          },
+          data: userData,
           emailRedirectTo: `${window.location.origin}/painel`
         }
       });

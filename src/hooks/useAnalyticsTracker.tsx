@@ -2,6 +2,8 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { gamificationService } from '@/services/gamificationService';
+import { useReferralSystem } from '@/hooks/useReferralSystem';
 
 type AnalyticsEvent = 
   | 'signup' 
@@ -19,6 +21,7 @@ export function useAnalyticsTracker() {
   const { user } = useAuth();
   const sessionStartTime = useRef<number>(Date.now());
   const sessionId = useRef<string>(Math.random().toString(36).substring(7));
+  const { markFirstProjectCreated } = useReferralSystem();
 
   useEffect(() => {
     // Atualizar last_active a cada 30 segundos se o usuário estiver ativo
@@ -91,9 +94,39 @@ export function useAnalyticsTracker() {
           page_url: window.location.pathname
         });
 
+      // Track gamification points for specific events
+      await trackGamificationEvent(eventType, eventData);
+
       console.log(`📊 ANALYTICS: Evento ${eventType} registrado`);
     } catch (error) {
       console.error('❌ ANALYTICS: Erro ao registrar evento:', error);
+    }
+  };
+
+  const trackGamificationEvent = async (eventType: AnalyticsEvent, eventData?: Record<string, any>) => {
+    if (!user) return;
+
+    try {
+      switch (eventType) {
+        case 'project_created':
+          await gamificationService.trackAction(user.id, 'PROJECT_CREATED', eventData);
+          // Mark first project as created for referral rewards
+          markFirstProjectCreated();
+          break;
+        case 'file_uploaded':
+          await gamificationService.trackAction(user.id, 'FILE_UPLOADED', eventData);
+          break;
+        case 'ai_used':
+          await gamificationService.trackAction(user.id, 'AI_USED', eventData);
+          break;
+        case 'login':
+          await gamificationService.updateDailyStreak(user.id);
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error('❌ GAMIFICATION: Erro ao rastrear evento:', error);
     }
   };
 
