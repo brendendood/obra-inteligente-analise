@@ -119,6 +119,42 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_security_logs: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: unknown | null
+          success: boolean | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: unknown | null
+          success?: boolean | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -1003,6 +1039,10 @@ export type Database = {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
       }
+      cleanup_expired_impersonation_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       end_impersonation_session: {
         Args: { session_id: string }
         Returns: undefined
@@ -1109,6 +1149,16 @@ export type Database = {
       is_superuser: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      log_admin_security_action: {
+        Args: {
+          p_admin_id: string
+          p_action_type: string
+          p_target_user_id?: string
+          p_details?: Json
+          p_success?: boolean
+        }
+        Returns: undefined
       }
       manual_login_insert: {
         Args: { p_user_id: string; p_ip_address?: string }

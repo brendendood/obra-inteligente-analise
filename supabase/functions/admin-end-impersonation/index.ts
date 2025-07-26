@@ -32,6 +32,23 @@ serve(async (req) => {
       );
     }
 
+    // Get session info for logging
+    const { data: sessionInfo } = await supabaseAdmin
+      .from('admin_impersonation_logs')
+      .select('admin_id, user_impersonated_id')
+      .eq('id', sessionId)
+      .single();
+
+    // Log security action
+    if (sessionInfo) {
+      await supabaseAdmin.rpc('log_admin_security_action', {
+        p_admin_id: sessionInfo.admin_id,
+        p_action_type: 'impersonation_end',
+        p_target_user_id: sessionInfo.user_impersonated_id,
+        p_details: { session_id: sessionId }
+      });
+    }
+
     // End the impersonation session
     const { error: endError } = await supabaseAdmin.rpc('end_impersonation_session', {
       session_id: sessionId

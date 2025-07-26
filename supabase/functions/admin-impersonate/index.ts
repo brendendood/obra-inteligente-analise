@@ -84,6 +84,18 @@ serve(async (req) => {
     const userAgent = req.headers.get('User-Agent') || '';
     const clientIP = req.headers.get('X-Forwarded-For') || req.headers.get('X-Real-IP') || '';
 
+    // Log security action
+    await supabaseAdmin.rpc('log_admin_security_action', {
+      p_admin_id: adminUser.id,
+      p_action_type: 'impersonation_start',
+      p_target_user_id: targetUserId,
+      p_details: {
+        reason: reason || 'Support session',
+        ip_address: clientIP,
+        user_agent: userAgent
+      }
+    });
+
     // Create impersonation session log
     const { data: sessionLog, error: logError } = await supabaseAdmin
       .from('admin_impersonation_logs')

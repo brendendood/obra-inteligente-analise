@@ -7,9 +7,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LogIn, UserPlus, Mail, Lock, UserIcon } from 'lucide-react';
+import { LogIn, UserPlus, Mail, Lock, UserIcon, User as UserIconLucide } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
+import { validateEmail, validatePassword, formatAuthError } from '@/utils/authValidation';
+import { validateUserInput } from '@/utils/securityValidation';
+import { useSecurityMonitoring } from '@/hooks/useSecurityMonitoring';
+import { PasswordStrengthMeter } from '@/components/ui/PasswordStrengthMeter';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface AuthComponentProps {
   onAuthSuccess?: (user: User) => void;
@@ -18,8 +23,12 @@ interface AuthComponentProps {
 const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const { toast } = useToast();
+  const { trackFailedLogin } = useSecurityMonitoring();
   
   // Usar o contexto de autenticação existente em vez de criar outro listener
   const { user, isAuthenticated } = useAuth();
@@ -36,11 +45,62 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
     setLoading(true);
 
     try {
+      // Validações de segurança
+      if (!validateEmail(email.trim())) {
+        toast({
+          title: "❌ Email inválido",
+          description: "Por favor, insira um email válido.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const sanitizedFullName = validateUserInput(fullName, 100);
+      if (sanitizedFullName.length < 2) {
+        toast({
+          title: "❌ Nome inválido",
+          description: "Nome deve ter pelo menos 2 caracteres.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        toast({
+          title: "❌ Senha inválida",
+          description: passwordValidation.errors.join(' '),
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        toast({
+          title: "❌ Senhas não coincidem",
+          description: "As senhas digitadas não são iguais.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!acceptedTerms) {
+        toast({
+          title: "❌ Termos não aceitos",
+          description: "Você deve aceitar os termos de uso para continuar.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: sanitizedFullName
+          }
         }
       });
 
@@ -54,7 +114,7 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
       console.error('Signup error:', error);
       toast({
         title: "❌ Erro no cadastro",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        description: formatAuthError(error),
         variant: "destructive",
       });
     } finally {
@@ -67,12 +127,34 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
     setLoading(true);
 
     try {
+      // Validação básica
+      if (!validateEmail(email.trim())) {
+        toast({
+          title: "❌ Email inválido",
+          description: "Por favor, insira um email válido.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Login error:', error);
+        
+        // Track failed login for security monitoring
+        await trackFailedLogin(email);
+        
+        toast({
+          title: "❌ Erro no login",
+          description: formatAuthError(error),
+          variant: "destructive"
+        });
+        return;
+      }
 
       toast({
         title: "🎉 Login realizado!",
@@ -80,9 +162,10 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
       });
     } catch (error) {
       console.error('Signin error:', error);
+      await trackFailedLogin(email);
       toast({
         title: "❌ Erro no login",
-        description: error instanceof Error ? error.message : "Credenciais inválidas",
+        description: "Erro inesperado. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -187,6 +270,23 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
           <TabsContent value="signup">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="signup-fullname">Nome Completo</Label>
+                <div className="relative">
+                  <UserIconLucide className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="signup-fullname"
+                    type="text"
+                    placeholder="Seu nome completo"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-10"
+                    required
+                    maxLength={100}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
                 <Label htmlFor="signup-email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -201,6 +301,7 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
                   />
                 </div>
               </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="signup-password">Senha</Label>
                 <div className="relative">
@@ -213,11 +314,52 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10"
                     required
-                    minLength={6}
+                    minLength={8}
+                  />
+                </div>
+                {password && (
+                  <PasswordStrengthMeter 
+                    password={password}
+                    errors={validatePassword(password).errors}
+                    strength={validatePassword(password).strength}
+                  />
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10"
+                    required
+                    minLength={8}
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="terms"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                />
+                <Label htmlFor="terms" className="text-sm">
+                  Aceito os <a href="/terms" className="text-primary hover:underline">Termos de Uso</a> e 
+                  <a href="/privacy" className="text-primary hover:underline ml-1">Política de Privacidade</a>
+                </Label>
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={loading || !acceptedTerms}
+              >
                 <UserPlus className="h-4 w-4 mr-2" />
                 {loading ? 'Cadastrando...' : 'Cadastrar'}
               </Button>

@@ -11,28 +11,53 @@ export const validatePassword = (password: string): {
   const errors: string[] = [];
   let strength = 0;
 
-  if (password.length < 6) {
-    errors.push('Senha deve ter pelo menos 6 caracteres');
+  // Minimum 8 characters (strengthened from 6)
+  if (password.length < 8) {
+    errors.push('Senha deve ter pelo menos 8 caracteres');
   } else {
     strength += 1;
   }
 
-  if (!/[a-zA-Z]/.test(password)) {
-    errors.push('Senha deve conter pelo menos uma letra');
+  // Require uppercase letter
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Senha deve conter pelo menos uma letra maiúscula');
   } else {
     strength += 1;
   }
 
+  // Require lowercase letter
+  if (!/[a-z]/.test(password)) {
+    errors.push('Senha deve conter pelo menos uma letra minúscula');
+  } else {
+    strength += 1;
+  }
+
+  // Require number
   if (!/\d/.test(password)) {
     errors.push('Senha deve conter pelo menos um número');
   } else {
     strength += 1;
   }
 
+  // Require special character
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    errors.push('Senha deve conter pelo menos um caractere especial');
+  } else {
+    strength += 1;
+  }
+
+  // Check for common patterns
+  if (/(.)\1{2,}/.test(password)) {
+    errors.push('Senha não pode ter caracteres repetidos consecutivos');
+  }
+
+  // Check minimum strength for validity
+  const isValid = errors.length === 0 && strength >= 4;
+
   return {
-    isValid: errors.length === 0,
+    isValid,
     errors,
-    strength
+    strength: Math.min(strength, 5)
   };
 };
 
