@@ -1,8 +1,10 @@
 
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Crown } from 'lucide-react';
+import { Crown, Gift } from 'lucide-react';
 import { getPlanDisplayName, getPlanLimit, getPlanIcon, getPlanBadgeStyle } from '@/utils/planUtils';
+import { useState } from 'react';
+import { GamificationModal } from '@/components/gamification/GamificationModal';
 
 interface ProjectLimitBarProps {
   currentProjects: number;
@@ -10,6 +12,7 @@ interface ProjectLimitBarProps {
 }
 
 export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {
+  const [showGamificationModal, setShowGamificationModal] = useState(false);
   const maxProjects = getPlanLimit(plan);
   const planDisplayName = getPlanDisplayName(plan);
   const planIcon = getPlanIcon(plan);
@@ -31,6 +34,13 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
         <div className="text-xs text-slate-500">
           ✨ Projetos ilimitados
         </div>
+        <button
+          onClick={() => setShowGamificationModal(true)}
+          className="text-xs text-primary hover:text-primary/80 transition-colors mt-2 flex items-center gap-1"
+        >
+          <Gift className="h-3 w-3" />
+          Indique e ganhe projetos grátis
+        </button>
       </div>
     );
   }
@@ -64,6 +74,19 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
           Limite atingido. Exclua projetos existentes para criar novos.
         </p>
       )}
+      
+      <button
+        onClick={() => setShowGamificationModal(true)}
+        className="text-xs text-primary hover:text-primary/80 transition-colors mt-2 flex items-center gap-1 w-full"
+      >
+        <Gift className="h-3 w-3" />
+        Indique e ganhe projetos grátis
+      </button>
+      
+      <GamificationModal 
+        isOpen={showGamificationModal} 
+        onClose={() => setShowGamificationModal(false)} 
+      />
     </div>
   );
 };

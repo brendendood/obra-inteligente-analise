@@ -51,8 +51,7 @@ export function useReferralSystem() {
 
       // Generate referral link
       if (data.ref_code) {
-        const baseUrl = window.location.origin;
-        setReferralLink(`${baseUrl}/signup?ref=${data.ref_code}`);
+        setReferralLink(`https://arqcloud.com/signup?ref=${data.ref_code}`);
       }
 
       // Fetch referral count

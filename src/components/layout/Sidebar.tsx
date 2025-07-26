@@ -22,7 +22,7 @@ import { ProjectLimitBar } from './ProjectLimitBar';
 import { useUserData } from '@/hooks/useUserData';
 import { cn } from '@/lib/utils';
 import { getPlanDisplayName, getUpgradeMessage, canUpgrade } from '@/utils/planUtils';
-import { GamificationSidebarCard } from '@/components/gamification/GamificationSidebarCard';
+
 
 interface SidebarProps {
   className?: string;
@@ -183,11 +183,6 @@ export const Sidebar = ({ className }: SidebarProps) => {
           currentProjects={userData.projectCount} 
           plan={userData.plan} 
         />
-      </div>
-
-      {/* Gamification Card */}
-      <div className="px-4 py-3 border-b border-slate-200/60">
-        <GamificationSidebarCard />
       </div>
 
       {/* Navigation */}
