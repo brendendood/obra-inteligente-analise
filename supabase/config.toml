@@ -10,7 +10,7 @@ max_rows = 1000
 [auth]
 enabled = true
 port = 54324
-site_url = "http://127.0.0.1:3000"
+site_url = "https://1f657578-79fb-4f32-8e40-7b6346722964.lovableproject.com"
 additional_redirect_urls = ["https://1f657578-79fb-4f32-8e40-7b6346722964.lovableproject.com"]
 jwt_expiry = 3600
 refresh_token_rotation_enabled = true

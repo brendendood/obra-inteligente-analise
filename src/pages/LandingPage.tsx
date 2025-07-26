@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 // Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
@@ -93,6 +94,7 @@ const useCountAnimation = (target: number, duration: number = 2000) => {
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [scrollY, setScrollY] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [totalXP, setTotalXP] = useState(0);
