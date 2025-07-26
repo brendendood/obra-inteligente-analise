@@ -178,7 +178,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </div>
 
       {/* Project Limit Bar */}
-      <div className="p-6 border-b border-slate-200/60">
+      <div className="px-4 py-3 border-b border-slate-200/60">
         <ProjectLimitBar 
           currentProjects={userData.projectCount} 
           plan={userData.plan} 
@@ -186,12 +186,12 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </div>
 
       {/* Gamification Card */}
-      <div className="p-6 border-b border-slate-200/60">
+      <div className="px-4 py-3 border-b border-slate-200/60">
         <GamificationSidebarCard />
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <div className="flex-1 p-3 space-y-1.5 overflow-y-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -199,7 +199,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "w-full flex items-center rounded-xl transition-all duration-200 p-3 text-left relative group",
+                "w-full flex items-center rounded-xl transition-all duration-200 p-2.5 text-left relative group",
                 "hover:bg-slate-50",
                 item.isActive 
                   ? "bg-blue-50/80 text-blue-700 shadow-sm" 
@@ -207,7 +207,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               )}
             >
               <Icon className={cn(
-                "h-5 w-5 mr-3 flex-shrink-0",
+                "h-4 w-4 mr-3 flex-shrink-0",
                 item.isActive ? "text-blue-600" : "text-slate-500"
               )} />
               
@@ -216,7 +216,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               </span>
 
               {item.isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
               )}
             </button>
           );
@@ -224,13 +224,13 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-slate-200/60 p-4 space-y-4">
+      <div className="border-t border-slate-200/60 p-3 space-y-3">
         {/* User Profile & Upgrade */}
-        <div className="bg-slate-50/80 rounded-xl p-4">
-          <div className="flex items-center mb-3">
-            <Avatar className="h-10 w-10 mr-3 ring-2 ring-white shadow-sm">
+        <div className="bg-slate-50/80 rounded-xl p-3">
+          <div className="flex items-center mb-2">
+            <Avatar className="h-8 w-8 mr-3 ring-2 ring-white shadow-sm">
               <AvatarImage src={avatarUrl} />
-              <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">
+              <AvatarFallback className="bg-blue-500 text-white text-xs font-medium">
                 {getAvatarFallback(fullName)}
               </AvatarFallback>
             </Avatar>
@@ -246,10 +246,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
           {canUpgrade(userData.plan) && (
             <Button 
               size="sm" 
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm"
+              className="w-full h-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm text-xs"
               onClick={() => handleNavigation('/plano')}
             >
-              <Crown className="h-3 w-3 mr-2" />
+              <Crown className="h-3 w-3 mr-1" />
               {getUpgradeMessage(userData.plan)}
             </Button>
           )}
@@ -258,9 +258,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center rounded-xl transition-all duration-200 p-3 hover:bg-red-50 text-red-600"
+          className="w-full flex items-center rounded-xl transition-all duration-200 p-2.5 hover:bg-red-50 text-red-600"
         >
-          <LogOut className="h-5 w-5 mr-3" />
+          <LogOut className="h-4 w-4 mr-3" />
           <span className="text-sm font-medium">Sair</span>
         </button>
       </div>

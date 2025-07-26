@@ -48,67 +48,63 @@ export const GamificationSidebarCard = () => {
   const creditsCount = getCreditsCount();
 
   return (
-    <Card className="border-0 shadow-lg bg-gradient-to-br from-primary/5 to-accent/5">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center space-x-2 text-sm font-semibold">
-          <Trophy className="h-4 w-4 text-primary" />
+    <Card className="border-0 shadow-sm bg-gradient-to-br from-primary/5 to-accent/5">
+      <CardHeader className="pb-2 pt-3 px-3">
+        <CardTitle className="flex items-center space-x-1.5 text-xs font-semibold">
+          <Trophy className="h-3.5 w-3.5 text-primary" />
           <span>Gamificação</span>
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="space-y-4 text-xs">
+      <CardContent className="space-y-2.5 text-xs px-3 pb-3">
         {/* Level Section */}
         {levelInfo && gamificationData && (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="flex items-center space-x-1">
-                <span className="text-lg">{levelInfo.icon}</span>
-                <span className="font-medium">{levelInfo.name}</span>
+                <span className="text-sm">{levelInfo.icon}</span>
+                <span className="font-medium text-xs">{levelInfo.name}</span>
               </span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs px-1.5 py-0.5 h-5">
                 {gamificationData.total_points} XP
               </Badge>
             </div>
             
             <div className="space-y-1">
-              <Progress value={levelProgress} className="h-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{gamificationData.total_points} XP</span>
-                {pointsToNext > 0 && <span>+{pointsToNext} para próximo nível</span>}
-              </div>
+              <Progress value={levelProgress} className="h-1.5" />
+              {pointsToNext > 0 && (
+                <div className="text-xs text-muted-foreground text-center">
+                  +{pointsToNext} para próximo nível
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Streak Section */}
-        {gamificationData && gamificationData.daily_streak > 0 && (
-          <div className="flex items-center space-x-2 p-2 bg-primary/10 rounded-lg">
-            <Flame className="h-4 w-4 text-orange-500" />
-            <span className="font-medium">Streak: {gamificationData.daily_streak} dias</span>
-          </div>
-        )}
-
-        {/* Next Achievement */}
-        {nextAchievement && (
-          <div className="flex items-center space-x-2 p-2 bg-accent/10 rounded-lg">
-            <Target className="h-4 w-4 text-accent" />
-            <div className="flex-1 min-w-0">
-              <p className="font-medium truncate">{nextAchievement.name}</p>
-              <p className="text-xs text-muted-foreground truncate">
-                {nextAchievement.description}
-              </p>
+        {/* Compact Info Row */}
+        <div className="flex items-center justify-between text-xs">
+          {gamificationData && gamificationData.daily_streak > 0 && (
+            <div className="flex items-center space-x-1 bg-orange-50 dark:bg-orange-950/20 px-2 py-1 rounded">
+              <Flame className="h-3 w-3 text-orange-500" />
+              <span className="font-medium">{gamificationData.daily_streak}d</span>
             </div>
+          )}
+          
+          <div className="flex items-center space-x-1 bg-yellow-50 dark:bg-yellow-950/20 px-2 py-1 rounded">
+            <Coins className="h-3 w-3 text-yellow-500" />
+            <span className="font-bold text-yellow-600">{creditsCount}</span>
           </div>
-        )}
+        </div>
 
-        {/* Referral Section */}
-        <div className="space-y-3 pt-2 border-t border-border/50">
+        {/* Referral Section - Compact */}
+        <div className="space-y-1.5 pt-1.5 border-t border-border/30">
           <div className="flex items-center justify-between">
             <span className="font-medium text-xs">📢 Indique e ganhe!</span>
-            <div className="flex items-center space-x-1">
-              <Coins className="h-3 w-3 text-yellow-500" />
-              <span className="font-bold text-yellow-600">{creditsCount}</span>
-            </div>
+            {referralCount > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {referralCount} indicações
+              </span>
+            )}
           </div>
           
           <div className="flex space-x-1">
@@ -119,17 +115,11 @@ export const GamificationSidebarCard = () => {
               size="sm"
               variant="outline"
               onClick={copyReferralLink}
-              className="h-7 w-7 p-0 flex-shrink-0"
+              className="h-6 w-6 p-0 flex-shrink-0"
             >
-              <Copy className="h-3 w-3" />
+              <Copy className="h-2.5 w-2.5" />
             </Button>
           </div>
-          
-          {referralCount > 0 && (
-            <p className="text-xs text-muted-foreground">
-              🤝 {referralCount} indicações realizadas
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>
