@@ -33,14 +33,14 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
   if (isLoading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-sm mx-4 rounded-lg">
+        <DialogContent className="max-w-xs mx-6 sm:max-w-sm sm:mx-4 rounded-lg overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5" />
+            <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
               Sistema de Gamificação
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-20 w-full" />
@@ -66,15 +66,15 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm mx-4 rounded-lg">
+      <DialogContent className="max-w-xs mx-6 sm:max-w-sm sm:mx-4 rounded-lg overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             Sistema de Gamificação
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {/* Nível e Progresso */}
           <div className="text-center space-y-3">
             <div className="text-3xl">
@@ -90,48 +90,55 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
             </div>
             
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span>Progresso</span>
-                <span>{pointsToNext > 0 ? `+${pointsToNext} para próximo nível` : 'Nível máximo!'}</span>
+                <span className="text-right text-[10px] sm:text-xs leading-tight">
+                  {pointsToNext > 0 ? (
+                    <>
+                      <span className="block sm:inline">+{pointsToNext}</span>
+                      <span className="block sm:inline"> para próximo nível</span>
+                    </>
+                  ) : 'Nível máximo!'}
+                </span>
               </div>
               <Progress value={levelProgress} className="h-2" />
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="space-y-1">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+            <div className="space-y-0.5 sm:space-y-1">
               <div className="flex items-center justify-center">
-                <Flame className="h-4 w-4 text-orange-500" />
+                <Flame className="h-3 w-3 sm:h-4 sm:w-4 text-orange-500" />
               </div>
-              <div className="text-sm font-medium">
+              <div className="text-xs sm:text-sm font-medium">
                 {gamificationData?.daily_streak || 0}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-[10px] sm:text-xs text-muted-foreground">
                 Streak
               </div>
             </div>
             
-            <div className="space-y-1">
+            <div className="space-y-0.5 sm:space-y-1">
               <div className="flex items-center justify-center">
-                <Gift className="h-4 w-4 text-primary" />
+                <Gift className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
               </div>
-              <div className="text-sm font-medium">
+              <div className="text-xs sm:text-sm font-medium">
                 {creditsCount}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-[10px] sm:text-xs text-muted-foreground">
                 Créditos
               </div>
             </div>
             
-            <div className="space-y-1">
+            <div className="space-y-0.5 sm:space-y-1">
               <div className="flex items-center justify-center">
-                <Users className="h-4 w-4 text-green-500" />
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
               </div>
-              <div className="text-sm font-medium">
+              <div className="text-xs sm:text-sm font-medium">
                 {referralCount}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-[10px] sm:text-xs text-muted-foreground">
                 Indicações
               </div>
             </div>
@@ -139,16 +146,16 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
 
           {/* Próxima Conquista */}
           {nextAchievement && (
-            <div className="bg-muted/50 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-1">
-                <Target className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Próxima Conquista</span>
+            <div className="bg-muted/50 rounded-lg p-2 sm:p-3">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                <Target className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                <span className="text-xs sm:text-sm font-medium">Próxima Conquista</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{nextAchievement.icon}</span>
-                <div>
-                  <div className="text-sm font-medium">{nextAchievement.name}</div>
-                  <div className="text-xs text-muted-foreground">{nextAchievement.description}</div>
+              <div className="flex items-start gap-2">
+                <span className="text-sm sm:text-lg flex-shrink-0">{nextAchievement.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs sm:text-sm font-medium break-words">{nextAchievement.name}</div>
+                  <div className="text-[10px] sm:text-xs text-muted-foreground break-words">{nextAchievement.description}</div>
                 </div>
               </div>
             </div>
@@ -156,39 +163,39 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
 
           {/* Sistema de Referral */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Gift className="h-4 w-4 text-primary" />
-              <h4 className="font-medium text-sm">Indique e Ganhe!</h4>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Gift className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+              <h4 className="font-medium text-xs sm:text-sm">Indique e Ganhe!</h4>
             </div>
             
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground break-words">
                 Compartilhe este link e ganhe 5 créditos quando seu amigo criar o primeiro projeto:
               </p>
               
               <div className="flex gap-1">
-                <div className="flex-1 p-1.5 bg-muted rounded border text-xs font-mono truncate">
+                <div className="flex-1 min-w-0 p-1 sm:p-1.5 bg-muted rounded border text-[10px] sm:text-xs font-mono truncate overflow-hidden">
                   {referralLink}
                 </div>
                 <Button
                   onClick={copyReferralLink}
                   size="sm"
                   variant="outline"
-                  className="px-2"
+                  className="px-1.5 sm:px-2 flex-shrink-0"
                 >
-                  <Copy className="h-3 w-3" />
+                  <Copy className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 </Button>
               </div>
             </div>
             
-            <div className="text-xs text-muted-foreground space-y-0.5">
-              <div className="flex items-center gap-1">
-                <span>•</span>
-                <span>Você ganha 5 créditos quando alguém criar o primeiro projeto</span>
+            <div className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5">
+              <div className="flex items-start gap-1">
+                <span className="flex-shrink-0">•</span>
+                <span className="break-words">Você ganha 5 créditos quando alguém criar o primeiro projeto</span>
               </div>
-              <div className="flex items-center gap-1">
-                <span>•</span>
-                <span>Novo usuário também ganha 5 créditos</span>
+              <div className="flex items-start gap-1">
+                <span className="flex-shrink-0">•</span>
+                <span className="break-words">Novo usuário também ganha 5 créditos</span>
               </div>
             </div>
           </div>
