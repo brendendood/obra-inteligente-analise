@@ -1381,6 +1381,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      test_complete_signup_system: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       test_login_system: {
         Args: Record<PropertyKey, never>
         Returns: string
