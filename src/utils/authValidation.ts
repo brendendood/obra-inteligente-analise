@@ -1,3 +1,5 @@
+import { supabase } from '@/integrations/supabase/client';
+
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
@@ -39,9 +41,9 @@ export const validatePassword = (password: string): {
     strength += 1;
   }
 
-  // Require special character
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    errors.push('Senha deve conter pelo menos um caractere especial');
+  // Require special character (incluindo hífen e ponto)
+  if (!/[!@#$%^&*(),.?":{}|<>\-_.]/.test(password)) {
+    errors.push('Senha deve conter pelo menos um caractere especial (!@#$%^&*(),.?":{}|<>-_.)');
   } else {
     strength += 1;
   }
@@ -61,29 +63,54 @@ export const validatePassword = (password: string): {
   };
 };
 
+export const checkEmailExists = async (email: string): Promise<boolean> => {
+  try {
+    // Usar uma abordagem diferente para verificar se o email existe
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: 'dummy-password-for-check'
+    });
+    
+    // Se retornar "Invalid login credentials", o email pode existir mas a senha está errada
+    // Se retornar "Email not confirmed", o email existe mas não foi confirmado
+    if (error?.message?.includes('Invalid login credentials') || 
+        error?.message?.includes('Email not confirmed')) {
+      return true;
+    }
+    
+    return false;
+  } catch {
+    return false;
+  }
+};
+
 export const formatAuthError = (error: any): string => {
   if (error.message.includes('Invalid login credentials')) {
     return 'Email ou senha incorretos.';
   }
   
   if (error.message.includes('Email not confirmed')) {
-    return 'Verifique sua caixa de entrada e confirme seu email.';
+    return 'Verifique sua caixa de entrada e confirme seu email antes de acessar.';
   }
   
-  if (error.message.includes('User already registered')) {
-    return 'Este email já está em uso. Tente fazer login.';
+  if (error.message.includes('User already registered') || error.message.includes('already been registered')) {
+    return 'Este email já está cadastrado. Tente fazer login ou use outro email.';
   }
   
   if (error.message.includes('Signup requires a valid password')) {
-    return 'Senha inválida. Verifique os requisitos.';
+    return 'Senha inválida. Deve ter pelo menos 8 caracteres, incluindo maiúscula, minúscula, número e caractere especial.';
   }
   
   if (error.message.includes('Unable to validate email address')) {
-    return 'Email inválido. Verifique o formato.';
+    return 'Email inválido. Verifique o formato (exemplo@dominio.com).';
   }
   
-  if (error.message.includes('Password should be at least 6 characters')) {
-    return 'A senha deve ter pelo menos 6 caracteres.';
+  if (error.message.includes('Password should be at least')) {
+    return 'A senha deve ter pelo menos 8 caracteres.';
+  }
+
+  if (error.message.includes('Email rate limit exceeded')) {
+    return 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.';
   }
   
   return error.message || 'Erro inesperado. Tente novamente.';

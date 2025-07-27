@@ -7,14 +7,16 @@ interface PasswordStrengthIndicatorProps {
 
 export const PasswordStrengthIndicator = ({ password, className = '' }: PasswordStrengthIndicatorProps) => {
   const checks = [
-    { label: 'Mínimo 6 caracteres', valid: password.length >= 6 },
-    { label: 'Contém letra', valid: /[a-zA-Z]/.test(password) },
+    { label: 'Mínimo 8 caracteres', valid: password.length >= 8 },
+    { label: 'Contém letra maiúscula', valid: /[A-Z]/.test(password) },
+    { label: 'Contém letra minúscula', valid: /[a-z]/.test(password) },
     { label: 'Contém número', valid: /\d/.test(password) },
+    { label: 'Contém caractere especial', valid: /[!@#$%^&*(),.?":{}|<>\-_.]/.test(password) },
   ];
 
   const strength = checks.filter(check => check.valid).length;
-  const strengthColors = ['bg-destructive', 'bg-yellow-500', 'bg-orange-500', 'bg-green-500'];
-  const strengthLabels = ['Muito fraca', 'Fraca', 'Boa', 'Forte'];
+  const strengthColors = ['bg-destructive', 'bg-destructive', 'bg-yellow-500', 'bg-orange-500', 'bg-green-500'];
+  const strengthLabels = ['Muito fraca', 'Fraca', 'Boa', 'Forte', 'Muito forte'];
 
   if (!password) return null;
 
@@ -26,7 +28,7 @@ export const PasswordStrengthIndicator = ({ password, className = '' }: Password
       </div>
       
       <div className="flex space-x-1">
-        {[0, 1, 2, 3].map((index) => (
+        {[0, 1, 2, 3, 4].map((index) => (
           <div
             key={index}
             className={`h-1 flex-1 rounded ${

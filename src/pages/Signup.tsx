@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
-import { validateEmail, validatePassword, formatAuthError } from '@/utils/authValidation';
+import { validateEmail, validatePassword, formatAuthError, checkEmailExists } from '@/utils/authValidation';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { useEmailSystem } from '@/hooks/useEmailSystem';
 
@@ -31,6 +31,7 @@ function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [emailError, setEmailError] = useState('');
   const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState<string | null>(null);
   
@@ -64,6 +65,24 @@ function Signup() {
 
   const updateFormData = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Verificar email duplicado quando o campo email for alterado
+    if (field === 'email' && typeof value === 'string' && validateEmail(value)) {
+      const timeoutId = setTimeout(async () => {
+        try {
+          const emailExists = await checkEmailExists(value);
+          if (emailExists) {
+            setEmailError('Este email já está cadastrado. Tente fazer login ou use outro email.');
+          } else {
+            setEmailError('');
+          }
+        } catch (error) {
+          console.error('Erro ao verificar email:', error);
+        }
+      }, 800);
+      
+      return () => clearTimeout(timeoutId);
+    }
   };
 
   const validateStep1 = () => {
@@ -80,6 +99,15 @@ function Signup() {
       toast({
         title: "❌ Email inválido",
         description: "Por favor, insira um email válido.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (emailError) {
+      toast({
+        title: "❌ Email já cadastrado",
+        description: emailError,
         variant: "destructive"
       });
       return false;
@@ -340,7 +368,7 @@ function Signup() {
                   </div>
                 </div>
 
-                {/* Email Field */}
+                 {/* Email Field */}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -351,10 +379,13 @@ function Signup() {
                       placeholder="seu@email.com"
                       value={formData.email}
                       onChange={(e) => updateFormData('email', e.target.value)}
-                      className="pl-10"
+                      className={`pl-10 ${emailError ? 'border-destructive' : ''}`}
                       required
                     />
                   </div>
+                  {emailError && (
+                    <p className="text-sm text-destructive">{emailError}</p>
+                  )}
                 </div>
 
                 {/* Password Field */}
