@@ -19,7 +19,7 @@ export function ReferralSystemTest() {
     try {
       // 1. Testar validação de código
       const { data: validationData, error: validationError } = await supabase.rpc('validate_referral_code', {
-        ref_code: 'REF_fae0ee4b'
+        p_ref_code: 'REF_fae0ee4b'
       });
       
       results.validation = {
@@ -30,7 +30,7 @@ export function ReferralSystemTest() {
 
       // 2. Testar se a função existe executando ela diretamente
       try {
-        const testResult = await supabase.rpc('validate_referral_code', { ref_code: 'TEST' });
+        const testResult = await supabase.rpc('validate_referral_code', { p_ref_code: 'TEST' });
         results.function_exists = {
           success: true,
           exists: true

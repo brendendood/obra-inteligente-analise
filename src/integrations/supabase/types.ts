@@ -1377,6 +1377,10 @@ export type Database = {
         Args: { p_user_id: string; p_ip_address?: string }
         Returns: string
       }
+      test_complete_referral_system: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       test_login_system: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1402,7 +1406,7 @@ export type Database = {
         Returns: undefined
       }
       validate_referral_code: {
-        Args: { ref_code: string }
+        Args: { p_ref_code: string }
         Returns: Json
       }
     }

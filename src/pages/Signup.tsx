@@ -75,7 +75,7 @@ function Signup() {
     setReferralValidating(true);
     try {
       const { data, error } = await supabase.rpc('validate_referral_code', {
-        ref_code: code
+        p_ref_code: code
       });
 
       if (error) throw error;
