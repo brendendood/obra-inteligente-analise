@@ -63,26 +63,6 @@ export const validatePassword = (password: string): {
   };
 };
 
-export const checkEmailExists = async (email: string): Promise<boolean> => {
-  try {
-    // Usar uma abordagem diferente para verificar se o email existe
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: 'dummy-password-for-check'
-    });
-    
-    // Se retornar "Invalid login credentials", o email pode existir mas a senha está errada
-    // Se retornar "Email not confirmed", o email existe mas não foi confirmado
-    if (error?.message?.includes('Invalid login credentials') || 
-        error?.message?.includes('Email not confirmed')) {
-      return true;
-    }
-    
-    return false;
-  } catch {
-    return false;
-  }
-};
 
 export const formatAuthError = (error: any): string => {
   if (error.message.includes('Invalid login credentials')) {
