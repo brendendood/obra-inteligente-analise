@@ -36,7 +36,7 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
   if (isLoading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-md mx-4 sm:max-w-lg rounded-lg overflow-hidden">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg rounded-lg overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
               <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -69,7 +69,7 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-4 sm:max-w-lg rounded-lg overflow-hidden">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg rounded-lg overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
             <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
