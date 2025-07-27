@@ -5,13 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { GeolocationTester } from './GeolocationTester';
 import { 
   Users, 
   UserCheck, 
   Calendar, 
   TrendingUp,
   RefreshCw,
-  AlertCircle
+  AlertCircle,
+  MapPin
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -328,6 +330,11 @@ export const AdminDashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Teste de Geolocalização */}
+      <div className="flex justify-center">
+        <GeolocationTester />
+      </div>
     </div>
   );
 };
