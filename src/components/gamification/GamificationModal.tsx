@@ -6,6 +6,7 @@ import { Copy, Gift, Trophy, Flame, Target, Users } from 'lucide-react';
 import { useGamification } from '@/hooks/useGamification';
 import { useReferralSystem } from '@/hooks/useReferralSystem';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface GamificationModalProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ interface GamificationModalProps {
 }
 
 export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
+  const isMobile = useIsMobile();
+  
   const { 
     gamificationData, 
     levelInfo, 
@@ -33,7 +36,7 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
   if (isLoading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-xs mx-6 sm:max-w-sm sm:mx-4 rounded-lg overflow-hidden">
+        <DialogContent className="max-w-md mx-4 sm:max-w-lg rounded-lg overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
               <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -66,7 +69,7 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-xs mx-6 sm:max-w-sm sm:mx-4 rounded-lg overflow-hidden">
+      <DialogContent className="max-w-md mx-4 sm:max-w-lg rounded-lg overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
             <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
@@ -173,17 +176,18 @@ export function GamificationModal({ isOpen, onClose }: GamificationModalProps) {
                 Compartilhe este link e ganhe 5 créditos quando seu amigo criar o primeiro projeto:
               </p>
               
-              <div className="flex gap-1">
-                <div className="flex-1 min-w-0 p-1 sm:p-1.5 bg-muted rounded border text-[10px] sm:text-xs font-mono truncate overflow-hidden">
+              <div className={`flex ${isMobile ? 'flex-col gap-2' : 'gap-1'}`}>
+                <div className="flex-1 min-w-0 p-2 sm:p-2.5 bg-muted rounded border text-xs sm:text-sm font-mono break-all">
                   {referralLink}
                 </div>
                 <Button
                   onClick={copyReferralLink}
-                  size="sm"
+                  size={isMobile ? "default" : "sm"}
                   variant="outline"
-                  className="px-1.5 sm:px-2 flex-shrink-0"
+                  className={`flex items-center gap-2 ${isMobile ? 'w-full justify-center px-4 py-2' : 'px-2 flex-shrink-0'}`}
                 >
-                  <Copy className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                  <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
+                  {isMobile && <span className="text-sm">Copiar Link</span>}
                 </Button>
               </div>
             </div>
