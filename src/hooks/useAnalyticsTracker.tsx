@@ -12,6 +12,8 @@ type AnalyticsEvent =
   | 'project_created' 
   | 'file_uploaded' 
   | 'ai_used' 
+  | 'budget_generated'
+  | 'schedule_created'
   | 'plan_upgraded' 
   | 'plan_downgraded' 
   | 'payment_success' 
@@ -107,23 +109,36 @@ export function useAnalyticsTracker() {
     if (!user) return;
 
     try {
+      let result;
       switch (eventType) {
         case 'project_created':
-          await gamificationService.trackAction(user.id, 'PROJECT_CREATED', eventData);
+          result = await gamificationService.trackAction(user.id, 'PROJECT_CREATED', eventData);
           // Mark first project as created for referral rewards
           markFirstProjectCreated();
           break;
         case 'file_uploaded':
-          await gamificationService.trackAction(user.id, 'FILE_UPLOADED', eventData);
+          result = await gamificationService.trackAction(user.id, 'FILE_UPLOADED', eventData);
           break;
         case 'ai_used':
-          await gamificationService.trackAction(user.id, 'AI_USED', eventData);
+          result = await gamificationService.trackAction(user.id, 'AI_USED', eventData);
+          break;
+        case 'budget_generated':
+          result = await gamificationService.trackAction(user.id, 'BUDGET_GENERATED', eventData);
+          break;
+        case 'schedule_created':
+          result = await gamificationService.trackAction(user.id, 'SCHEDULE_CREATED', eventData);
           break;
         case 'login':
           await gamificationService.updateDailyStreak(user.id);
           break;
         default:
           break;
+      }
+
+      // CORREÇÃO: Log de achievements desbloqueados
+      if (result?.newAchievements && result.newAchievements.length > 0) {
+        console.log('🏆 NEW ACHIEVEMENTS UNLOCKED:', result.newAchievements);
+        // TODO: Implementar notificação visual de achievement
       }
     } catch (error) {
       console.error('❌ GAMIFICATION: Erro ao rastrear evento:', error);

@@ -69,7 +69,14 @@ class GamificationService {
 
       console.log(`🎮 GAMIFICATION: ${actionKey} tracked for user ${userId} (+${action.points} points)`);
       
-      return { success: true, points: action.points };
+      // CORREÇÃO CRÍTICA: Verificar achievements automaticamente após cada ação
+      const newAchievements = await this.checkAchievements(userId);
+      
+      return { 
+        success: true, 
+        points: action.points, 
+        newAchievements: newAchievements || [] 
+      };
     } catch (error) {
       console.error('Error in trackAction:', error);
       return { success: false, error };
