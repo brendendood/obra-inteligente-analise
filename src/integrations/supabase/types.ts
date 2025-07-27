@@ -1260,6 +1260,10 @@ export type Database = {
           created_at: string
         }[]
       }
+      fix_existing_referrals: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       force_user_geolocation_update: {
         Args: { user_email: string }
         Returns: Json
@@ -1396,6 +1400,10 @@ export type Database = {
       update_user_segments: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      validate_referral_code: {
+        Args: { ref_code: string }
+        Returns: Json
       }
     }
     Enums: {

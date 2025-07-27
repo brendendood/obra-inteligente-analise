@@ -138,31 +138,20 @@ export function useReferralSystem() {
         return;
       }
 
-      // If user was referred, award credits to referrer
+      // If user was referred, mark it in the referral record
       if (userProfile.referred_by) {
-        const { data: referrerData, error: referrerError } = await supabase
-          .from('user_profiles')
-          .select('user_id, credits')
-          .eq('ref_code', userProfile.referred_by)
-          .single();
-
-        if (!referrerError && referrerData) {
-          const { error: updateError } = await supabase
-            .from('user_profiles')
-            .update({ credits: referrerData.credits + 5 })
-            .eq('user_id', referrerData.user_id);
-
-          if (!updateError) {
-            // Update referral record
-            await supabase
-              .from('user_referrals')
-              .update({ 
-                credits_awarded: true,
-                referred_user_first_project: true 
-              })
-              .eq('referred_user_id', user.id);
-          }
-        }
+        await supabase
+          .from('user_referrals')
+          .update({ 
+            referred_user_first_project: true 
+          })
+          .eq('referred_user_id', user.id);
+        
+        toast({
+          title: "🎉 Primeiro projeto criado!",
+          description: "Parabéns por criar seu primeiro projeto no MadenAI!",
+          duration: 3000,
+        });
       }
 
       // Update local state

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, User, Building, Briefcase, Eye, EyeOff, ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { Mail, Lock, User, Building, Briefcase, Eye, EyeOff, ArrowRight, ArrowLeft, Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +25,16 @@ interface FormData {
   acceptTerms: boolean;
 }
 
+interface ReferralValidationResponse {
+  valid: boolean;
+  message: string;
+  referrer?: {
+    name: string;
+    company: string;
+    email: string;
+  };
+}
+
 function Signup() {
   const [currentStep, setCurrentStep] = useState<SignupStep>(1);
   const [loading, setLoading] = useState(false);
@@ -34,6 +44,8 @@ function Signup() {
   
   const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralValidating, setReferralValidating] = useState(false);
+  const [referralInfo, setReferralInfo] = useState<any>(null);
   
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -50,18 +62,54 @@ function Signup() {
   const { signInWithGoogle, signInWithApple, loading: socialLoading } = useSocialAuth();
   const { sendWelcomeEmail } = useEmailSystem();
 
-  // Check for referral code on component mount
+  // Check for referral code on component mount and validate it
   useEffect(() => {
     const refParam = searchParams.get('ref');
     if (refParam) {
       setReferralCode(refParam);
-      toast({
-        title: "🎉 Indicação detectada!",
-        description: "Você receberá 5 créditos gratuitos ao criar sua conta.",
-        duration: 5000,
-      });
+      validateReferralCode(refParam);
     }
-  }, [searchParams, toast]);
+  }, [searchParams]);
+
+  const validateReferralCode = async (code: string) => {
+    setReferralValidating(true);
+    try {
+      const { data, error } = await supabase.rpc('validate_referral_code', {
+        ref_code: code
+      });
+
+      if (error) throw error;
+
+      const response = data as unknown as ReferralValidationResponse;
+
+      if (response.valid) {
+        setReferralInfo(response.referrer);
+        toast({
+          title: "🎉 Indicação válida!",
+          description: `Você foi indicado por ${response.referrer?.name}. Receberá 5 créditos gratuitos!`,
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: "❌ Código inválido",
+          description: response.message,
+          variant: "destructive",
+          duration: 5000,
+        });
+        setReferralCode(null);
+      }
+    } catch (error) {
+      console.error('Erro validando referral:', error);
+      toast({
+        title: "❌ Erro na validação",
+        description: "Não foi possível validar o código de indicação.",
+        variant: "destructive",
+      });
+      setReferralCode(null);
+    } finally {
+      setReferralValidating(false);
+    }
+  };
 
   const updateFormData = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -266,6 +314,31 @@ function Signup() {
               {currentStep === 3 && "Quase lá! Confirme os dados e aceite os termos"}
             </p>
           </div>
+
+          {/* Referral Info */}
+          {referralCode && (
+            <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                {referralValidating ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-green-600" />
+                ) : (
+                  <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                    {referralValidating ? "Validando código de indicação..." : "Código de indicação válido!"}
+                  </p>
+                  {referralInfo && (
+                    <p className="text-xs text-green-700 dark:text-green-300">
+                      Indicado por: {referralInfo.name} • Você receberá 5 créditos gratuitos
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Form Steps */}
           <div className="space-y-6">
