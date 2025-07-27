@@ -13,7 +13,7 @@ export const useProjectUpload = (
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
   const { addProject, forceRefresh } = useUnifiedProjectStore();
-  const { checkAndConsumeCredit } = useProjectLimits();
+  const { checkAndCreateProject } = useProjectLimits();
 
   const uploadProject = useCallback(async (file: File, projectName: string): Promise<boolean> => {
     if (!isAuthenticated || !user) {
@@ -34,8 +34,8 @@ export const useProjectUpload = (
       return false;
     }
 
-    // Verificar limite de projetos e consumir crédito se necessário
-    const canProceed = await checkAndConsumeCredit();
+    // Verificar limite de projetos
+    const canProceed = await checkAndCreateProject();
     if (!canProceed) {
       return false;
     }
@@ -120,7 +120,7 @@ export const useProjectUpload = (
       }
       return false;
     }
-  }, [toast, setCurrentProject, isAuthenticated, user, addProject, forceRefresh, checkAndConsumeCredit]);
+  }, [toast, setCurrentProject, isAuthenticated, user, addProject, forceRefresh, checkAndCreateProject]);
 
   return { uploadProject };
 };

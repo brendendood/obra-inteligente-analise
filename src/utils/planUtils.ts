@@ -118,7 +118,12 @@ export const getPlanPrice = (plan: string | PlanType): number => {
 };
 
 export const getPlanLimit = (plan: string | PlanType, extraCredits: number = 0): number => {
-  return getPlanInfo(plan).projectLimit + extraCredits;
+  const planInfo = getPlanInfo(plan);
+  if (plan === 'enterprise') {
+    return 999999; // Ilimitado para enterprise
+  }
+  // Retorna o limite total (base + projetos extras)
+  return planInfo.projectLimit + extraCredits;
 };
 
 export const getPlanFeatures = (plan: string | PlanType): string[] => {
