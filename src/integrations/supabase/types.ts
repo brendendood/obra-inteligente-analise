@@ -1413,6 +1413,8 @@ export type Database = {
         | "plan_downgraded"
         | "payment_success"
         | "payment_failed"
+        | "budget_generated"
+        | "schedule_created"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1554,6 +1556,8 @@ export const Constants = {
         "plan_downgraded",
         "payment_success",
         "payment_failed",
+        "budget_generated",
+        "schedule_created",
       ],
     },
   },
