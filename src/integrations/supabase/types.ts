@@ -1264,6 +1264,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      force_geolocation_refresh: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       force_user_geolocation_update: {
         Args: { user_email: string }
         Returns: Json
