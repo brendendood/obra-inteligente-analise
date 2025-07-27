@@ -9,32 +9,32 @@ export interface GamificationAction {
 export const GAMIFICATION_ACTIONS: Record<string, GamificationAction> = {
   PROJECT_CREATED: {
     type: 'project_created',
-    points: 100,
+    points: 50,
     details: { description: 'Primeiro projeto criado' }
   },
   AI_USED: {
     type: 'ai_used',
-    points: 10,
+    points: 5,
     details: { description: 'Interação com IA' }
   },
   BUDGET_GENERATED: {
     type: 'budget_generated',
-    points: 25,
+    points: 30,
     details: { description: 'Orçamento gerado' }
   },
   SCHEDULE_CREATED: {
     type: 'schedule_created',
-    points: 25,
+    points: 30,
     details: { description: 'Cronograma criado' }
   },
   DAILY_LOGIN: {
     type: 'daily_login',
-    points: 5,
+    points: 10,
     details: { description: 'Login diário' }
   },
   FILE_UPLOADED: {
     type: 'file_uploaded',
-    points: 50,
+    points: 15,
     details: { description: 'Arquivo enviado' }
   }
 };
