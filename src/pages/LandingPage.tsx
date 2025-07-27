@@ -122,6 +122,13 @@ const LandingPage = () => {
   const counter3 = useCountAnimation(realTimeStats.timeSaved);
   const counter4 = useCountAnimation(realTimeStats.activeUsers);
 
+  // Redirecionamento automático para usuários autenticados
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/painel', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
