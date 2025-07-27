@@ -181,7 +181,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
       <div className="px-4 py-3 border-b border-slate-200/60">
         <ProjectLimitBar 
           currentProjects={userData.projectCount} 
-          plan={userData.plan} 
+          plan={userData.plan}
+          extraCredits={userData.credits}
         />
       </div>
 

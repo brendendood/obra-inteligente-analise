@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 export interface UserData {
   plan: 'free' | 'basic' | 'pro' | 'enterprise';
   projectCount: number;
+  credits: number;
   subscription: {
     status: string;
     current_period_end?: string;
@@ -21,6 +22,7 @@ export const useUserData = () => {
   const [userData, setUserData] = useState<UserData>({
     plan: 'free', // Padrão correto: free
     projectCount: 0,
+    credits: 0,
     subscription: null,
     profile: null
   });
@@ -37,6 +39,7 @@ export const useUserData = () => {
       setUserData({
         plan: 'free', // Padrão correto: free
         projectCount: 0,
+        credits: 0,
         subscription: null,
         profile: null
       });
@@ -62,7 +65,7 @@ export const useUserData = () => {
 
       const profilePromise = supabase
         .from('user_profiles')
-        .select('full_name, company')
+        .select('full_name, company, credits')
         .eq('user_id', user.id)
         .maybeSingle()
         .then(result => {
@@ -98,8 +101,10 @@ export const useUserData = () => {
 
       // Processar profile
       let profile = null;
+      let credits = 0;
       if (profileResult.status === 'fulfilled' && profileResult.value.data) {
         profile = profileResult.value.data;
+        credits = profile.credits || 0;
       } else if (profileResult.status === 'rejected') {
         console.warn('⚠️ Erro ao buscar perfil:', profileResult.reason);
       }
@@ -115,6 +120,7 @@ export const useUserData = () => {
       const newUserData = {
         plan,
         projectCount,
+        credits,
         subscription,
         profile
       };
@@ -129,6 +135,7 @@ export const useUserData = () => {
       setUserData({
         plan: 'free', // Fallback para 'free'
         projectCount: 0,
+        credits: 0,
         subscription: null,
         profile: null
       });

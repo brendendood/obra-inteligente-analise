@@ -9,11 +9,13 @@ import { GamificationModal } from '@/components/gamification/GamificationModal';
 interface ProjectLimitBarProps {
   currentProjects: number;
   plan: 'free' | 'basic' | 'pro' | 'enterprise';
+  extraCredits?: number;
 }
 
-export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps) => {
+export const ProjectLimitBar = ({ currentProjects, plan, extraCredits = 0 }: ProjectLimitBarProps) => {
   const [showGamificationModal, setShowGamificationModal] = useState(false);
-  const maxProjects = getPlanLimit(plan);
+  const basePlanLimit = getPlanLimit(plan, 0); // Limite base sem créditos
+  const maxProjects = getPlanLimit(plan, extraCredits); // Limite total com créditos
   const planDisplayName = getPlanDisplayName(plan);
   const planIcon = getPlanIcon(plan);
   const badgeStyle = getPlanBadgeStyle(plan);
@@ -53,6 +55,11 @@ export const ProjectLimitBar = ({ currentProjects, plan }: ProjectLimitBarProps)
       <div className="flex items-center justify-between text-sm">
         <span className="text-slate-600 dark:text-slate-400">
           Projetos: {currentProjects}/{maxProjects}
+          {extraCredits > 0 && (
+            <span className="text-xs text-green-600 dark:text-green-400 ml-1">
+              ({basePlanLimit} base + {extraCredits} extras)
+            </span>
+          )}
         </span>
         <Badge 
           variant={plan === 'pro' ? 'default' : 'secondary'} 

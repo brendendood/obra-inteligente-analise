@@ -117,8 +117,8 @@ export const getPlanPrice = (plan: string | PlanType): number => {
   return getPlanInfo(plan).price;
 };
 
-export const getPlanLimit = (plan: string | PlanType): number => {
-  return getPlanInfo(plan).projectLimit;
+export const getPlanLimit = (plan: string | PlanType, extraCredits: number = 0): number => {
+  return getPlanInfo(plan).projectLimit + extraCredits;
 };
 
 export const getPlanFeatures = (plan: string | PlanType): string[] => {
@@ -159,13 +159,13 @@ export const formatPlanPrice = (plan: string | PlanType): string => {
   return price === 0 ? 'Grátis' : `R$ ${price}/mês`;
 };
 
-export const getPlanUsagePercentage = (projectCount: number, plan: string | PlanType): number => {
-  const limit = getPlanLimit(plan);
+export const getPlanUsagePercentage = (projectCount: number, plan: string | PlanType, extraCredits: number = 0): number => {
+  const limit = getPlanLimit(plan, extraCredits);
   if (limit === 999) return 0; // Enterprise = ilimitado
   return Math.min((projectCount / limit) * 100, 100);
 };
 
-export const shouldShowUpgradeWarning = (projectCount: number, plan: string | PlanType): boolean => {
-  const percentage = getPlanUsagePercentage(projectCount, plan);
+export const shouldShowUpgradeWarning = (projectCount: number, plan: string | PlanType, extraCredits: number = 0): boolean => {
+  const percentage = getPlanUsagePercentage(projectCount, plan, extraCredits);
   return percentage >= 80 && canUpgrade(plan);
 };

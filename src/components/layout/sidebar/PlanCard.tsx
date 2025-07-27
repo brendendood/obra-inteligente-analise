@@ -5,60 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { useUserData } from '@/hooks/useUserData';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { AvatarDisplay } from '@/components/account/AvatarDisplay';
+import { getPlanDisplayName, getPlanLimit, getNextPlan, canUpgrade } from '@/utils/planUtils';
 
 interface PlanCardProps {
   isCollapsed: boolean;
   onUpgrade: () => void;
 }
 
-const getPlanDisplayName = (plan: string) => {
-  switch (plan) {
-    case 'free':
-      return 'Free';
-    case 'basic':
-      return 'Basic';
-    case 'pro':
-      return 'Pro';
-    case 'enterprise':
-      return 'Enterprise';
-    default:
-      return 'Free';
-  }
-};
-
-const getPlanLimit = (plan: string) => {
-  switch (plan) {
-    case 'free':
-      return 1;
-    case 'basic':
-      return 10;
-    case 'pro':
-      return 50;
-    case 'enterprise':
-      return 999;
-    default:
-      return 1;
-  }
-};
-
-const getNextPlan = (currentPlan: string) => {
-  switch (currentPlan) {
-    case 'free':
-      return 'basic';
-    case 'basic':
-      return 'pro';
-    case 'pro':
-      return 'enterprise';
-    case 'enterprise':
-      return null;
-    default:
-      return 'basic';
-  }
-};
-
-const canUpgrade = (plan: string) => {
-  return plan !== 'enterprise';
-};
 
 export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
   const navigate = useNavigate();
@@ -84,7 +37,8 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
   }
 
   const planDisplayName = getPlanDisplayName(userData.plan);
-  const planLimit = getPlanLimit(userData.plan);
+  const basePlanLimit = getPlanLimit(userData.plan, 0);
+  const totalLimit = getPlanLimit(userData.plan, userData.credits);
   const nextPlan = getNextPlan(userData.plan);
   const userCanUpgrade = canUpgrade(userData.plan);
 
@@ -111,7 +65,12 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
             </span>
           </div>
           <div className="text-xs text-blue-700 dark:text-blue-300">
-            {userData.projectCount}/{planLimit === 999 ? '∞' : planLimit}
+            {userData.projectCount}/{totalLimit === 999 ? '∞' : totalLimit}
+            {userData.credits > 0 && (
+              <div className="text-xs text-green-600 dark:text-green-400">
+                +{userData.credits} extras
+              </div>
+            )}
           </div>
         </div>
         
