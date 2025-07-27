@@ -5,53 +5,202 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface GeolocationResponse {
-  ip: string;
+interface GeolocationData {
   city: string;
   region: string;
   country: string;
   latitude: number;
   longitude: number;
+  isp?: string;
+  timezone?: string;
+}
+
+interface GeolocationResponse {
+  success: boolean;
+  data?: GeolocationData;
+  error?: string;
+  source: string;
+}
+
+async function getGeolocationFromIP(ip: string): Promise<GeolocationResponse> {
+  // Filtrar IPs locais/internos - retorna erro claro
+  if (ip === '127.0.0.1' || ip === 'localhost' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+    return {
+      success: false,
+      error: 'IP local detectado - geolocalização não disponível',
+      source: 'local_ip_filter'
+    };
+  }
+
+  // APIs múltiplas para garantir precisão máxima
+  const apis = [
+    {
+      name: 'ipapi_com',
+      url: `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,timezone`,
+      parse: (data: any) => {
+        if (data.status !== 'success') {
+          throw new Error(data.message || 'Falha na API');
+        }
+        return {
+          city: data.city || 'Localização não capturada',
+          region: data.regionName || 'Região não capturada',
+          country: data.country || 'País não capturado',
+          latitude: data.lat || 0,
+          longitude: data.lon || 0,
+          isp: data.isp,
+          timezone: data.timezone
+        };
+      }
+    },
+    {
+      name: 'ipinfo_io',
+      url: `https://ipinfo.io/${ip}/json`,
+      parse: (data: any) => {
+        if (data.bogon) {
+          throw new Error('IP privado ou reservado');
+        }
+        const [lat, lon] = (data.loc || '0,0').split(',').map(Number);
+        return {
+          city: data.city || 'Localização não capturada',
+          region: data.region || 'Região não capturada', 
+          country: data.country || 'País não capturado',
+          latitude: lat || 0,
+          longitude: lon || 0,
+          isp: data.org,
+          timezone: data.timezone
+        };
+      }
+    },
+    {
+      name: 'ipapi_co',
+      url: `https://ipapi.co/${ip}/json/`,
+      parse: (data: any) => {
+        if (data.error) {
+          throw new Error(data.reason || 'Erro na API');
+        }
+        return {
+          city: data.city || 'Localização não capturada',
+          region: data.region || 'Região não capturada',
+          country: data.country_name || 'País não capturado',
+          latitude: parseFloat(data.latitude) || 0,
+          longitude: parseFloat(data.longitude) || 0,
+          isp: data.org,
+          timezone: data.timezone
+        };
+      }
+    }
+  ];
+
+  for (const api of apis) {
+    try {
+      console.log(`🌍 Tentando ${api.name} para IP: ${ip}`);
+      
+      const response = await fetch(api.url, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'MadenAI-GeoLocation/2.0',
+          'Accept': 'application/json'
+        },
+        signal: AbortSignal.timeout(8000) // 8 segundos timeout
+      });
+
+      if (!response.ok) {
+        console.log(`❌ ${api.name} retornou status ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const parsed = api.parse(data);
+      
+      // Validação rigorosa - dados DEVEM ser reais
+      if (!parsed.city || !parsed.country || 
+          parsed.city === 'Localização não capturada' || 
+          parsed.country === 'País não capturado' ||
+          (parsed.latitude === 0 && parsed.longitude === 0)) {
+        console.log(`❌ ${api.name} retornou dados incompletos ou inválidos`);
+        continue;
+      }
+
+      console.log(`✅ ${api.name} capturou localização REAL:`, {
+        location: `${parsed.city}, ${parsed.region}, ${parsed.country}`,
+        coordinates: `${parsed.latitude}, ${parsed.longitude}`
+      });
+
+      return {
+        success: true,
+        data: parsed,
+        source: api.name
+      };
+
+    } catch (error) {
+      console.log(`❌ Erro em ${api.name}:`, error.message);
+      continue;
+    }
+  }
+
+  return {
+    success: false,
+    error: 'TODAS as APIs de geolocalização falharam - IP pode ser inválido ou bloqueado',
+    source: 'all_apis_failed'
+  };
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    console.log('🌍 IP Geolocation: Iniciando captura de localização...');
+    console.log('🌍 GEOLOCALIZAÇÃO REAL: Iniciando captura precisa...');
     
-    // Extrair IP real do usuário (priorizar headers de proxy)
-    const realIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-                   req.headers.get('x-real-ip') || 
-                   req.headers.get('cf-connecting-ip') ||
-                   req.headers.get('x-client-ip') ||
-                   'unknown';
-    
-    console.log('📡 IP Real detectado:', realIP);
+    // Extrair dados da requisição
+    const { ip_address, login_id, user_id, force_update = false } = await req.json();
 
-    // Parse do body da requisição
-    let loginId: string | null = null;
-    let targetIP = realIP;
-    
-    try {
-      const body = await req.json();
-      loginId = body.loginId;
-      // Permitir override do IP se fornecido no body
-      if (body.ipAddress) {
-        targetIP = body.ipAddress;
-      }
-    } catch (error) {
-      console.log('⚠️ Body inválido, usando apenas IP dos headers');
+    if (!ip_address) {
+      throw new Error('IP address é obrigatório');
     }
+
+    if (!login_id) {
+      throw new Error('Login ID é obrigatório');
+    }
+
+    console.log('📡 Capturando localização REAL para:', { 
+      ip_address, 
+      login_id, 
+      user_id, 
+      force_update 
+    });
+
+    // Obter geolocalização REAL e PRECISA
+    const geoResult = await getGeolocationFromIP(ip_address);
     
-    if (!loginId) {
+    if (!geoResult.success) {
+      console.log('❌ FALHA na captura de geolocalização real:', geoResult.error);
+      
+      // Para IPs locais, não salvar localização falsa
+      const supabase = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+
+      await supabase
+        .from('user_login_history')
+        .update({
+          ip_address,
+          city: null,
+          region: null,
+          country: null,
+          latitude: null,
+          longitude: null
+        })
+        .eq('id', login_id);
+
       return new Response(
         JSON.stringify({ 
-          error: 'Login ID é obrigatório',
-          success: false 
+          success: false, 
+          error: geoResult.error,
+          source: geoResult.source,
+          message: 'Geolocalização não disponível - IP local ou inválido'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -60,133 +209,93 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fazer lookup de geolocalização baseado no IP
-    let geoData: GeolocationResponse | null = null;
-    
-    if (targetIP !== 'unknown' && targetIP !== '127.0.0.1' && targetIP !== '::1') {
-      try {
-        console.log('🔍 Fazendo lookup de geolocalização para IP:', targetIP);
-        
-        // Usar ipapi.co para lookup de geolocalização
-        const geoResponse = await fetch(`https://ipapi.co/${targetIP}/json/`, {
-          headers: {
-            'User-Agent': 'MadenAI/1.0 (Geolocation Service)'
-          }
-        });
-        
-        if (!geoResponse.ok) {
-          throw new Error(`HTTP ${geoResponse.status}: ${geoResponse.statusText}`);
-        }
-        
-        const geoJson = await geoResponse.json();
-        console.log('📍 Resposta da API de geolocalização:', geoJson);
-        
-        if (geoJson && !geoJson.error && geoJson.latitude && geoJson.longitude) {
-          geoData = {
-            ip: targetIP,
-            city: geoJson.city || 'Desconhecida',
-            region: geoJson.region || 'Desconhecido', 
-            country: geoJson.country_name || 'Desconhecido',
-            latitude: parseFloat(geoJson.latitude) || 0,
-            longitude: parseFloat(geoJson.longitude) || 0
-          };
-          
-          console.log('✅ Localização capturada com sucesso:', geoData);
-        } else {
-          console.warn('⚠️ API retornou dados inválidos:', geoJson);
-        }
-      } catch (error) {
-        console.error('❌ Erro no lookup de geolocalização:', error);
-        
-        // Fallback: tentar uma segunda API
-        try {
-          console.log('🔄 Tentando API alternativa...');
-          const fallbackResponse = await fetch(`http://ip-api.com/json/${targetIP}?fields=status,country,region,city,lat,lon`, {
-            headers: {
-              'User-Agent': 'MadenAI/1.0 (Geolocation Service)'
-            }
-          });
-          
-          if (fallbackResponse.ok) {
-            const fallbackData = await fallbackResponse.json();
-            
-            if (fallbackData.status === 'success') {
-              geoData = {
-                ip: targetIP,
-                city: fallbackData.city || 'Desconhecida',
-                region: fallbackData.region || 'Desconhecido',
-                country: fallbackData.country || 'Desconhecido', 
-                latitude: fallbackData.lat || 0,
-                longitude: fallbackData.lon || 0
-              };
-              
-              console.log('✅ Localização capturada via API alternativa:', geoData);
-            }
-          }
-        } catch (fallbackError) {
-          console.error('❌ API alternativa também falhou:', fallbackError);
-        }
-      }
-    } else {
-      console.log('⚠️ IP local ou inválido detectado, pulando geolocalização');
-    }
-
     // Conectar ao Supabase
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Atualizar registro de login com dados de geolocalização
-    if (geoData) {
-      console.log('💾 Atualizando registro de login com geolocalização...');
-      
-      const { error: updateError } = await supabase
-        .from('user_login_history')
-        .update({
-          ip_address: geoData.ip,
-          city: geoData.city,
-          region: geoData.region,
-          country: geoData.country,
-          latitude: geoData.latitude,
-          longitude: geoData.longitude
-        })
-        .eq('id', loginId);
+    const { city, region, country, latitude, longitude, isp, timezone } = geoResult.data!;
 
-      if (updateError) {
-        console.error('❌ Erro ao atualizar login history:', updateError);
-        throw updateError;
-      }
+    // Atualizar login_history com localização REAL
+    const { error: updateError } = await supabase
+      .from('user_login_history')
+      .update({
+        ip_address,
+        city,
+        region,
+        country,
+        latitude,
+        longitude,
+      })
+      .eq('id', login_id);
 
-      console.log('✅ Login atualizado com geolocalização real');
-    } else {
-      // Se não conseguiu capturar localização, ao menos salvar o IP real
-      console.log('💾 Salvando apenas IP (sem geolocalização)...');
-      
-      const { error: updateError } = await supabase
-        .from('user_login_history')
-        .update({
-          ip_address: targetIP,
-          city: 'Desconhecida',
-          region: 'Desconhecido',
-          country: 'Desconhecido'
-        })
-        .eq('id', loginId);
-
-      if (updateError) {
-        console.error('❌ Erro ao atualizar IP:', updateError);
-        throw updateError;
-      }
-      
-      console.log('⚠️ Login atualizado apenas com IP (geolocalização falhou)');
+    if (updateError) {
+      console.error('❌ Erro ao atualizar login_history:', updateError);
+      throw updateError;
     }
 
+    console.log('✅ Login history atualizado com geolocalização REAL');
+
+    // Se user_id fornecido, atualizar perfil conforme necessário
+    if (user_id) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('city, state, country')
+        .eq('user_id', user_id)
+        .single();
+
+      // Atualizar perfil se:
+      // 1. force_update=true OU
+      // 2. Perfil não tem localização OU  
+      // 3. Perfil tem localização genérica como "Brasil"
+      const shouldUpdateProfile = force_update || 
+        !profile?.city || 
+        !profile?.country ||
+        (profile?.country === 'Brasil' && country !== 'Brazil') ||
+        (profile?.country === 'Brazil' && city !== profile?.city);
+
+      if (shouldUpdateProfile) {
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .update({
+            city,
+            state: region,
+            country
+          })
+          .eq('user_id', user_id);
+
+        if (profileError) {
+          console.error('❌ Erro ao atualizar perfil:', profileError);
+        } else {
+          console.log('✅ Perfil atualizado com localização REAL');
+        }
+      }
+    }
+
+    console.log('🎯 GEOLOCALIZAÇÃO REAL CAPTURADA:', {
+      ip_address,
+      location: `${city}, ${region}, ${country}`,
+      coordinates: `${latitude}, ${longitude}`,
+      source: geoResult.source,
+      isp: isp?.substring(0, 50) // Truncar ISP se muito longo
+    });
+
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        data: geoData,
-        ip: targetIP,
-        message: geoData ? 'Localização capturada com sucesso' : 'IP salvo, mas geolocalização falhou'
+      JSON.stringify({
+        success: true,
+        location: {
+          city,
+          region,
+          country,
+          latitude,
+          longitude,
+          isp,
+          timezone
+        },
+        source: geoResult.source,
+        ip_address,
+        message: `Geolocalização REAL capturada via ${geoResult.source}`
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -194,11 +303,13 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('❌ Erro fatal na Edge Function:', error);
+    console.error('❌ ERRO CRÍTICO na geolocalização:', error);
+    
     return new Response(
       JSON.stringify({ 
+        success: false, 
         error: error.message,
-        success: false 
+        message: 'Falha crítica na captura de geolocalização'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
