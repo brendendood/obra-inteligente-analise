@@ -117,22 +117,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (event === 'SIGNED_IN' && user) {
               console.log('📊 AUTH: Login detectado para:', user.email);
               
-              // Capturar IP real e localização imediatamente
+              // Capturar IP real e localização precisa imediatamente
               setTimeout(async () => {
                 try {
-                  console.log('🌐 Capturando IP real do usuário...');
+                  console.log('🌐 Capturando IP real via frontend...');
+                  
+                  // Capturar IP real do frontend primeiro
+                  let realIP = null;
+                  try {
+                    const response = await fetch('https://ipapi.co/ip/');
+                    if (response.ok) {
+                      realIP = (await response.text()).trim();
+                      console.log(`✅ IP real capturado do frontend: ${realIP}`);
+                    }
+                  } catch (e) {
+                    console.warn('❌ Falha ao capturar IP do frontend:', e);
+                  }
                   
                   const { data, error } = await supabase.functions.invoke('capture-real-ip', {
                     body: { 
                       user_id: user.id,
-                      force_capture: true 
+                      force_capture: true,
+                      frontend_ip: realIP
                     }
                   });
 
                   if (error) {
                     console.error('❌ Erro na captura de IP:', error);
                   } else {
-                    console.log('✅ IP real capturado:', data);
+                    console.log('✅ Geolocalização precisa iniciada:', data);
                   }
                 } catch (error) {
                   console.error('❌ Falha na captura de IP:', error);

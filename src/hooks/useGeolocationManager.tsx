@@ -9,8 +9,43 @@ export const useGeolocationManager = () => {
   const forceUpdateUserGeolocation = async (userEmail: string) => {
     setIsUpdating(true);
     try {
-      console.log('🔄 Forçando atualização de geolocalização para:', userEmail);
+      console.log('🔄 Forçando atualização PRECISA de geolocalização para:', userEmail);
       
+      // Primeiro capturar IP real do usuário atual
+      let realIP = null;
+      try {
+        const response = await fetch('https://ipapi.co/ip/');
+        if (response.ok) {
+          realIP = (await response.text()).trim();
+          console.log(`✅ IP real capturado: ${realIP}`);
+        }
+      } catch (e) {
+        console.warn('❌ Falha ao capturar IP real:', e);
+      }
+
+      // Se temos IP real, usar geolocalização precisa
+      if (realIP && realIP !== '127.0.0.1') {
+        const { data: preciseData, error: preciseError } = await supabase.functions.invoke('ip-geolocation-precise', {
+          body: {
+            ip_address: realIP,
+            force_update: true,
+            manual_update: true
+          }
+        });
+
+        if (preciseError) {
+          console.warn('⚠️ Falha na geolocalização precisa:', preciseError);
+        } else {
+          console.log('✅ Geolocalização precisa atualizada:', preciseData);
+          toast({
+            title: "✅ Localização Precisa Atualizada",
+            description: `${preciseData.location?.city || 'Localização'} capturada com alta precisão`,
+          });
+          return { success: true, data: preciseData };
+        }
+      }
+
+      // Fallback para método antigo
       const { data, error } = await supabase.rpc('force_user_geolocation_update', {
         user_email: userEmail
       });

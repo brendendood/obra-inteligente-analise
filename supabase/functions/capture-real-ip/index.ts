@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
   try {
     console.log('🌐 CAPTURA IP REAL: Iniciando...');
     
-    const { user_id, force_capture = false } = await req.json();
+    const { user_id, force_capture = false, frontend_ip } = await req.json();
 
     if (!user_id) {
       throw new Error('user_id é obrigatório');
@@ -70,11 +70,19 @@ Deno.serve(async (req) => {
 
     console.log('👤 Capturando IP real para usuário:', user_id);
 
-    // Capturar IP real
-    const ipResult = await getRealUserIP();
+    // Usar IP capturado do frontend se disponível, senão tentar APIs
+    let ipResult: IPResult;
     
-    if (ipResult.ip === '127.0.0.1') {
-      console.log('⚠️ Não foi possível capturar IP real, usando fallback');
+    if (frontend_ip && frontend_ip !== '127.0.0.1') {
+      console.log(`✅ Usando IP real do frontend: ${frontend_ip}`);
+      ipResult = { ip: frontend_ip, source: 'frontend' };
+    } else {
+      console.log('🔍 IP do frontend não disponível, tentando APIs...');
+      ipResult = await getRealUserIP();
+      
+      if (ipResult.ip === '127.0.0.1') {
+        console.log('⚠️ Não foi possível capturar IP real, usando fallback');
+      }
     }
 
     // Conectar ao Supabase
@@ -105,9 +113,9 @@ Deno.serve(async (req) => {
 
     console.log('✅ Registro de login criado:', loginRecord.id);
 
-    // Disparar geolocalização para o IP capturado
+    // Disparar geolocalização PRECISA para o IP capturado
     if (ipResult.ip !== '127.0.0.1') {
-      const geoResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ip-geolocation`, {
+      const geoResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ip-geolocation-precise`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
@@ -122,7 +130,7 @@ Deno.serve(async (req) => {
       });
 
       const geoResult = await geoResponse.json();
-      console.log('🌍 Geolocalização disparada:', geoResult.success);
+      console.log('🌍 Geolocalização PRECISA disparada:', geoResult.success);
     }
 
     return new Response(
