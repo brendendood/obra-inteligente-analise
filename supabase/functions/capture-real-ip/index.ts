@@ -115,22 +115,26 @@ Deno.serve(async (req) => {
 
     // Disparar geolocalização ENHANCED para o IP capturado
     if (ipResult.ip !== '127.0.0.1') {
-      const geoResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ip-geolocation-enhanced`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ip_address: ipResult.ip,
-          login_id: loginRecord.id,
-          user_id,
-          force_update: force_capture
-        })
-      });
+      console.log('🌍 Iniciando geolocalização ENHANCED para IP:', ipResult.ip);
+      
+      try {
+        const { data: geoData, error: geoError } = await supabase.functions.invoke('ip-geolocation-enhanced', {
+          body: {
+            ip_address: ipResult.ip,
+            login_id: loginRecord.id,
+            user_id,
+            force_update: true  // Sempre forçar atualização para capturar localização real
+          }
+        });
 
-      const geoResult = await geoResponse.json();
-      console.log('🌍 Geolocalização ENHANCED disparada:', geoResult.success);
+        if (geoError) {
+          console.error('❌ Erro na geolocalização ENHANCED:', geoError);
+        } else {
+          console.log('✅ Geolocalização ENHANCED concluída:', geoData?.success);
+        }
+      } catch (error) {
+        console.error('❌ Falha ao chamar geolocalização ENHANCED:', error);
+      }
     }
 
     return new Response(
