@@ -28,9 +28,10 @@ interface UsersHeaderProps {
   users: AdminUserExport[];
   onRefresh: () => void;
   isRefreshing: boolean;
+  isRealtimeConnected?: boolean;
 }
 
-export const UsersHeader = ({ totalUsers, filteredCount, users, onRefresh, isRefreshing }: UsersHeaderProps) => {
+export const UsersHeader = ({ totalUsers, filteredCount, users, onRefresh, isRefreshing, isRealtimeConnected = false }: UsersHeaderProps) => {
   const { toast } = useToast();
 
   const handleExportExcel = async () => {
@@ -102,9 +103,17 @@ export const UsersHeader = ({ totalUsers, filteredCount, users, onRefresh, isRef
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-sm text-gray-600">
-          Total de {totalUsers} usuários registrados na plataforma
-          {filteredCount !== totalUsers && ` (${filteredCount} visíveis após filtros)`}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Total de {totalUsers} usuários registrados na plataforma
+            {filteredCount !== totalUsers && ` (${filteredCount} visíveis após filtros)`}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`h-2 w-2 rounded-full ${isRealtimeConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span className="text-xs text-muted-foreground">
+              {isRealtimeConnected ? 'Tempo real conectado' : 'Tempo real desconectado'}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>

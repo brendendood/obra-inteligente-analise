@@ -7,11 +7,19 @@ import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { Button } from '@/components/ui/button';
 import { MapPin, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRealTimeLocation } from '@/hooks/useRealTimeLocation';
 import { supabase } from '@/integrations/supabase/client';
 
 export const AdminUsersManagement = () => {
   const [isUpdatingGeolocations, setIsUpdatingGeolocations] = useState(false);
   const { toast } = useToast();
+  
+  // Conectar ao sistema de localização em tempo real
+  const { isConnected } = useRealTimeLocation((update) => {
+    console.log('📍 Localização atualizada:', update);
+    // Recarregar dados quando houver atualizações
+    refreshUsers();
+  });
   
   const {
     users,
@@ -155,6 +163,7 @@ export const AdminUsersManagement = () => {
         users={allUsers as any} 
         onRefresh={refreshUsers}
         isRefreshing={loading}
+        isRealtimeConnected={isConnected}
       />
       
       <UsersFilters
@@ -170,6 +179,7 @@ export const AdminUsersManagement = () => {
         users={users}
         onUpdateUser={updateUserProfile}
         onDeleteUser={deleteUser}
+        onRefresh={refreshUsers}
       />
 
       {users.length === 0 && (

@@ -1,21 +1,83 @@
-import { MapPin, Globe, Clock } from 'lucide-react';
+import { MapPin, Globe, Clock, RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserLocationDisplayProps {
   realLocation: string;
   lastLoginIp: string | null;
   lastSignInAt: string | null;
+  userId: string;
   compact?: boolean;
+  onLocationUpdate?: () => void;
 }
 
 export const UserLocationDisplay = ({ 
   realLocation, 
   lastLoginIp, 
   lastSignInAt,
-  compact = false 
+  userId,
+  compact = false,
+  onLocationUpdate
 }: UserLocationDisplayProps) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { toast } = useToast();
   const isLocationAvailable = realLocation && realLocation !== 'Localização não disponível';
+
+  const handleUpdateLocation = async () => {
+    setIsUpdating(true);
+    try {
+      console.log('🔄 Atualizando localização para usuário:', userId);
+      
+      const { data, error } = await supabase.rpc('force_update_user_location', {
+        target_user_id: userId
+      });
+
+      if (error) {
+        console.error('❌ Erro ao forçar atualização:', error);
+        toast({
+          title: "Erro na atualização",
+          description: "Não foi possível atualizar a localização",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const result = data as any;
+      if (!result.success) {
+        toast({
+          title: "Falha na atualização",
+          description: result.error || "Erro desconhecido",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Localização atualizada",
+        description: `IP ${result.ip_address} sendo processado`,
+      });
+
+      // Chamar callback para atualizar a lista
+      if (onLocationUpdate) {
+        setTimeout(onLocationUpdate, 2000); // Aguardar processamento
+      }
+
+      console.log('✅ Atualização de localização iniciada:', result);
+    } catch (error) {
+      console.error('❌ Erro na atualização:', error);
+      toast({
+        title: "Erro no sistema",
+        description: "Falha ao executar atualização",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
   
   const formatLastSeen = (dateString: string | null) => {
     if (!dateString) return 'Nunca';
@@ -109,13 +171,26 @@ export const UserLocationDisplay = ({
         </div>
       )}
 
-      {/* Status da localização */}
-      <div className="text-xs">
-        {isLocationAvailable ? (
-          <span className="text-green-600">✓ Localização baseada no IP do último acesso</span>
-        ) : (
-          <span className="text-amber-600">⚠ Aguardando dados de geolocalização</span>
-        )}
+      {/* Status da localização com botão de atualização */}
+      <div className="flex items-center justify-between text-xs">
+        <div>
+          {isLocationAvailable ? (
+            <span className="text-green-600">✓ Localização baseada no IP do último acesso</span>
+          ) : (
+            <span className="text-amber-600">⚠ Aguardando dados de geolocalização</span>
+          )}
+        </div>
+        
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleUpdateLocation}
+          disabled={isUpdating}
+          className="h-6 px-2 text-xs"
+        >
+          <RefreshCw className={`h-3 w-3 mr-1 ${isUpdating ? 'animate-spin' : ''}`} />
+          {isUpdating ? 'Atualizando...' : 'Atualizar'}
+        </Button>
       </div>
     </div>
   );

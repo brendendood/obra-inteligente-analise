@@ -113,9 +113,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               isAuthenticated: !!user && !!session,
             });
 
-            // Log simples do login
+            // Capturar IP real e criar registro de login em tempo real
             if (event === 'SIGNED_IN' && user) {
               console.log('📊 AUTH: Login detectado para:', user.email);
+              
+              // Capturar IP real e localização imediatamente
+              setTimeout(async () => {
+                try {
+                  console.log('🌐 Capturando IP real do usuário...');
+                  
+                  const { data, error } = await supabase.functions.invoke('capture-real-ip', {
+                    body: { 
+                      user_id: user.id,
+                      force_capture: true 
+                    }
+                  });
+
+                  if (error) {
+                    console.error('❌ Erro na captura de IP:', error);
+                  } else {
+                    console.log('✅ IP real capturado:', data);
+                  }
+                } catch (error) {
+                  console.error('❌ Falha na captura de IP:', error);
+                }
+              }, 1000); // Delay para não interferir no processo de login
             }
           }, import.meta.env.DEV ? 50 : 0); // Delay menor para desenvolvimento
         }

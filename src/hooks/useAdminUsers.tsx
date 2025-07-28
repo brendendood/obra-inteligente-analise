@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface AdminUser {
   id: string;
+  user_id: string;
   email: string;
   email_confirmed_at: string | null;
   full_name: string | null;
@@ -69,7 +70,8 @@ export const useAdminUsers = () => {
       console.log('✅ ADMIN USERS: RPC retornou:', usersResponse.data.length, 'usuários');
 
       const mappedUsers: AdminUser[] = usersResponse.data.map((user: any) => ({
-        id: user.user_id,
+        id: user.profile_id,
+        user_id: user.user_id,
         email: user.email,
         full_name: user.full_name,
         created_at: user.created_at,
@@ -77,7 +79,6 @@ export const useAdminUsers = () => {
         plan: user.subscription_plan,
         status: user.subscription_status === 'active' ? 'active' : 'inactive',
         tags: user.tags || [],
-        engagement_metrics: null,
         company: user.company,
         phone: user.phone,
         city: user.city,

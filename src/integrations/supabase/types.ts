@@ -1272,6 +1272,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      force_update_user_location: {
+        Args: { target_user_id: string }
+        Returns: Json
+      }
       force_user_geolocation_update: {
         Args: { user_email: string }
         Returns: Json

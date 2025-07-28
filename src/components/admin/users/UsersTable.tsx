@@ -19,6 +19,7 @@ import { ptBR } from 'date-fns/locale';
 interface UserTableProps {
   users: Array<{
     id: string;
+    user_id: string;
     email: string;
     email_confirmed_at: string | null;
     full_name: string | null;
@@ -40,9 +41,10 @@ interface UserTableProps {
   }>;
   onUpdateUser: (userId: string, data: any) => void;
   onDeleteUser: (userId: string) => void;
+  onRefresh?: () => void;
 }
 
-export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps) => {
+export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: UserTableProps) => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editFormData, setEditFormData] = useState<any>({});
@@ -336,12 +338,14 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser }: UserTableProps
 
                 {/* Localização Real */}
                 <TableCell className="max-w-[200px]">
-                  <UserLocationDisplay
-                    realLocation={user.real_location}
-                    lastLoginIp={user.last_login_ip}
-                    lastSignInAt={user.last_sign_in_at}
-                    compact
-                  />
+              <UserLocationDisplay
+                realLocation={user.real_location}
+                lastLoginIp={user.last_login_ip}
+                lastSignInAt={user.last_sign_in_at}
+                userId={user.user_id}
+                compact
+                onLocationUpdate={onRefresh}
+              />
                 </TableCell>
 
                 {/* Plano */}
