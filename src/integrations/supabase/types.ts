@@ -1344,6 +1344,14 @@ export type Database = {
           top_features: Json
         }[]
       }
+      get_geolocation_quality_report: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          metric: string
+          count: number
+          percentage: number
+        }[]
+      }
       get_level_info: {
         Args: { level_num: number }
         Returns: Json
@@ -1381,6 +1389,10 @@ export type Database = {
         Args: { p_user_id: string; p_ip_address?: string }
         Returns: string
       }
+      reset_all_geolocation_data: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       test_complete_referral_system: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -1412,6 +1424,16 @@ export type Database = {
       update_user_segments: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      validate_geolocation_quality: {
+        Args: {
+          p_city: string
+          p_region: string
+          p_country: string
+          p_latitude: number
+          p_longitude: number
+        }
+        Returns: boolean
       }
       validate_referral_code: {
         Args: { p_ref_code: string }

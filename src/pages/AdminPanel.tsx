@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   Shield,
   ChevronLeft,
-  MessageCircle
+  MessageCircle,
+  Globe
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
@@ -21,6 +22,7 @@ import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagem
 import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
 import { AdminAIConversations } from '@/components/admin/AdminAIConversations';
 import { ReferralSystemTest } from '@/components/admin/ReferralSystemTest';
+import { GeolocationManager } from '@/components/admin/GeolocationManager';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 
 const AdminPanel = () => {
@@ -168,6 +170,12 @@ const AdminPanel = () => {
       component: <AdminAIConversations />
     },
     {
+      id: 'geolocation',
+      label: 'Geolocalização',
+      icon: Globe,
+      component: <GeolocationManager />
+    },
+    {
       id: 'referrals',
       label: 'Teste Referral',
       icon: Users,
@@ -213,7 +221,7 @@ const AdminPanel = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             {tabItems.map((tab) => (
               <TabsTrigger 
                 key={tab.id} 
