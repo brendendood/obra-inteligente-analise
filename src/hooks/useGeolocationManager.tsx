@@ -23,9 +23,9 @@ export const useGeolocationManager = () => {
         console.warn('❌ Falha ao capturar IP real:', e);
       }
 
-      // Se temos IP real, usar geolocalização precisa
+      // Se temos IP real, usar geolocalização enhanced
       if (realIP && realIP !== '127.0.0.1') {
-        const { data: preciseData, error: preciseError } = await supabase.functions.invoke('ip-geolocation-precise', {
+        const { data: preciseData, error: preciseError } = await supabase.functions.invoke('ip-geolocation-enhanced', {
           body: {
             ip_address: realIP,
             force_update: true,
@@ -34,12 +34,12 @@ export const useGeolocationManager = () => {
         });
 
         if (preciseError) {
-          console.warn('⚠️ Falha na geolocalização precisa:', preciseError);
+          console.warn('⚠️ Falha na geolocalização enhanced:', preciseError);
         } else {
-          console.log('✅ Geolocalização precisa atualizada:', preciseData);
+          console.log('✅ Geolocalização enhanced atualizada:', preciseData);
           toast({
-            title: "✅ Localização Precisa Atualizada",
-            description: `${preciseData.location?.city || 'Localização'} capturada com alta precisão`,
+            title: "✅ Localização Enhanced Atualizada",
+            description: `${preciseData.location?.city || 'Localização'} capturada com múltiplas APIs`,
           });
           return { success: true, data: preciseData };
         }

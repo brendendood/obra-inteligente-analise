@@ -113,9 +113,9 @@ Deno.serve(async (req) => {
 
     console.log('✅ Registro de login criado:', loginRecord.id);
 
-    // Disparar geolocalização PRECISA para o IP capturado
+    // Disparar geolocalização ENHANCED para o IP capturado
     if (ipResult.ip !== '127.0.0.1') {
-      const geoResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ip-geolocation-precise`, {
+      const geoResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ip-geolocation-enhanced`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
       });
 
       const geoResult = await geoResponse.json();
-      console.log('🌍 Geolocalização PRECISA disparada:', geoResult.success);
+      console.log('🌍 Geolocalização ENHANCED disparada:', geoResult.success);
     }
 
     return new Response(

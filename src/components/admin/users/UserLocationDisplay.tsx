@@ -31,7 +31,7 @@ export const UserLocationDisplay = ({
   const handleUpdateLocation = async () => {
     setIsUpdating(true);
     try {
-      console.log('🔄 Atualizando localização PRECISA para usuário:', userId);
+      console.log('🔄 Atualizando localização ENHANCED para usuário:', userId);
       
       // Tentar capturar IP real primeiro
       let realIP = null;
@@ -45,9 +45,9 @@ export const UserLocationDisplay = ({
         console.warn('❌ Falha ao capturar IP real:', e);
       }
 
-      // Usar nova edge function precisa se temos IP real
+      // Usar nova edge function enhanced se temos IP real
       if (realIP && realIP !== '127.0.0.1') {
-        const { data: preciseData, error: preciseError } = await supabase.functions.invoke('ip-geolocation-precise', {
+        const { data: preciseData, error: preciseError } = await supabase.functions.invoke('ip-geolocation-enhanced', {
           body: {
             ip_address: realIP,
             user_id: userId,
@@ -56,10 +56,10 @@ export const UserLocationDisplay = ({
         });
 
         if (!preciseError && preciseData?.success) {
-          console.log('✅ Geolocalização precisa atualizada:', preciseData);
+          console.log('✅ Geolocalização enhanced atualizada:', preciseData);
           toast({
-            title: "✅ Localização Precisa Atualizada",
-            description: `${preciseData.location?.city || 'Localização'} capturada com alta precisão`,
+            title: "✅ Localização Enhanced Atualizada",
+            description: `${preciseData.location?.city || 'Localização'} capturada com múltiplas APIs`,
           });
           
           if (onLocationUpdate) {
@@ -67,7 +67,7 @@ export const UserLocationDisplay = ({
           }
           return;
         } else {
-          console.warn('⚠️ Falha na geolocalização precisa:', preciseError);
+          console.warn('⚠️ Falha na geolocalização enhanced:', preciseError);
         }
       }
 
