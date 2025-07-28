@@ -1264,6 +1264,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      force_all_geolocations_update: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       force_geolocation_refresh: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1387,6 +1391,10 @@ export type Database = {
       }
       manual_login_insert: {
         Args: { p_user_id: string; p_ip_address?: string }
+        Returns: string
+      }
+      recover_historical_logins: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       reset_all_geolocation_data: {
