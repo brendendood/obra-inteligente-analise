@@ -2,7 +2,7 @@
 import { CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, BarChart3, Eye } from 'lucide-react';
+import { Calendar, BarChart3, Eye, FolderOpen, CalendarDays, Play, Calendar as CalendarIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface ProjectCardContentProps {
@@ -15,16 +15,52 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
   return (
     <CardContent>
       <div className="space-y-3">
-        {project.total_area && (
-          <div className="text-sm text-gray-600 flex items-center space-x-1">
-            <BarChart3 className="h-4 w-4" />
-            <span className="font-medium">Área: {project.total_area}m²</span>
+        {/* Informações principais */}
+        <div className="space-y-2">
+          {project.project_type && (
+            <div className="text-sm text-muted-foreground flex items-center space-x-1">
+              <FolderOpen className="h-4 w-4" />
+              <span className="font-medium">{project.project_type}</span>
+            </div>
+          )}
+          
+          {project.total_area && (
+            <div className="text-sm text-muted-foreground flex items-center space-x-1">
+              <BarChart3 className="h-4 w-4" />
+              <span className="font-medium">Área: {project.total_area}m²</span>
+            </div>
+          )}
+        </div>
+
+        {/* Datas do projeto */}
+        {(project.start_date || project.end_date) && (
+          <div className="space-y-1.5">
+            {project.start_date && (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Play className="h-4 w-4 mr-2" />
+                <span>Início: {new Date(project.start_date).toLocaleDateString('pt-BR')}</span>
+              </div>
+            )}
+            {project.end_date && (
+              <div className="flex items-center text-sm text-muted-foreground">
+                <CalendarDays className="h-4 w-4 mr-2" />
+                <span>Conclusão: {new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Descrição */}
+        {project.description && (
+          <div className="text-sm text-muted-foreground/70 italic line-clamp-2">
+            {project.description}
           </div>
         )}
         
-        <div className="flex items-center text-sm text-gray-500">
-          <Calendar className="h-4 w-4 mr-2" />
-          {new Date(project.created_at).toLocaleDateString('pt-BR')}
+        {/* Data de criação */}
+        <div className="flex items-center text-sm text-muted-foreground/60">
+          <CalendarIcon className="h-4 w-4 mr-2" />
+          <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
         </div>
         
         <Tooltip>
