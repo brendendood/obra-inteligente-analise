@@ -36,7 +36,7 @@ export const ProjectEditDialog = ({ project, isOpen, onClose, onSave }: ProjectE
     project_type: '',
     total_area: '',
     description: '',
-    status: 'em_andamento',
+    project_status: 'draft',
     start_date: '',
     end_date: ''
   });
@@ -51,7 +51,7 @@ export const ProjectEditDialog = ({ project, isOpen, onClose, onSave }: ProjectE
         project_type: project.project_type || '',
         total_area: project.total_area?.toString() || '',
         description: project.description || '',
-        status: project.status || 'em_andamento',
+        project_status: project.project_status || 'draft',
         start_date: project.start_date || '',
         end_date: project.end_date || ''
       });
@@ -68,7 +68,7 @@ export const ProjectEditDialog = ({ project, isOpen, onClose, onSave }: ProjectE
         project_type: formData.project_type,
         total_area: formData.total_area ? parseFloat(formData.total_area) : null,
         description: formData.description,
-        status: formData.status,
+        project_status: formData.project_status,
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
         updated_at: new Date().toISOString()
@@ -158,18 +158,17 @@ export const ProjectEditDialog = ({ project, isOpen, onClose, onSave }: ProjectE
                 Status do Projeto
               </Label>
               <Select 
-                value={formData.status} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+                value={formData.project_status} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, project_status: value }))}
               >
                 <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 transition-all duration-200">
                   <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                  <SelectItem value="planejamento">Planejamento</SelectItem>
-                  <SelectItem value="em_andamento">Em Andamento</SelectItem>
-                  <SelectItem value="pausado">Pausado</SelectItem>
-                  <SelectItem value="concluido">Concluído</SelectItem>
-                  <SelectItem value="cancelado">Cancelado</SelectItem>
+                  <SelectItem value="draft">Rascunho</SelectItem>
+                  <SelectItem value="active">Ativo</SelectItem>
+                  <SelectItem value="completed">Concluído</SelectItem>
+                  <SelectItem value="archived">Arquivado</SelectItem>
                 </SelectContent>
               </Select>
             </div>

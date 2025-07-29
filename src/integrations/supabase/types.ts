@@ -703,6 +703,8 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          description: string | null
+          end_date: string | null
           estimated_budget: number | null
           extracted_text: string | null
           file_path: string
@@ -711,6 +713,7 @@ export type Database = {
           name: string
           project_status: string | null
           project_type: string | null
+          start_date: string | null
           state: string | null
           total_area: number | null
           updated_at: string
@@ -721,6 +724,8 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          description?: string | null
+          end_date?: string | null
           estimated_budget?: number | null
           extracted_text?: string | null
           file_path: string
@@ -729,6 +734,7 @@ export type Database = {
           name: string
           project_status?: string | null
           project_type?: string | null
+          start_date?: string | null
           state?: string | null
           total_area?: number | null
           updated_at?: string
@@ -739,6 +745,8 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          description?: string | null
+          end_date?: string | null
           estimated_budget?: number | null
           extracted_text?: string | null
           file_path?: string
@@ -747,6 +755,7 @@ export type Database = {
           name?: string
           project_status?: string | null
           project_type?: string | null
+          start_date?: string | null
           state?: string | null
           total_area?: number | null
           updated_at?: string

@@ -85,13 +85,15 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
   const handleStatusChange = async (newStatus: string) => {
     setIsUpdatingStatus(true);
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('projects')
         .update({ 
           project_status: newStatus,
           updated_at: new Date().toISOString()
         })
-        .eq('id', project.id);
+        .eq('id', project.id)
+        .select()
+        .single();
 
       if (error) {
         console.error('Erro ao atualizar status:', error);
@@ -101,9 +103,9 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
       toast.success('Status do projeto atualizado com sucesso!');
       
-      // Atualizar o projeto localmente
+      // Atualizar o projeto com dados atualizados do banco
       if (onProjectUpdate) {
-        onProjectUpdate({ ...project, project_status: newStatus });
+        onProjectUpdate(data);
       }
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
