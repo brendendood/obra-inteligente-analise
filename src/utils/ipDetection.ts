@@ -6,13 +6,36 @@ export interface IPDetectionResult {
   userEmail?: string;
 }
 
+// Cache em memória para evitar múltiplas detecções na mesma sessão
+const ipDetectionCache = new Map<string, IPDetectionResult>();
+const SESSION_STORAGE_KEY = 'maden_ip_detection_cache';
+
 export const detectUserByIP = async (): Promise<IPDetectionResult> => {
   try {
+    // Verificar cache de sessão primeiro
+    const cachedResult = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (cachedResult) {
+      console.log('🔍 Usando resultado de IP em cache (sessão)');
+      return JSON.parse(cachedResult);
+    }
+
+    console.log('🔍 Detectando usuário por IP (primeira vez na sessão)...');
+    
     // Tentar obter o IP do usuário (fallback para localhost em desenvolvimento)
     const currentIP = await getCurrentUserIP();
     
     if (!currentIP) {
-      return { isReturningUser: false };
+      const result = { isReturningUser: false };
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(result));
+      return result;
+    }
+
+    // Verificar cache em memória
+    if (ipDetectionCache.has(currentIP)) {
+      console.log('🔍 Usando resultado de IP em cache (memória)');
+      const result = ipDetectionCache.get(currentIP)!;
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(result));
+      return result;
     }
 
     // Buscar histórico de login com esse IP e dados do usuário
@@ -27,7 +50,10 @@ export const detectUserByIP = async (): Promise<IPDetectionResult> => {
       .limit(1);
 
     if (error || !loginHistory || loginHistory.length === 0) {
-      return { isReturningUser: false };
+      const result = { isReturningUser: false };
+      ipDetectionCache.set(currentIP, result);
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(result));
+      return result;
     }
 
     const lastLogin = loginHistory[0];
@@ -39,14 +65,22 @@ export const detectUserByIP = async (): Promise<IPDetectionResult> => {
       .eq('user_id', lastLogin.user_id)
       .single();
     
-    return {
+    const result = {
       isReturningUser: true,
       lastLoginDate: lastLogin.login_at,
       userEmail: userProfile?.full_name
     };
+
+    // Cachear resultado
+    ipDetectionCache.set(currentIP, result);
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(result));
+    
+    return result;
   } catch (error) {
     console.error('Erro ao detectar usuário por IP:', error);
-    return { isReturningUser: false };
+    const result = { isReturningUser: false };
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(result));
+    return result;
   }
 };
 

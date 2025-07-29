@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitializedRef = useRef(false);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -47,13 +47,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const user = session?.user || null;
+      const isAuthenticated = !!user && !!session;
 
       setState({
         user,
         session,
         loading: false,
-        isAuthenticated: !!user && !!session,
+        isAuthenticated,
       });
+
+      // Redirecionamento centralizado - apenas uma vez após login bem-sucedido
+      if (isAuthenticated && !isInitializedRef.current && window.location.pathname === '/login') {
+        console.log('🔄 AUTH: Redirecionando para painel após login bem-sucedido');
+        window.location.href = '/painel';
+      }
+      
+      isInitializedRef.current = true;
     } catch (error) {
       console.error('Auth refresh error:', error);
       setState(prev => ({ ...prev, loading: false }));
@@ -79,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🔄 AUTH: Configurando listener de autenticação...');
       
       const { data } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
+        (event, session) => {
           if (!mounted) {
             console.log('🔄 AUTH: Componente desmontado, ignorando evento:', event);
             return;
@@ -93,66 +102,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           lastAuthEventRef.current = eventKey;
           
-          // Clear existing debounce timer
-          if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-          }
+          console.log('🔄 AUTH: Processando mudança de estado:', event);
           
-          // Debounce para HMR melhor em desenvolvimento
-          debounceTimerRef.current = setTimeout(async () => {
-            if (!mounted) return;
-            
-            console.log('🔄 AUTH: Processando mudança de estado:', event);
-            
-            const user = session?.user || null;
+          const user = session?.user || null;
+          const isAuthenticated = !!user && !!session;
 
-            setState({
-              user,
-              session,
-              loading: false,
-              isAuthenticated: !!user && !!session,
-            });
+          setState({
+            user,
+            session,
+            loading: false,
+            isAuthenticated,
+          });
 
-            // Capturar IP real e criar registro de login em tempo real
-            if (event === 'SIGNED_IN' && user) {
-              console.log('📊 AUTH: Login detectado para:', user.email);
-              
-              // Capturar IP real e localização precisa imediatamente
-              setTimeout(async () => {
+          // Redirecionamento centralizado - apenas para login bem-sucedido
+          if (event === 'SIGNED_IN' && isAuthenticated && window.location.pathname === '/login') {
+            console.log('🔄 AUTH: Redirecionando para painel após SIGNED_IN');
+            window.location.href = '/painel';
+          }
+
+          // Capturar IP real e criar registro de login em background (sem bloquear UX)
+          if (event === 'SIGNED_IN' && user) {
+            console.log('📊 AUTH: Login detectado para:', user.email);
+            
+            // Executar em background após redirecionamento
+            setTimeout(async () => {
+              try {
+                console.log('🌐 Capturando IP real via frontend (background)...');
+                
+                // Capturar IP real do frontend primeiro
+                let realIP = null;
                 try {
-                  console.log('🌐 Capturando IP real via frontend...');
-                  
-                  // Capturar IP real do frontend primeiro
-                  let realIP = null;
-                  try {
-                    const response = await fetch('https://ipapi.co/ip/');
-                    if (response.ok) {
-                      realIP = (await response.text()).trim();
-                      console.log(`✅ IP real capturado do frontend: ${realIP}`);
-                    }
-                  } catch (e) {
-                    console.warn('❌ Falha ao capturar IP do frontend:', e);
+                  const response = await fetch('https://ipapi.co/ip/');
+                  if (response.ok) {
+                    realIP = (await response.text()).trim();
+                    console.log(`✅ IP real capturado do frontend: ${realIP}`);
                   }
-                  
-                  const { data, error } = await supabase.functions.invoke('capture-real-ip', {
-                    body: { 
-                      user_id: user.id,
-                      force_capture: true,
-                      frontend_ip: realIP
-                    }
-                  });
-
-                  if (error) {
-                    console.error('❌ Erro na captura de IP:', error);
-                  } else {
-                    console.log('✅ Geolocalização precisa iniciada:', data);
-                  }
-                } catch (error) {
-                  console.error('❌ Falha na captura de IP:', error);
+                } catch (e) {
+                  console.warn('❌ Falha ao capturar IP do frontend:', e);
                 }
-              }, 1000); // Delay para não interferir no processo de login
-            }
-          }, import.meta.env.DEV ? 50 : 0); // Delay menor para desenvolvimento
+                
+                const { data, error } = await supabase.functions.invoke('capture-real-ip', {
+                  body: { 
+                    user_id: user.id,
+                    force_capture: true,
+                    frontend_ip: realIP
+                  }
+                });
+
+                if (error) {
+                  console.error('❌ Erro na captura de IP:', error);
+                } else {
+                  console.log('✅ Geolocalização precisa iniciada:', data);
+                }
+              } catch (error) {
+                console.error('❌ Falha na captura de IP:', error);
+              }
+            }, 2000); // Delay maior para não interferir no redirecionamento
+          }
         }
       );
       
@@ -166,10 +172,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       mounted = false;
       console.log('🔄 AUTH: Limpando AuthProvider...');
       
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-      
       if (subscription) {
         console.log('🔄 AUTH: Removendo subscription...');
         subscription.unsubscribe();
@@ -178,6 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Reset para evitar memory leaks
       lastAuthEventRef.current = null;
+      isInitializedRef.current = false;
     };
   }, [refreshAuth]);
 

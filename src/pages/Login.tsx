@@ -66,10 +66,12 @@ export default function Login() {
 
       toast({
         title: "✅ Login realizado com sucesso!",
-        description: "Bem-vindo de volta ao MadenAI."
+        description: "Redirecionando para o painel..."
       });
 
-      navigate('/painel');
+      // Remover navegação manual - AuthProvider fará o redirecionamento automaticamente
+      // O redirecionamento será feito pelo AuthProvider quando detectar SIGNED_IN
+
     } catch (error: any) {
       console.error('Erro no login:', error);
       toast({
@@ -77,9 +79,9 @@ export default function Login() {
         description: formatAuthError(error),
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
+      setLoading(false); // Só resetar loading em caso de erro
     }
+    // Não resetar loading aqui - deixar o AuthProvider gerenciar o estado
   };
 
   return (
