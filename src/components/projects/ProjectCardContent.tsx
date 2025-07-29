@@ -12,29 +12,19 @@ interface ProjectCardContentProps {
 export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
   const navigate = useNavigate();
 
-  // Debug: Log do projeto completo
-  console.log('🔍 ProjectCardContent - Dados do projeto:', project);
-  console.log('🔍 ProjectCardContent - Campos específicos:', {
-    project_type: project.project_type,
-    description: project.description,
-    start_date: project.start_date,
-    end_date: project.end_date,
-    total_area: project.total_area
-  });
-
   return (
     <CardContent>
       <div className="space-y-3">
         {/* Informações principais */}
         <div className="space-y-2">
-          {project.project_type && (
+          {project.project_type && project.project_type.trim() !== '' && (
             <div className="text-sm text-muted-foreground flex items-center space-x-1">
               <FolderOpen className="h-4 w-4" />
               <span className="font-medium">{project.project_type}</span>
             </div>
           )}
           
-          {project.total_area && (
+          {project.total_area && project.total_area > 0 && (
             <div className="text-sm text-muted-foreground flex items-center space-x-1">
               <BarChart3 className="h-4 w-4" />
               <span className="font-medium">Área: {project.total_area}m²</span>
@@ -61,9 +51,9 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
         )}
 
         {/* Descrição */}
-        {project.description && (
-          <div className="text-sm text-muted-foreground/70 italic line-clamp-2">
-            {project.description}
+        {project.description && project.description.trim() !== '' && (
+          <div className="text-sm text-muted-foreground/70 italic leading-relaxed">
+            <p className="line-clamp-2">{project.description}</p>
           </div>
         )}
         
@@ -73,21 +63,40 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
           <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
         </div>
         
-        <Tooltip>
-          <TooltipTrigger asChild>
+        {/* Botões de ação */}
+        <div className="space-y-2">
+          {/* Botão Ver Detalhes se houver descrição longa */}
+          {project.description && project.description.length > 100 && (
             <Button 
-              onClick={() => navigate(`/projeto/${project.id}`)}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
-              size="sm"
+              variant="outline" 
+              size="sm" 
+              className="w-full text-xs"
+              onClick={() => {
+                // TODO: Implementar modal de detalhes
+                alert(`Detalhes do Projeto:\n\nTipo: ${project.project_type || 'Não informado'}\nDescrição: ${project.description || 'Não informado'}\nÁrea: ${project.total_area || 'Não informado'}m²`);
+              }}
             >
-              <Eye className="h-4 w-4 mr-2" />
-              Ver Projeto
+              <Eye className="h-3 w-3 mr-1" />
+              Ver Detalhes
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Acessar todas as ferramentas do projeto</p>
-          </TooltipContent>
-        </Tooltip>
+          )}
+          
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                onClick={() => navigate(`/projeto/${project.id}`)}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                size="sm"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Ver Projeto
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Acessar todas as ferramentas do projeto</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
     </CardContent>
   );

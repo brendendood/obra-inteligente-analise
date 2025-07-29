@@ -131,18 +131,6 @@ export default function Projects() {
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  {/* Botão temporário de debug */}
-                  <Button
-                    onClick={() => {
-                      clearCache();
-                      forceRefresh();
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                  >
-                    🔄 Debug
-                  </Button>
                   
                   <Button
                     onClick={() => navigate('/upload')}
