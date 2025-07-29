@@ -79,8 +79,16 @@ export const useProjectsLogic = () => {
 
   const updateProject = (updatedProject: any) => {
     console.log('📝 PROJETOS: Atualizando projeto:', updatedProject.id);
-    // Forçar refresh para garantir consistência
-    fetchProjects();
+    
+    // Atualizar projeto específico na lista local primeiro (para UX imediato)
+    setFilteredProjects(prev => 
+      prev.map(p => p.id === updatedProject.id ? updatedProject : p)
+    );
+    
+    // Depois forçar refresh para garantir consistência
+    setTimeout(() => {
+      fetchProjects();
+    }, 100);
   };
 
   const handleDeleteProject = async (projectId: string) => {

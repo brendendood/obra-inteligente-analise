@@ -14,9 +14,10 @@ interface ProjectCardActionsProps {
   project: any;
   onDelete: (project: any) => void;
   onEdit: () => void;
+  onEditComplete?: () => void;
 }
 
-export const ProjectCardActions = ({ project, onDelete, onEdit }: ProjectCardActionsProps) => {
+export const ProjectCardActions = ({ project, onDelete, onEdit, onEditComplete }: ProjectCardActionsProps) => {
   const { navigateToProject } = useOptimizedProjectNavigation();
 
   const handleViewProject = () => {
@@ -51,6 +52,17 @@ export const ProjectCardActions = ({ project, onDelete, onEdit }: ProjectCardAct
           <Edit className="h-4 w-4" />
           <span>Editar Nome</span>
         </DropdownMenuItem>
+        
+        {onEditComplete && (
+          <DropdownMenuItem 
+            onClick={onEditComplete}
+            className="flex items-center space-x-2 hover:bg-blue-50 cursor-pointer transition-colors duration-200"
+          >
+            <Edit className="h-4 w-4" />
+            <span>Editar Projeto Completo</span>
+          </DropdownMenuItem>
+        )}
+        
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onClick={() => onDelete(project)}

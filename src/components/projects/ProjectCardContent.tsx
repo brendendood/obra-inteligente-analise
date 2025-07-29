@@ -32,8 +32,8 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
           )}
         </div>
 
-        {/* Datas do projeto */}
-        {(project.start_date || project.end_date) && (
+        {/* Datas do projeto ou data de criação */}
+        {(project.start_date || project.end_date) ? (
           <div className="space-y-1.5">
             {project.start_date && (
               <div className="flex items-center text-sm text-muted-foreground">
@@ -44,24 +44,23 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
             {project.end_date && (
               <div className="flex items-center text-sm text-muted-foreground">
                 <CalendarDays className="h-4 w-4 mr-2" />
-                <span>Conclusão: {new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
+                <span>Término: {new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
               </div>
             )}
+          </div>
+        ) : (
+          <div className="flex items-center text-sm text-muted-foreground/60">
+            <CalendarIcon className="h-4 w-4 mr-2" />
+            <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
           </div>
         )}
 
         {/* Descrição */}
         {project.description && project.description.trim() !== '' && (
-          <div className="text-sm text-muted-foreground/70 italic leading-relaxed">
+          <div className="text-sm text-muted-foreground leading-relaxed">
             <p className="line-clamp-2">{project.description}</p>
           </div>
         )}
-        
-        {/* Data de criação */}
-        <div className="flex items-center text-sm text-muted-foreground/60">
-          <CalendarIcon className="h-4 w-4 mr-2" />
-          <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
-        </div>
         
         {/* Botões de ação */}
         <div className="space-y-2">

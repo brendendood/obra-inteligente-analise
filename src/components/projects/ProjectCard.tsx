@@ -5,6 +5,7 @@ import { ProjectCardHeader } from './ProjectCardHeader';
 import { ProjectCardStatus } from './ProjectCardStatus';
 import { ProjectCardActions } from './ProjectCardActions';
 import { ProjectCardContent } from './ProjectCardContent';
+import { ProjectEditDialog } from './ProjectEditDialog';
 
 interface ProjectCardProps {
   project: any;
@@ -28,6 +29,7 @@ const ProjectCard = ({
   onUpdate 
 }: ProjectCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   return (
     <Card 
@@ -55,6 +57,18 @@ const ProjectCard = ({
         project={project}
         onDelete={onDelete}
         onEdit={() => setIsEditing(true)}
+        onEditComplete={() => setIsEditDialogOpen(true)}
+      />
+
+      {/* Dialog de Edição Completa */}
+      <ProjectEditDialog
+        project={project}
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={(updatedProject) => {
+          onUpdate?.(updatedProject);
+          setIsEditDialogOpen(false);
+        }}
       />
     </Card>
   );
