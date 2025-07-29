@@ -15,8 +15,11 @@ import {
   Home,
   Briefcase,
   MapPin,
-  FileText
+  FileText,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,10 +48,12 @@ interface SimpleProjectCardProps {
 
 export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }: SimpleProjectCardProps) => {
   const { navigateToProject } = useProjectNavigation();
+  const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [showMobileDetails, setShowMobileDetails] = useState(false);
 
   // Função para obter ícone do tipo de projeto
   const getProjectTypeIcon = (projectType: string) => {
@@ -153,83 +158,157 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
     }
   };
 
+  if (isMobile) {
+    return (
+      <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full">
+        <CardContent className="p-4">
+          {/* Cabeçalho Mobile: Nome + Status */}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight flex-1">
+              {project.name}
+            </h3>
+            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${currentStatus.bgColor} ${currentStatus.color} ${currentStatus.borderColor} border flex-shrink-0`}>
+              {currentStatus.label}
+            </div>
+          </div>
+
+          {/* Detalhes Expandíveis */}
+          {showMobileDetails && (
+            <div className="space-y-3 text-sm mb-4 animate-accordion-down">
+              {/* Tipo de projeto */}
+              {formatProjectType(project.project_type) && (
+                <div className="flex items-center space-x-2 text-gray-600">
+                  {(() => {
+                    const IconComponent = getProjectTypeIcon(project.project_type);
+                    return <IconComponent className="h-4 w-4 text-blue-500 flex-shrink-0" />;
+                  })()}
+                  <span className="font-medium">{formatProjectType(project.project_type)}</span>
+                </div>
+              )}
+
+              {/* Área do projeto */}
+              {project.total_area && project.total_area > 0 && (
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <Ruler className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <span className="font-medium">Área: {project.total_area}m²</span>
+                </div>
+              )}
+
+              {/* Datas do projeto */}
+              {(project.start_date || project.end_date) ? (
+                <div className="space-y-1.5">
+                  {project.start_date && (
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <CalendarDays className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <span>Início: {new Date(project.start_date).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                  )}
+                  {project.end_date && (
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <CalendarDays className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                      <span>Término: {new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
+              )}
+
+              {/* Descrição do projeto */}
+              {project.description && project.description.trim() !== '' && (
+                <div className="flex items-start space-x-2">
+                  <FileText className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-gray-600 leading-relaxed flex-1">
+                    {project.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Botões de Ação */}
+          <div className="flex items-center justify-between gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowMobileDetails(!showMobileDetails);
+              }}
+              className="text-gray-600 hover:text-gray-800 p-1.5 h-auto font-medium"
+            >
+              <span className="text-xs">Ver Detalhes</span>
+              {showMobileDetails ? (
+                <ChevronUp className="h-3 w-3 ml-1" />
+              ) : (
+                <ChevronDown className="h-3 w-3 ml-1" />
+              )}
+            </Button>
+
+            <Button
+              onClick={handleOpenProject}
+              disabled={isLoading}
+              size="sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 h-auto text-xs"
+            >
+              {isLoading ? (
+                <Hammer className="h-3 w-3 mr-1 animate-pulse" />
+              ) : null}
+              <span>{isLoading ? 'Carregando...' : 'Ver >'}</span>
+            </Button>
+          </div>
+        </CardContent>
+        
+        {/* Dialog de edição */}
+        <ProjectEditDialog
+          project={project}
+          isOpen={showEditDialog}
+          onClose={() => setShowEditDialog(false)}
+          onSave={handleProjectSave}
+        />
+      </Card>
+    );
+  }
+
+  // Layout Desktop
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full relative">
-      <CardContent className="p-4 sm:p-6">
+      <CardContent className="p-6">
         {/* Status Badge no canto superior direito */}
-        <div className="absolute top-3 right-3 z-10">
-          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${currentStatus.bgColor} ${currentStatus.color} ${currentStatus.borderColor} border`}>
+        <div className="absolute top-4 right-4 z-10">
+          <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${currentStatus.bgColor} ${currentStatus.color} ${currentStatus.borderColor} border`}>
             {currentStatus.label}
           </div>
         </div>
 
-        {/* Layout Vertical Mobile-First */}
-        <div className="space-y-4">
-          {/* Nome do projeto em destaque - Tamanho otimizado para mobile */}
-          <div className="pr-20">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 leading-tight">
-              {project.name}
-            </h3>
-          </div>
-          
-          {/* Informações empilhadas verticalmente */}
-          <div className="space-y-3 text-sm">
-            {/* Tipo de projeto */}
-            {formatProjectType(project.project_type) && (
-              <div className="flex items-center space-x-2 text-gray-600">
-                {(() => {
-                  const IconComponent = getProjectTypeIcon(project.project_type);
-                  return <IconComponent className="h-4 w-4 text-blue-500 flex-shrink-0" />;
-                })()}
-                <span className="font-medium">{formatProjectType(project.project_type)}</span>
-              </div>
-            )}
-
-            {/* Área do projeto */}
-            {project.total_area && project.total_area > 0 && (
-              <div className="flex items-center space-x-2 text-gray-600">
-                <Ruler className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="font-medium">Área: {project.total_area}m²</span>
-              </div>
-            )}
-
-            {/* Datas do projeto - priorizar start_date e end_date */}
-            {(project.start_date || project.end_date) ? (
-              <div className="space-y-1.5">
-                {project.start_date && (
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <CalendarDays className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                    <span>Início: {new Date(project.start_date).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                )}
-                {project.end_date && (
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <CalendarDays className="h-4 w-4 text-orange-500 flex-shrink-0" />
-                    <span>Término: {new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2 text-gray-500">
-                <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
-              </div>
-            )}
-
-            {/* Descrição do projeto */}
+        {/* Layout Desktop: Duas Colunas */}
+        <div className="grid grid-cols-12 gap-6 mb-4">
+          {/* Coluna Esquerda: Nome + Descrição (60%) */}
+          <div className="col-span-7 space-y-3">
+            <div className="pr-16">
+              <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 leading-tight">
+                {project.name}
+              </h3>
+            </div>
+            
+            {/* Descrição se houver */}
             {project.description && project.description.trim() !== '' && (
               <div className="space-y-2">
                 <div className="flex items-start space-x-2">
-                  <FileText className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-gray-600 leading-relaxed ${
-                      !showFullDescription && project.description.length > 100 
+                  <FileText className="h-4 w-4 text-gray-400 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <p className={`text-gray-600 leading-relaxed text-sm ${
+                      !showFullDescription && project.description.length > 120 
                         ? 'line-clamp-2' 
                         : ''
                     }`}>
                       {project.description}
                     </p>
-                    {project.description.length > 100 && (
+                    {project.description.length > 120 && (
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -247,76 +326,127 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
             )}
           </div>
 
-          {/* Ações Mobile-First */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-gray-100">
-            {/* Status Dropdown */}
-            <Select
-              value={project.project_status || 'draft'}
-              onValueChange={handleStatusChange}
-              disabled={isUpdatingStatus}
-            >
-              <SelectTrigger className="w-full sm:w-40 h-9 text-xs bg-gray-50 border-gray-200 hover:bg-white transition-colors">
-                <SelectValue>
-                  <span className={currentStatus.color}>
-                    {currentStatus.label}
-                  </span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
-                {statusOptions.map((status) => (
-                  <SelectItem key={status.value} value={status.value}>
-                    <span className={status.color}>
-                      {status.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Coluna Direita: Detalhes Técnicos em Grid 2x2 (40%) */}
+          <div className="col-span-5">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {/* Tipo de projeto */}
+              {formatProjectType(project.project_type) ? (
+                <div className="flex items-center space-x-2 text-gray-600">
+                  {(() => {
+                    const IconComponent = getProjectTypeIcon(project.project_type);
+                    return <IconComponent className="h-4 w-4 text-blue-500 flex-shrink-0" />;
+                  })()}
+                  <span className="font-medium text-xs">{formatProjectType(project.project_type)}</span>
+                </div>
+              ) : (
+                <div></div>
+              )}
 
-            {/* Botões de ação */}
-            <div className="flex items-center space-x-2">
-              {/* Menu de três pontinhos */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-9 w-9 p-0 text-gray-400 hover:text-gray-600 border border-gray-200 hover:bg-gray-50"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 z-50">
-                  <DropdownMenuItem onClick={handleRenameClick} className="cursor-pointer">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar Projeto Completo
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {onDeleteProject && (
-                    <DropdownMenuItem 
-                      onClick={handleDeleteClick}
-                      className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Excluir projeto
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Área do projeto */}
+              {project.total_area && project.total_area > 0 ? (
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <Ruler className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  <span className="font-medium text-xs">{project.total_area}m²</span>
+                </div>
+              ) : (
+                <div></div>
+              )}
 
-              {/* Botão "Ver projeto" - Mobile optimized */}
-              <Button
-                onClick={handleOpenProject}
-                disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 h-9 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex-1 sm:flex-initial min-w-0"
-              >
-                {isLoading ? (
-                  <Hammer className="h-4 w-4 text-white mr-2 animate-hammer" />
-                ) : null}
-                <span className="truncate">{isLoading ? 'Carregando...' : 'Ver projeto'}</span>
-                <ChevronRight className="h-4 w-4 ml-2 flex-shrink-0" />
-              </Button>
+              {/* Data de início */}
+              {project.start_date ? (
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <CalendarDays className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                  <span className="text-xs">{new Date(project.start_date).toLocaleDateString('pt-BR')}</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-2 text-gray-500">
+                  <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                  <span className="text-xs">Criado {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
+              )}
+
+              {/* Data de término */}
+              {project.end_date ? (
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <CalendarDays className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                  <span className="text-xs">{new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
+                </div>
+              ) : (
+                <div></div>
+              )}
             </div>
+          </div>
+        </div>
+
+        {/* Rodapé: Status + Ações */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          {/* Status Dropdown */}
+          <Select
+            value={project.project_status || 'draft'}
+            onValueChange={handleStatusChange}
+            disabled={isUpdatingStatus}
+          >
+            <SelectTrigger className="w-40 h-9 text-xs bg-gray-50 border-gray-200 hover:bg-white transition-colors">
+              <SelectValue>
+                <span className={currentStatus.color}>
+                  {currentStatus.label}
+                </span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
+              {statusOptions.map((status) => (
+                <SelectItem key={status.value} value={status.value}>
+                  <span className={status.color}>
+                    {status.label}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Botões de ação */}
+          <div className="flex items-center space-x-3">
+            {/* Menu de três pontinhos */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 p-0 text-gray-400 hover:text-gray-600 border border-gray-200 hover:bg-gray-50"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 z-50">
+                <DropdownMenuItem onClick={handleRenameClick} className="cursor-pointer">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar Projeto Completo
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {onDeleteProject && (
+                  <DropdownMenuItem 
+                    onClick={handleDeleteClick}
+                    className="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Excluir projeto
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Botão "Ver projeto" */}
+            <Button
+              onClick={handleOpenProject}
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 h-9 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              {isLoading ? (
+                <Hammer className="h-4 w-4 text-white mr-2 animate-pulse" />
+              ) : null}
+              <span>{isLoading ? 'Carregando...' : 'Ver projeto'}</span>
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
           </div>
         </div>
       </CardContent>
