@@ -23,7 +23,9 @@ export default function Projects() {
     isLoading, 
     error, 
     fetchProjects, 
-    clearError 
+    clearError,
+    forceRefresh,
+    clearCache
   } = useUnifiedProjectStore();
   
   // Hook para gerenciar exclusão
@@ -129,6 +131,19 @@ export default function Projects() {
                 </div>
                 
                 <div className="flex items-center space-x-3">
+                  {/* Botão temporário de debug */}
+                  <Button
+                    onClick={() => {
+                      clearCache();
+                      forceRefresh();
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    🔄 Debug
+                  </Button>
+                  
                   <Button
                     onClick={() => navigate('/upload')}
                     className="bg-blue-600 hover:bg-blue-700 text-white h-11 px-6 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"

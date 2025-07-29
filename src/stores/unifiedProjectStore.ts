@@ -150,7 +150,15 @@ export const useUnifiedProjectStore = create<UnifiedProjectState>()(
             const projectList = projects || [];
             console.log(`✅ [${timestamp}] UNIFIED STORE: Query concluída (${queryTime}ms):`, {
               count: projectList.length,
-              projects: projectList.map(p => ({ id: p.id, name: p.name }))
+              projects: projectList.map(p => ({ 
+                id: p.id, 
+                name: p.name, 
+                project_type: p.project_type,
+                description: p.description,
+                start_date: p.start_date,
+                end_date: p.end_date,
+                total_area: p.total_area
+              }))
             });
             
             set({ 

@@ -12,6 +12,16 @@ interface ProjectCardContentProps {
 export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
   const navigate = useNavigate();
 
+  // Debug: Log do projeto completo
+  console.log('🔍 ProjectCardContent - Dados do projeto:', project);
+  console.log('🔍 ProjectCardContent - Campos específicos:', {
+    project_type: project.project_type,
+    description: project.description,
+    start_date: project.start_date,
+    end_date: project.end_date,
+    total_area: project.total_area
+  });
+
   return (
     <CardContent>
       <div className="space-y-3">
