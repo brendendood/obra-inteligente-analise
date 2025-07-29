@@ -156,13 +156,14 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
 
   const handleSaveEdit = async () => {
     try {
-      await onUpdateUser(editingUser.id, editFormData);
+      console.log('💾 USERS TABLE: Salvando edição do usuário:', editingUser.user_id, editFormData);
+      
+      await onUpdateUser(editingUser.user_id, editFormData);
       setEditingUser(null);
-      toast({
-        title: "Usuário atualizado",
-        description: "As informações do usuário foram atualizadas com sucesso",
-      });
+      
+      // Toast será mostrado pela função onUpdateUser, não precisamos duplicar aqui
     } catch (error) {
+      console.error('❌ USERS TABLE: Erro ao salvar edição:', error);
       toast({
         title: "Erro ao atualizar",
         description: "Não foi possível atualizar o usuário",

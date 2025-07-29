@@ -33,6 +33,33 @@ export const useAdminUsers = () => {
   const [totalUsers, setTotalUsers] = useState<number>(0);
   const { toast } = useToast();
 
+  // Listener para atualizações em tempo real
+  useEffect(() => {
+    const subscription = supabase
+      .channel('admin-users-updates')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_profiles'
+      }, () => {
+        console.log('🔄 ADMIN USERS: Perfil de usuário alterado, atualizando lista...');
+        loadUsers();
+      })
+      .on('postgres_changes', {
+        event: '*', 
+        schema: 'public',
+        table: 'user_subscriptions'
+      }, () => {
+        console.log('🔄 ADMIN USERS: Assinatura alterada, atualizando lista...');
+        loadUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+
   const loadUsers = async () => {
     console.log('🔄 ADMIN USERS: Iniciando carregamento de usuários...');
     setLoading(true);
@@ -140,43 +167,49 @@ export const useAdminUsers = () => {
 
   const updateUserProfile = async (userId: string, data: any) => {
     try {
-      console.log('👤 ADMIN USERS: Atualizando perfil do usuário:', userId, data);
+      console.log('👤 ADMIN USERS: Atualizando perfil via nova função admin:', userId, data);
 
-      // Atualizar perfil do usuário
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .update({
-          full_name: data.full_name,
-          company: data.company,
-          phone: data.phone,
-          city: data.city,
-          state: data.state,
-          cargo: data.cargo,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', userId);
-
-      if (profileError) throw profileError;
-
-      // Atualizar assinatura se necessário
-      if (data.plan || data.status) {
-        const { error: subscriptionError } = await supabase
-          .from('user_subscriptions')
-          .upsert({
-            user_id: userId,
-            plan: (data.plan || 'free') as 'free' | 'basic' | 'pro' | 'enterprise',
-            status: (data.status || 'active') as 'active' | 'canceled' | 'past_due' | 'trialing',
-            updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'user_id'
-          });
-
-        if (subscriptionError) throw subscriptionError;
+      // Buscar ID do usuário autenticado (admin)
+      const { data: { user: adminUser } } = await supabase.auth.getUser();
+      if (!adminUser) {
+        throw new Error('Admin não autenticado');
       }
 
-      // Atualizar estado local
+      // Separar dados de perfil e assinatura
+      const profileData = {
+        full_name: data.full_name,
+        company: data.company, 
+        phone: data.phone,
+        city: data.city,
+        state: data.state,
+        cargo: data.cargo
+      };
+
+      const subscriptionData = data.plan || data.status ? {
+        plan: data.plan,
+        status: data.status
+      } : {};
+
+      // Usar nova função RPC para atualização completa e sincronizada
+      const { data: updateResult, error } = await supabase.rpc('admin_update_user_complete', {
+        target_user_id: userId,
+        admin_user_id: adminUser.id,
+        profile_data: profileData,
+        subscription_data: subscriptionData
+      });
+
+      if (error) throw error;
+
+      const result = updateResult as any;
+      if (!result?.success) {
+        throw new Error(result?.error || 'Falha na atualização');
+      }
+
+      console.log('✅ ADMIN USERS: Atualização bem-sucedida:', result);
+
+      // Atualizar estado local imediatamente
       setUsers(prev => prev.map(user => 
-        user.id === userId 
+        user.user_id === userId 
           ? { 
               ...user,
               full_name: data.full_name || user.full_name,
@@ -191,16 +224,29 @@ export const useAdminUsers = () => {
           : user
       ));
 
+      // Toast específico baseado no que foi atualizado
+      let description = "Perfil atualizado com sucesso";
+      if (result.subscription_updated) {
+        description = data.plan 
+          ? `Plano alterado para ${data.plan.toUpperCase()} com sucesso`
+          : "Assinatura atualizada com sucesso";
+      }
+
       toast({
         title: "Usuário atualizado",
-        description: "Perfil do usuário foi atualizado com sucesso",
+        description,
       });
+
+      // Refresh automático para garantir sincronização
+      setTimeout(() => {
+        loadUsers();
+      }, 1000);
 
     } catch (error) {
       console.error('❌ ADMIN USERS: Erro ao atualizar perfil:', error);
       toast({
         title: "Erro ao atualizar",
-        description: "Não foi possível atualizar o perfil do usuário",
+        description: error instanceof Error ? error.message : "Não foi possível atualizar o perfil do usuário",
         variant: "destructive",
       });
     }

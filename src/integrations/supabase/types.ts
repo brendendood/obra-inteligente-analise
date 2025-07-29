@@ -1236,6 +1236,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_update_user_complete: {
+        Args: {
+          target_user_id: string
+          admin_user_id: string
+          profile_data?: Json
+          subscription_data?: Json
+        }
+        Returns: Json
+      }
       award_points: {
         Args: {
           target_user_id: string
