@@ -77,7 +77,7 @@ const Plan = () => {
     }
   };
 
-  const usagePercentage = getPlanUsagePercentage(userData.projectCount, userData.plan);
+  const usagePercentage = getPlanUsagePercentage(userData.projectCount, userData.plan, userData.credits);
 
   if (loading) {
     return (
@@ -128,11 +128,11 @@ const Plan = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Uso de Projetos</span>
                   <span className="text-sm text-slate-500">
-                    {userData.projectCount} / {getPlanLimit(userData.plan) === 999 ? '∞' : getPlanLimit(userData.plan)}
+                    {userData.projectCount} / {getPlanLimit(userData.plan, userData.credits) === 999 ? '∞' : getPlanLimit(userData.plan, userData.credits)}
                   </span>
                 </div>
                 <Progress value={usagePercentage} className="h-2" />
-                {shouldShowUpgradeWarning(userData.projectCount, userData.plan) && (
+                {shouldShowUpgradeWarning(userData.projectCount, userData.plan, userData.credits) && (
                   <div className="flex items-center gap-1 text-orange-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
                     Limite próximo! Considere fazer upgrade.
