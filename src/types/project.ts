@@ -10,6 +10,13 @@ export interface Project {
   project_type?: string;
   project_status?: string;
   total_area?: number;
+  estimated_budget?: number;
+  city?: string;
+  state?: string;
+  country?: string;
+  description?: string;
+  start_date?: string;
+  end_date?: string;
   created_at: string;
   updated_at: string;
 }

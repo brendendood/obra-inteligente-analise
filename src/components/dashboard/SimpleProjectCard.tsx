@@ -4,12 +4,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   Calendar, 
+  CalendarDays,
   Ruler, 
   ChevronRight,
   MoreVertical,
   Edit,
   Trash2,
-  Hammer
+  Hammer,
+  Building2,
+  Home,
+  Briefcase,
+  MapPin,
+  FileText
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -42,6 +48,38 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
+  // Função para obter ícone do tipo de projeto
+  const getProjectTypeIcon = (projectType: string) => {
+    switch (projectType?.toLowerCase()) {
+      case 'residencial':
+      case 'residential':
+        return Home;
+      case 'comercial':
+      case 'commercial':
+        return Briefcase;
+      case 'industrial':
+        return Building2;
+      default:
+        return Building2;
+    }
+  };
+
+  // Função para formatar tipo de projeto
+  const formatProjectType = (projectType: string) => {
+    if (!projectType?.trim()) return null;
+    
+    const typeMap: Record<string, string> = {
+      'residential': 'Residencial',
+      'commercial': 'Comercial', 
+      'industrial': 'Industrial',
+      'residencial': 'Residencial',
+      'comercial': 'Comercial'
+    };
+    
+    return typeMap[projectType.toLowerCase()] || projectType;
+  };
 
   const statusOptions = [
     { value: 'draft', label: 'Planejamento', color: 'text-gray-600', bgColor: 'bg-gray-100', borderColor: 'border-gray-200' },
@@ -135,18 +173,78 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
           </div>
           
           {/* Informações empilhadas verticalmente */}
-          <div className="space-y-3 text-sm text-gray-600">
-            {project.total_area && (
-              <div className="flex items-center space-x-2">
-                <Ruler className="h-4 w-4 text-gray-400 flex-shrink-0" />
+          <div className="space-y-3 text-sm">
+            {/* Tipo de projeto */}
+            {formatProjectType(project.project_type) && (
+              <div className="flex items-center space-x-2 text-gray-600">
+                {(() => {
+                  const IconComponent = getProjectTypeIcon(project.project_type);
+                  return <IconComponent className="h-4 w-4 text-blue-500 flex-shrink-0" />;
+                })()}
+                <span className="font-medium">{formatProjectType(project.project_type)}</span>
+              </div>
+            )}
+
+            {/* Área do projeto */}
+            {project.total_area && project.total_area > 0 && (
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Ruler className="h-4 w-4 text-green-500 flex-shrink-0" />
                 <span className="font-medium">Área: {project.total_area}m²</span>
               </div>
             )}
-            
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
-              <span>{new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
-            </div>
+
+            {/* Datas do projeto - priorizar start_date e end_date */}
+            {(project.start_date || project.end_date) ? (
+              <div className="space-y-1.5">
+                {project.start_date && (
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <CalendarDays className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <span>Início: {new Date(project.start_date).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                )}
+                {project.end_date && (
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <CalendarDays className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                    <span>Término: {new Date(project.end_date).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 text-gray-500">
+                <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                <span>Criado em {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+              </div>
+            )}
+
+            {/* Descrição do projeto */}
+            {project.description && project.description.trim() !== '' && (
+              <div className="space-y-2">
+                <div className="flex items-start space-x-2">
+                  <FileText className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-gray-600 leading-relaxed ${
+                      !showFullDescription && project.description.length > 100 
+                        ? 'line-clamp-2' 
+                        : ''
+                    }`}>
+                      {project.description}
+                    </p>
+                    {project.description.length > 100 && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowFullDescription(!showFullDescription);
+                        }}
+                        className="text-blue-600 hover:text-blue-700 text-xs font-medium mt-1 transition-colors"
+                      >
+                        {showFullDescription ? 'Ver menos' : 'Ver descrição completa'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Ações Mobile-First */}
@@ -191,7 +289,7 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
                 <DropdownMenuContent align="end" className="w-48 z-50">
                   <DropdownMenuItem onClick={handleRenameClick} className="cursor-pointer">
                     <Edit className="h-4 w-4 mr-2" />
-                    Renomear projeto
+                    Editar Projeto Completo
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {onDeleteProject && (
