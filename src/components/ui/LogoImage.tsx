@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useState } from 'react';
 
 interface LogoImageProps {
   variant?: 'full' | 'icon' | 'favicon';
@@ -20,6 +21,7 @@ export const LogoImage = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const [imageError, setImageError] = useState(false);
 
   const sizeClasses = {
     sm: 'h-6',
@@ -44,14 +46,45 @@ export const LogoImage = ({
     }
   };
 
+  const handleImageError = () => {
+    console.warn('Logo image failed to load, showing fallback');
+    setImageError(true);
+  };
+
+  const handleImageLoad = () => {
+    setImageError(false);
+  };
+
+  // URLs corretas das logos com cache busting
   const logoSrc = variant === 'favicon' 
-    ? '/lovable-uploads/50a67dd2-626f-4917-818e-46cd6f114030.png'
-    : '/lovable-uploads/2fae2af7-8158-4c17-b123-0e8ae95386be.png';
+    ? `/lovable-uploads/50a67dd2-626f-4917-818e-46cd6f114030.png?v=${Date.now()}`
+    : `/lovable-uploads/ec965021-ee37-4f71-9b28-160fa8724995.png?v=${Date.now()}`;
+
+  // Fallback visual se a imagem não carregar
+  if (imageError) {
+    return (
+      <div 
+        className={cn(
+          sizeClasses[size],
+          'flex items-center justify-center bg-primary text-primary-foreground font-bold rounded',
+          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
+          className
+        )}
+        onClick={handleClick}
+      >
+        <span className="text-xs">MadenAI</span>
+      </div>
+    );
+  }
 
   return (
     <img
       src={logoSrc}
       alt={alt}
+      loading="eager"
+      decoding="async"
+      onError={handleImageError}
+      onLoad={handleImageLoad}
       className={cn(
         sizeClasses[size],
         'object-contain',
