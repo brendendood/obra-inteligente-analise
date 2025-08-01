@@ -2,7 +2,6 @@ import { ChevronLeft, ChevronRight, Bot, Home, User, CreditCard, HelpCircle, Mes
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { LogoImage } from '@/components/ui/LogoImage';
 
 interface CustomSidebarProps {
   isCollapsed: boolean;
@@ -40,14 +39,14 @@ export const CustomSidebar = ({ isCollapsed, onToggle }: CustomSidebarProps) => 
     >
       {/* Header */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border relative">
-        <div 
+        <h1 
           className={cn(
-            "transition-opacity duration-200",
+            "text-lg font-bold transition-opacity duration-200",
             isCollapsed ? "opacity-0" : "opacity-100"
           )}
         >
-          <LogoImage size="md" clickable={false} />
-        </div>
+          MadenAI
+        </h1>
         
         <button
           onClick={onToggle}

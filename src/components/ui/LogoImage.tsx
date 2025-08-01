@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 interface LogoImageProps {
+  variant?: 'full' | 'icon' | 'favicon';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   clickable?: boolean;
   className?: string;
@@ -10,6 +11,7 @@ interface LogoImageProps {
 }
 
 export const LogoImage = ({ 
+  variant = 'full', 
   size = 'md', 
   clickable = true, 
   className, 
@@ -42,52 +44,21 @@ export const LogoImage = ({
     }
   };
 
-  // Fallback para texto se imagem não carregar
-  const LogoFallback = () => (
-    <div 
+  const logoSrc = variant === 'favicon' 
+    ? '/lovable-uploads/50a67dd2-626f-4917-818e-46cd6f114030.png'
+    : '/lovable-uploads/f1449b46-8e20-4f1a-a8fe-89d9aa7a52d4.png';
+
+  return (
+    <img
+      src={logoSrc}
+      alt={alt}
       className={cn(
         sizeClasses[size],
-        'flex items-center justify-center font-bold text-blue-600',
+        'object-contain',
         clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
         className
       )}
       onClick={handleClick}
-    >
-      <span className="text-xl font-bold">MadenAI</span>
-    </div>
-  );
-
-  // Nova logo fornecida pelo usuário
-  const logoSrc = `/lovable-uploads/aca2be90-23a9-451f-96fd-9b4a2cb53cf1.png`;
-
-  return (
-    <div className="flex items-center">
-      <img
-        src={logoSrc}
-        alt={alt}
-        className={cn(
-          sizeClasses[size],
-          'object-contain',
-          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
-          className
-        )}
-        onClick={handleClick}
-        onError={(e) => {
-          console.warn('Logo falhou ao carregar, usando fallback');
-          // Se a imagem falhar, substitui por fallback melhorado
-          const fallback = document.createElement('div');
-          fallback.className = cn(
-            sizeClasses[size],
-            'flex items-center justify-center font-bold bg-blue-600 text-white rounded-lg px-3',
-            clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
-            className
-          );
-          fallback.innerHTML = '<span class="text-xl font-bold">MadenAI</span>';
-          if (clickable) fallback.onclick = handleClick;
-          e.currentTarget.parentNode?.replaceChild(fallback, e.currentTarget);
-        }}
-        loading="eager"
-      />
-    </div>
+    />
   );
 };

@@ -12,7 +12,6 @@ import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { validateEmail, validatePassword, formatAuthError } from '@/utils/authValidation';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { useEmailSystem } from '@/hooks/useEmailSystem';
-import { LogoImage } from '@/components/ui/LogoImage';
 
 type SignupStep = 1 | 2 | 3;
 
@@ -273,7 +272,9 @@ function Signup() {
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="text-center">
-            <LogoImage size="xl" clickable={false} className="mx-auto" />
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              MadenAI
+            </h1>
           </div>
 
           {/* Progress Steps */}
