@@ -63,7 +63,7 @@ export const LogoImage = ({
   return (
     <div className="flex items-center">
       <img
-        src="/lovable-uploads/85c2efb1-4263-4710-b48d-18037c7ff101.png"
+        src="/lovable-uploads/d5abf474-193e-414e-adda-903502b13c0a.png"
         alt={alt}
         className={cn(
           sizeClasses[size],
