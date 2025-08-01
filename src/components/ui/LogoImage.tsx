@@ -1,3 +1,4 @@
+
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -55,10 +56,10 @@ export const LogoImage = ({
     setImageError(false);
   };
 
-  // URLs corretas das logos com cache busting
+  // URL da nova logo anexada pelo usuário
   const logoSrc = variant === 'favicon' 
-    ? `/lovable-uploads/50a67dd2-626f-4917-818e-46cd6f114030.png?v=${Date.now()}`
-    : `/lovable-uploads/ec965021-ee37-4f71-9b28-160fa8724995.png?v=${Date.now()}`;
+    ? `/lovable-uploads/50a67dd2-626f-4917-818e-46cd6f114030.png`
+    : `/lovable-uploads/ec965021-ee37-4f71-9b28-160fa8724995.png`;
 
   // Fallback visual se a imagem não carregar
   if (imageError) {
