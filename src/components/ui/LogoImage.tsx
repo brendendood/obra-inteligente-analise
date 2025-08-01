@@ -46,7 +46,7 @@ export const LogoImage = ({
 
   const logoSrc = variant === 'favicon' 
     ? '/lovable-uploads/50a67dd2-626f-4917-818e-46cd6f114030.png'
-    : '/lovable-uploads/f1449b46-8e20-4f1a-a8fe-89d9aa7a52d4.png';
+    : '/lovable-uploads/2fae2af7-8158-4c17-b123-0e8ae95386be.png';
 
   return (
     <img

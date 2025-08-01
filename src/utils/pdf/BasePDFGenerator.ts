@@ -39,14 +39,11 @@ export class BasePDFGenerator {
   }
 
   protected addHeader(options: PDFExportOptions): number {
-    // Logo da MadenAI (simulado)
-    this.doc.setFillColor(37, 99, 235); // Azul MadenAI
-    this.doc.rect(this.margin, 15, 40, 15, 'F');
-    
-    this.doc.setTextColor(255, 255, 255);
-    this.doc.setFontSize(14);
+    // Logo da MadenAI
+    this.doc.setTextColor(0, 0, 0);
+    this.doc.setFontSize(16);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text('MadenAI', this.margin + 5, 25);
+    this.doc.text('MadenAI', this.margin, 25);
 
     // Informações do projeto
     this.doc.setTextColor(0, 0, 0);
