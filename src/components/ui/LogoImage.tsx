@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 interface LogoImageProps {
-  variant?: 'full' | 'white' | 'favicon';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   clickable?: boolean;
   className?: string;
@@ -11,7 +10,6 @@ interface LogoImageProps {
 }
 
 export const LogoImage = ({ 
-  variant = 'full', 
   size = 'md', 
   clickable = true, 
   className, 
@@ -49,8 +47,7 @@ export const LogoImage = ({
     <div 
       className={cn(
         sizeClasses[size],
-        'flex items-center justify-center font-bold text-primary',
-        variant === 'white' ? 'text-white' : 'text-blue-600',
+        'flex items-center justify-center font-bold text-blue-600',
         clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
         className
       )}
@@ -60,8 +57,8 @@ export const LogoImage = ({
     </div>
   );
 
-  // Adiciona timestamp para evitar cache
-  const logoSrc = `/lovable-uploads/55510b18-df92-4123-b5ff-483f8ee93d82.png?v=${Date.now()}`;
+  // Nova logo fornecida pelo usuário
+  const logoSrc = `/lovable-uploads/41db862e-7ec2-4717-98af-4ea702c8496d.png`;
 
   return (
     <div className="flex items-center">
@@ -71,7 +68,6 @@ export const LogoImage = ({
         className={cn(
           sizeClasses[size],
           'object-contain',
-          // Remove filtros que podem distorcer a logo
           clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
           className
         )}
