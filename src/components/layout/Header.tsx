@@ -15,9 +15,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-3 sm:py-4 lg:h-16">
           {/* Logo à esquerda */}
           <div className="flex items-center">
-            <div className="font-display font-bold text-lg sm:text-xl lg:text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              MadenAI
-            </div>
+            <HeaderLogo />
           </div>
 
           {/* Desktop Actions - Apenas botão de auth */}

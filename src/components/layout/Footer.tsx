@@ -1,6 +1,6 @@
 
-import { Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { LogoImage } from '@/components/ui/LogoImage';
 
 const Footer = () => {
   return (
@@ -9,11 +9,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg shadow-lg">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-bold">MadenAI</span>
+            <div className="mb-4">
+              <LogoImage size="lg" clickable={false} className="brightness-0 invert" />
             </div>
             <p className="text-slate-400 mb-4 max-w-md">
               Transforme seus projetos de engenharia e arquitetura com o poder da Inteligência Artificial. 

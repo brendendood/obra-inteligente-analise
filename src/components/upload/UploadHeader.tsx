@@ -1,11 +1,11 @@
 
-import { UploadIcon } from 'lucide-react';
+import { LogoImage } from '@/components/ui/LogoImage';
 
 const UploadHeader = () => {
   return (
     <div className="text-center mb-8">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-2xl w-fit mx-auto mb-6 shadow-xl">
-        <UploadIcon className="h-12 w-12 text-white" />
+      <div className="w-fit mx-auto mb-6">
+        <LogoImage size="xl" clickable={false} />
       </div>
       <h1 className="text-4xl font-bold text-gray-900 mb-3">
         Análise de Projetos com IA

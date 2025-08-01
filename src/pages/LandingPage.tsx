@@ -1,6 +1,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { LogoImage } from '@/components/ui/LogoImage';
 import { 
   Upload, 
   Bot, 
@@ -383,9 +384,7 @@ const LandingPage = () => {
           : 'bg-white/80 backdrop-blur-md border border-slate-200/50'
       } rounded-xl md:rounded-2xl px-4 md:px-8 py-3 md:py-4 max-w-sm sm:max-w-lg md:max-w-2xl w-[95%] md:w-full mx-2 md:mx-4`}>
         <div className="flex items-center justify-between">
-          <div className="font-display font-bold text-xl md:text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            MadenAI
-          </div>
+          <LogoImage size="lg" />
           <div className="flex items-center gap-2 md:gap-4">
             <Button 
               variant="ghost" 

@@ -2,7 +2,8 @@
 import { useUserData } from '@/hooks/useUserData';
 import { getPlanDisplayName } from '@/utils/planUtils';
 import { Link } from 'react-router-dom';
-import { Zap, Github, Twitter, Linkedin, Mail, ExternalLink } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail, ExternalLink } from 'lucide-react';
+import { LogoImage } from '@/components/ui/LogoImage';
 
 export const MemberFooter = () => {
   const { userData } = useUserData();
@@ -14,11 +15,8 @@ export const MemberFooter = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg shadow-sm">
-                <Zap className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-lg font-bold text-slate-900">MadenAI</span>
+            <div className="mb-4">
+              <LogoImage size="md" clickable={false} />
             </div>
             <p className="text-sm text-slate-600 mb-4 max-w-md">
               Transforme seus projetos de engenharia e arquitetura com o poder da Inteligência Artificial. 
