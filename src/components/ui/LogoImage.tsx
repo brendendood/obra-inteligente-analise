@@ -60,33 +60,37 @@ export const LogoImage = ({
     </div>
   );
 
+  // Adiciona timestamp para evitar cache
+  const logoSrc = `/lovable-uploads/55510b18-df92-4123-b5ff-483f8ee93d82.png?v=${Date.now()}`;
+
   return (
     <div className="flex items-center">
       <img
-        src="/lovable-uploads/55510b18-df92-4123-b5ff-483f8ee93d82.png"
+        src={logoSrc}
         alt={alt}
         className={cn(
           sizeClasses[size],
           'object-contain',
-          variant === 'white' && 'brightness-0 invert',
+          // Remove filtros que podem distorcer a logo
           clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
           className
         )}
         onClick={handleClick}
         onError={(e) => {
-          // Se a imagem falhar, substitui por fallback
+          console.warn('Logo falhou ao carregar, usando fallback');
+          // Se a imagem falhar, substitui por fallback melhorado
           const fallback = document.createElement('div');
           fallback.className = cn(
             sizeClasses[size],
-            'flex items-center justify-center font-bold',
-            variant === 'white' ? 'text-white' : 'text-blue-600',
+            'flex items-center justify-center font-bold bg-blue-600 text-white rounded-lg px-3',
             clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
             className
           );
           fallback.innerHTML = '<span class="text-xl font-bold">MadenAI</span>';
-          fallback.onclick = handleClick;
+          if (clickable) fallback.onclick = handleClick;
           e.currentTarget.parentNode?.replaceChild(fallback, e.currentTarget);
         }}
+        loading="eager"
       />
     </div>
   );
