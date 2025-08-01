@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 interface LogoImageProps {
-  variant?: 'full' | 'icon' | 'favicon';
+  variant?: 'full' | 'white' | 'favicon';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   clickable?: boolean;
   className?: string;
@@ -44,19 +44,50 @@ export const LogoImage = ({
     }
   };
 
-  const logoSrc = '/lovable-uploads/85c2efb1-4263-4710-b48d-18037c7ff101.png';
-
-  return (
-    <img
-      src={logoSrc}
-      alt={alt}
+  // Fallback para texto se imagem não carregar
+  const LogoFallback = () => (
+    <div 
       className={cn(
         sizeClasses[size],
-        'object-contain',
+        'flex items-center justify-center font-bold text-primary',
+        variant === 'white' ? 'text-white' : 'text-blue-600',
         clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
         className
       )}
       onClick={handleClick}
-    />
+    >
+      <span className="text-xl font-bold">MadenAI</span>
+    </div>
+  );
+
+  return (
+    <div className="flex items-center">
+      <img
+        src="/lovable-uploads/85c2efb1-4263-4710-b48d-18037c7ff101.png"
+        alt={alt}
+        className={cn(
+          sizeClasses[size],
+          'object-contain',
+          variant === 'white' && 'brightness-0 invert',
+          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
+          className
+        )}
+        onClick={handleClick}
+        onError={(e) => {
+          // Se a imagem falhar, substitui por fallback
+          const fallback = document.createElement('div');
+          fallback.className = cn(
+            sizeClasses[size],
+            'flex items-center justify-center font-bold',
+            variant === 'white' ? 'text-white' : 'text-blue-600',
+            clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
+            className
+          );
+          fallback.innerHTML = '<span class="text-xl font-bold">MadenAI</span>';
+          fallback.onclick = handleClick;
+          e.currentTarget.parentNode?.replaceChild(fallback, e.currentTarget);
+        }}
+      />
+    </div>
   );
 };

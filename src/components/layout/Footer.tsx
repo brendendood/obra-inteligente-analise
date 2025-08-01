@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-2">
             <div className="mb-4">
-              <LogoImage size="lg" clickable={false} className="brightness-0 invert" />
+              <LogoImage variant="white" size="lg" clickable={false} />
             </div>
             <p className="text-slate-400 mb-4 max-w-md">
               Transforme seus projetos de engenharia e arquitetura com o poder da Inteligência Artificial. 
