@@ -58,7 +58,7 @@ export const LogoImage = ({
   );
 
   // Nova logo fornecida pelo usuário
-  const logoSrc = `/lovable-uploads/9c18fc10-48d2-4c03-9f33-5ae3b5260cd3.png`;
+  const logoSrc = `/lovable-uploads/aca2be90-23a9-451f-96fd-9b4a2cb53cf1.png`;
 
   return (
     <div className="flex items-center">
