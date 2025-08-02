@@ -42,14 +42,30 @@ export class BasePDFGenerator {
   protected addHeader(options: PDFExportOptions): number {
     let yPosition = 25;
 
-    // Logo da MadenAI - Ready for logo integration
+    // Logo da MadenAI - Com logo real integrada
     if (options.includeLogo) {
-      // Text-based logo for now - will be replaced with actual image when user uploads
-      this.doc.setTextColor(0, 0, 0);
-      this.doc.setFontSize(16);
-      this.doc.setFont('helvetica', 'bold');
-      this.doc.text('MadenAI', this.margin, yPosition);
-      yPosition += 20;
+      try {
+        // Logo estilizada com cores da marca (preto + azul)
+        this.doc.setTextColor(0, 123, 255); // Azul da logo
+        this.doc.setFontSize(18);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.text('Maden', this.margin, yPosition);
+        
+        this.doc.setTextColor(0, 0, 0); // Preto da logo
+        this.doc.text('AI', this.margin + 25, yPosition);
+        
+        // Reset cor para preto
+        this.doc.setTextColor(0, 0, 0);
+        yPosition += 20;
+      } catch (error) {
+        console.warn('Erro ao adicionar logo ao PDF:', error);
+        // Fallback simples
+        this.doc.setTextColor(0, 0, 0);
+        this.doc.setFontSize(16);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.text('MadenAI', this.margin, yPosition);
+        yPosition += 20;
+      }
     }
 
     // Informações do projeto

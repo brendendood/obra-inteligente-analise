@@ -86,27 +86,8 @@ export const UnifiedLogo = ({
     setImageError(false);
   };
 
-  // Logo source - MadenAI logo uploaded by user
-  const logoSrc = variant === 'favicon' 
-    ? '/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png' // Use same logo for favicon
-    : '/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png'; // Use uploaded logo
-
-  // If no logo is available, return empty space
-  if (!logoSrc) {
-    return (
-      <div 
-        className={cn(
-          sizeClasses[size],
-          'flex items-center justify-center',
-          className
-        )}
-        role="img"
-        aria-label={alt}
-      >
-        {/* Empty space - no logo placeholder */}
-      </div>
-    );
-  }
+  // Logo source - MadenAI logo (preto + azul) funciona bem em fundos claros e escuros
+  const logoSrc = `/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png?v=${Date.now()}`; // Cache busting
 
   // Loading state
   if (loading) {
@@ -123,14 +104,14 @@ export const UnifiedLogo = ({
     );
   }
 
-  // Fallback - empty space until logo is uploaded
-  if (imageError || !logoSrc) {
+  // Fallback robusto com retry automático
+  if (imageError) {
     return (
       <div 
         className={cn(
           sizeClasses[size],
-          'flex items-center justify-center',
-          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
+          'flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold rounded-lg shadow-lg',
+          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl',
           className
         )}
         onClick={handleClick}
@@ -144,7 +125,17 @@ export const UnifiedLogo = ({
           }
         }}
       >
-        {/* Empty space - no fallback text */}
+        <span className={cn(
+          'font-bold tracking-tight',
+          size === 'xs' && 'text-xs',
+          size === 'sm' && 'text-sm',
+          size === 'md' && 'text-base',
+          size === 'lg' && 'text-lg',
+          size === 'xl' && 'text-xl',
+          size === '2xl' && 'text-2xl'
+        )}>
+          M
+        </span>
       </div>
     );
   }
