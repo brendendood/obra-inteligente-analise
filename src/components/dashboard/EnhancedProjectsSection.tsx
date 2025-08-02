@@ -177,7 +177,7 @@ export const EnhancedProjectsSection = ({
         </div>
       </CardHeader>
       
-      <CardContent className="w-full px-4 sm:px-6">
+      <CardContent className="w-full px-2 sm:px-4 lg:px-6">
         {/* Lista de projetos - Otimizada para mobile */}
         <div className="space-y-3 sm:space-y-4">
           {paginatedProjects.map((project) => (

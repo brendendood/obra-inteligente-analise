@@ -160,8 +160,8 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
   if (isMobile) {
     return (
-      <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full">
-        <CardContent className="p-4">
+      <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full mx-2 sm:mx-0">
+        <CardContent className="p-6 sm:p-4">
           {/* Cabeçalho Mobile: Nome + Status */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight flex-1">
@@ -253,12 +253,13 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
               onClick={handleOpenProject}
               disabled={isLoading}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 h-auto text-xs"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-2 py-1.5 h-auto text-xs w-16 sm:w-20"
             >
               {isLoading ? (
-                <Hammer className="h-3 w-3 mr-1 animate-pulse" />
-              ) : null}
-              <span>{isLoading ? 'Carregando...' : 'Ver >'}</span>
+                <Hammer className="h-3 w-3 animate-pulse" />
+              ) : (
+                <span>Ver</span>
+              )}
             </Button>
           </div>
         </CardContent>
