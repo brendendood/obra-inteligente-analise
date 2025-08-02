@@ -954,8 +954,12 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
             <div className="col-span-2">
-              <div className="font-display font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-                MadenAI
+              <div className="mb-4">
+                <img 
+                  src="/lovable-uploads/d1b388f8-965d-4cd7-a1f9-871c8d1847e5.png" 
+                  alt="MadenAI" 
+                  className="h-10 w-auto" 
+                />
               </div>
               <p className="text-slate-600 mb-6 max-w-sm">
                 Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
