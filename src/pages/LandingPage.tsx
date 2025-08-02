@@ -1072,8 +1072,12 @@ const LandingPage = () => {
           </div>
 
           <div className="pt-8 mt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-slate-500">
-              © 2025 MadenAI. Todos os direitos reservados.
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/171e0d43-b586-47df-b8ac-01d0f9546728.png" 
+                alt="MadenAI" 
+                className="h-12 w-auto opacity-75 hover:opacity-100 transition-opacity duration-200" 
+              />
             </div>
             <div className="flex gap-8">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
