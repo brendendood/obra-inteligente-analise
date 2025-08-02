@@ -86,12 +86,29 @@ export const UnifiedLogo = ({
     setImageError(false);
   };
 
-  // Placeholder for logo source - will be updated when user uploads
+  // Logo source - EMPTY until user uploads the actual logo
   const logoSrc = variant === 'favicon' 
-    ? '/placeholder-favicon.png' // Will be replaced with actual favicon
+    ? null // No favicon until uploaded
     : logoTheme === 'light' 
-      ? '/placeholder-logo-light.png' // Will be replaced with light version
-      : '/placeholder-logo-dark.png'; // Will be replaced with dark version
+      ? null // No light logo until uploaded
+      : null; // No dark logo until uploaded
+
+  // If no logo is available, return empty space
+  if (!logoSrc) {
+    return (
+      <div 
+        className={cn(
+          sizeClasses[size],
+          'flex items-center justify-center',
+          className
+        )}
+        role="img"
+        aria-label={alt}
+      >
+        {/* Empty space - no logo placeholder */}
+      </div>
+    );
+  }
 
   // Loading state
   if (loading) {
@@ -103,19 +120,19 @@ export const UnifiedLogo = ({
           className
         )}
       >
-        <div className="text-xs font-medium text-muted-foreground">Loading...</div>
+        {/* Loading state without text */}
       </div>
     );
   }
 
-  // Fallback visual se a imagem não carregar
-  if (imageError) {
+  // Fallback - empty space until logo is uploaded
+  if (imageError || !logoSrc) {
     return (
       <div 
         className={cn(
           sizeClasses[size],
-          'flex items-center justify-center bg-primary text-primary-foreground font-bold rounded transition-all duration-200',
-          clickable && 'cursor-pointer hover:scale-105',
+          'flex items-center justify-center',
+          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
           className
         )}
         onClick={handleClick}
@@ -129,7 +146,7 @@ export const UnifiedLogo = ({
           }
         }}
       >
-        <span className="text-xs font-bold">MadenAI</span>
+        {/* Empty space - no fallback text */}
       </div>
     );
   }
