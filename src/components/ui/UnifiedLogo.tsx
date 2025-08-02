@@ -89,8 +89,8 @@ export const UnifiedLogo = ({
     setImageError(false);
   };
 
-  // Testar a nova URL da logo enviada pelo usuário
-  const logoSrc = `/lovable-uploads/39649555-db57-46d8-b0c5-13e9179bf5b0.png`; // Nova logo sem cache busting
+  // Logo da MadenAI - usando a nova imagem enviada pelo usuário
+  const logoSrc = `/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png`;
   
   // Debug: Log se a imagem está carregando
   useEffect(() => {
