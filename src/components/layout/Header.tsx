@@ -15,7 +15,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-3 sm:py-4 lg:h-16">
           {/* Logo à esquerda */}
           <div className="flex items-center">
-            <UnifiedLogo size="lg" theme="auto" className="transition-all duration-200 hover:scale-105" />
+            <UnifiedLogo size="xl" theme="auto" className="transition-all duration-200 hover:scale-105" />
           </div>
 
           {/* Desktop Actions - Apenas botão de auth */}

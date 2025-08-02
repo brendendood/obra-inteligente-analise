@@ -82,27 +82,42 @@ const ProjectSpecificLayoutContent = () => {
           currentSection={getSectionTitle(getCurrentTab())}
         />
         
-        <div className="flex-1 p-8 bg-gray-50/50">
+        <div className="flex-1 p-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
             <Tabs value={getCurrentTab()} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 mb-8">
-                <TabsTrigger value="visao-geral" className="flex items-center gap-2">
+              <TabsList className="grid w-full grid-cols-5 mb-8 bg-white rounded-2xl border border-apple-gray-100 p-2 shadow-sm">
+                <TabsTrigger 
+                  value="visao-geral" 
+                  className="flex items-center gap-2 rounded-xl data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium"
+                >
                   <Eye className="h-4 w-4" />
                   <span className="hidden sm:inline">Visão Geral</span>
                 </TabsTrigger>
-                <TabsTrigger value="orcamento" className="flex items-center gap-2">
+                <TabsTrigger 
+                  value="orcamento" 
+                  className="flex items-center gap-2 rounded-xl data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium"
+                >
                   <Calculator className="h-4 w-4" />
                   <span className="hidden sm:inline">Orçamento</span>
                 </TabsTrigger>
-                <TabsTrigger value="cronograma" className="flex items-center gap-2">
+                <TabsTrigger 
+                  value="cronograma" 
+                  className="flex items-center gap-2 rounded-xl data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium"
+                >
                   <Clock className="h-4 w-4" />
                   <span className="hidden sm:inline">Cronograma</span>
                 </TabsTrigger>
-                <TabsTrigger value="assistente" className="flex items-center gap-2">
+                <TabsTrigger 
+                  value="assistente" 
+                  className="flex items-center gap-2 rounded-xl data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium"
+                >
                   <Bot className="h-4 w-4" />
                   <span className="hidden sm:inline">Assistente</span>
                 </TabsTrigger>
-                <TabsTrigger value="documentos" className="flex items-center gap-2">
+                <TabsTrigger 
+                  value="documentos" 
+                  className="flex items-center gap-2 rounded-xl data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium"
+                >
                   <FileText className="h-4 w-4" />
                   <span className="hidden sm:inline">Documentos</span>
                 </TabsTrigger>

@@ -54,20 +54,20 @@ export const ProjectCardStatus = ({ project }: ProjectCardStatusProps) => {
         return (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center justify-center w-6 h-6 bg-green-100 rounded-full border border-green-200">
-                <Check className="h-3 w-3 text-green-700" />
+              <div className="flex items-center justify-center w-6 h-6 bg-green-50 rounded-full border border-green-200">
+                <Check className="h-3 w-3 text-green-600" />
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Projeto processado</p>
+              <p>Projeto ativo</p>
             </TooltipContent>
           </Tooltip>
         );
       } else {
         return (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
+          <Badge className="bg-green-50 text-green-700 border-green-200 font-medium">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Processado
+            Ativo
           </Badge>
         );
       }

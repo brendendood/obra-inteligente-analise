@@ -84,11 +84,11 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
             <TooltipTrigger asChild>
               <Button 
                 onClick={() => navigate(`/projeto/${project.id}`)}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-32 bg-apple-blue text-white hover:bg-apple-blue/90 border-0 rounded-xl font-medium transition-all duration-200 hover:scale-[0.98]"
                 size="sm"
               >
                 <Eye className="h-4 w-4 mr-2" />
-                Ver Projeto
+                Ver
               </Button>
             </TooltipTrigger>
             <TooltipContent>
