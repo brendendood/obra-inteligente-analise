@@ -107,44 +107,44 @@ export default function Login() {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* Email Field */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+              <div className="space-y-3">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 z-10" />
                   <Input
                     id="email"
                     type="email"
                     placeholder="seu@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
+                    className="pl-12 text-base font-medium bg-card border-2 border-border/60 hover:border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 shadow-sm hover:shadow transition-all duration-200"
                     required
                   />
                 </div>
               </div>
 
               {/* Password Field */}
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+              <div className="space-y-3">
+                <Label htmlFor="password" className="text-sm font-medium text-foreground">Senha</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 z-10" />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
+                    className="pl-12 pr-12 text-base font-medium bg-card border-2 border-border/60 hover:border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/15 shadow-sm hover:shadow transition-all duration-200"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
               </div>
