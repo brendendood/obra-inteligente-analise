@@ -77,17 +77,24 @@ export const UnifiedLogo = ({
     }
   };
 
-  const handleImageError = () => {
-    console.warn('Logo image failed to load, showing fallback');
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('[UnifiedLogo] Erro ao carregar imagem:', e.currentTarget.src);
+    console.error('[UnifiedLogo] Detalhes do erro:', e);
     setImageError(true);
   };
 
   const handleImageLoad = () => {
+    console.log('[UnifiedLogo] Logo carregada com sucesso!');
     setImageError(false);
   };
 
   // Logo source - MadenAI logo (preto + azul) funciona bem em fundos claros e escuros
   const logoSrc = `/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png?v=${Date.now()}`; // Cache busting
+  
+  // Debug: Log se a imagem está carregando
+  useEffect(() => {
+    console.log('[UnifiedLogo] Tentando carregar logo:', logoSrc);
+  }, [logoSrc]);
 
   // Loading state
   if (loading) {

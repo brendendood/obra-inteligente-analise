@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import { 
   Bot,
   Home, 
@@ -131,9 +132,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
     <header className="lg:hidden bg-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
-          </div>
+          <UnifiedLogo size="sm" clickable={false} className="mr-3" />
           <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             MadenAI
           </span>
@@ -156,9 +155,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-slate-200/60">
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-            <div className="w-4 h-4 bg-white rounded-sm"></div>
-          </div>
+          <UnifiedLogo size="sm" clickable={false} className="mr-3" />
           <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             MadenAI
           </span>
