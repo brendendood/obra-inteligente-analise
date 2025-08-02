@@ -85,41 +85,41 @@ const ProjectSpecificLayoutContent = () => {
         <div className="flex-1 p-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
             <Tabs value={getCurrentTab()} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-5 mb-8 bg-white rounded-lg border border-apple-gray-100 p-1 shadow-sm">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 sm:mb-8 bg-white rounded-xl border border-apple-gray-100 p-1 shadow-sm gap-1">
                 <TabsTrigger 
                   value="visao-geral" 
-                  className="flex items-center gap-2 rounded-md data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3"
+                  className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-2.5 sm:py-3 px-2 sm:px-4 min-h-[44px] text-xs sm:text-sm"
                 >
-                  <Eye className="h-4 w-4" />
-                  <span className="hidden sm:inline">Visão Geral</span>
+                  <Eye className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Visão Geral</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="orcamento" 
-                  className="flex items-center gap-2 rounded-md data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3"
+                  className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-2.5 sm:py-3 px-2 sm:px-4 min-h-[44px] text-xs sm:text-sm"
                 >
-                  <Calculator className="h-4 w-4" />
-                  <span className="hidden sm:inline">Orçamento</span>
+                  <Calculator className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Orçamento</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="cronograma" 
-                  className="flex items-center gap-2 rounded-md data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3"
+                  className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-2.5 sm:py-3 px-2 sm:px-4 min-h-[44px] text-xs sm:text-sm col-span-2 sm:col-span-1"
                 >
-                  <Clock className="h-4 w-4" />
-                  <span className="hidden sm:inline">Cronograma</span>
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Cronograma</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="assistente" 
-                  className="flex items-center gap-2 rounded-md data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3"
+                  className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-2.5 sm:py-3 px-2 sm:px-4 min-h-[44px] text-xs sm:text-sm"
                 >
-                  <Bot className="h-4 w-4" />
-                  <span className="hidden sm:inline">Assistente</span>
+                  <Bot className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Assistente</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="documentos" 
-                  className="flex items-center gap-2 rounded-md data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3"
+                  className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-2.5 sm:py-3 px-2 sm:px-4 min-h-[44px] text-xs sm:text-sm"
                 >
-                  <FileText className="h-4 w-4" />
-                  <span className="hidden sm:inline">Documentos</span>
+                  <FileText className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">Documentos</span>
                 </TabsTrigger>
               </TabsList>
 

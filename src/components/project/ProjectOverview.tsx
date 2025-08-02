@@ -25,25 +25,25 @@ export const ProjectOverview = () => {
   return (
     <div className="space-y-8">
       {/* Informações do Projeto */}
-      <div className="bg-white rounded-2xl shadow-sm border border-apple-gray-100 p-8">
-        <div className="flex items-start space-x-6 mb-8">
-          <div className="p-4 bg-apple-blue/10 rounded-2xl">
-            <Building2 className="h-8 w-8 text-apple-blue" />
+      <div className="bg-white rounded-2xl shadow-sm border border-apple-gray-100 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6 mb-6 sm:mb-8">
+          <div className="p-3 sm:p-4 bg-apple-blue/10 rounded-2xl flex-shrink-0">
+            <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-apple-blue" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-3xl font-semibold text-apple-gray-900 mb-3">{project.name}</h1>
-            <div className="flex flex-wrap items-center gap-6 text-apple-gray-600">
+          <div className="flex-1 w-full">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-apple-gray-900 mb-3 break-words">{project.name}</h1>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-6 text-apple-gray-600">
               {project.total_area && (
                 <div className="flex items-center space-x-2">
-                  <Ruler className="h-4 w-4" />
-                  <span className="font-medium">Área: {project.total_area}m²</span>
+                  <Ruler className="h-4 w-4 flex-shrink-0" />
+                  <span className="font-medium text-sm sm:text-base">Área: {project.total_area}m²</span>
                 </div>
               )}
               <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4" />
-                <span className="font-medium">Criado: {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
+                <Clock className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium text-sm sm:text-base">Criado: {new Date(project.created_at).toLocaleDateString('pt-BR')}</span>
               </div>
-              <div className={`inline-flex px-4 py-2 rounded-xl text-sm font-medium ${
+              <div className={`inline-flex px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium self-start ${
                 project.analysis_data 
                   ? 'bg-green-50 text-green-700 border border-green-200' 
                   : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
@@ -65,7 +65,7 @@ export const ProjectOverview = () => {
       </div>
 
       {/* Cards de Funcionalidades */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
         <ProjectActionCard
           icon={Calculator}
           title="Orçamento SINAPI"
