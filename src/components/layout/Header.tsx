@@ -10,12 +10,12 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-slate-200 sticky top-0 z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-        <div className="flex justify-between items-center py-3 sm:py-4 lg:h-16">
-          {/* Logo à esquerda */}
-          <div className="flex items-center">
-            <UnifiedLogo size="xl" theme="auto" className="transition-all duration-200 hover:scale-105" />
+    <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-apple-gray-200 sticky top-0 z-50 transition-all duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-6 sm:py-8 lg:h-24">
+          {/* Logo à esquerda - com destaque máximo */}
+          <div className="flex items-center bg-gradient-to-r from-white to-apple-gray-50 rounded-2xl px-6 py-3 shadow-sm border border-apple-gray-100">
+            <UnifiedLogo size="2xl" theme="auto" className="transition-all duration-300 hover:scale-110 filter hover:brightness-110" />
           </div>
 
           {/* Desktop Actions - Apenas botão de auth */}
