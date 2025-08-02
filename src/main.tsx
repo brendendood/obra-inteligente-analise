@@ -7,6 +7,23 @@ import "@fontsource/space-grotesk/500.css";
 import "@fontsource/space-grotesk/600.css";
 import "@fontsource/space-grotesk/700.css";
 
+// Força limpeza completa do cache
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    registrations.forEach(registration => registration.unregister());
+  });
+  
+  // Limpa todos os caches
+  caches.keys().then(cacheNames => {
+    cacheNames.forEach(cacheName => caches.delete(cacheName));
+  });
+}
+
+// Força reload sem cache
+if (!window.location.search.includes('nocache')) {
+  window.location.replace(window.location.href + (window.location.search ? '&' : '?') + 'nocache=1');
+}
+
 const root = createRoot(document.getElementById("root")!);
 
 // Enable StrictMode in development for better HMR and debugging
