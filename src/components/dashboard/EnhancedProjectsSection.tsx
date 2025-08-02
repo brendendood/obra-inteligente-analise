@@ -127,7 +127,7 @@ export const EnhancedProjectsSection = ({
 
   return (
     <Card className="border border-border bg-card w-full rounded-apple">
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-4 px-4 sm:px-6">
         <div className="flex flex-col space-y-4">
           {/* Header com título e botão */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
@@ -177,7 +177,7 @@ export const EnhancedProjectsSection = ({
         </div>
       </CardHeader>
       
-      <CardContent className="w-full">
+      <CardContent className="w-full px-4 sm:px-6">
         {/* Lista de projetos - Otimizada para mobile */}
         <div className="space-y-3 sm:space-y-4">
           {paginatedProjects.map((project) => (

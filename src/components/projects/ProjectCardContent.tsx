@@ -69,7 +69,7 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full text-xs"
+              className="w-full text-xs hover:shadow-none"
               onClick={() => {
                 // TODO: Implementar modal de detalhes
                 alert(`Detalhes do Projeto:\n\nTipo: ${project.project_type || 'Não informado'}\nDescrição: ${project.description || 'Não informado'}\nÁrea: ${project.total_area || 'Não informado'}m²`);
@@ -84,10 +84,10 @@ export const ProjectCardContent = ({ project }: ProjectCardContentProps) => {
             <TooltipTrigger asChild>
               <Button 
                 onClick={() => navigate(`/projeto/${project.id}`)}
-                className="w-32 bg-apple-blue text-white hover:bg-apple-blue/90 border-0 rounded-xl font-medium transition-all duration-200 hover:scale-[0.98]"
+                className="w-20 sm:w-24 bg-apple-blue text-white hover:bg-apple-blue/90 border-0 rounded-xl font-medium transition-all duration-200 hover:scale-[0.98]"
                 size="sm"
               >
-                <Eye className="h-4 w-4 mr-2" />
+                <Eye className="h-4 w-4 mr-1 sm:mr-2" />
                 Ver
               </Button>
             </TooltipTrigger>

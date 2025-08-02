@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 interface UnifiedLogoProps {
   variant?: 'full' | 'icon' | 'favicon';
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
   clickable?: boolean;
   className?: string;
   alt?: string;
@@ -34,7 +34,8 @@ export const UnifiedLogo = ({
     md: 'h-8',
     lg: 'h-12',
     xl: 'h-16',
-    '2xl': 'h-20'
+    '2xl': 'h-20',
+    '3xl': 'h-24'
   };
 
   // Detect background theme
