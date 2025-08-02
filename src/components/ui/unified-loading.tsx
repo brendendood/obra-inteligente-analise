@@ -1,21 +1,31 @@
 
 import { cn } from '@/lib/utils';
+import { UnifiedLogo } from './UnifiedLogo';
 
 interface UnifiedLoadingProps {
   className?: string;
   text?: string;
+  showLogo?: boolean;
 }
 
 export const UnifiedLoading = ({ 
   className, 
-  text = "Carregando..." 
+  text = "Carregando...",
+  showLogo = true
 }: UnifiedLoadingProps) => {
   return (
     <div className={cn(
       "flex flex-col items-center justify-center min-h-screen bg-gray-50/80 backdrop-blur-sm",
       className
     )}>
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex flex-col items-center space-y-6">
+        {/* Logo */}
+        {showLogo && (
+          <div className="mb-2">
+            <UnifiedLogo size="lg" clickable={false} theme="auto" loading={false} />
+          </div>
+        )}
+        
         {/* Modern spinner inspired by Apple/macOS */}
         <div className="relative">
           <div className="w-8 h-8 border-2 border-gray-200 rounded-full"></div>
@@ -34,7 +44,8 @@ export const UnifiedLoading = ({
 // Inline version for smaller sections
 export const InlineUnifiedLoading = ({ 
   className, 
-  text = "Carregando..." 
+  text = "Carregando...",
+  showLogo = false
 }: UnifiedLoadingProps) => {
   return (
     <div className={cn(
@@ -57,7 +68,8 @@ export const InlineUnifiedLoading = ({
 // Compact version for small spaces
 export const CompactUnifiedLoading = ({ 
   className, 
-  text = "Carregando..." 
+  text = "Carregando...",
+  showLogo = false
 }: UnifiedLoadingProps) => {
   return (
     <div className={cn(

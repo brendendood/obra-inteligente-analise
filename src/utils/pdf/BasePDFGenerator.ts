@@ -16,6 +16,7 @@ export interface PDFExportOptions {
   date?: Date;
   includeHeader?: boolean;
   includeLogo?: boolean;
+  logoSrc?: string;
 }
 
 export class BasePDFGenerator {
@@ -39,31 +40,40 @@ export class BasePDFGenerator {
   }
 
   protected addHeader(options: PDFExportOptions): number {
-    // Logo da MadenAI
-    this.doc.setTextColor(0, 0, 0);
-    this.doc.setFontSize(16);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('MadenAI', this.margin, 25);
+    let yPosition = 25;
+
+    // Logo da MadenAI - Ready for logo integration
+    if (options.includeLogo) {
+      // Text-based logo for now - will be replaced with actual image when user uploads
+      this.doc.setTextColor(0, 0, 0);
+      this.doc.setFontSize(16);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text('MadenAI', this.margin, yPosition);
+      yPosition += 20;
+    }
 
     // Informações do projeto
     this.doc.setTextColor(0, 0, 0);
     this.doc.setFontSize(18);
-    this.doc.text(options.projectName, this.margin, 45);
+    this.doc.text(options.projectName, this.margin, yPosition);
+    yPosition += 10;
 
     this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'normal');
-    this.doc.text(`Data: ${(options.date || new Date()).toLocaleDateString('pt-BR')}`, this.margin, 55);
+    this.doc.text(`Data: ${(options.date || new Date()).toLocaleDateString('pt-BR')}`, this.margin, yPosition);
+    yPosition += 7;
     
     if (options.projectArea) {
-      this.doc.text(`Área: ${options.projectArea}m²`, this.margin, 62);
+      this.doc.text(`Área: ${options.projectArea}m²`, this.margin, yPosition);
+      yPosition += 7;
     }
 
     // Linha separadora
     this.doc.setDrawColor(37, 99, 235);
     this.doc.setLineWidth(0.5);
-    this.doc.line(this.margin, 70, this.pageWidth - this.margin, 70);
+    this.doc.line(this.margin, yPosition + 3, this.pageWidth - this.margin, yPosition + 3);
 
-    return 80; // Retorna posição Y após header
+    return yPosition + 15; // Retorna posição Y após header
   }
 
   protected addFooter(): void {

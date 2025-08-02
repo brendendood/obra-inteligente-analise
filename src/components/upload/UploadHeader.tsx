@@ -1,11 +1,11 @@
 
-import { LogoImage } from '@/components/ui/LogoImage';
+import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 
 const UploadHeader = () => {
   return (
     <div className="text-center mb-8">
       <div className="w-fit mx-auto mb-6">
-        <LogoImage size="xl" clickable={false} />
+        <UnifiedLogo size="xl" clickable={false} theme="auto" />
       </div>
       <h1 className="text-4xl font-bold text-gray-900 mb-3">
         Análise de Projetos com IA

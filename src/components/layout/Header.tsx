@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Menu } from 'lucide-react';
-import { HeaderLogo } from './header/HeaderLogo';
+import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import { HeaderAuthActions } from './header/HeaderAuthActions';
 import { HeaderMobileMenu } from './header/HeaderMobileMenu';
 
@@ -15,7 +15,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-3 sm:py-4 lg:h-16">
           {/* Logo à esquerda */}
           <div className="flex items-center">
-            <HeaderLogo />
+            <UnifiedLogo size="lg" theme="auto" className="transition-all duration-200 hover:scale-105" />
           </div>
 
           {/* Desktop Actions - Apenas botão de auth */}

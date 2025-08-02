@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
-import { LogoImage } from '@/components/ui/LogoImage';
+import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 
 interface WelcomeSectionProps {
   userName: string;
@@ -24,7 +24,7 @@ export const WelcomeSection = ({ userName, onRefresh, isLoading }: WelcomeSectio
       <div className="flex items-center space-x-4">
         {/* Logo da MadenAI */}
         <div className="flex items-center">
-          <LogoImage size="lg" clickable={false} />
+          <UnifiedLogo size="lg" clickable={false} theme="auto" />
         </div>
 
         {/* Botão de Refresh */}

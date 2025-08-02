@@ -3,7 +3,7 @@ import { useUserData } from '@/hooks/useUserData';
 import { getPlanDisplayName } from '@/utils/planUtils';
 import { Link } from 'react-router-dom';
 import { Github, Twitter, Linkedin, Mail, ExternalLink } from 'lucide-react';
-import { LogoImage } from '@/components/ui/LogoImage';
+import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 
 export const MemberFooter = () => {
   const { userData } = useUserData();
@@ -16,7 +16,7 @@ export const MemberFooter = () => {
           {/* Brand Section */}
           <div className="md:col-span-2">
             <div className="mb-4">
-              <LogoImage size="md" clickable={false} />
+              <UnifiedLogo size="md" clickable={false} theme="auto" />
             </div>
             <p className="text-sm text-slate-600 mb-4 max-w-md">
               Transforme seus projetos de engenharia e arquitetura com o poder da Inteligência Artificial. 
