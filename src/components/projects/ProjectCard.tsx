@@ -38,7 +38,7 @@ const ProjectCard = ({
       onDragEnd={onDragEnd}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, project)}
-      className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 cursor-grab active:cursor-grabbing group hover:scale-[1.02] animate-fade-in relative h-full rounded-md"
+      className="border border-border bg-card hover:bg-accent/30 transition-all duration-200 cursor-grab active:cursor-grabbing group hover:scale-[1.01] animate-fade-in relative h-full rounded-apple shadow-sm hover:shadow-md"
     >
       <ProjectCardHeader 
         project={project}

@@ -3,46 +3,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Variáveis CSS personalizadas */
+/* Variáveis CSS Apple-Style */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 224 71.4% 4.1%;
+  /* Apple System Colors */
+  --background: 0 0% 98%;
+  --foreground: 0 0% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 224 71.4% 4.1%;
+  --card-foreground: 0 0% 11%;
   --popover: 0 0% 100%;
-  --popover-foreground: 224 71.4% 4.1%;
-  --primary: 249 95% 63%;
-  --primary-foreground: 210 20% 98%;
-  --secondary: 220 14.3% 95.9%;
-  --secondary-foreground: 220.9 39.3% 11%;
-  --muted: 220 14.3% 95.9%;
-  --muted-foreground: 220 8.9% 46.1%;
-  --accent: 220 14.3% 95.9%;
-  --accent-foreground: 220.9 39.3% 11%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 20% 98%;
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 224 71.4% 4.1%;
-  --radius: 0.5rem;
-  --chart-1: 12 76% 61%;
-  --chart-2: 173 58% 39%;
-  --chart-3: 197 37% 24%;
-  --chart-4: 43 74% 66%;
-  --chart-5: 27 87% 67%;
+  --popover-foreground: 0 0% 11%;
   
-  /* Premium colors */
-  --electric-blue: 249 95% 63%;
-  --deep-navy: 220 100% 8%;
-  --pure-white: 0 0% 100%;
-  --soft-gray: 220 13% 85%;
-  --medium-gray: 220 9% 50%;
+  /* Apple Blue System Color */
+  --primary: 211 100% 50%;
+  --primary-foreground: 0 0% 100%;
   
-  /* Sidebar variables */
-  --sidebar: 220 100% 8%;
-  --sidebar-foreground: 210 20% 98%;
-  --sidebar-border: 215 27.9% 16.9%;
-  --sidebar-accent: 215 27.9% 16.9%;
+  /* Apple Gray System Colors */
+  --secondary: 0 0% 95%;
+  --secondary-foreground: 0 0% 11%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 54%;
+  --accent: 0 0% 95%;
+  --accent-foreground: 0 0% 11%;
+  
+  /* Apple Red System Color */
+  --destructive: 4 90% 58%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Subtle borders and inputs */
+  --border: 0 0% 89%;
+  --input: 0 0% 96%;
+  --ring: 211 100% 50%;
+  --radius: 0.75rem;
+  
+  /* Chart colors - Apple inspired */
+  --chart-1: 211 100% 50%;
+  --chart-2: 142 76% 36%;
+  --chart-3: 48 96% 53%;
+  --chart-4: 14 100% 57%;
+  --chart-5: 316 73% 52%;
+  
+  /* Apple Design System Colors */
+  --apple-blue: 211 100% 50%;
+  --apple-gray: 0 0% 96%;
+  --apple-gray-2: 0 0% 95%;
+  --apple-gray-3: 0 0% 89%;
+  --apple-gray-4: 0 0% 82%;
+  --apple-gray-5: 0 0% 54%;
+  --apple-gray-6: 0 0% 11%;
+  
+  /* Sidebar Apple Style */
+  --sidebar: 0 0% 98%;
+  --sidebar-foreground: 0 0% 11%;
+  --sidebar-border: 0 0% 91%;
+  --sidebar-accent: 0 0% 95%;
 }
 
 .dark {

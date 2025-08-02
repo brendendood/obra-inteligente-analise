@@ -126,26 +126,26 @@ export const EnhancedProjectsSection = ({
   }
 
   return (
-    <Card className="border border-gray-200 bg-white w-full">
+    <Card className="border border-border bg-card w-full rounded-apple">
       <CardHeader className="pb-4">
         <div className="flex flex-col space-y-4">
           {/* Header com título e botão */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             <div className="flex items-center space-x-2 min-w-0">
-              <FolderOpen className="h-5 w-5 text-blue-600 flex-shrink-0" />
-              <CardTitle className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+              <FolderOpen className="h-5 w-5 text-primary flex-shrink-0" strokeWidth={1.5} />
+              <CardTitle className="text-lg sm:text-xl font-semibold text-foreground truncate">
                 Meus Projetos
               </CardTitle>
-              <span className="text-sm text-gray-500 flex-shrink-0">
+              <span className="text-sm text-muted-foreground flex-shrink-0">
                 ({filteredAndSortedProjects.length})
               </span>
             </div>
             
             <Button
               onClick={() => navigate('/upload')}
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 h-10 px-4 sm:px-6 font-medium rounded-lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 h-10 px-4 sm:px-6 font-medium rounded-apple"
             >
-              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0" strokeWidth={1.5} />
               <span className="truncate">Novo Projeto</span>
             </Button>
           </div>

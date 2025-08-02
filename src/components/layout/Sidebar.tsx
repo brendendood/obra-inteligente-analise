@@ -129,21 +129,22 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   // Mobile Header
   const MobileHeader = () => (
-    <header className="lg:hidden bg-white border-b border-slate-200/60 sticky top-0 z-50 backdrop-blur-sm">
+    <header className="lg:hidden bg-background border-b border-border sticky top-0 z-50 backdrop-blur-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center">
-          <UnifiedLogo size="sm" clickable={false} className="mr-3" />
-          <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            MadenAI
-          </span>
+          <img 
+            src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
+            alt="MadenAI" 
+            className="h-8 w-auto" 
+          />
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 hover:bg-slate-100"
+          className="p-2 hover:bg-accent rounded-apple"
         >
-          <Menu className="h-5 w-5 text-slate-600" />
+          <Menu className="h-5 w-5 text-foreground" strokeWidth={1.5} />
         </Button>
       </div>
     </header>
@@ -151,9 +152,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   // Sidebar Content
   const SidebarContent = () => (
-    <div className="w-[280px] bg-white border-r border-slate-200/60 flex flex-col h-full shadow-sm">
+    <div className="w-[280px] bg-sidebar border-r border-sidebar-border flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-slate-200/60">
+      <div className="flex items-center justify-between p-6 border-b border-sidebar-border">
         <div className="flex items-center">
           <img 
             src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
@@ -168,15 +169,15 @@ export const Sidebar = ({ className }: SidebarProps) => {
             variant="ghost"
             size="sm"
             onClick={() => setIsMobileOpen(false)}
-            className="p-2 hover:bg-slate-100"
+            className="p-2 hover:bg-sidebar-accent"
           >
-            <X className="h-5 w-5 text-slate-500" />
+            <X className="h-4 w-4 text-sidebar-foreground" strokeWidth={1.5} />
           </Button>
         )}
       </div>
 
       {/* Project Limit Bar */}
-      <div className="px-4 py-3 border-b border-slate-200/60">
+      <div className="px-4 py-3 border-b border-sidebar-border">
         <ProjectLimitBar 
           currentProjects={userData.projectCount} 
           plan={userData.plan}
@@ -185,7 +186,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 p-3 space-y-1.5 overflow-y-auto">
+      <div className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -193,46 +194,42 @@ export const Sidebar = ({ className }: SidebarProps) => {
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "w-full flex items-center rounded-xl transition-all duration-200 p-2.5 text-left relative group",
-                "hover:bg-slate-50",
+                "w-full flex items-center rounded-apple transition-all duration-200 p-3 text-left relative group",
+                "hover:bg-sidebar-accent",
                 item.isActive 
-                  ? "bg-blue-50/80 text-blue-700 shadow-sm" 
-                  : "text-slate-700 hover:text-slate-900"
+                  ? "bg-primary/10 text-primary" 
+                  : "text-sidebar-foreground hover:text-sidebar-foreground"
               )}
             >
               <Icon className={cn(
                 "h-4 w-4 mr-3 flex-shrink-0",
-                item.isActive ? "text-blue-600" : "text-slate-500"
-              )} />
+                item.isActive ? "text-primary" : "text-muted-foreground"
+              )} strokeWidth={1.5} />
               
               <span className="text-sm font-medium truncate">
                 {item.label}
               </span>
-
-              {item.isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
-              )}
             </button>
           );
         })}
       </div>
 
       {/* Footer */}
-      <div className="border-t border-slate-200/60 p-3 space-y-3">
+      <div className="border-t border-sidebar-border p-4 space-y-3">
         {/* User Profile & Upgrade */}
-        <div className="bg-slate-50/80 rounded-xl p-3">
+        <div className="bg-sidebar-accent rounded-apple p-3">
           <div className="flex items-center mb-2">
-            <Avatar className="h-8 w-8 mr-3 ring-2 ring-white shadow-sm">
+            <Avatar className="h-8 w-8 mr-3">
               <AvatarImage src={avatarUrl} />
-              <AvatarFallback className="bg-blue-500 text-white text-xs font-medium">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
                 {getAvatarFallback(fullName)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
-              <p className="text-xs text-slate-500 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 Plano {getPlanDisplayName(userData.plan)}
               </p>
             </div>
@@ -240,10 +237,10 @@ export const Sidebar = ({ className }: SidebarProps) => {
           {canUpgrade(userData.plan) && (
             <Button 
               size="sm" 
-              className="w-full h-8 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-sm text-xs"
+              className="w-full h-8 bg-primary hover:bg-primary/90 text-primary-foreground text-xs rounded-apple"
               onClick={() => handleNavigation('/plano')}
             >
-              <Crown className="h-3 w-3 mr-1" />
+              <Crown className="h-3 w-3 mr-1" strokeWidth={1.5} />
               {getUpgradeMessage(userData.plan)}
             </Button>
           )}
@@ -252,9 +249,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center rounded-xl transition-all duration-200 p-2.5 hover:bg-red-50 text-red-600"
+          className="w-full flex items-center rounded-apple transition-all duration-200 p-3 hover:bg-destructive/10 text-destructive"
         >
-          <LogOut className="h-4 w-4 mr-3" />
+          <LogOut className="h-4 w-4 mr-3" strokeWidth={1.5} />
           <span className="text-sm font-medium">Sair</span>
         </button>
       </div>
