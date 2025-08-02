@@ -86,12 +86,10 @@ export const UnifiedLogo = ({
     setImageError(false);
   };
 
-  // Logo source - EMPTY until user uploads the actual logo
+  // Logo source - MadenAI logo uploaded by user
   const logoSrc = variant === 'favicon' 
-    ? null // No favicon until uploaded
-    : logoTheme === 'light' 
-      ? null // No light logo until uploaded
-      : null; // No dark logo until uploaded
+    ? '/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png' // Use same logo for favicon
+    : '/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png'; // Use uploaded logo
 
   // If no logo is available, return empty space
   if (!logoSrc) {
