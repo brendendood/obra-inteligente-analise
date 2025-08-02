@@ -155,10 +155,11 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-slate-200/60">
         <div className="flex items-center">
-          <UnifiedLogo size="sm" clickable={false} className="mr-3" />
-          <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            MadenAI
-          </span>
+          <img 
+            src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
+            alt="MadenAI" 
+            className="h-16 w-auto" 
+          />
         </div>
         
         {/* Close Button - mobile only */}
