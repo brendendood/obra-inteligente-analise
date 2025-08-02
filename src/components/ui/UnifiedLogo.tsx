@@ -104,14 +104,14 @@ export const UnifiedLogo = ({
     );
   }
 
-  // Fallback robusto com retry automático
+  // Fallback SEM logo genérica - apenas espaço vazio
   if (imageError) {
     return (
       <div 
         className={cn(
           sizeClasses[size],
-          'flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 text-white font-bold rounded-lg shadow-lg',
-          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl',
+          'flex items-center justify-center',
+          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
           className
         )}
         onClick={handleClick}
@@ -125,17 +125,7 @@ export const UnifiedLogo = ({
           }
         }}
       >
-        <span className={cn(
-          'font-bold tracking-tight',
-          size === 'xs' && 'text-xs',
-          size === 'sm' && 'text-sm',
-          size === 'md' && 'text-base',
-          size === 'lg' && 'text-lg',
-          size === 'xl' && 'text-xl',
-          size === '2xl' && 'text-2xl'
-        )}>
-          M
-        </span>
+        {/* NUNCA mostrar logo genérica - apenas espaço vazio */}
       </div>
     );
   }
