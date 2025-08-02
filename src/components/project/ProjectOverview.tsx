@@ -25,7 +25,7 @@ export const ProjectOverview = () => {
   return (
     <div className="space-y-8">
       {/* Informações do Projeto */}
-      <div className="bg-white rounded-2xl shadow-sm border border-apple-gray-100 p-4 sm:p-6 lg:p-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-apple-gray-100 p-6 sm:p-8 mx-2 sm:mx-0">
         <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6 mb-6 sm:mb-8">
           <div className="p-3 sm:p-4 bg-apple-blue/10 rounded-2xl flex-shrink-0">
             <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-apple-blue" />
@@ -65,7 +65,7 @@ export const ProjectOverview = () => {
       </div>
 
       {/* Cards de Funcionalidades */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 px-1 sm:px-0">
         <ProjectActionCard
           icon={Calculator}
           title="Orçamento SINAPI"

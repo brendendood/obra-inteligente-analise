@@ -47,7 +47,7 @@ export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContaine
           currentSection={getSectionTitle(activeTab)}
         />
         
-        <div className="flex-1 p-8 bg-gray-50/50">
+        <div className="flex-1 p-6 bg-gray-50/50">
           <div className="max-w-7xl mx-auto">
             <ProjectWorkspaceTabs 
               activeTab={activeTab} 
