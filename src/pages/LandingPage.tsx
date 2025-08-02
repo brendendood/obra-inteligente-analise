@@ -956,9 +956,9 @@ const LandingPage = () => {
             <div className="col-span-2">
               <div className="mb-4">
                 <img 
-                  src="/lovable-uploads/d1b388f8-965d-4cd7-a1f9-871c8d1847e5.png" 
+                  src="/lovable-uploads/c77446ad-cd65-4beb-a2f8-86ad4e6eccd7.png" 
                   alt="MadenAI" 
-                  className="h-10 w-auto" 
+                  className="h-16 w-auto" 
                 />
               </div>
               <p className="text-slate-600 mb-6 max-w-sm">
