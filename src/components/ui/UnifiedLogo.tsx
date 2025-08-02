@@ -78,18 +78,19 @@ export const UnifiedLogo = ({
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.error('[UnifiedLogo] Erro ao carregar imagem:', e.currentTarget.src);
-    console.error('[UnifiedLogo] Detalhes do erro:', e);
+    console.error('[UnifiedLogo] ERRO: Logo falhou ao carregar!');
+    console.error('[UnifiedLogo] URL tentada:', e.currentTarget.src);
+    console.error('[UnifiedLogo] Erro completo:', e);
     setImageError(true);
   };
 
   const handleImageLoad = () => {
-    console.log('[UnifiedLogo] Logo carregada com sucesso!');
+    console.log('[UnifiedLogo] ✅ SUCESSO: Logo carregada!');
     setImageError(false);
   };
 
-  // Logo source - MadenAI logo (preto + azul) funciona bem em fundos claros e escuros
-  const logoSrc = `/lovable-uploads/e1676e4f-fd0b-4426-8c49-a197872cae07.png?v=${Date.now()}`; // Cache busting
+  // Testar a nova URL da logo enviada pelo usuário
+  const logoSrc = `/lovable-uploads/39649555-db57-46d8-b0c5-13e9179bf5b0.png`; // Nova logo sem cache busting
   
   // Debug: Log se a imagem está carregando
   useEffect(() => {
@@ -111,13 +112,13 @@ export const UnifiedLogo = ({
     );
   }
 
-  // Fallback SEM logo genérica - apenas espaço vazio
+  // Fallback temporário para DEBUG - mostra texto para identificar o problema
   if (imageError) {
     return (
       <div 
         className={cn(
           sizeClasses[size],
-          'flex items-center justify-center',
+          'flex items-center justify-center bg-red-100 border border-red-300 rounded text-red-700 text-xs font-bold',
           clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
           className
         )}
@@ -132,7 +133,7 @@ export const UnifiedLogo = ({
           }
         }}
       >
-        {/* NUNCA mostrar logo genérica - apenas espaço vazio */}
+        ERRO LOGO
       </div>
     );
   }
