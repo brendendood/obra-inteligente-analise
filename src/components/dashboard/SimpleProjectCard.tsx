@@ -160,7 +160,7 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
   if (isMobile) {
     return (
-      <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full mx-2 sm:mx-0">
+      <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full">
         <CardContent className="p-6 sm:p-4">
           {/* Cabeçalho Mobile: Nome + Status */}
           <div className="flex items-start justify-between gap-3 mb-3">
