@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-export const useProjectTabManager = () => {
+export const useProjectAccordionManager = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,23 +17,23 @@ export const useProjectTabManager = () => {
     return 'visao-geral';
   };
 
-  const [activeTab, setActiveTab] = useState(getCurrentSection());
+  const [activeSection, setActiveSection] = useState(getCurrentSection());
 
-  // Atualizar tab ativa quando a URL mudar
+  // Atualizar seção ativa quando a URL mudar
   useEffect(() => {
-    setActiveTab(getCurrentSection());
+    setActiveSection(getCurrentSection());
   }, [location.pathname]);
 
-  const handleTabChange = (value: string, currentProject: any) => {
+  const handleSectionChange = (value: string, currentProject: any) => {
     if (!currentProject) return;
     
-    console.log('🔄 WORKSPACE: Mudando tab para:', value);
-    setActiveTab(value);
+    console.log('🔄 ACCORDION: Mudando seção para:', value);
+    setActiveSection(value);
     const newPath = value === 'visao-geral' 
       ? `/projeto/${projectId}` 
       : `/projeto/${projectId}/${value}`;
     
-    // Usar navigate diretamente para mudanças de tab (não salvar no histórico)
+    // Usar navigate diretamente para mudanças de seção
     navigate(newPath);
   };
 
@@ -48,8 +48,8 @@ export const useProjectTabManager = () => {
   };
 
   return {
-    activeTab,
-    handleTabChange,
+    activeSection,
+    handleSectionChange,
     getSectionTitle
   };
 };

@@ -1,9 +1,9 @@
 
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
-import { ProjectWorkspaceTabs } from './ProjectWorkspaceTabs';
+import { ProjectWorkspaceAccordion } from './ProjectWorkspaceAccordion';
 import { ProjectInfoAlert } from './ProjectInfoAlert';
-import { useProjectTabManager } from './ProjectWorkspaceTabManager';
+import { useProjectAccordionManager } from './ProjectWorkspaceTabManager';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
 import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 
@@ -13,7 +13,7 @@ interface ProjectWorkspaceContainerProps {
 
 export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContainerProps) => {
   const { project: currentProject, isLoading: loading, error } = useProjectDetail();
-  const { activeTab, handleTabChange, getSectionTitle } = useProjectTabManager();
+  const { activeSection, handleSectionChange, getSectionTitle } = useProjectAccordionManager();
 
   if (error) {
     return (
@@ -44,17 +44,17 @@ export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContaine
         <ProjectHeader 
           projectName={currentProject.name}
           projectId={currentProject.id}
-          currentSection={getSectionTitle(activeTab)}
+          currentSection={getSectionTitle(activeSection)}
         />
         
         <div className="flex-1 p-6 bg-gray-50/50">
           <div className="max-w-7xl mx-auto">
-            <ProjectWorkspaceTabs 
-              activeTab={activeTab} 
-              onTabChange={(value) => handleTabChange(value, currentProject)}
+            <ProjectWorkspaceAccordion 
+              activeSection={activeSection} 
+              onSectionChange={(value) => handleSectionChange(value, currentProject)}
             >
               {children}
-            </ProjectWorkspaceTabs>
+            </ProjectWorkspaceAccordion>
           </div>
         </div>
       </div>
