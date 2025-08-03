@@ -65,7 +65,7 @@ export const ProjectOverview = () => {
       </div>
 
       {/* Cards de Funcionalidades */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 px-1 sm:px-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 px-1 sm:px-0">
         <ProjectActionCard
           icon={Calculator}
           title="Orçamento SINAPI"
