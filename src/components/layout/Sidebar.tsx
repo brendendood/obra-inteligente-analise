@@ -135,7 +135,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
           <img 
             src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
             alt="MadenAI" 
-            className="h-8 w-auto" 
+            className="h-12 w-auto" 
           />
         </div>
         <Button
@@ -159,7 +159,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
           <img 
             src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
             alt="MadenAI" 
-            className="h-16 w-auto" 
+            className="h-20 w-auto" 
           />
         </div>
         
