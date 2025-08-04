@@ -24,8 +24,8 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<AuthState>({
+export const AuthProvider = React.memo<{ children: React.ReactNode }>(({ children }) => {
+  const [state, setState] = React.useState<AuthState>({
     user: null,
     session: null,
     loading: true,
@@ -35,26 +35,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Use refs to prevent unnecessary re-renders during HMR
   const lastAuthEventRef = useRef<string | null>(null);
   const isInitializedRef = useRef(false);
+  const mountedRef = useRef(true);
 
   const refreshAuth = useCallback(async () => {
+    if (!mountedRef.current) return;
+    
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
         console.error('Auth error:', error);
-        setState(prev => ({ ...prev, loading: false }));
+        if (mountedRef.current) {
+          setState(prev => ({ ...prev, loading: false }));
+        }
         return;
       }
 
       const user = session?.user || null;
       const isAuthenticated = !!user && !!session;
 
-      setState({
-        user,
-        session,
-        loading: false,
-        isAuthenticated,
-      });
+      if (mountedRef.current) {
+        setState({
+          user,
+          session,
+          loading: false,
+          isAuthenticated,
+        });
+      }
 
       // Redirecionamento centralizado - apenas uma vez após login bem-sucedido
       if (isAuthenticated && !isInitializedRef.current && window.location.pathname === '/login') {
@@ -65,12 +72,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isInitializedRef.current = true;
     } catch (error) {
       console.error('Auth refresh error:', error);
-      setState(prev => ({ ...prev, loading: false }));
+      if (mountedRef.current) {
+        setState(prev => ({ ...prev, loading: false }));
+      }
     }
   }, []);
 
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
     let subscription: any = null;
 
     console.log('🔄 AUTH: Inicializando AuthProvider...');
@@ -89,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const { data } = supabase.auth.onAuthStateChange(
         (event, session) => {
-          if (!mounted) {
+          if (!mountedRef.current) {
             console.log('🔄 AUTH: Componente desmontado, ignorando evento:', event);
             return;
           }
@@ -107,12 +116,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const user = session?.user || null;
           const isAuthenticated = !!user && !!session;
 
-          setState({
-            user,
-            session,
-            loading: false,
-            isAuthenticated,
-          });
+          if (mountedRef.current) {
+            setState({
+              user,
+              session,
+              loading: false,
+              isAuthenticated,
+            });
+          }
 
           // Redirecionamento centralizado - apenas para login bem-sucedido
           if (event === 'SIGNED_IN' && isAuthenticated && window.location.pathname === '/login') {
@@ -169,7 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setupAuthListener();
 
     return () => {
-      mounted = false;
+      mountedRef.current = false;
       console.log('🔄 AUTH: Limpando AuthProvider...');
       
       if (subscription) {
@@ -195,4 +206,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
+});
+
+AuthProvider.displayName = 'AuthProvider';
