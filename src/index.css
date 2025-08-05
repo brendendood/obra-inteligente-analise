@@ -121,6 +121,21 @@ input:focus, textarea:focus, select:focus {
   font-size: 16px !important;
 }
 
+/* Hide scrollbars completely on all devices */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body, #root {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Container responsivo global */
 #root {
   width: 100%;
