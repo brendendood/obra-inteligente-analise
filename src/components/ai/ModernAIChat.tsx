@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { Bot, User, Copy, Wifi, WifiOff, CheckCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Send, Copy, Check, Wifi, WifiOff, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
-import { AITypingIndicator } from './AITypingIndicator';
-import { TypewriterText } from '@/components/ui/TypewriterText';
-import { sendMessageToAgent } from '@/utils/agents/unifiedAgentService';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { sendDirectToN8N } from '@/utils/directN8NService';
+import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
+import { TypewriterText } from '@/components/ui/TypewriterText';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ChatMessage {
@@ -16,15 +16,17 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-const ModernAIChat = () => {
+export const ModernAIChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connected');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connected');
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
   const { user } = useAuth();
 
   const scrollToBottom = () => {
@@ -35,86 +37,159 @@ const ModernAIChat = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Inicializar conversa quando componente carregar
+  // Inicializar conversa única e carregar histórico
   useEffect(() => {
-    if (user && !conversationId) {
-      initializeConversation();
-    }
-  }, [user, conversationId]);
+    if (!user?.id) return;
 
-  const initializeConversation = async () => {
-    if (!user) return;
+    const initializeChat = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Buscar conversa existente (chat geral, sem project_id)
+        let { data: existingConversation } = await supabase
+          .from('ai_conversations')
+          .select('id')
+          .eq('user_id', user.id)
+          .is('project_id', null)
+          .eq('status', 'active')
+          .single();
 
+        let currentConversationId: string;
+
+        if (existingConversation) {
+          // Usar conversa existente
+          currentConversationId = existingConversation.id;
+        } else {
+          // Criar nova conversa
+          const { data: newConversation, error } = await supabase
+            .from('ai_conversations')
+            .insert({
+              user_id: user.id,
+              title: 'Chat Geral',
+              project_id: null,
+              status: 'active'
+            })
+            .select()
+            .single();
+
+          if (error) throw error;
+          currentConversationId = newConversation.id;
+        }
+
+        setConversationId(currentConversationId);
+
+        // Carregar histórico de mensagens
+        const { data: messageHistory } = await supabase
+          .from('ai_messages')
+          .select('content, role, created_at')
+          .eq('conversation_id', currentConversationId)
+          .order('created_at', { ascending: true });
+
+        if (messageHistory && messageHistory.length > 0) {
+          const formattedMessages: ChatMessage[] = messageHistory.map((msg, index) => ({
+            id: `msg-${index}`,
+            type: msg.role as 'user' | 'assistant',
+            content: msg.content,
+            timestamp: new Date(msg.created_at)
+          }));
+          setMessages(formattedMessages);
+        }
+
+      } catch (error) {
+        console.error('Erro ao inicializar chat:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar conversa. Tente recarregar a página.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeChat();
+  }, [user?.id, toast]);
+
+  const saveMessage = async (conversationId: string, content: string, role: 'user' | 'assistant') => {
     try {
-      const { data, error } = await supabase
-        .from('ai_conversations')
+      await supabase
+        .from('ai_messages')
         .insert({
-          user_id: user.id,
-          title: 'Conversa com MadenAI',
-          status: 'active'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      setConversationId(data.id);
-    } catch (error) {
-      console.error('Erro ao criar conversa:', error);
-    }
-  };
-
-  const saveMessage = async (content: string, role: 'user' | 'assistant') => {
-    if (!conversationId || !user) return;
-
-    try {
-      await supabase.from('ai_messages').insert({
-        conversation_id: conversationId,
-        content,
-        role
-      });
+          conversation_id: conversationId,
+          content,
+          role
+        });
     } catch (error) {
       console.error('Erro ao salvar mensagem:', error);
     }
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isTyping) return;
+    if (!inputMessage.trim() || isTyping || !user?.id || !conversationId) return;
 
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: inputMessage.trim(),
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    const messageContent = inputMessage.trim();
     setInputMessage('');
     setIsTyping(true);
     setConnectionStatus('connecting');
 
-    // Salvar mensagem do usuário
-    await saveMessage(userMessage.content, 'user');
+    // Adicionar mensagem do usuário
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      type: 'user',
+      content: messageContent,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
 
     try {
-      const response = await sendMessageToAgent(userMessage.content, 'general', { user });
-      
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+      // Salvar mensagem do usuário
+      await saveMessage(conversationId, messageContent, 'user');
+
+      // Preparar histórico para contexto
+      const conversationHistory = messages.map(msg => ({
+        role: msg.type,
+        content: msg.content
+      }));
+
+      // Enviar direto para N8N
+      const response = await sendDirectToN8N(
+        messageContent,
+        user.id,
+        conversationId,
+        conversationHistory
+      );
+
+      setConnectionStatus('connected');
+
+      // Adicionar resposta da IA
+      const aiMessage: ChatMessage = {
+        id: `ai-${Date.now()}`,
         type: 'assistant',
         content: response,
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
-      setConnectionStatus('connected');
-      
-      // Salvar resposta do assistente
-      await saveMessage(response, 'assistant');
+      setMessages(prev => [...prev, aiMessage]);
+
+      // Salvar resposta da IA
+      await saveMessage(conversationId, response, 'assistant');
+
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       setConnectionStatus('disconnected');
+      
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        type: 'assistant',
+        content: 'Desculpe, estou com dificuldades para responder no momento. Tente novamente em alguns instantes.',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+
       toast({
-        title: "Erro de Conexão",
+        title: "Erro de conexão",
         description: "Não foi possível enviar a mensagem. Tente novamente.",
         variant: "destructive",
       });
@@ -151,7 +226,7 @@ const ModernAIChat = () => {
   const getStatusIcon = () => {
     switch (connectionStatus) {
       case 'connected':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <Wifi className="h-4 w-4 text-green-500" />;
       case 'connecting':
         return <Wifi className="h-4 w-4 text-yellow-500 animate-pulse" />;
       case 'disconnected':
@@ -181,26 +256,20 @@ const ModernAIChat = () => {
     }
   };
 
-  const MessageBubble = ({ message }: { message: ChatMessage }) => (
-    <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-8`}>
-      <div className={`flex items-start space-x-3 max-w-[85%] sm:max-w-[70%] ${
-        message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-      }`}>
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${
-          message.type === 'user' 
-            ? 'bg-blue-600' 
-            : 'bg-gradient-to-r from-purple-500 to-blue-500'
-        }`}>
-          {message.type === 'user' ? (
-            <User className="h-4 w-4 text-white" />
-          ) : (
-            <Bot className="h-4 w-4 text-white" />
-          )}
+  const MessageBubble = ({ message, onCopy, copiedMessageId }: { 
+    message: ChatMessage; 
+    onCopy: (content: string, messageId: string) => void;
+    copiedMessageId: string | null;
+  }) => (
+    <div className={`flex justify-start`}>
+      <div className="flex items-start space-x-3 max-w-[85%] sm:max-w-[70%]">
+        <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <span className="text-sm text-white">{message.type === 'user' ? '👤' : '🤖'}</span>
         </div>
         
         <div className={`rounded-2xl px-4 py-3 relative group ${
           message.type === 'user'
-            ? 'bg-blue-600 text-white'
+            ? 'bg-blue-600 text-white ml-auto'
             : 'bg-gray-100 text-gray-900'
         }`}>
           <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
@@ -225,10 +294,10 @@ const ModernAIChat = () => {
               size="sm"
               variant="ghost"
               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-              onClick={() => copyMessage(message.content, message.id)}
+              onClick={() => onCopy(message.content, message.id)}
             >
               {copiedMessageId === message.id ? (
-                <CheckCircle className="h-3 w-3 text-green-600" />
+                <Check className="h-3 w-3 text-green-600" />
               ) : (
                 <Copy className="h-3 w-3 text-gray-500" />
               )}
@@ -239,19 +308,17 @@ const ModernAIChat = () => {
     </div>
   );
 
-  const TypingIndicator = () => <AITypingIndicator />;
-
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm ml-6 mr-6 mt-4 mb-4">
+    <div className="flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-            <Bot className="h-5 w-5 text-white" />
+            <span className="text-lg">🤖</span>
           </div>
           <div>
             <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
-            <p className="text-sm text-gray-600">Assistente inteligente para construção</p>
+            <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
           </div>
         </div>
         
@@ -264,27 +331,36 @@ const ModernAIChat = () => {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 ? (
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full flex items-center justify-center">
-              <Bot className="h-8 w-8 text-purple-600" />
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
+              <span className="text-2xl">🤖</span>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Olá! Como posso ajudar?
-              </h3>
-              <p className="text-gray-600 text-sm max-w-md">
-                Faça perguntas sobre construção, orçamentos, cronogramas ou qualquer dúvida sobre seu projeto.
-              </p>
+            <p className="text-gray-600">Carregando conversa...</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4">
+              <span className="text-2xl">🤖</span>
             </div>
+            <h3 className="text-xl font-semibold text-gray-800">Assistente de IA MadenAI</h3>
+            <p className="text-gray-600 max-w-md">
+              Olá! Sou seu assistente especializado em arquitetura e engenharia. 
+              Como posso ajudá-lo hoje?
+            </p>
           </div>
         ) : (
           <>
             {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
+              <MessageBubble
+                key={message.id}
+                message={message}
+                onCopy={copyMessage}
+                copiedMessageId={copiedMessageId}
+              />
             ))}
-            {isTyping && <TypingIndicator />}
+            {isTyping && <AITypingIndicator />}
           </>
         )}
         <div ref={messagesEndRef} />
@@ -298,21 +374,20 @@ const ModernAIChat = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Digite sua mensagem..."
+            placeholder="Digite sua pergunta sobre arquitetura ou engenharia..."
             className="flex-1 min-h-[44px] max-h-32 resize-none border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            disabled={isTyping}
+            disabled={isTyping || !conversationId}
           />
           <Button
             onClick={sendMessage}
-            disabled={!inputMessage.trim() || isTyping}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 px-6"
+            disabled={!inputMessage.trim() || isTyping || !conversationId}
+            size="sm"
+            className="px-3 py-2"
           >
-            Enviar
+            <Send className="h-4 w-4" />
           </Button>
         </div>
       </div>
     </div>
   );
 };
-
-export { ModernAIChat };
