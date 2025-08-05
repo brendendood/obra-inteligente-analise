@@ -24,8 +24,8 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = React.memo<{ children: React.ReactNode }>(({ children }) => {
-  const [state, setState] = React.useState<AuthState>({
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
     loading: true,
@@ -206,6 +206,4 @@ export const AuthProvider = React.memo<{ children: React.ReactNode }>(({ childre
       {children}
     </AuthContext.Provider>
   );
-});
-
-AuthProvider.displayName = 'AuthProvider';
+};
