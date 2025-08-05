@@ -1,5 +1,5 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Calculator, Calendar, Bot, FileText, Eye } from 'lucide-react';
+import { Calculator, Calendar, Bot, FileText } from 'lucide-react';
 
 interface ProjectWorkspaceAccordionProps {
   activeSection: string;
@@ -13,73 +13,53 @@ export const ProjectWorkspaceAccordion = ({
   children 
 }: ProjectWorkspaceAccordionProps) => {
   const sections = [
-    { value: 'visao-geral', label: 'Visão Geral', icon: Eye },
     { value: 'orcamento', label: 'Orçamento', icon: Calculator },
     { value: 'cronograma', label: 'Cronograma', icon: Calendar },
-    { value: 'assistente', label: 'Assistente IA', icon: Bot },
+    { value: 'assistente', label: 'Assistente', icon: Bot },
     { value: 'documentos', label: 'Documentos', icon: FileText }
   ];
 
-  const handleValueChange = (value: string) => {
-    // Se clicou na seção já ativa, não fazer nada (manter expandida)
-    if (value === activeSection) return;
-    
-    // Se clicou em outra seção, navegar para ela
+  const handleSectionClick = (value: string) => {
     onSectionChange(value);
   };
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
-      <Accordion 
-        type="single" 
-        value={activeSection} 
-        onValueChange={handleValueChange}
-        className="w-full"
-        collapsible={false}
-      >
-        {sections.map((section) => {
-          const Icon = section.icon;
-          const isActive = activeSection === section.value;
-          
-          return (
-            <AccordionItem 
-              key={section.value} 
-              value={section.value}
-              className="border-b border-border/50 last:border-b-0"
-            >
-              <AccordionTrigger 
-                className={`
-                  flex items-center justify-between px-4 py-3 hover:no-underline
-                  transition-all duration-200 group
-                  ${isActive 
-                    ? 'bg-accent text-foreground' 
-                    : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Icon className={`h-4 w-4 transition-colors duration-200 ${
-                    isActive 
-                      ? 'text-primary' 
-                      : 'text-muted-foreground group-hover:text-primary'
-                  }`} />
-                  <span className={`text-sm font-medium transition-colors duration-200 ${
-                    isActive 
-                      ? 'text-foreground' 
-                      : 'text-muted-foreground group-hover:text-foreground'
-                  }`}>
-                    {section.label}
-                  </span>
-                </div>
-              </AccordionTrigger>
+    <div className="w-full">
+      {/* Header Navigation */}
+      <div className="bg-background border-b border-border">
+        <div className="flex items-center justify-center px-6 py-4">
+          <div className="flex items-center gap-1 bg-muted/30 rounded-2xl p-1">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              const isActive = activeSection === section.value;
               
-              <AccordionContent className="px-4 py-4 bg-background/50">
-                {isActive && children}
-              </AccordionContent>
-            </AccordionItem>
-          );
-        })}
-      </Accordion>
+              return (
+                <button
+                  key={section.value}
+                  onClick={() => handleSectionClick(section.value)}
+                  className={`
+                    flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-200 text-sm font-medium
+                    ${isActive 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-background/50'
+                    }
+                  `}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{section.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          {children}
+        </div>
+      </div>
     </div>
   );
 };
