@@ -85,7 +85,7 @@ const ProjectSpecificLayoutContent = () => {
         <div className="flex-1 p-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
             <Tabs value={getCurrentTab()} onValueChange={handleTabChange} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 sm:mb-8 bg-white rounded-xl border border-apple-gray-100 p-1 shadow-sm gap-1">
+              <TabsList className="inline-flex h-12 items-center justify-center rounded-2xl bg-muted p-1 text-muted-foreground mb-6 sm:mb-8 shadow-sm w-full max-w-3xl mx-auto overflow-x-auto">
                 <TabsTrigger 
                   value="visao-geral" 
                   className="flex items-center justify-center gap-1 sm:gap-2 rounded-lg data-[state=active]:bg-apple-blue data-[state=active]:text-white data-[state=active]:shadow-sm transition-all duration-200 font-medium py-2.5 sm:py-3 px-2 sm:px-4 min-h-[44px] text-xs sm:text-sm"
