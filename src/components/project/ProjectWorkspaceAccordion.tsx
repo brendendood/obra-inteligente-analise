@@ -29,13 +29,13 @@ export const ProjectWorkspaceAccordion = ({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
       <Accordion 
         type="single" 
         value={activeSection} 
         onValueChange={handleValueChange}
         className="w-full"
-        collapsible={false} // Não permitir fechar todas as seções
+        collapsible={false}
       >
         {sections.map((section) => {
           const Icon = section.icon;
@@ -45,35 +45,35 @@ export const ProjectWorkspaceAccordion = ({
             <AccordionItem 
               key={section.value} 
               value={section.value}
-              className="border-b border-gray-100 last:border-b-0"
+              className="border-b border-border/50 last:border-b-0"
             >
               <AccordionTrigger 
                 className={`
-                  flex items-center justify-between px-6 py-4 hover:no-underline
-                  transition-all duration-300 group
+                  flex items-center justify-between px-4 py-3 hover:no-underline
+                  transition-all duration-200 group
                   ${isActive 
-                    ? 'bg-blue-50 text-blue-700 border-l-4 border-l-blue-600' 
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                    ? 'bg-accent text-foreground' 
+                    : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                   }
                 `}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`h-5 w-5 transition-colors duration-300 ${
+                <div className="flex items-center gap-2.5">
+                  <Icon className={`h-4 w-4 transition-colors duration-200 ${
                     isActive 
-                      ? 'text-blue-600' 
-                      : 'text-gray-500 group-hover:text-blue-600'
+                      ? 'text-primary' 
+                      : 'text-muted-foreground group-hover:text-primary'
                   }`} />
-                  <span className={`font-medium transition-colors duration-300 ${
+                  <span className={`text-sm font-medium transition-colors duration-200 ${
                     isActive 
-                      ? 'text-blue-700' 
-                      : 'text-gray-700 group-hover:text-blue-600'
+                      ? 'text-foreground' 
+                      : 'text-muted-foreground group-hover:text-foreground'
                   }`}>
                     {section.label}
                   </span>
                 </div>
               </AccordionTrigger>
               
-              <AccordionContent className="px-6 py-6 bg-gray-50/50">
+              <AccordionContent className="px-4 py-4 bg-background/50">
                 {isActive && children}
               </AccordionContent>
             </AccordionItem>
