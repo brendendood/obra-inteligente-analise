@@ -68,7 +68,7 @@ const ProjectSpecificSchedule = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 pb-6">
       <ScheduleHeader
         projectName={project.name}
         projectArea={project.total_area || 100}
@@ -87,7 +87,7 @@ const ProjectSpecificSchedule = () => {
       )}
 
       {scheduleData ? (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <ScheduleStatsCards scheduleData={scheduleData} />
 
           <AdvancedGanttChart

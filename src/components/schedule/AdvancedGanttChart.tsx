@@ -159,38 +159,42 @@ export const AdvancedGanttChart = ({
   const weeksCount = Math.ceil(totalDays / 7);
 
   return (
-    <Card className="shadow-lg border-0">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl font-bold text-slate-900 flex items-center">
-              <Calendar className="h-6 w-6 mr-3 text-blue-600" />
-              Cronograma Gantt - {projectName}
+    <Card className="shadow-lg border-0 overflow-hidden">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center">
+              <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
+              <span className="truncate">Cronograma - {projectName}</span>
             </CardTitle>
-            <p className="text-slate-600 mt-1">
-              Arraste para reordenar • Clique para editar • Timeline de {Math.ceil(totalDays / 30)} meses
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              Arraste para reordenar • Clique para editar • {Math.ceil(totalDays / 30)} meses
             </p>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6">
-        {/* Add New Task */}
-        <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
+      <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+        {/* Add New Task - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
           <Input
             placeholder="Nome da nova etapa..."
             value={newTaskName}
             onChange={(e) => setNewTaskName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
-            className="flex-1"
+            className="flex-1 h-10 sm:h-auto"
           />
-          <Button onClick={handleAddTask} size="sm" className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            onClick={handleAddTask} 
+            size="sm" 
+            className="bg-blue-600 hover:bg-blue-700 h-10 sm:h-auto whitespace-nowrap"
+          >
             <Plus className="h-4 w-4 mr-2" />
-            Adicionar Etapa
+            Adicionar
           </Button>
         </div>
 
-        {/* Timeline Header */}
+        {/* Mobile-friendly timeline */}
         <div className="overflow-x-auto">
           <div className="min-w-[800px]">
             <div className="grid grid-cols-12 gap-1 text-center text-xs text-slate-500 font-medium mb-4">

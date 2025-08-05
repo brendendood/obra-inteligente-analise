@@ -9,52 +9,58 @@ interface ScheduleStatsCardsProps {
 
 export const ScheduleStatsCards = ({ scheduleData }: ScheduleStatsCardsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Card>
-        <CardContent className="p-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-3 sm:p-4">
           <div className="flex items-center space-x-2">
-            <Clock className="h-5 w-5 text-blue-600" />
-            <div>
-              <p className="text-sm text-gray-600">Duração Total</p>
-              <p className="text-xl font-bold text-gray-900">{scheduleData.totalDuration} dias</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-2">
-            <Calculator className="h-5 w-5 text-green-600" />
-            <div>
-              <p className="text-sm text-gray-600">Custo Total</p>
-              <p className="text-xl font-bold text-gray-900">
-                R$ {scheduleData.totalCost.toLocaleString('pt-BR')}
+            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-600 truncate">Duração</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                {scheduleData.totalDuration}d
               </p>
             </div>
           </div>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-3 sm:p-4">
           <div className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-purple-600" />
-            <div>
-              <p className="text-sm text-gray-600">Etapas</p>
-              <p className="text-xl font-bold text-gray-900">{scheduleData.tasks.length}</p>
+            <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-600 truncate">Custo</p>
+              <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
+                R$ {(scheduleData.totalCost / 1000).toFixed(0)}k
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-3 sm:p-4">
           <div className="flex items-center space-x-2">
-            <Calendar className="h-5 w-5 text-orange-600" />
-            <div>
-              <p className="text-sm text-gray-600">Status</p>
-              <p className="text-xl font-bold text-gray-900">Inteligente</p>
+            <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-600 truncate">Etapas</p>
+              <p className="text-lg sm:text-xl font-bold text-gray-900">
+                {scheduleData.tasks.length}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card className="overflow-hidden">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-center space-x-2">
+            <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-gray-600 truncate">Status</p>
+              <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
+                Ativo
+              </p>
             </div>
           </div>
         </CardContent>
