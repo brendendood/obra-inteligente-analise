@@ -59,6 +59,13 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           accent: "hsl(var(--sidebar-accent))",
         },
+        // Apple Design System Colors
+        "apple-blue": "hsl(var(--apple-blue))",
+        "apple-gray-50": "hsl(var(--apple-gray-50))",
+        "apple-gray-100": "hsl(var(--apple-gray-100))",
+        "apple-gray-200": "hsl(var(--apple-gray-200))",
+        "apple-gray-600": "hsl(var(--apple-gray-600))",
+        "apple-gray-900": "hsl(var(--apple-gray-900))",
       },
       borderRadius: {
         lg: "var(--radius)",
