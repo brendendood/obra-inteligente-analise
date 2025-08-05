@@ -52,14 +52,14 @@ export const BudgetWorkspace = ({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with main actions */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+    <div className="space-y-4 sm:space-y-6 pb-6">
+      {/* Header with main actions - mobile optimized */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
             Orçamento - {project.name}
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm text-gray-600 mt-1">
             Orçamento SINAPI automatizado para {project.total_area || 100}m²
           </p>
         </div>

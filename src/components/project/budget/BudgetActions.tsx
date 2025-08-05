@@ -17,40 +17,44 @@ export const BudgetActions = ({
   disabled = false 
 }: BudgetActionsProps) => {
   return (
-    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
       <Button
         onClick={onAddItem}
         disabled={disabled}
-        className="bg-green-600 hover:bg-green-700"
+        className="bg-green-600 hover:bg-green-700 h-10 sm:h-auto"
       >
         <Plus className="h-4 w-4 mr-2" />
-        Adicionar Item
+        <span className="text-sm">Adicionar Item</span>
       </Button>
       
-      <Button
-        onClick={onExport}
-        disabled={disabled}
-        variant="outline"
-      >
-        <Download className="h-4 w-4 mr-2" />
-        Exportar
-      </Button>
-      
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            onClick={onViewHistory}
-            disabled={disabled}
-            variant="outline"
-          >
-            <History className="h-4 w-4 mr-2" />
-            Histórico
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Funcionalidade em desenvolvimento. Em breve estará disponível!</p>
-        </TooltipContent>
-      </Tooltip>
+      <div className="flex gap-2 sm:gap-3">
+        <Button
+          onClick={onExport}
+          disabled={disabled}
+          variant="outline"
+          className="flex-1 sm:flex-none h-10 sm:h-auto"
+        >
+          <Download className="h-4 w-4 mr-2" />
+          <span className="text-sm">Exportar</span>
+        </Button>
+        
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={onViewHistory}
+              disabled={disabled}
+              variant="outline"
+              className="flex-1 sm:flex-none h-10 sm:h-auto"
+            >
+              <History className="h-4 w-4 mr-2" />
+              <span className="text-sm">Histórico</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Funcionalidade em desenvolvimento. Em breve estará disponível!</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   );
 };

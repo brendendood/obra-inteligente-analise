@@ -17,18 +17,18 @@ export const BudgetItemsList = ({
   onRemoveItem 
 }: BudgetItemsListProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50">
-      <CardContent className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">
+    <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50 overflow-hidden">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
             Itens do Orçamento
           </h3>
-          <span className="text-sm text-gray-500">
-            {items.length} itens • Última atualização: {dataReferencia}
+          <span className="text-xs sm:text-sm text-gray-500">
+            {items.length} itens • {dataReferencia}
           </span>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {items.map((item) => (
             <EditableBudgetItem
               key={item.id}
