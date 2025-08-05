@@ -1,7 +1,6 @@
 
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
-import { ProjectWorkspaceAccordion } from './ProjectWorkspaceAccordion';
 import { ProjectInfoAlert } from './ProjectInfoAlert';
 import { useProjectAccordionManager } from './ProjectWorkspaceTabManager';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
@@ -13,7 +12,7 @@ interface ProjectWorkspaceContainerProps {
 
 export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContainerProps) => {
   const { project: currentProject, isLoading: loading, error } = useProjectDetail();
-  const { activeSection, handleSectionChange, getSectionTitle } = useProjectAccordionManager();
+  const { activeSection, getSectionTitle } = useProjectAccordionManager();
 
   if (error) {
     return (
@@ -47,15 +46,8 @@ export const ProjectWorkspaceContainer = ({ children }: ProjectWorkspaceContaine
           currentSection={getSectionTitle(activeSection)}
         />
         
-        <div className="flex-1 p-6 bg-gray-50/50">
-          <div className="max-w-7xl mx-auto">
-            <ProjectWorkspaceAccordion 
-              activeSection={activeSection} 
-              onSectionChange={(value) => handleSectionChange(value, currentProject)}
-            >
-              {children}
-            </ProjectWorkspaceAccordion>
-          </div>
+        <div className="flex-1">
+          {children}
         </div>
       </div>
     </AppLayout>

@@ -24,20 +24,20 @@ export const ProjectOverview = () => {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* Header Simplificado - Apple Style */}
-      <div className="px-6 py-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-medium text-foreground mb-2 tracking-tight">
+      {/* Header Mobile-First */}
+      <div className="px-4 sm:px-6 py-6 sm:py-8">
+        <div className="max-w-lg sm:max-w-3xl mx-auto text-center">
+          <h1 className="text-2xl sm:text-4xl font-medium text-foreground mb-2 tracking-tight leading-tight">
             {project.name}
           </h1>
           {project.total_area && (
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-base sm:text-lg">
               {project.total_area}m²
             </p>
           )}
           
-          {/* Status Badge Minimalista */}
-          <div className="mt-4 inline-flex items-center">
+          {/* Status Badge Mobile-Optimized */}
+          <div className="mt-3 sm:mt-4 inline-flex items-center">
             <div className={`w-2 h-2 rounded-full mr-2 ${
               project.analysis_data ? 'bg-green-500' : 'bg-yellow-500'
             }`} />
@@ -48,10 +48,10 @@ export const ProjectOverview = () => {
         </div>
       </div>
 
-      {/* Cards Grid 2x2 - Apple Minimalista */}
-      <div className="px-6 pb-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="grid grid-cols-2 gap-4">
+      {/* Cards Grid - Mobile Optimized */}
+      <div className="px-4 sm:px-6 pb-8 sm:pb-12">
+        <div className="max-w-sm sm:max-w-2xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <ProjectActionCard
               icon={Calculator}
               title="Orçamento"
@@ -87,13 +87,13 @@ export const ProjectOverview = () => {
         </div>
       </div>
 
-      {/* Processing State - Discreto */}
+      {/* Processing State - Mobile Centered */}
       {!project.analysis_data && (
-        <div className="px-6">
-          <div className="max-w-md mx-auto text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-muted rounded-full">
+        <div className="px-4 sm:px-6">
+          <div className="max-w-xs sm:max-w-md mx-auto text-center">
+            <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-muted rounded-full">
               <div className="w-3 h-3 bg-primary rounded-full animate-pulse mr-2" />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 Analisando projeto...
               </span>
             </div>
