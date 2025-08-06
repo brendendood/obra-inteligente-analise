@@ -6,7 +6,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { sendDirectToN8N } from '@/utils/directN8NService';
 import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
-import { TypewriterText } from '@/components/ui/TypewriterText';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ChatMessage {
@@ -307,12 +306,10 @@ export const ModernAIChat = () => {
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground'
           }`}>
-            <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-              {message.type === 'assistant' ? (
-                <TypewriterText text={message.content} speed={25} />
-              ) : (
-                message.content
-              )}
+            <div className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
+              message.type === 'assistant' ? 'animate-fade-in' : ''
+            }`}>
+              {message.content}
             </div>
             
             {/* Horário */}
