@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Send, Copy, Check, Wifi, WifiOff, Plus, Menu } from 'lucide-react';
+import { Send, Copy, Check, Wifi, WifiOff, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +8,7 @@ import { sendDirectToN8N } from '@/utils/directN8NService';
 import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
 import { MessageFormatter } from '@/components/ai/MessageFormatter';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +33,7 @@ export const ModernAIChat = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const scrollToBottom = () => {
@@ -411,12 +413,9 @@ export const ModernAIChat = () => {
             variant="ghost" 
             size="sm" 
             className="h-10 w-10 p-0"
-            onClick={() => {
-              // Emitir evento para abrir o sidebar móvel
-              window.dispatchEvent(new CustomEvent('openMobileSidebar'));
-            }}
+            onClick={() => navigate('/painel')}
           >
-            <Menu className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" />
           </Button>
         </div>
 
@@ -554,12 +553,24 @@ export const ModernAIChat = () => {
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
-          {getStatusIcon()}
-          <span className={`text-sm ${getStatusColor()}`}>
-            {connectionStatus === 'connected' ? 'Conectado' : 
-             connectionStatus === 'connecting' ? 'Conectando...' : 'Desconectado'}
-          </span>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            {getStatusIcon()}
+            <span className={`text-sm ${getStatusColor()}`}>
+              {connectionStatus === 'connected' ? 'Conectado' : 
+               connectionStatus === 'connecting' ? 'Conectando...' : 'Desconectado'}
+            </span>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/painel')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar ao Dashboard
+          </Button>
         </div>
       </div>
 
