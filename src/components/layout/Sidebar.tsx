@@ -57,6 +57,20 @@ export const Sidebar = ({ className }: SidebarProps) => {
     }
   }, [isMobile]);
 
+  // Listener para evento customizado de abrir o sidebar mobile
+  useEffect(() => {
+    const handleOpenMobileSidebar = () => {
+      if (isMobile) {
+        setIsMobileOpen(true);
+      }
+    };
+
+    window.addEventListener('openMobileSidebar', handleOpenMobileSidebar);
+    return () => {
+      window.removeEventListener('openMobileSidebar', handleOpenMobileSidebar);
+    };
+  }, [isMobile]);
+
   const fullName = user?.user_metadata?.full_name || '';
   const avatarUrl = getAvatarUrl(fullName, user?.email);
 
