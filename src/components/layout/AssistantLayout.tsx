@@ -23,10 +23,11 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
     return <>{children}</>;
   }
 
-  // Mobile/Tablet: fullscreen sem header, deixar o chat gerenciar
+  // Mobile/Tablet: fullscreen com sidebar oculto mas disponível
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col overflow-hidden">
+        <Sidebar />
         <div className="flex-1 overflow-hidden">
           {children}
         </div>
