@@ -1,11 +1,9 @@
-
 import { ReactNode, memo } from 'react';
 import { Sidebar } from './Sidebar';
 import Header from './Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
-import { useLocation } from 'react-router-dom';
 
 interface AssistantLayoutProps {
   children: ReactNode;
@@ -14,7 +12,6 @@ interface AssistantLayoutProps {
 export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
   const { user, loading } = useAuth();
   const isMobile = useIsMobile();
-  const location = useLocation();
 
   // Early return for loading state
   if (loading) {
@@ -26,15 +23,11 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
     return <>{children}</>;
   }
 
-  // Verificar se estamos na rota /ia para não mostrar header no mobile
-  const isAssistantRoute = location.pathname === '/ia';
-
-  // Mobile/Tablet: fullscreen sem header na página /ia
+  // Mobile/Tablet: fullscreen com header da plataforma
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col overflow-hidden">
-        {/* Não renderizar Header na rota /ia no mobile */}
-        {!isAssistantRoute && <Header />}
+        <Header />
         <div className="flex-1 overflow-hidden">
           {children}
         </div>

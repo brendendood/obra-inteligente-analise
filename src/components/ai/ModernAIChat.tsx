@@ -28,7 +28,6 @@ export const ModernAIChat = () => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -296,13 +295,6 @@ export const ModernAIChat = () => {
     }
   };
 
-  // Função para abrir o sidebar móvel
-  const handleOpenMobileSidebar = () => {
-    setIsMobileSidebarOpen(true);
-    // Disparar evento customizado para comunicar com o Sidebar
-    window.dispatchEvent(new CustomEvent('openMobileSidebar'));
-  };
-
   // Componente MessageBubble com suporte a formatação
   const MessageBubble = memo(({ message, isNewMessage }: { 
     message: ChatMessage; 
@@ -415,12 +407,7 @@ export const ModernAIChat = () => {
             </div>
           </div>
           
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-10 w-10 p-0"
-            onClick={handleOpenMobileSidebar}
-          >
+          <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
             <MoreVertical className="w-5 h-5" />
           </Button>
         </div>
