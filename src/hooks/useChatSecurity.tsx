@@ -100,10 +100,13 @@ export const useChatSecurity = () => {
       // Log the delete access
       await logChatAccess(sessionId, 'delete');
 
+      // Convert messageId to string to ensure type compatibility
+      const messageIdStr = String(messageId);
+
       const { error } = await supabase
         .from('n8n_chat_histories')
         .delete()
-        .eq('id', messageId)
+        .eq('id', messageIdStr)
         .eq('user_id', user.id); // Ensure user can only delete their own messages
 
       if (error) throw error;

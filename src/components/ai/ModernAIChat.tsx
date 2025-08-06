@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { sendDirectToN8N } from '@/utils/directN8NService';
 import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
+import { MessageFormatter } from '@/components/ai/MessageFormatter';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -49,7 +50,6 @@ export const ModernAIChat = () => {
       try {
         setIsLoading(true);
         
-        // Lógica simples: buscar a ÚNICA conversa do usuário ou criar se não existir
         console.log('🔍 Buscando conversa única para user:', user.id);
         
         const { data: conversation } = await supabase
@@ -119,7 +119,7 @@ export const ModernAIChat = () => {
     initializeChat();
   }, [user?.id, toast]);
 
-  // Subscription realtime para novas mensagens
+  // Subscription realtime para novas mensagens (APENAS DA IA)
   useEffect(() => {
     if (!user?.id || !conversationId) return;
 
@@ -136,27 +136,26 @@ export const ModernAIChat = () => {
         (payload) => {
           console.log('Nova mensagem detectada:', payload);
           
-          if (payload.new.conversation_id === conversationId) {
+          // APENAS processar mensagens da IA para evitar duplicação
+          if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
             const newMessage: ChatMessage = {
               id: payload.new.id,
-              type: payload.new.role as 'user' | 'assistant',
+              type: 'assistant',
               content: payload.new.content,
               timestamp: new Date(payload.new.created_at)
             };
             
-            // Marcar apenas mensagens do assistente como novas para animação
-            if (payload.new.role === 'assistant') {
-              setNewMessageIds(prev => new Set([...prev, payload.new.id]));
-              
-              // Remover o ID após a animação terminar (300ms)
-              setTimeout(() => {
-                setNewMessageIds(prev => {
-                  const newSet = new Set(prev);
-                  newSet.delete(payload.new.id);
-                  return newSet;
-                });
-              }, 300);
-            }
+            // Marcar mensagem como nova para animação
+            setNewMessageIds(prev => new Set([...prev, payload.new.id]));
+            
+            // Remover o ID após a animação terminar (300ms)
+            setTimeout(() => {
+              setNewMessageIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(payload.new.id);
+                return newSet;
+              });
+            }, 300);
             
             setMessages(prev => [...prev, newMessage]);
             setIsTyping(false); // Parar animação de digitando
@@ -194,10 +193,12 @@ export const ModernAIChat = () => {
     const messageId = crypto.randomUUID();
     setInputMessage('');
     setIsSending(true);
+    
+    // SEMPRE ativar a animação de digitação quando enviar mensagem
     setIsTyping(true);
     setConnectionStatus('connecting');
 
-    // Criar mensagem do usuário e adicionar imediatamente ao estado local
+    // Criar mensagem do usuário e adicionar APENAS localmente (não duplicar via subscription)
     const userMessage: ChatMessage = {
       id: messageId,
       type: 'user',
@@ -294,7 +295,7 @@ export const ModernAIChat = () => {
     }
   };
 
-  // Componente MessageBubble redesenhado para mobile
+  // Componente MessageBubble com suporte a formatação
   const MessageBubble = memo(({ message, isNewMessage }: { 
     message: ChatMessage; 
     isNewMessage: boolean;
@@ -311,7 +312,7 @@ export const ModernAIChat = () => {
           isUser ? "flex-row-reverse space-x-reverse" : "flex-row",
           isMobile ? "max-w-[90%]" : "max-w-[85%]"
         )}>
-          {/* Avatar - melhorado para mobile */}
+          {/* Avatar */}
           <div className={cn(
             "flex-shrink-0 mb-1",
             isMobile ? "w-8 h-8" : "w-10 h-10"
@@ -327,22 +328,23 @@ export const ModernAIChat = () => {
             </div>
           </div>
           
-          {/* Message Content - redesenhado */}
+          {/* Message Content */}
           <div className="flex flex-col space-y-1 min-w-0">
             <div className={cn(
               "rounded-2xl px-4 py-3 shadow-sm relative group",
               isMobile ? "rounded-xl px-3 py-2.5" : "",
               isUser 
                 ? "bg-primary text-primary-foreground" 
-                : "bg-muted/80 text-foreground border border-border/50"
+                : "bg-muted/80 text-foreground border border-border/50",
+              isNewMessage && !isUser ? "animate-fade-in" : ""
             )}>
-              <div className={cn(
-                "whitespace-pre-wrap break-words leading-relaxed",
-                isMobile ? "text-base" : "text-sm",
-                isNewMessage && !isUser ? "animate-fade-in" : ""
-              )}>
-                {message.content}
-              </div>
+              {/* Usar MessageFormatter para suporte a formatação */}
+              <MessageFormatter 
+                content={message.content}
+                className={cn(
+                  isMobile ? "text-base" : "text-sm"
+                )}
+              />
               
               {/* Botão de copiar - apenas para mensagens do AI */}
               {!isUser && (
@@ -380,7 +382,6 @@ export const ModernAIChat = () => {
     );
   });
 
-  // Layout otimizado para mobile
   const containerClasses = isMobile 
     ? "flex flex-col h-full bg-background"
     : "flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4";
@@ -388,7 +389,7 @@ export const ModernAIChat = () => {
   if (isMobile) {
     return (
       <div className={containerClasses}>
-        {/* Header Mobile - Redesign completo */}
+        {/* Header Mobile */}
         <div className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-10 min-h-[70px]">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-sm border border-primary/20">
@@ -439,7 +440,6 @@ export const ModernAIChat = () => {
                 </p>
               </div>
 
-              {/* Sugestões rápidas */}
               <div className="w-full max-w-sm space-y-3 mt-8">
                 <p className="text-sm font-semibold text-muted-foreground text-left">Sugestões:</p>
                 <div className="space-y-2">
@@ -472,31 +472,13 @@ export const ModernAIChat = () => {
                   isNewMessage={newMessageIds.has(message.id)}
                 />
               ))}
-              {isTyping && (
-                <div className="flex justify-start mb-4">
-                  <div className="flex items-center space-x-2 max-w-[90%]">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-xs text-white font-semibold">AI</span>
-                    </div>
-                    <div className="bg-muted/80 rounded-xl px-4 py-3 border border-border/50">
-                      <div className="flex items-center space-x-2">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" />
-                          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:0.1s]" />
-                          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:0.2s]" />
-                        </div>
-                        <span className="text-xs text-muted-foreground ml-2">Pensando...</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {isTyping && <AITypingIndicator />}
               <div ref={messagesEndRef} />
             </div>
           )}
         </div>
 
-        {/* Input Area Mobile - Redesign completo */}
+        {/* Input Area Mobile */}
         <div className="border-t border-border bg-background/95 backdrop-blur-sm p-4 sticky bottom-0">
           <div className="flex items-end space-x-3">
             <div className="flex-1 relative">
@@ -536,7 +518,6 @@ export const ModernAIChat = () => {
             </Button>
           </div>
           
-          {/* Status indicator mobile */}
           {!conversationId && (
             <div className="flex items-center justify-center mt-3">
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
@@ -550,7 +531,7 @@ export const ModernAIChat = () => {
     );
   }
 
-  // Desktop version (mantém o layout original)
+  // Desktop version
   return (
     <div className={containerClasses}>
       {/* Header Desktop */}
