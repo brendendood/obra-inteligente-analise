@@ -37,7 +37,7 @@ export const ModernAIChat = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  // Inicializar conversa única e carregar histórico
+  // Inicializar conversa consolidada e carregar TODAS as mensagens do usuário
   useEffect(() => {
     if (!user?.id) return;
 
@@ -45,27 +45,39 @@ export const ModernAIChat = () => {
       try {
         setIsLoading(true);
         
-        // Buscar conversa existente (chat geral, sem project_id)
-        let { data: existingConversation } = await supabase
+        // PRIMEIRA: Buscar TODAS as mensagens do usuário (não importa a conversa)
+        const { data: allUserMessages } = await supabase
+          .from('ai_messages')
+          .select('content, role, created_at, conversation_id')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true });
+
+        console.log('📧 Mensagens encontradas:', allUserMessages?.length || 0);
+
+        // SEGUNDA: Buscar ou criar uma conversa "master"
+        let { data: masterConversation } = await supabase
           .from('ai_conversations')
           .select('id')
           .eq('user_id', user.id)
           .is('project_id', null)
           .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .limit(1)
           .single();
 
         let currentConversationId: string;
 
-        if (existingConversation) {
+        if (masterConversation) {
           // Usar conversa existente
-          currentConversationId = existingConversation.id;
+          currentConversationId = masterConversation.id;
+          console.log('🔄 Usando conversa existente:', currentConversationId);
         } else {
-          // Criar nova conversa
+          // Criar nova conversa master
           const { data: newConversation, error } = await supabase
             .from('ai_conversations')
             .insert({
               user_id: user.id,
-              title: 'Chat Geral',
+              title: 'Chat Geral - Histórico Consolidado',
               project_id: null,
               status: 'active'
             })
@@ -74,29 +86,46 @@ export const ModernAIChat = () => {
 
           if (error) throw error;
           currentConversationId = newConversation.id;
+          console.log('✨ Nova conversa master criada:', currentConversationId);
         }
 
         setConversationId(currentConversationId);
 
-        // Carregar histórico de mensagens
-        const { data: messageHistory } = await supabase
-          .from('ai_messages')
-          .select('content, role, created_at')
-          .eq('conversation_id', currentConversationId)
-          .order('created_at', { ascending: true });
-
-        if (messageHistory && messageHistory.length > 0) {
-          const formattedMessages: ChatMessage[] = messageHistory.map((msg, index) => ({
+        // TERCEIRA: Exibir TODAS as mensagens no histórico (independente da conversa original)
+        if (allUserMessages && allUserMessages.length > 0) {
+          const formattedMessages: ChatMessage[] = allUserMessages.map((msg, index) => ({
             id: `msg-${index}`,
             type: msg.role as 'user' | 'assistant',
             content: msg.content,
             timestamp: new Date(msg.created_at)
           }));
           setMessages(formattedMessages);
+          console.log('💬 Histórico carregado com', formattedMessages.length, 'mensagens');
+        } else {
+          console.log('📭 Nenhuma mensagem encontrada no histórico');
+        }
+
+        // QUARTA: Migrar mensagens antigas para a conversa master (opcional)
+        if (allUserMessages && allUserMessages.length > 0) {
+          const messagesNotInMaster = allUserMessages.filter(msg => msg.conversation_id !== currentConversationId);
+          
+          if (messagesNotInMaster.length > 0) {
+            console.log('🔄 Migrando', messagesNotInMaster.length, 'mensagens para conversa master');
+            
+            // Atualizar conversation_id das mensagens antigas
+            for (const msg of messagesNotInMaster) {
+              await supabase
+                .from('ai_messages')
+                .update({ conversation_id: currentConversationId })
+                .eq('user_id', user.id)
+                .eq('content', msg.content)
+                .eq('created_at', msg.created_at);
+            }
+          }
         }
 
       } catch (error) {
-        console.error('Erro ao inicializar chat:', error);
+        console.error('❌ Erro ao inicializar chat:', error);
         toast({
           title: "Erro",
           description: "Erro ao carregar conversa. Tente recarregar a página.",
