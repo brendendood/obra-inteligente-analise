@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -18,6 +19,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { UserProfileCard } from './sidebar/UserProfileCard';
 import { PlanCard } from './sidebar/PlanCard';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SidebarProps {
   className?: string;
@@ -25,7 +27,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ className }: SidebarProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -72,10 +74,17 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await supabase.auth.signOut();
       navigate('/');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
+    }
+  };
+
+  const handleUpgrade = () => {
+    navigate('/plano');
+    if (isMobile) {
+      setIsOpen(false);
     }
   };
 
@@ -154,8 +163,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
           {/* Footer */}
           <div className="p-4 border-t space-y-4">
-            <UserProfileCard />
-            <PlanCard />
+            <UserProfileCard isCollapsed={false} />
+            <PlanCard isCollapsed={false} onUpgrade={handleUpgrade} />
             <Button
               onClick={handleSignOut}
               variant="ghost"
@@ -238,8 +247,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-100 space-y-4">
-        <UserProfileCard />
-        <PlanCard />
+        <UserProfileCard isCollapsed={false} />
+        <PlanCard isCollapsed={false} onUpgrade={handleUpgrade} />
         <Button
           onClick={handleSignOut}
           variant="ghost"
