@@ -49,53 +49,56 @@ export const ProjectStatusCard = ({ projectStatus }: ProjectStatusCardProps) => 
   );
 
   return (
-    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-          <FileText className="h-5 w-5 text-orange-600" />
-          <span className="whitespace-nowrap">Status Projetos</span>
+    <Card className="group relative overflow-hidden bg-gradient-to-br from-white via-orange-50/30 to-amber-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      <CardHeader className="relative">
+        <CardTitle className="text-xl font-bold text-gray-900 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-orange-100 rounded-lg">
+              <FileText className="h-6 w-6 text-orange-600" />
+            </div>
+            <span>Status Projetos</span>
+          </div>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 gap-4">
-          {/* Projetos com Orçamento */}
-          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {projectStatus.projectsWithBudget}
+      
+      <CardContent className="relative space-y-4">
+        {/* Primeira linha - Taxa de Conclusão (destaque) */}
+        <div className="relative p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className={`text-4xl font-black ${getStatusColor(budgetPercentage)} mb-1 tracking-tight`}>
+                {budgetPercentage}%
+              </div>
+              <div className="text-sm font-medium text-gray-600">Taxa de Conclusão</div>
             </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span>Projetos com Orçamento</span>
-            </div>
-          </div>
-
-          {/* Última Data de Envio */}
-          <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-            <div className="text-3xl font-bold text-orange-600 mb-2">
-              {projectStatus.lastSubmissionDate 
-                ? new Date(projectStatus.lastSubmissionDate).toLocaleDateString('pt-BR', { 
-                    day: '2-digit', 
-                    month: '2-digit',
-                    year: '2-digit'
-                  })
-                : 'N/D'}
-            </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <Calendar className="h-4 w-4 text-orange-500" />
-              <span>Última Data de Envio</span>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-green-600">
+                {projectStatus.projectsWithBudget}
+              </div>
+              <div className="text-xs text-gray-500">com orçamento</div>
             </div>
           </div>
+        </div>
 
-          {/* Taxa de Conclusão */}
-          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-            <div className={`text-3xl font-bold ${getStatusColor(budgetPercentage)} mb-2`}>
-              {budgetPercentage}%
+        {/* Segunda linha - Última Data de Envio */}
+        <div className="relative p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-orange-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-lg font-bold text-orange-600 mb-1">
+                {projectStatus.lastSubmissionDate 
+                  ? new Date(projectStatus.lastSubmissionDate).toLocaleDateString('pt-BR', { 
+                      day: '2-digit', 
+                      month: '2-digit',
+                      year: '2-digit'
+                    })
+                  : 'N/D'}
+              </div>
+              <div className="text-xs font-medium text-gray-600">Última Data de Envio</div>
             </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <FileText className="h-4 w-4 text-purple-500" />
-              <span>Taxa de Conclusão</span>
-            </div>
+            <Calendar className="h-6 w-6 text-orange-400" />
           </div>
         </div>
       </CardContent>

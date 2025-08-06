@@ -39,48 +39,56 @@ export const ProjectMetricsCard = ({ projectMetrics }: ProjectMetricsCardProps) 
   );
 
   return (
-    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-          <Building className="h-5 w-5 text-blue-600" />
-          <span className="whitespace-nowrap">Métricas Projetos</span>
+    <Card className="group relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-sky-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-sky-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      <CardHeader className="relative">
+        <CardTitle className="text-xl font-bold text-gray-900 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Building className="h-6 w-6 text-blue-600" />
+            </div>
+            <span>Métricas Projetos</span>
+          </div>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 gap-4">
-          {/* Área Total dos Projetos */}
-          <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-            <div className="text-3xl font-bold text-blue-600 mb-2">
-              {projectMetrics.totalArea.toLocaleString('pt-BR')} m²
+      
+      <CardContent className="relative space-y-4">
+        {/* Primeira linha - Área Total */}
+        <div className="relative p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-blue-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-3xl font-black text-blue-600 mb-1 tracking-tight">
+                {projectMetrics.totalArea.toLocaleString('pt-BR')} m²
+              </div>
+              <div className="text-sm font-medium text-gray-600">Área Total dos Projetos</div>
             </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <Building className="h-4 w-4 text-blue-500" />
-              <span>Área Total dos Projetos</span>
-            </div>
+            <Building className="h-8 w-8 text-blue-400" />
           </div>
+        </div>
 
+        {/* Segunda linha - Grid de 2 colunas */}
+        <div className="grid grid-cols-2 gap-4">
           {/* Custo Médio por Projeto */}
-          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {projectMetrics.avgCostPerProject 
-                ? `R$ ${projectMetrics.avgCostPerProject.toLocaleString('pt-BR')}` 
-                : 'N/D'}
-            </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <Calculator className="h-4 w-4 text-green-500" />
-              <span>Custo Médio por Projeto</span>
+          <div className="text-center">
+            <div className="relative p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-green-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="text-2xl font-black text-green-600 mb-1 tracking-tight">
+                {projectMetrics.avgCostPerProject 
+                  ? `R$ ${projectMetrics.avgCostPerProject.toLocaleString('pt-BR')}` 
+                  : 'N/D'}
+              </div>
+              <div className="text-xs font-medium text-gray-600">Custo Médio</div>
             </div>
           </div>
 
           {/* Total de Projetos */}
-          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-            <div className="text-3xl font-bold text-purple-600 mb-2">
-              {projectMetrics.projectCount}
-            </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <BarChart3 className="h-4 w-4 text-purple-500" />
-              <span>Total de Projetos</span>
+          <div className="text-center">
+            <div className="relative p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-purple-200/60 shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="text-2xl font-black text-purple-600 mb-1 tracking-tight">
+                {projectMetrics.projectCount}
+              </div>
+              <div className="text-xs font-medium text-gray-600">Total Projetos</div>
             </div>
           </div>
         </div>
