@@ -283,63 +283,64 @@ export const ModernAIChat = () => {
     }
   };
 
-  const MessageBubble = ({ message, onCopy, copiedMessageId }: { 
-    message: ChatMessage; 
-    onCopy: (content: string, messageId: string) => void;
-    copiedMessageId: string | null;
-  }) => {
-    const isUser = message.type === 'user';
-    
-    return (
-      <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
-        <div className={`flex items-start space-x-3 max-w-[85%] sm:max-w-[70%] ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
-          {/* Avatar - apenas para o bot */}
-          {!isUser && (
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-              <span className="text-sm text-white">🤖</span>
-            </div>
-          )}
-          
-          {/* Bubble da mensagem */}
-          <div className={`rounded-2xl px-4 py-3 relative group shadow-sm ${
-            isUser
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground'
-          }`}>
-            <div className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
-              message.type === 'assistant' ? 'animate-fade-in' : ''
-            }`}>
-              {message.content}
-            </div>
-            
-            {/* Horário */}
-            <div className={`text-xs mt-2 opacity-70`}>
-              {message.timestamp.toLocaleTimeString('pt-BR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </div>
-
-            {/* Botão de copiar - apenas para mensagens do bot */}
-            {message.type === 'assistant' && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                onClick={() => onCopy(message.content, message.id)}
-              >
-                {copiedMessageId === message.id ? (
-                  <Check className="h-3 w-3 text-green-600" />
-                ) : (
-                  <Copy className="h-3 w-3" />
-                )}
-              </Button>
-            )}
+// Componente MessageBubble movido para fora para evitar re-renders
+const MessageBubble = React.memo(({ message, onCopy, copiedMessageId }: { 
+  message: ChatMessage; 
+  onCopy: (content: string, messageId: string) => void;
+  copiedMessageId: string | null;
+}) => {
+  const isUser = message.type === 'user';
+  
+  return (
+    <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
+      <div className={`flex items-start space-x-3 max-w-[85%] sm:max-w-[70%] ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
+        {/* Avatar - apenas para o bot */}
+        {!isUser && (
+          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <span className="text-sm text-white">🤖</span>
           </div>
+        )}
+        
+        {/* Bubble da mensagem */}
+        <div className={`rounded-2xl px-4 py-3 relative group shadow-sm ${
+          isUser
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-muted text-muted-foreground'
+        }`}>
+          <div className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
+            message.type === 'assistant' ? 'animate-fade-in' : ''
+          }`}>
+            {message.content}
+          </div>
+          
+          {/* Horário */}
+          <div className={`text-xs mt-2 opacity-70`}>
+            {message.timestamp.toLocaleTimeString('pt-BR', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            })}
+          </div>
+
+          {/* Botão de copiar - apenas para mensagens do bot */}
+          {message.type === 'assistant' && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+              onClick={() => onCopy(message.content, message.id)}
+            >
+              {copiedMessageId === message.id ? (
+                <Check className="h-3 w-3 text-green-600" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+});
 
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4">
