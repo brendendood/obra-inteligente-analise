@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Copy, Check, Wifi, WifiOff, AlertCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect, memo } from 'react';
+import { Send, Copy, Check, Wifi, WifiOff, Plus, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +8,7 @@ import { sendDirectToN8N } from '@/utils/directN8NService';
 import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface ChatMessage {
   id: string;
@@ -270,22 +271,11 @@ export const ModernAIChat = () => {
   const getStatusIcon = () => {
     switch (connectionStatus) {
       case 'connected':
-        return <Wifi className="h-4 w-4 text-green-500" />;
+        return <Wifi className="h-3 w-3 text-green-500" />;
       case 'connecting':
-        return <Wifi className="h-4 w-4 text-yellow-500 animate-pulse" />;
+        return <Wifi className="h-3 w-3 text-yellow-500 animate-pulse" />;
       case 'disconnected':
-        return <WifiOff className="h-4 w-4 text-red-500" />;
-    }
-  };
-
-  const getStatusText = () => {
-    switch (connectionStatus) {
-      case 'connected':
-        return 'Conectado';
-      case 'connecting':
-        return 'Conectando...';
-      case 'disconnected':
-        return 'Desconectado';
+        return <WifiOff className="h-3 w-3 text-red-500" />;
     }
   };
 
@@ -300,124 +290,288 @@ export const ModernAIChat = () => {
     }
   };
 
-// Componente MessageBubble movido para fora para evitar re-renders
-const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessage }: { 
-  message: ChatMessage; 
-  onCopy: (content: string, messageId: string) => void;
-  copiedMessageId: string | null;
-  isNewMessage: boolean;
-}) => {
-  const isUser = message.type === 'user';
-  
-  return (
-    <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-3`}>
-      <div className={`flex items-start space-x-3 max-w-[85%] sm:max-w-[70%] ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
-        {/* Avatar - apenas para o bot */}
-        {!isUser && (
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-            <span className="text-sm text-white">🤖</span>
-          </div>
-        )}
-        
-        {/* Bubble da mensagem */}
-        <div className={`rounded-2xl px-4 py-3 relative group shadow-sm ${
-          isUser
-            ? 'bg-primary text-primary-foreground'
-            : 'bg-muted text-muted-foreground'
-        }`}>
-          <div className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
-            message.type === 'assistant' && isNewMessage ? 'animate-fade-in' : ''
-          }`}>
-            {message.content}
+  // Componente MessageBubble redesenhado para mobile
+  const MessageBubble = memo(({ message, isNewMessage }: { 
+    message: ChatMessage; 
+    isNewMessage: boolean;
+  }) => {
+    const isUser = message.type === 'user';
+    
+    return (
+      <div className={cn(
+        "flex w-full mb-4",
+        isUser ? "justify-end" : "justify-start"
+      )}>
+        <div className={cn(
+          "flex items-end space-x-2 max-w-[85%]",
+          isUser ? "flex-row-reverse space-x-reverse" : "flex-row",
+          isMobile ? "max-w-[90%]" : "max-w-[85%]"
+        )}>
+          {/* Avatar - melhorado para mobile */}
+          <div className={cn(
+            "flex-shrink-0 mb-1",
+            isMobile ? "w-8 h-8" : "w-10 h-10"
+          )}>
+            <div className={cn(
+              "rounded-full flex items-center justify-center font-semibold text-white shadow-sm",
+              isMobile ? "w-8 h-8 text-xs" : "w-10 h-10 text-sm",
+              isUser 
+                ? "bg-gradient-to-br from-primary to-primary/90" 
+                : "bg-gradient-to-br from-purple-500 to-blue-500"
+            )}>
+              {isUser ? "Você" : "AI"}
+            </div>
           </div>
           
-          {/* Horário */}
-          <div className={`text-xs mt-2 opacity-70`}>
-            {message.timestamp.toLocaleTimeString('pt-BR', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
+          {/* Message Content - redesenhado */}
+          <div className="flex flex-col space-y-1 min-w-0">
+            <div className={cn(
+              "rounded-2xl px-4 py-3 shadow-sm relative group",
+              isMobile ? "rounded-xl px-3 py-2.5" : "",
+              isUser 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted/80 text-foreground border border-border/50"
+            )}>
+              <div className={cn(
+                "whitespace-pre-wrap break-words leading-relaxed",
+                isMobile ? "text-base" : "text-sm",
+                isNewMessage && !isUser ? "animate-fade-in" : ""
+              )}>
+                {message.content}
+              </div>
+              
+              {/* Botão de copiar - apenas para mensagens do AI */}
+              {!isUser && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyMessage(message.content, message.id)}
+                  className={cn(
+                    "absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background border border-border/30",
+                    isMobile ? "h-7 w-7 p-0" : "h-6 w-6 p-0"
+                  )}
+                >
+                  {copiedMessageId === message.id ? (
+                    <Check className={cn(isMobile ? "w-3.5 h-3.5" : "w-3 h-3", "text-green-600")} />
+                  ) : (
+                    <Copy className={isMobile ? "w-3.5 h-3.5" : "w-3 h-3"} />
+                  )}
+                </Button>
+              )}
+            </div>
+            
+            {/* Timestamp */}
+            <span className={cn(
+              "text-xs text-muted-foreground px-1",
+              isUser ? "text-right" : "text-left"
+            )}>
+              {message.timestamp.toLocaleTimeString('pt-BR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </span>
           </div>
+        </div>
+      </div>
+    );
+  });
 
-          {/* Botão de copiar - apenas para mensagens do bot */}
-          {message.type === 'assistant' && (
+  // Layout otimizado para mobile
+  const containerClasses = isMobile 
+    ? "flex flex-col h-full bg-background"
+    : "flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4";
+
+  if (isMobile) {
+    return (
+      <div className={containerClasses}>
+        {/* Header Mobile - Redesign completo */}
+        <div className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-10 min-h-[70px]">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-sm border border-primary/20">
+              <span className="text-lg font-bold text-primary-foreground">AI</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">MadenAI</h1>
+              <div className="flex items-center space-x-1.5">
+                {getStatusIcon()}
+                <span className={cn("text-xs font-medium", getStatusColor())}>
+                  {connectionStatus === 'connected' ? 'Online' : 
+                   connectionStatus === 'connecting' ? 'Conectando...' : 'Offline'}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
+            <MoreVertical className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Messages Area Mobile */}
+        <div className="flex-1 overflow-y-auto px-4 py-2 bg-background">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6">
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/40 rounded-2xl flex items-center justify-center animate-pulse">
+                  <span className="text-3xl">🤖</span>
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full border-2 border-background animate-bounce" />
+              </div>
+              <div className="space-y-2">
+                <div className="w-32 h-3 bg-muted/50 rounded-full animate-pulse" />
+                <div className="w-24 h-3 bg-muted/30 rounded-full animate-pulse" />
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-6 px-4">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary/10 to-primary/20 rounded-2xl flex items-center justify-center">
+                <span className="text-4xl">💬</span>
+              </div>
+              
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold text-foreground">Olá! 👋</h2>
+                <p className="text-muted-foreground text-lg leading-relaxed max-w-sm">
+                  Sou seu assistente especializado em arquitetura e engenharia. Como posso ajudar?
+                </p>
+              </div>
+
+              {/* Sugestões rápidas */}
+              <div className="w-full max-w-sm space-y-3 mt-8">
+                <p className="text-sm font-semibold text-muted-foreground text-left">Sugestões:</p>
+                <div className="space-y-2">
+                  {[
+                    { icon: "🏗️", text: "Como calcular estruturas?", prompt: "Como calcular a estrutura de uma laje?" },
+                    { icon: "🧱", text: "Materiais para fundação", prompt: "Quais materiais são melhores para fundação?" },
+                    { icon: "📅", text: "Cronograma de obra", prompt: "Como fazer um cronograma de obra?" },
+                    { icon: "💰", text: "Estimativa de custos", prompt: "Como estimar custos de construção?" }
+                  ].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setInputMessage(suggestion.prompt)}
+                      className="w-full p-4 text-left bg-muted/30 hover:bg-muted/50 rounded-xl border border-border/30 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span className="text-xl">{suggestion.icon}</span>
+                        <span className="text-sm font-medium text-foreground">{suggestion.text}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1 py-2">
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isNewMessage={newMessageIds.has(message.id)}
+                />
+              ))}
+              {isTyping && (
+                <div className="flex justify-start mb-4">
+                  <div className="flex items-center space-x-2 max-w-[90%]">
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                      <span className="text-xs text-white font-semibold">AI</span>
+                    </div>
+                    <div className="bg-muted/80 rounded-xl px-4 py-3 border border-border/50">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" />
+                          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:0.1s]" />
+                          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:0.2s]" />
+                        </div>
+                        <span className="text-xs text-muted-foreground ml-2">Pensando...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {/* Input Area Mobile - Redesign completo */}
+        <div className="border-t border-border bg-background/95 backdrop-blur-sm p-4 sticky bottom-0">
+          <div className="flex items-end space-x-3">
+            <div className="flex-1 relative">
+              <Textarea
+                ref={textareaRef}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Digite sua mensagem..."
+                className="resize-none border-0 bg-muted/50 focus-visible:ring-2 focus-visible:ring-primary/50 transition-all duration-200 min-h-[56px] max-h-40 text-base px-4 py-3 rounded-2xl placeholder:text-muted-foreground/70 pr-12"
+                disabled={isTyping || !conversationId}
+              />
+              {inputMessage && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setInputMessage('')}
+                  className="absolute right-2 top-2 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+                >
+                  <Plus className="w-4 h-4 rotate-45" />
+                </Button>
+              )}
+            </div>
+            
             <Button
-              size="sm"
-              variant="ghost"
-              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-              onClick={() => onCopy(message.content, message.id)}
+              onClick={sendMessage}
+              disabled={!inputMessage.trim() || isTyping || !conversationId}
+              className="h-[56px] w-[56px] rounded-2xl bg-primary hover:bg-primary/90 p-0 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
             >
-              {copiedMessageId === message.id ? (
-                <Check className="h-3 w-3 text-green-600" />
+              {isTyping ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse" />
+                </div>
               ) : (
-                <Copy className="h-3 w-3" />
+                <Send className="w-6 h-6 text-primary-foreground" />
               )}
             </Button>
+          </div>
+          
+          {/* Status indicator mobile */}
+          {!conversationId && (
+            <div className="flex items-center justify-center mt-3">
+              <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-pulse" />
+                <span>Inicializando conversa...</span>
+              </div>
+            </div>
           )}
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
 
-  // Estilos condicionais baseados no dispositivo
-  const containerClasses = isMobile 
-    ? "flex flex-col h-screen bg-background overflow-hidden"
-    : "flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4";
-    
-  const headerClasses = isMobile
-    ? "flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/60 min-h-[60px]" // Header simplificado no mobile
-    : "flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50";
-    
-  const messagesAreaClasses = isMobile
-    ? "flex-1 overflow-y-auto p-4 space-y-4"
-    : "flex-1 overflow-y-auto p-6 space-y-4";
-    
-  const inputAreaClasses = isMobile
-    ? "p-4 bg-background border-t flex-shrink-0"
-    : "p-4 border-t bg-gray-50";
-
-  const textareaClasses = isMobile
-    ? "w-full min-h-[80px] h-20 px-4 py-3 text-base rounded-xl border border-gray-300 bg-white placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-    : "w-full min-h-[60px] px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent";
-
+  // Desktop version (mantém o layout original)
   return (
     <div className={containerClasses}>
-      {/* Header */}
-      <div className={headerClasses}>
-        {isMobile ? (
-          /* Header mobile simplificado */
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-sm">🤖</span>
-            </div>
-            <h2 className="font-semibold text-gray-900">MadenAI</h2>
+      {/* Header Desktop */}
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+            <span className="text-lg">🤖</span>
           </div>
-        ) : (
-          /* Header desktop completo */
-          <>
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-lg">🤖</span>
-              </div>
-              <div>
-                <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
-                <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              {getStatusIcon()}
-              <span className={`text-sm ${getStatusColor()}`}>
-                {getStatusText()}
-              </span>
-            </div>
-          </>
-        )}
+          <div>
+            <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
+            <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {getStatusIcon()}
+          <span className={`text-sm ${getStatusColor()}`}>
+            {connectionStatus === 'connected' ? 'Conectado' : 
+             connectionStatus === 'connecting' ? 'Conectando...' : 'Desconectado'}
+          </span>
+        </div>
       </div>
 
-      {/* Messages Area */}
-      <div className={messagesAreaClasses}>
+      {/* Messages Area Desktop */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
@@ -442,8 +596,6 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
               <MessageBubble
                 key={message.id}
                 message={message}
-                onCopy={copyMessage}
-                copiedMessageId={copiedMessageId}
                 isNewMessage={newMessageIds.has(message.id)}
               />
             ))}
@@ -453,31 +605,24 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div className={inputAreaClasses}>
+      {/* Input Area Desktop */}
+      <div className="p-4 border-t bg-gray-50">
         <div className="flex space-x-3">
           <Textarea
             ref={textareaRef}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder={isMobile ? "Digite sua pergunta..." : "Digite sua pergunta sobre arquitetura ou engenharia..."}
-            className={`flex-1 resize-none ${
-              isMobile 
-                ? "min-h-[80px] h-20 text-base px-4 py-3 rounded-xl border-border focus:border-primary focus:ring-primary" 
-                : "min-h-[60px] max-h-32 border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            }`}
+            placeholder="Digite sua pergunta sobre arquitetura ou engenharia..."
+            className="flex-1 resize-none min-h-[60px] max-h-32 border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
             disabled={isTyping || !conversationId}
           />
           <Button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping || !conversationId}
-            className={isMobile 
-              ? "h-20 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl"
-              : "h-auto px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-            }
+            className="h-auto px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           >
-            <Send className={isMobile ? "w-5 h-5" : "w-4 h-4"} />
+            <Send className="w-4 h-4" />
           </Button>
         </div>
       </div>
