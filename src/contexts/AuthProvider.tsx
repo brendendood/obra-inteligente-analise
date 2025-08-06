@@ -1,4 +1,5 @@
-import { 
+
+import React, { 
   createContext, 
   useEffect, 
   useState, 
@@ -205,4 +206,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-};
+}
