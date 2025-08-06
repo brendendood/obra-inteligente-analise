@@ -366,7 +366,7 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
     : "flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4";
     
   const headerClasses = isMobile
-    ? "hidden" // Ocultar header no mobile
+    ? "flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-gray-200/60 min-h-[60px]" // Header simplificado no mobile
     : "flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50";
     
   const messagesAreaClasses = isMobile
@@ -374,32 +374,43 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
     : "flex-1 overflow-y-auto p-6 space-y-4";
     
   const inputAreaClasses = isMobile
-    ? "p-4 bg-background border-t"
+    ? "p-4 bg-background border-t flex-shrink-0"
     : "p-4 border-t bg-gray-50";
 
   return (
     <div className={containerClasses}>
-      {/* Header - oculto no mobile */}
-      {!isMobile && (
-        <div className={headerClasses}>
+      {/* Header */}
+      <div className={headerClasses}>
+        {isMobile ? (
+          /* Header mobile simplificado */
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-lg">🤖</span>
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-sm">🤖</span>
             </div>
-            <div>
-              <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
-              <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
+            <h2 className="font-semibold text-gray-900">MadenAI</h2>
+          </div>
+        ) : (
+          /* Header desktop completo */
+          <>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-lg">🤖</span>
+              </div>
+              <div>
+                <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
+                <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
+              </div>
             </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            {getStatusIcon()}
-            <span className={`text-sm ${getStatusColor()}`}>
-              {getStatusText()}
-            </span>
-          </div>
-        </div>
-      )}
+            
+            <div className="flex items-center space-x-2">
+              {getStatusIcon()}
+              <span className={`text-sm ${getStatusColor()}`}>
+                {getStatusText()}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Messages Area */}
       <div className={messagesAreaClasses}>
