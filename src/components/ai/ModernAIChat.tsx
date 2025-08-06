@@ -21,6 +21,7 @@ export const ModernAIChat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connected');
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -187,11 +188,12 @@ export const ModernAIChat = () => {
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isTyping || !user?.id || !conversationId) return;
+    if (!inputMessage.trim() || isTyping || isSending || !user?.id || !conversationId) return;
 
     const messageContent = inputMessage.trim();
     const messageId = crypto.randomUUID();
     setInputMessage('');
+    setIsSending(true);
     setIsTyping(true);
     setConnectionStatus('connecting');
 
@@ -240,11 +242,13 @@ export const ModernAIChat = () => {
         description: "Não foi possível enviar a mensagem. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
+      setIsSending(false);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !isSending) {
       e.preventDefault();
       sendMessage();
     }
@@ -503,7 +507,7 @@ export const ModernAIChat = () => {
                 onKeyPress={handleKeyPress}
                 placeholder="Digite sua mensagem..."
                 className="resize-none border-0 bg-muted/50 focus-visible:ring-2 focus-visible:ring-primary/50 transition-all duration-200 min-h-[56px] max-h-40 text-base px-4 py-3 rounded-2xl placeholder:text-muted-foreground/70 pr-12"
-                disabled={isTyping || !conversationId}
+                disabled={isTyping || isSending || !conversationId}
               />
               {inputMessage && (
                 <Button
@@ -519,10 +523,10 @@ export const ModernAIChat = () => {
             
             <Button
               onClick={sendMessage}
-              disabled={!inputMessage.trim() || isTyping || !conversationId}
+              disabled={!inputMessage.trim() || isTyping || isSending || !conversationId}
               className="h-[56px] w-[56px] rounded-2xl bg-primary hover:bg-primary/90 p-0 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
             >
-              {isTyping ? (
+              {(isTyping || isSending) ? (
                 <div className="flex items-center justify-center">
                   <div className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse" />
                 </div>
@@ -615,11 +619,11 @@ export const ModernAIChat = () => {
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre arquitetura ou engenharia..."
             className="flex-1 resize-none min-h-[60px] max-h-32 border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            disabled={isTyping || !conversationId}
+            disabled={isTyping || isSending || !conversationId}
           />
           <Button
             onClick={sendMessage}
-            disabled={!inputMessage.trim() || isTyping || !conversationId}
+            disabled={!inputMessage.trim() || isTyping || isSending || !conversationId}
             className="h-auto px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
           >
             <Send className="w-4 h-4" />

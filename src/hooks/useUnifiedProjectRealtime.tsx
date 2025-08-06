@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/project';
-import { useToast } from '@/hooks/use-toast';
+import { useProjectNotifications } from '@/hooks/useProjectNotifications';
 
 /**
  * Hook unificado para real-time com prevenção total de duplicação
@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
  */
 export const useUnifiedProjectRealtime = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
+  const { showProjectCreated, showProjectDeleted, showDataSynced } = useProjectNotifications();
   const { 
     addProject, 
     updateProject, 
@@ -99,10 +99,8 @@ export const useUnifiedProjectRealtime = () => {
             const newProject = payload.new as Project;
             addProject(newProject);
             
-            toast({
-              title: "📁 Novo projeto",
-              description: `"${newProject.name}" foi criado com sucesso.`,
-            });
+            // Apenas para uploads reais (não para sincronização automática)
+            showProjectCreated(newProject, 'upload');
           }
         )
         .on(
@@ -134,10 +132,8 @@ export const useUnifiedProjectRealtime = () => {
             // Usar deleteProject com flag de exclusão externa
             deleteProject(deletedProject.id, true);
             
-            toast({
-              title: "🗑️ Projeto removido",
-              description: `"${deletedProject.name}" foi excluído.`,
-            });
+            // Mostrar notificação para exclusões externas
+            showProjectDeleted(deletedProject, 'external');
           }
         )
         .subscribe((status) => {
@@ -150,13 +146,8 @@ export const useUnifiedProjectRealtime = () => {
             reconnectAttempts.current = 0;
             console.log(`✅ UNIFIED REALTIME: Conectado: ${channelName}`);
             
-            // Toast apenas na primeira conexão (não em reconexões)
-            if (currentAttempts === 0) {
-              toast({
-                title: "🔗 Sincronização ativa",
-                description: "Seus projetos serão atualizados automaticamente.",
-              });
-            }
+            // Toast removido - apenas logs para debug
+            console.log(`✅ UNIFIED REALTIME: Conectado: ${channelName}`);
           } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
             isConnectedRef.current = false;
             isConnectingRef.current = false;
@@ -185,11 +176,7 @@ export const useUnifiedProjectRealtime = () => {
               console.log('⏳ UNIFIED REALTIME: Throttling reconexão - muito recente');
             } else if (reconnectAttempts.current >= maxReconnectAttempts) {
               console.error('❌ UNIFIED REALTIME: Máximo de tentativas atingido');
-              toast({
-                title: "⚠️ Conexão instável",
-                description: "A sincronização será retomada automaticamente.",
-                variant: "destructive",
-              });
+              // Notificação removida - apenas logs para debug
             }
           }
         });
@@ -201,7 +188,7 @@ export const useUnifiedProjectRealtime = () => {
       console.error('💥 UNIFIED REALTIME: Erro ao criar canal:', error);
       isConnectingRef.current = false;
     }
-  }, [user?.id, addProject, updateProject, deleteProject, toast, cleanupAll]);
+  }, [user?.id, addProject, updateProject, deleteProject, showProjectCreated, showProjectDeleted, cleanupAll]);
 
   // Gerenciamento de ciclo de vida - SEM dependências circulares
   useEffect(() => {
@@ -248,19 +235,13 @@ export const useUnifiedProjectRealtime = () => {
       await forceRefresh();
       console.log('✅ UNIFIED REALTIME: Ressincronização concluída');
       
-      toast({
-        title: "🔄 Dados atualizados",
-        description: "Seus projetos foram sincronizados com o servidor.",
-      });
+      // Mostrar toast apenas para ressincronizações manuais
+      showDataSynced('manual');
     } catch (error) {
       console.error('❌ UNIFIED REALTIME: Erro na ressincronização:', error);
-      toast({
-        title: "❌ Erro na sincronização",
-        description: "Tente novamente em alguns instantes.",
-        variant: "destructive",
-      });
+      // Manter tratamento de erro sem notificação
     }
-  }, [forceRefresh, toast]);
+  }, [forceRefresh, showDataSynced]);
 
   return {
     isRealtimeConnected: isConnectedRef.current,
