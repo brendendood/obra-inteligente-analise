@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Send, Copy, Check, Wifi, WifiOff, Plus, MoreVertical } from 'lucide-react';
+import { Send, Copy, Check, Wifi, WifiOff, Plus, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -407,8 +407,16 @@ export const ModernAIChat = () => {
             </div>
           </div>
           
-          <Button variant="ghost" size="sm" className="h-10 w-10 p-0">
-            <MoreVertical className="w-5 h-5" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-10 w-10 p-0"
+            onClick={() => {
+              // Emitir evento para abrir o sidebar móvel
+              window.dispatchEvent(new CustomEvent('openMobileSidebar'));
+            }}
+          >
+            <Menu className="w-5 h-5" />
           </Button>
         </div>
 
