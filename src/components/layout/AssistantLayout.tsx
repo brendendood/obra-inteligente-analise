@@ -6,7 +6,7 @@ import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useProject } from '@/contexts/ProjectContext';
 import { AssistantSidebarNavigation } from './AssistantSidebarNavigation';
-import { UserProfile } from './sidebar/UserProfile';
+import { AssistantUserProfile } from './AssistantUserProfile';
 
 interface AssistantLayoutProps {
   children: ReactNode;
@@ -61,7 +61,7 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
       </div>
 
       {/* User Profile at bottom */}
-      <UserProfile />
+      <AssistantUserProfile />
     </div>
   );
 
