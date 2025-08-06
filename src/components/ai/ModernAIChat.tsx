@@ -45,54 +45,24 @@ export const ModernAIChat = () => {
       try {
         setIsLoading(true);
         
-        // Buscar conversa que tem mais mensagens (ao invés da mais recente)
-        console.log('🔍 Buscando conversas com mensagens para user:', user.id);
+        // Lógica simples: buscar a ÚNICA conversa do usuário ou criar se não existir
+        console.log('🔍 Buscando conversa única para user:', user.id);
         
-        // Buscar primeiro todas as conversas e depois contar mensagens manualmente
-        const { data: allConversations } = await supabase
+        const { data: conversation } = await supabase
           .from('ai_conversations')
-          .select('id, title, created_at')
+          .select('id')
           .eq('user_id', user.id)
           .is('project_id', null)
           .eq('status', 'active')
-          .order('created_at', { ascending: false });
+          .limit(1)
+          .single();
 
-        console.log('💬 Conversas encontradas:', allConversations);
-
-        let bestConversation = null;
-
-        if (allConversations && allConversations.length > 0) {
-          // Para cada conversa, contar mensagens
-          const conversationsWithCounts = await Promise.all(
-            allConversations.map(async (conv) => {
-              const { count } = await supabase
-                .from('ai_messages')
-                .select('*', { count: 'exact', head: true })
-                .eq('conversation_id', conv.id);
-              
-              return { ...conv, messageCount: count || 0 };
-            })
-          );
-
-          console.log('💬 Conversas com contagem:', conversationsWithCounts);
-
-          // Encontrar a conversa com mais mensagens
-          bestConversation = conversationsWithCounts.reduce((prev, current) => 
-            (current.messageCount > prev.messageCount) ? current : prev
-          );
-
-          // Se a melhor conversa não tem mensagens, vamos criar uma nova
-          if (bestConversation.messageCount === 0) {
-            bestConversation = null;
-          }
-        }
-
-        console.log('🏆 Conversa escolhida:', bestConversation);
+        console.log('💬 Conversa encontrada:', conversation);
 
         let currentConversationId: string;
 
-        if (bestConversation) {
-          currentConversationId = bestConversation.id;
+        if (conversation) {
+          currentConversationId = conversation.id;
         } else {
           // Criar nova conversa
           const { data: newConversation, error } = await supabase
