@@ -269,6 +269,7 @@ export type Database = {
           rating: number | null
           role: string
           run_id: string | null
+          user_id: string
         }
         Insert: {
           content: string
@@ -281,6 +282,7 @@ export type Database = {
           rating?: number | null
           role: string
           run_id?: string | null
+          user_id: string
         }
         Update: {
           content?: string
@@ -293,6 +295,7 @@ export type Database = {
           rating?: number | null
           role?: string
           run_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {

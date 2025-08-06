@@ -111,11 +111,14 @@ export const ModernAIChat = () => {
   }, [user?.id, toast]);
 
   const saveMessage = async (conversationId: string, content: string, role: 'user' | 'assistant') => {
+    if (!user?.id) return;
+    
     try {
       await supabase
         .from('ai_messages')
         .insert({
           conversation_id: conversationId,
+          user_id: user.id,
           content,
           role
         });
