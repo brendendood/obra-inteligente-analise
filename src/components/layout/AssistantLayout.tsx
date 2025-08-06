@@ -5,7 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useProject } from '@/contexts/ProjectContext';
-import { SidebarNavigation } from './sidebar/SidebarNavigation';
+import { AssistantSidebarNavigation } from './AssistantSidebarNavigation';
 import { UserProfile } from './sidebar/UserProfile';
 
 interface AssistantLayoutProps {
@@ -57,7 +57,7 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto">
-        <SidebarNavigation />
+        <AssistantSidebarNavigation />
       </div>
 
       {/* User Profile at bottom */}
