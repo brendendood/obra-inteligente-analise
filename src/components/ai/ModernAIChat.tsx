@@ -173,13 +173,27 @@ export const ModernAIChat = () => {
     if (!inputMessage.trim() || isTyping || !user?.id || !conversationId) return;
 
     const messageContent = inputMessage.trim();
+    const messageId = crypto.randomUUID();
     setInputMessage('');
     setIsTyping(true);
     setConnectionStatus('connecting');
 
+    // Criar mensagem do usuário e adicionar imediatamente ao estado local
+    const userMessage: ChatMessage = {
+      id: messageId,
+      type: 'user',
+      content: messageContent,
+      timestamp: new Date()
+    };
+
+    // Adicionar mensagem do usuário imediatamente ao chat
+    setMessages(prev => [...prev, userMessage]);
+
     try {
-      // Salvar mensagem do usuário no banco (será detectada pelo realtime)
+      // Salvar mensagem do usuário no banco
+      console.log('📝 Salvando mensagem do usuário no banco...');
       await saveMessage(conversationId, messageContent, 'user');
+      console.log('✅ Mensagem do usuário salva no banco');
 
       // Preparar histórico para contexto
       const conversationHistory = messages.map(msg => ({
@@ -188,17 +202,19 @@ export const ModernAIChat = () => {
       }));
 
       // Enviar para N8N (resposta virá via realtime)
+      console.log('🤖 Enviando para N8N...');
       await sendDirectToN8N(
         messageContent,
         user.id,
         conversationId,
         conversationHistory
       );
+      console.log('✅ Chamada N8N enviada');
 
       setConnectionStatus('connected');
 
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
+      console.error('❌ Erro ao enviar mensagem:', error);
       setConnectionStatus('disconnected');
       setIsTyping(false);
       
