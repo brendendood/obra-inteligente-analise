@@ -91,7 +91,7 @@ export const useChatSecurity = () => {
   };
 
   // Secure chat message deletion
-  const deleteChatMessage = async (messageId: string, sessionId: string) => {
+  const deleteChatMessage = async (messageId: string | number, sessionId: string) => {
     if (!user) {
       throw new Error('User must be authenticated to delete chat messages');
     }
@@ -100,13 +100,11 @@ export const useChatSecurity = () => {
       // Log the delete access
       await logChatAccess(sessionId, 'delete');
 
-      // Convert messageId to string to ensure type compatibility
-      const messageIdStr = String(messageId);
-
+      // Handle both string and number messageId types
       const { error } = await supabase
         .from('n8n_chat_histories')
         .delete()
-        .eq('id', messageIdStr)
+        .eq('id', messageId) // Keep original type, don't convert
         .eq('user_id', user.id); // Ensure user can only delete their own messages
 
       if (error) throw error;
