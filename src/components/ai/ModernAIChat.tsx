@@ -23,6 +23,7 @@ export const ModernAIChat = () => {
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected'>('connected');
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [newMessageIds, setNewMessageIds] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
@@ -138,6 +139,20 @@ export const ModernAIChat = () => {
               content: payload.new.content,
               timestamp: new Date(payload.new.created_at)
             };
+            
+            // Marcar apenas mensagens do assistente como novas para animação
+            if (payload.new.role === 'assistant') {
+              setNewMessageIds(prev => new Set([...prev, payload.new.id]));
+              
+              // Remover o ID após a animação terminar (300ms)
+              setTimeout(() => {
+                setNewMessageIds(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(payload.new.id);
+                  return newSet;
+                });
+              }, 300);
+            }
             
             setMessages(prev => [...prev, newMessage]);
             setIsTyping(false); // Parar animação de digitando
@@ -284,10 +299,11 @@ export const ModernAIChat = () => {
   };
 
 // Componente MessageBubble movido para fora para evitar re-renders
-const MessageBubble = React.memo(({ message, onCopy, copiedMessageId }: { 
+const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessage }: { 
   message: ChatMessage; 
   onCopy: (content: string, messageId: string) => void;
   copiedMessageId: string | null;
+  isNewMessage: boolean;
 }) => {
   const isUser = message.type === 'user';
   
@@ -308,7 +324,7 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId }: {
             : 'bg-muted text-muted-foreground'
         }`}>
           <div className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${
-            message.type === 'assistant' ? 'animate-fade-in' : ''
+            message.type === 'assistant' && isNewMessage ? 'animate-fade-in' : ''
           }`}>
             {message.content}
           </div>
@@ -392,6 +408,7 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId }: {
                 message={message}
                 onCopy={copyMessage}
                 copiedMessageId={copiedMessageId}
+                isNewMessage={newMessageIds.has(message.id)}
               />
             ))}
             {isTyping && <AITypingIndicator />}
