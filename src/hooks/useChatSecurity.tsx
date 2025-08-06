@@ -100,11 +100,17 @@ export const useChatSecurity = () => {
       // Log the delete access
       await logChatAccess(sessionId, 'delete');
 
-      // Handle both string and number messageId types
+      // Convert messageId to number since Supabase expects numeric id
+      const numericMessageId = typeof messageId === 'string' ? parseInt(messageId, 10) : messageId;
+      
+      if (isNaN(numericMessageId)) {
+        throw new Error('Invalid message ID format');
+      }
+
       const { error } = await supabase
         .from('n8n_chat_histories')
         .delete()
-        .eq('id', messageId) // Keep original type, don't convert
+        .eq('id', numericMessageId) // Use numeric id
         .eq('user_id', user.id); // Ensure user can only delete their own messages
 
       if (error) throw error;
