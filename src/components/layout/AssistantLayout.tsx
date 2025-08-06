@@ -1,5 +1,6 @@
 import { ReactNode, memo } from 'react';
 import { Sidebar } from './Sidebar';
+import Header from './Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
@@ -22,11 +23,14 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
     return <>{children}</>;
   }
 
-  // Mobile: fullscreen sem sidebar
+  // Mobile/Tablet: fullscreen com header da plataforma
   if (isMobile) {
     return (
       <div className="h-screen flex flex-col overflow-hidden">
-        {children}
+        <Header />
+        <div className="flex-1 overflow-hidden">
+          {children}
+        </div>
       </div>
     );
   }

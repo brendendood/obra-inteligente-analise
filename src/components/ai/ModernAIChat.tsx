@@ -377,6 +377,10 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
     ? "p-4 bg-background border-t flex-shrink-0"
     : "p-4 border-t bg-gray-50";
 
+  const textareaClasses = isMobile
+    ? "w-full min-h-[80px] h-20 px-4 py-3 text-base rounded-xl border border-gray-300 bg-white placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+    : "w-full min-h-[60px] px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white placeholder:text-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent";
+
   return (
     <div className={containerClasses}>
       {/* Header */}
@@ -458,20 +462,22 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={isMobile ? "Digite sua pergunta..." : "Digite sua pergunta sobre arquitetura ou engenharia..."}
-            className={`flex-1 min-h-[44px] max-h-32 resize-none ${
+            className={`flex-1 resize-none ${
               isMobile 
-                ? "border-border focus:border-primary focus:ring-primary" 
-                : "border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+                ? "min-h-[80px] h-20 text-base px-4 py-3 rounded-xl border-border focus:border-primary focus:ring-primary" 
+                : "min-h-[60px] max-h-32 border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
             }`}
             disabled={isTyping || !conversationId}
           />
           <Button
             onClick={sendMessage}
             disabled={!inputMessage.trim() || isTyping || !conversationId}
-            size="sm"
-            className="px-3 py-2"
+            className={isMobile 
+              ? "h-20 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl"
+              : "h-auto px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            }
           >
-            <Send className="h-4 w-4" />
+            <Send className={isMobile ? "w-5 h-5" : "w-4 h-4"} />
           </Button>
         </div>
       </div>
