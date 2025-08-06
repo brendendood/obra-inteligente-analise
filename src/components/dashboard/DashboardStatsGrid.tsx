@@ -31,7 +31,7 @@ export const DashboardStatsGrid = ({
         Análise dos Projetos
       </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 w-full px-1 sm:px-0">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 w-full px-1 sm:px-0 max-w-2xl mx-auto">
         {/* Métricas Financeiras */}
         <FinancialInsightsCard financial={advancedMetrics.financial} />
         
