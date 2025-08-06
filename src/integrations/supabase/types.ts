@@ -431,6 +431,36 @@ export type Database = {
           },
         ]
       }
+      chat_access_logs: {
+        Row: {
+          access_type: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          access_type: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          access_type?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           active: boolean | null
@@ -536,6 +566,27 @@ export type Database = {
           id?: string
           points_awarded?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      n8n_chat_histories: {
+        Row: {
+          id: number
+          message: Json
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: number
+          message: Json
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: number
+          message?: Json
+          session_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
