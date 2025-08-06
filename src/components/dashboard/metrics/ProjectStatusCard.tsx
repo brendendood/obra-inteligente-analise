@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
-import { Target, Calendar } from 'lucide-react';
+import { CheckCircle, Calendar, FileText } from 'lucide-react';
 
 interface ProjectStatusCardProps {
   projectStatus: {
@@ -49,56 +49,52 @@ export const ProjectStatusCard = ({ projectStatus }: ProjectStatusCardProps) => 
   );
 
   return (
-    <Card className="group relative overflow-hidden bg-gradient-to-br from-white via-orange-50/30 to-amber-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-48 sm:h-52">
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      <CardHeader className="relative pb-3 sm:pb-4">
-        <CardTitle className="text-sm sm:text-base md:text-lg font-bold text-gray-900 flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-            <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0">
-              <Target className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-orange-600" />
-            </div>
-            <span className="truncate">Status</span>
-          </div>
+    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+          <FileText className="h-5 w-5 text-orange-600" />
+          <span className="whitespace-nowrap">Status Projetos</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
-      
-      <CardContent className="relative space-y-3 sm:space-y-4 pt-0">
-        {/* Porcentagem de Conclusão */}
-        <div className="text-center">
-          <div className="relative p-3 sm:p-4 md:p-5 bg-white/80 backdrop-blur-sm rounded-xl border border-orange-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-            <div className={`text-2xl sm:text-3xl md:text-4xl font-black mb-1 sm:mb-2 tracking-tight leading-tight ${getStatusColor(budgetPercentage)}`}>
+      <CardContent>
+        <div className="grid grid-cols-1 gap-4">
+          {/* Projetos com Orçamento */}
+          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+            <div className="text-3xl font-bold text-green-600 mb-2">
+              {projectStatus.projectsWithBudget}
+            </div>
+            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
+              <CheckCircle className="h-4 w-4 text-green-500" />
+              <span>Projetos com Orçamento</span>
+            </div>
+          </div>
+
+          {/* Última Data de Envio */}
+          <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+            <div className="text-3xl font-bold text-orange-600 mb-2">
+              {projectStatus.lastSubmissionDate 
+                ? new Date(projectStatus.lastSubmissionDate).toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit',
+                    year: '2-digit'
+                  })
+                : 'N/D'}
+            </div>
+            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
+              <Calendar className="h-4 w-4 text-orange-500" />
+              <span>Última Data de Envio</span>
+            </div>
+          </div>
+
+          {/* Taxa de Conclusão */}
+          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+            <div className={`text-3xl font-bold ${getStatusColor(budgetPercentage)} mb-2`}>
               {budgetPercentage}%
             </div>
-            <div className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Conclusão Orçamentos</div>
-          </div>
-        </div>
-
-        {/* Grid de informações */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {/* Projetos com Orçamento */}
-          <div className="text-center">
-            <div className="relative p-2 sm:p-3 md:p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-green-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-green-600 mb-1 tracking-tight leading-tight">
-                {projectStatus.projectsWithBudget}
-              </div>
-              <div className="text-xs font-medium text-gray-600 leading-tight">Com Orçamento</div>
-            </div>
-          </div>
-
-          {/* Última Submissão */}
-          <div className="text-center">
-            <div className="relative p-2 sm:p-3 md:p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-              <div className="text-xs sm:text-sm md:text-base font-black text-blue-600 mb-1 tracking-tight leading-tight">
-                {projectStatus.lastSubmissionDate 
-                  ? new Date(projectStatus.lastSubmissionDate).toLocaleDateString('pt-BR', { 
-                      day: '2-digit', 
-                      month: '2-digit' 
-                    })
-                  : 'Nenhuma'}
-              </div>
-              <div className="text-xs font-medium text-gray-600 leading-tight">Última Submissão</div>
+            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
+              <FileText className="h-4 w-4 text-purple-500" />
+              <span>Taxa de Conclusão</span>
             </div>
           </div>
         </div>

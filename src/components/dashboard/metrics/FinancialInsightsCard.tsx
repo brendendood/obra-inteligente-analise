@@ -42,41 +42,30 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
   );
 
   return (
-    <Card className="group relative overflow-hidden bg-gradient-to-br from-white via-green-50/30 to-emerald-50/50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-48 sm:h-52">
-      <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      
-      <CardHeader className="relative pb-3 sm:pb-4">
-        <CardTitle className="text-sm sm:text-base md:text-lg font-bold text-gray-900 flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-            <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
-              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-green-600" />
-            </div>
-            <span className="truncate">Financeiro</span>
-          </div>
+    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+          <DollarSign className="h-5 w-5 text-green-600" />
+          <span>Análise Financeira</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
-      
-      <CardContent className="relative space-y-3 sm:space-y-4 pt-0">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <CardContent>
+        <div className="grid grid-cols-1 gap-4">
           {/* Investimento Total */}
-          <div className="text-center">
-            <div className="relative p-3 sm:p-4 md:p-5 bg-white/80 backdrop-blur-sm rounded-xl border border-green-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-green-600 mb-1 sm:mb-2 tracking-tight leading-tight">
-                {formatCurrency(financial.totalInvestment)}
-              </div>
-              <div className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Investimento Total</div>
+          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
+            <div className="text-3xl font-bold text-green-600 mb-2">
+              {formatCurrency(financial.totalInvestment)}
             </div>
+            <div className="text-sm text-gray-600">Investimento Total</div>
           </div>
 
           {/* Custo Médio por m² */}
-          <div className="text-center">
-            <div className="relative p-3 sm:p-4 md:p-5 bg-white/80 backdrop-blur-sm rounded-xl border border-blue-200/60 shadow-sm hover:shadow-md transition-all duration-200">
-              <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-blue-600 mb-1 sm:mb-2 tracking-tight leading-tight">
-                {financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
-              </div>
-              <div className="text-xs sm:text-sm font-medium text-gray-600 leading-tight">Custo Médio/m²</div>
+          <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+            <div className="text-3xl font-bold text-blue-600 mb-2">
+              {financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
             </div>
+            <div className="text-sm text-gray-600">Custo Médio/m²</div>
           </div>
         </div>
       </CardContent>

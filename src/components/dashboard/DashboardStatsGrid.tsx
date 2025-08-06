@@ -27,11 +27,11 @@ export const DashboardStatsGrid = ({
 }: DashboardStatsGridProps) => {
   return (
     <div className="w-full min-w-0">
-      <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 sm:px-0">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6 px-2 sm:px-0">
         Análise dos Projetos
       </h2>
       
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 w-full px-1 sm:px-0 max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full px-1 sm:px-0">
         {/* Métricas Financeiras */}
         <FinancialInsightsCard financial={advancedMetrics.financial} />
         
