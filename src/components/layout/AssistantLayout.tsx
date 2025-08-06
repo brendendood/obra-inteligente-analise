@@ -23,10 +23,10 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
     return <>{children}</>;
   }
 
-  // Mobile/Tablet: fullscreen com sidebar oculto mas disponível
+  // Mobile/Tablet: fullscreen sem header, apenas sidebar oculto
   if (isMobile) {
     return (
-      <div className="h-screen flex flex-col overflow-hidden">
+      <div className="h-screen flex overflow-hidden">
         <Sidebar />
         <div className="flex-1 overflow-hidden">
           {children}
@@ -35,7 +35,7 @@ export const AssistantLayout = memo<AssistantLayoutProps>(({ children }) => {
     );
   }
 
-  // Desktop: com sidebar
+  // Desktop: com sidebar, sem header
   return (
     <div className="min-h-screen flex w-full overflow-hidden">
       <Sidebar />
