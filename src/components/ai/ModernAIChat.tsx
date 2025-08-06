@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { sendDirectToN8N } from '@/utils/directN8NService';
 import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChatMessage {
   id: string;
@@ -27,6 +28,7 @@ export const ModernAIChat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const { user } = useAuth();
 
   const scrollToBottom = () => {
@@ -358,30 +360,49 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
   );
 });
 
+  // Estilos condicionais baseados no dispositivo
+  const containerClasses = isMobile 
+    ? "flex flex-col h-screen bg-background overflow-hidden"
+    : "flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4";
+    
+  const headerClasses = isMobile
+    ? "hidden" // Ocultar header no mobile
+    : "flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50";
+    
+  const messagesAreaClasses = isMobile
+    ? "flex-1 overflow-y-auto p-4 space-y-4"
+    : "flex-1 overflow-y-auto p-6 space-y-4";
+    
+  const inputAreaClasses = isMobile
+    ? "p-4 bg-background border-t"
+    : "p-4 border-t bg-gray-50";
+
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-lg">🤖</span>
+    <div className={containerClasses}>
+      {/* Header - oculto no mobile */}
+      {!isMobile && (
+        <div className={headerClasses}>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-lg">🤖</span>
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
+              <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
-            <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
+          
+          <div className="flex items-center space-x-2">
+            {getStatusIcon()}
+            <span className={`text-sm ${getStatusColor()}`}>
+              {getStatusText()}
+            </span>
           </div>
         </div>
-        
-        <div className="flex items-center space-x-2">
-          {getStatusIcon()}
-          <span className={`text-sm ${getStatusColor()}`}>
-            {getStatusText()}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className={messagesAreaClasses}>
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
@@ -418,15 +439,19 @@ const MessageBubble = React.memo(({ message, onCopy, copiedMessageId, isNewMessa
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-gray-50">
+      <div className={inputAreaClasses}>
         <div className="flex space-x-3">
           <Textarea
             ref={textareaRef}
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Digite sua pergunta sobre arquitetura ou engenharia..."
-            className="flex-1 min-h-[44px] max-h-32 resize-none border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+            placeholder={isMobile ? "Digite sua pergunta..." : "Digite sua pergunta sobre arquitetura ou engenharia..."}
+            className={`flex-1 min-h-[44px] max-h-32 resize-none ${
+              isMobile 
+                ? "border-border focus:border-primary focus:ring-primary" 
+                : "border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+            }`}
             disabled={isTyping || !conversationId}
           />
           <Button
