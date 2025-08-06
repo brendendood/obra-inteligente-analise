@@ -17,7 +17,6 @@ export const useChatSecurity = () => {
           user_id: user.id,
           session_id: sessionId,
           access_type: accessType,
-          ip_address: null, // Will be captured by backend
           user_agent: navigator.userAgent
         });
     } catch (error) {
