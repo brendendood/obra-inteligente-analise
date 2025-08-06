@@ -396,7 +396,7 @@ export const ModernAIChat = () => {
               <span className="text-lg font-bold text-primary-foreground">AI</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Assistente Lumi</h1>
+              <h1 className="text-xl font-bold text-foreground">MadenAI</h1>
               <div className="flex items-center space-x-1.5">
                 {getStatusIcon()}
                 <span className={cn("text-xs font-medium", getStatusColor())}>
@@ -549,7 +549,7 @@ export const ModernAIChat = () => {
             <span className="text-lg">🤖</span>
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900">Assistente Lumi</h2>
+            <h2 className="font-semibold text-gray-900">MadenAI Assistant</h2>
             <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
           </div>
         </div>
@@ -577,7 +577,7 @@ export const ModernAIChat = () => {
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4">
               <span className="text-2xl">🤖</span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-800">Assistente Lumi</h3>
+            <h3 className="text-xl font-semibold text-gray-800">Assistente de IA MadenAI</h3>
             <p className="text-gray-600 max-w-md">
               Olá! Sou seu assistente especializado em arquitetura e engenharia. 
               Como posso ajudá-lo hoje?
