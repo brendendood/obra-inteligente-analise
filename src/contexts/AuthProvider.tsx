@@ -1,5 +1,12 @@
-import React, { createContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import type { ReactNode } from 'react';
+import { 
+  createContext, 
+  useEffect, 
+  useState, 
+  useMemo, 
+  useCallback, 
+  useRef,
+  type ReactNode 
+} from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -16,7 +23,7 @@ interface AuthContextType extends AuthState {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
