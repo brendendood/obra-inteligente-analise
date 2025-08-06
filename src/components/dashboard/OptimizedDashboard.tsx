@@ -5,7 +5,7 @@ import { ArchitectQuote } from '@/components/dashboard/ArchitectQuote';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EnhancedProjectsSection } from '@/components/dashboard/EnhancedProjectsSection';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
-import { MonthlyProductivityChart } from '@/components/dashboard/MonthlyProductivityChart';
+
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
@@ -71,9 +71,6 @@ const OptimizedDashboard = memo(({
         <DashboardStatsGrid 
           advancedMetrics={advancedMetrics}
         />
-        
-        {/* 4. Gráfico de Produtividade */}
-        <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
       </div>
 
       {/* Dialog de Confirmação de Exclusão */}

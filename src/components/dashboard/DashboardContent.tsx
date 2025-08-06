@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { QuickActions } from './QuickActions';
 import { DashboardStatsGrid } from './DashboardStatsGrid';
-import { MonthlyProductivityChart } from './MonthlyProductivityChart';
+
 import { EnhancedProjectsSection } from './EnhancedProjectsSection';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
 import { useUnifiedProjectStore, useProjectStats } from '@/stores/unifiedProjectStore';
@@ -73,10 +73,6 @@ const DashboardContent = ({
         advancedMetrics={advancedMetrics}
       />
       
-      {/* 4. GRÁFICO DE PRODUTIVIDADE - Por último com menos espaço */}
-      <div className="w-full">
-        <MonthlyProductivityChart data={advancedMetrics.monthlyTrends} />
-      </div>
 
       {/* Dialog de Confirmação de Exclusão */}
       <ProjectDeleteConfirmDialog
