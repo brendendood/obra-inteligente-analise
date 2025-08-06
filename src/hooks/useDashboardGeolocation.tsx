@@ -10,15 +10,33 @@ interface GeolocationResult {
 
 /**
  * Hook para capturar geolocalização apenas quando o usuário acessa o painel
- * Funciona de forma assíncrona e não-bloqueante
+ * Funciona de forma assíncrona e não-bloqueante com cache inteligente
  */
 export const useDashboardGeolocation = () => {
   const { user, isAuthenticated } = useAuth();
   const [result, setResult] = useState<GeolocationResult>({ success: false, captured: false });
   const [isCapturing, setIsCapturing] = useState(false);
+  
+  // Cache para evitar múltiplas capturas
+  const captureCache = useState(() => new Map<string, GeolocationResult>())[0];
+  const lastCaptureTime = useState(() => new Map<string, number>())[0];
+  const minCaptureInterval = 300000; // 5 minutos
 
   useEffect(() => {
     if (!isAuthenticated || !user || isCapturing) return;
+
+    const userId = user.id;
+    const now = Date.now();
+    
+    // Verificar cache e throttling
+    const cachedResult = captureCache.get(userId);
+    const lastCapture = lastCaptureTime.get(userId) || 0;
+    
+    if (cachedResult && (now - lastCapture) < minCaptureInterval) {
+      console.log('💾 DASHBOARD GEOLOCATION: Usando resultado em cache');
+      setResult(cachedResult);
+      return;
+    }
 
     const captureGeolocation = async () => {
       setIsCapturing(true);
@@ -74,7 +92,12 @@ export const useDashboardGeolocation = () => {
         }
 
         console.log('✅ DASHBOARD GEOLOCATION: Captura iniciada com sucesso:', data);
-        setResult({ success: true, captured: true });
+        const successResult = { success: true, captured: true };
+        setResult(successResult);
+        
+        // Atualizar cache
+        captureCache.set(userId, successResult);
+        lastCaptureTime.set(userId, now);
 
       } catch (error) {
         console.error('💥 DASHBOARD GEOLOCATION: Erro inesperado:', error);
@@ -83,6 +106,15 @@ export const useDashboardGeolocation = () => {
           captured: false, 
           error: error instanceof Error ? error.message : 'Erro inesperado' 
         });
+        
+        // Cache também os erros por um tempo menor
+        const errorResult = { 
+          success: false, 
+          captured: false, 
+          error: error instanceof Error ? error.message : 'Erro inesperado' 
+        };
+        captureCache.set(userId, errorResult);
+        lastCaptureTime.set(userId, now - (minCaptureInterval * 0.8)); // Cache erro por menos tempo
       } finally {
         setIsCapturing(false);
       }
@@ -92,14 +124,17 @@ export const useDashboardGeolocation = () => {
     const timeoutId = setTimeout(captureGeolocation, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [isAuthenticated, user, isCapturing]);
+  }, [isAuthenticated, user, isCapturing, captureCache, lastCaptureTime, minCaptureInterval]);
 
   return {
     isCapturing,
     result,
     // Função para forçar nova captura se necessário
     forceCapture: () => {
-      if (!isCapturing) {
+      if (!isCapturing && user) {
+        // Limpar cache para forçar nova captura
+        captureCache.delete(user.id);
+        lastCaptureTime.delete(user.id);
         setIsCapturing(false); // Reset para trigger o useEffect
       }
     }

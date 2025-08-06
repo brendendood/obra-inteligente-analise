@@ -26,6 +26,8 @@ export const useUnifiedProjectRealtime = () => {
   const reconnectAttempts = useRef(0);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const maxReconnectAttempts = 3;
+  const lastConnectionTime = useRef<number>(0);
+  const minConnectionInterval = 10000; // 10 segundos mínimo entre reconexões
   const channelNameRef = useRef<string | null>(null);
 
   // Limpeza completa e robusta
@@ -159,18 +161,28 @@ export const useUnifiedProjectRealtime = () => {
             isConnectedRef.current = false;
             isConnectingRef.current = false;
             
-            // Reconexão automática inteligente
-            if (channelNameRef.current === channelName && reconnectAttempts.current < maxReconnectAttempts) {
+            // Reconexão automática inteligente com throttling
+            const now = Date.now();
+            const timeSinceLastConnection = now - lastConnectionTime.current;
+            
+            if (
+              channelNameRef.current === channelName && 
+              reconnectAttempts.current < maxReconnectAttempts &&
+              timeSinceLastConnection > minConnectionInterval
+            ) {
               console.warn(`❌ UNIFIED REALTIME: Conexão perdida, reconectando...`);
               
-              const delay = Math.pow(2, reconnectAttempts.current) * 2000;
+              const delay = Math.pow(2, reconnectAttempts.current) * 3000; // Aumentado para 3s base
               reconnectAttempts.current++;
+              lastConnectionTime.current = now;
               
               reconnectTimeoutRef.current = setTimeout(() => {
                 console.log(`🔄 UNIFIED REALTIME: Tentativa ${reconnectAttempts.current}/${maxReconnectAttempts}`);
                 cleanupAll();
                 connectRealtime();
               }, delay);
+            } else if (timeSinceLastConnection <= minConnectionInterval) {
+              console.log('⏳ UNIFIED REALTIME: Throttling reconexão - muito recente');
             } else if (reconnectAttempts.current >= maxReconnectAttempts) {
               console.error('❌ UNIFIED REALTIME: Máximo de tentativas atingido');
               toast({
