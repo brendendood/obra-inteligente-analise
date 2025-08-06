@@ -1,6 +1,5 @@
 import { ReactNode, memo } from 'react';
 import { Sidebar } from './Sidebar';
-import Header from './Header';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
