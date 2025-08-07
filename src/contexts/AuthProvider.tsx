@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { createContext, useState, useEffect, useRef, useCallback, useMemo, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -22,28 +22,28 @@ const FALLBACK_AUTH_STATE: AuthState = {
 };
 
 // Create context with safe defaults
-export const AuthContext = React.createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   ...FALLBACK_AUTH_STATE,
   refreshAuth: async () => {},
 });
 
 interface AuthProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  // VERSÃO ULTRA-SEGURA - Usando clase component para evitar hooks corrompidos
-  const [authState, setAuthState] = React.useState<AuthState>({
+  // VERSÃO ULTRA-SEGURA - Usando imports diretos
+  const [authState, setAuthState] = useState<AuthState>({
     user: null,
     session: null,
     loading: true,
     isAuthenticated: false,
   });
 
-  const mountedRef = React.useRef(true);
-  const listenerSetupRef = React.useRef(false);
+  const mountedRef = useRef(true);
+  const listenerSetupRef = useRef(false);
 
-  const refreshAuth = React.useCallback(async () => {
+  const refreshAuth = useCallback(async () => {
     if (!mountedRef.current) return;
     
     try {
@@ -82,7 +82,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (listenerSetupRef.current) {
       console.log('⚠️ AUTH: Already initialized, skipping...');
       return;
@@ -177,7 +177,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [refreshAuth]);
 
   // Memoize the context value to prevent unnecessary re-renders
-  const contextValue = React.useMemo(() => ({
+  const contextValue = useMemo(() => ({
     ...authState,
     refreshAuth,
   }), [authState, refreshAuth]);

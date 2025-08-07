@@ -17,16 +17,14 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
   ].filter(Boolean),
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    }
-  },
   build: {
     target: 'esnext',
     minify: mode === 'production' ? 'esbuild' : false,
     sourcemap: mode === 'development',
     chunkSizeWarningLimit: 800,
+  },
+  define: {
+    global: 'globalThis',
   },
   optimizeDeps: {
     // FORÇA uma única instância do React
@@ -42,6 +40,15 @@ export default defineConfig(({ mode }) => ({
     force: true,
     // CRÍTICO: Evita múltiplas instâncias
     entries: ['src/main.tsx']
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+      // CRITICAL: Force single React instance
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom")
+    },
+    dedupe: ['react', 'react-dom']
   },
   esbuild: {
     drop: mode === 'production' ? ['console', 'debugger'] : [],
