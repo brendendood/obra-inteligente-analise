@@ -653,7 +653,7 @@ export const ModernAIChatDesktop = () => {
                   onClick={sendMessage}
                   disabled={(!inputMessage.trim() && !selectedFile) || isSending}
                   size="default"
-                  className="absolute right-2 bottom-2 h-12 w-12 p-0 hover:scale-105 transition-transform"
+                  className="absolute right-2 bottom-2 h-12 w-12 p-0 hover:scale-105 transition-transform aspect-square rounded-lg"
                 >
                   <Send className="w-5 h-5" />
                 </Button>
