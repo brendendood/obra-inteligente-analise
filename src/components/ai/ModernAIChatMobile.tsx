@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Send, Copy, Check } from 'lucide-react';
+import { Send, Copy, Check, ArrowLeft, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { sendDirectToN8N } from '@/utils/directN8NService';
 import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 interface ChatMessage {
@@ -24,10 +25,13 @@ export const ModernAIChatMobile = () => {
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -232,7 +236,84 @@ export const ModernAIChatMobile = () => {
     }
   };
 
-  // Componente de mensagem simples estilo WhatsApp
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const audioChunks: Blob[] = [];
+
+      recorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        await transcribeAudio(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      
+      toast({
+        title: "Gravando...",
+        description: "Toque novamente para parar e transcrever.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível acessar o microfone.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      setMediaRecorder(null);
+    }
+  };
+
+  const transcribeAudio = async (audioBlob: Blob) => {
+    try {
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+      const { data, error } = await supabase.functions.invoke('voice-to-text', {
+        body: { audio: base64Audio }
+      });
+
+      if (error) throw error;
+
+      if (data?.text) {
+        setInputMessage(prev => prev + (prev ? ' ' : '') + data.text);
+        toast({
+          title: "Transcrição concluída",
+          description: "Áudio convertido para texto.",
+        });
+      }
+    } catch (error) {
+      console.error('Erro na transcrição:', error);
+      toast({
+        title: "Erro na transcrição",
+        description: "Não foi possível converter o áudio.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  // Componente de mensagem inspirado na imagem
   const MessageBubble = memo(({ message }: { message: ChatMessage }) => {
     const isUser = message.type === 'user';
     
@@ -242,17 +323,16 @@ export const ModernAIChatMobile = () => {
         isUser ? "justify-end" : "justify-start"
       )}>
         <div className={cn(
-          "max-w-[80%] rounded-lg px-3 py-2 relative group",
+          "max-w-[80%] rounded-2xl px-4 py-3 relative group",
           isUser 
-            ? "bg-blue-500 text-white" 
-            : "bg-gray-200 text-gray-900"
+            ? "bg-primary text-primary-foreground" 
+            : "bg-muted text-muted-foreground"
         )}>
           <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
           
-          <div className="flex items-center justify-between mt-1">
+          <div className="flex items-center justify-between mt-2">
             <span className={cn(
-              "text-xs",
-              isUser ? "text-blue-100" : "text-gray-500"
+              "text-xs opacity-70"
             )}>
               {message.timestamp.toLocaleTimeString('pt-BR', { 
                 hour: '2-digit', 
@@ -265,12 +345,12 @@ export const ModernAIChatMobile = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => copyMessage(message.content, message.id)}
-                className="ml-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="ml-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-transparent"
               >
                 {copiedMessageId === message.id ? (
                   <Check className="w-3 h-3 text-green-600" />
                 ) : (
-                  <Copy className="w-3 h-3 text-gray-600" />
+                  <Copy className="w-3 h-3 text-muted-foreground/60" />
                 )}
               </Button>
             )}
@@ -293,25 +373,34 @@ export const ModernAIChatMobile = () => {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      {/* Header Simples */}
-      <div className="flex items-center p-4 bg-blue-500 text-white shadow-sm">
-        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mr-3">
-          <span className="text-sm font-bold">AI</span>
+      {/* Header com Navegação */}
+      <div className="flex items-center p-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/painel')}
+          className="mr-3 h-8 w-8 p-0 hover:bg-white/20 text-white"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        
+        <div className="flex-1 text-center">
+          <h1 className="font-semibold text-lg">Lumi AI</h1>
         </div>
-        <div>
-          <h1 className="font-semibold text-lg">Assistente Lumi</h1>
-          <p className="text-xs text-blue-100">Online</p>
+        
+        <div className="text-right">
+          <p className="text-xs opacity-90">Online</p>
         </div>
       </div>
 
       {/* Área de Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 bg-white">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center">
             <div>
-              <div className="text-4xl mb-4">💬</div>
-              <h2 className="text-lg font-semibold text-gray-700 mb-2">Olá!</h2>
-              <p className="text-gray-500 text-sm">
+              <div className="text-4xl mb-4">🤖</div>
+              <h2 className="text-lg font-semibold text-foreground mb-2">Olá!</h2>
+              <p className="text-muted-foreground text-sm">
                 Como posso ajudar você hoje?
               </p>
             </div>
@@ -326,7 +415,7 @@ export const ModernAIChatMobile = () => {
             ))}
             {isTyping && (
               <div className="flex justify-start mb-3">
-                <div className="bg-gray-200 rounded-lg px-3 py-2 max-w-[80%]">
+                <div className="bg-muted rounded-2xl px-4 py-3 max-w-[80%]">
                   <AITypingIndicator />
                 </div>
               </div>
@@ -336,33 +425,58 @@ export const ModernAIChatMobile = () => {
         )}
       </div>
 
-      {/* Input Área */}
-      <div className="p-4 bg-white border-t border-gray-200">
-        <div className="flex items-end space-x-2">
+      {/* Input Área Redesenhada */}
+      <div className="p-4 bg-white border-t border-border">
+        <div className="flex items-center space-x-3 mb-3">
+          {/* Botão de Microfone */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleRecording}
+            disabled={isSending}
+            className={cn(
+              "h-10 w-10 p-0 rounded-full",
+              isRecording 
+                ? "bg-red-500 hover:bg-red-600 text-white" 
+                : "bg-muted hover:bg-muted/80"
+            )}
+          >
+            {isRecording ? (
+              <MicOff className="w-5 h-5" />
+            ) : (
+              <Mic className="w-5 h-5" />
+            )}
+          </Button>
+
+          {/* Input de Mensagem */}
           <div className="flex-1 relative">
             <Textarea
               ref={textareaRef}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Digite sua mensagem..."
-              disabled={isSending}
-              className="min-h-[40px] max-h-24 resize-none pr-12 text-sm border-gray-300 rounded-full"
+              placeholder="Write a Message"
+              disabled={isSending || isRecording}
+              className="min-h-[44px] max-h-24 resize-none pr-12 text-sm border-input rounded-3xl bg-muted/30 placeholder:text-muted-foreground"
             />
+            
+            {/* Botão de Envio */}
             <Button
               onClick={sendMessage}
-              disabled={!inputMessage.trim() || isSending}
+              disabled={!inputMessage.trim() || isSending || isRecording}
               size="sm"
-              className="absolute right-2 bottom-2 h-7 w-7 p-0 rounded-full bg-blue-500 hover:bg-blue-600"
+              className="absolute right-2 bottom-2 h-8 w-8 p-0 rounded-full bg-primary hover:bg-primary/90"
             >
-              <Send className="w-3 h-3" />
+              <Send className="w-4 h-4" />
             </Button>
           </div>
         </div>
         
-        {/* Footer com versão */}
-        <div className="text-center mt-2">
-          <span className="text-xs text-gray-400">Chat AI V1</span>
+        {/* Footer Personalizado */}
+        <div className="text-center">
+          <span className="text-xs text-muted-foreground">
+            Lumi AI Chat V1.0.1 - Desenvolvida para Engenheiros e Arquitetos
+          </span>
         </div>
       </div>
     </div>
