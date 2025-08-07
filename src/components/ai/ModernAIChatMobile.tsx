@@ -372,9 +372,9 @@ export const ModernAIChatMobile = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header com Navegação */}
-      <div className="flex items-center p-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm">
+    <div className="flex flex-col h-[100dvh] min-h-[100svh] bg-white overflow-hidden">
+      {/* Header com Navegação - Altura fixa */}
+      <div className="flex items-center p-4 h-16 bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -393,8 +393,8 @@ export const ModernAIChatMobile = () => {
         </div>
       </div>
 
-      {/* Área de Mensagens */}
-      <div className="flex-1 overflow-y-auto p-4 bg-white">
+      {/* Área de Mensagens - Altura dinâmica com scroll interno */}
+      <div className="flex-1 overflow-y-auto p-4 bg-white" style={{ height: 'calc(100dvh - 64px - 120px)' }}>
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-center">
             <div>
@@ -425,8 +425,8 @@ export const ModernAIChatMobile = () => {
         )}
       </div>
 
-      {/* Input Área Redesenhada */}
-      <div className="p-4 bg-white border-t border-border">
+      {/* Input Área Redesenhada - Altura fixa */}
+      <div className="p-4 bg-white border-t border-border h-[120px] flex-shrink-0">
         <div className="flex items-center space-x-3 mb-3">
           {/* Botão de Microfone */}
           <Button
@@ -457,7 +457,7 @@ export const ModernAIChatMobile = () => {
               onKeyDown={handleKeyPress}
               placeholder="Write a Message"
               disabled={isSending || isRecording}
-              className="min-h-[44px] max-h-24 resize-none pr-12 text-sm border-input rounded-3xl bg-muted/30 placeholder:text-muted-foreground"
+              className="min-h-[44px] max-h-[44px] resize-none pr-12 text-sm border-input rounded-3xl bg-muted/30 placeholder:text-muted-foreground overflow-hidden"
             />
             
             {/* Botão de Envio */}
