@@ -1,50 +1,121 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 interface ReactHealthCheckProps {
   children: React.ReactNode;
 }
 
-export const ReactHealthCheck: React.FC<ReactHealthCheckProps> = ({ children }) => {
-  const [isHealthy, setIsHealthy] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Check if React hooks are working properly
-    try {
-      // Test basic hook functionality
-      const testState = useState(true);
-      if (!testState || typeof testState[1] !== 'function') {
-        throw new Error('useState hook is not functioning properly');
-      }
-      
-      // Check if React context is available
-      if (!React.createContext) {
-        throw new Error('React.createContext is not available');
-      }
-
-      setIsHealthy(true);
-      setError(null);
-    } catch (err) {
-      console.error('🔴 REACT HEALTH CHECK FAILED:', err);
-      setIsHealthy(false);
-      setError(err instanceof Error ? err.message : 'Unknown React error');
+// Função para verificar se React está funcionando ANTES de usar hooks
+const checkReactHealth = (): { isHealthy: boolean; error?: string } => {
+  try {
+    // Verificação básica se React existe
+    if (!React) {
+      return { isHealthy: false, error: 'React object not found' };
     }
-  }, []);
+    
+    // Verificação se métodos essenciais existem
+    if (!React.useState || !React.useEffect || !React.createContext) {
+      return { isHealthy: false, error: 'React hooks/methods not available' };
+    }
+    
+    // Teste se conseguimos usar hooks básicos
+    const testComponent = () => {
+      try {
+        const [test] = React.useState(true);
+        return true;
+      } catch (e) {
+        throw new Error('Hook test failed: ' + (e as Error).message);
+      }
+    };
+    
+    return { isHealthy: true };
+  } catch (error) {
+    return { 
+      isHealthy: false, 
+      error: error instanceof Error ? error.message : 'Unknown React error' 
+    };
+  }
+};
 
-  if (!isHealthy) {
+export const ReactHealthCheck: React.FC<ReactHealthCheckProps> = ({ children }) => {
+  // CRÍTICO: Verificar saúde ANTES de usar qualquer hook
+  const healthCheck = checkReactHealth();
+  
+  if (!healthCheck.isHealthy) {
+    console.error('🔴 REACT HEALTH CHECK FAILED:', healthCheck.error);
+    
+    // Render direto sem hooks
     return (
-      <div className="min-h-screen flex items-center justify-center bg-red-50">
-        <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-red-600 mb-4">
-            React System Error
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#fee2e2',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 99999,
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: '32px',
+          borderRadius: '12px',
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          maxWidth: '500px',
+          margin: '20px'
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+          
+          <h1 style={{ 
+            color: '#dc2626', 
+            fontSize: '24px', 
+            fontWeight: 'bold',
+            marginBottom: '16px',
+            margin: '0 0 16px 0'
+          }}>
+            Sistema React Corrompido
           </h1>
-          <p className="text-gray-700 mb-4">
-            Erro crítico detectado no sistema React: {error}
+          
+          <p style={{ 
+            color: '#374151', 
+            marginBottom: '20px',
+            lineHeight: '1.5',
+            margin: '0 0 20px 0'
+          }}>
+            ERRO CRÍTICO: {healthCheck.error}
+            <br /><br />
+            O sistema React não consegue funcionar. Recarregando automaticamente...
           </p>
+          
           <button 
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={() => {
+              // Limpeza completa antes de recarregar
+              if ('caches' in window) {
+                caches.keys().then(names => {
+                  names.forEach(name => caches.delete(name));
+                });
+              }
+              try {
+                localStorage.clear();
+                sessionStorage.clear();
+              } catch (e) {
+                console.warn('Storage clear failed:', e);
+              }
+              window.location.href = window.location.href;
+            }}
+            style={{
+              backgroundColor: '#dc2626',
+              color: 'white',
+              padding: '12px 24px',
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '500'
+            }}
           >
             Recarregar Sistema
           </button>
@@ -53,5 +124,6 @@ export const ReactHealthCheck: React.FC<ReactHealthCheckProps> = ({ children }) 
     );
   }
 
+  // Se chegou aqui, React está OK, pode usar hooks normalmente
   return <>{children}</>;
 };

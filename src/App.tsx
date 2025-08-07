@@ -150,7 +150,12 @@ const App = () => {
   return (
     <ReactHealthCheck>
       <CriticalErrorBoundary>
-        <AuthProvider>
+        {/* Usar wrapper super seguro para AuthProvider */}
+        {(() => {
+          try {
+            const { SuperSafeAuthProvider } = require('@/components/error/SuperSafeAuthProvider');
+            return (
+              <SuperSafeAuthProvider>
           <ImpersonationProvider>
             <QueryClientProvider client={queryClient}>
               <TooltipProvider>
@@ -251,10 +256,33 @@ const App = () => {
             </TooltipProvider>
           </QueryClientProvider>
         </ImpersonationProvider>
-        </AuthProvider>
-      </CriticalErrorBoundary>
-    </ReactHealthCheck>
-  );
-};
+              </SuperSafeAuthProvider>
+            );
+          } catch (error) {
+            console.error('🔴 CRITICAL: App failed to load providers:', error);
+            // Auto reload em caso de falha crítica
+            setTimeout(() => window.location.reload(), 2000);
+            // Fallback direto
+            return (
+              <div style={{
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: '#dc2626',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '24px',
+                fontWeight: 'bold'
+               }}>
+                 SISTEMA FALHOU - RECARREGANDO...
+               </div>
+             );
+           }
+         })()}
+       </CriticalErrorBoundary>
+     </ReactHealthCheck>
+   );
+ };
 
 export default App;
