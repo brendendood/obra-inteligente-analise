@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
+import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
 
@@ -70,10 +71,10 @@ const queryClient = new QueryClient({
   },
 });
 
-// Error Boundary with better performance
-class PerformantErrorBoundary extends React.Component<
+// Enhanced Error Boundary with React health checks
+class EnhancedErrorBoundary extends React.Component<
   { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
+  { hasError: boolean; error?: Error; errorInfo?: React.ErrorInfo }
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props);
@@ -81,16 +82,40 @@ class PerformantErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error) {
+    console.error('🔴 CRITICAL ERROR BOUNDARY:', error.message);
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Performance Error Boundary:', error, errorInfo);
+    console.error('🔴 ERROR BOUNDARY DETAILS:', {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack
+    });
+
+    // Check if it's the useState error
+    if (error.message.includes('useState')) {
+      console.error('🔴 DETECTED useState NULL ERROR - React Context Issue');
+      // Force a complete reload to reset React state
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    }
+
+    this.setState({ errorInfo });
   }
 
   render() {
     if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} />;
+      return (
+        <ErrorFallback 
+          error={this.state.error} 
+          resetError={() => {
+            this.setState({ hasError: false, error: undefined });
+            window.location.reload();
+          }}
+        />
+      );
     }
 
     return this.props.children;
@@ -99,16 +124,17 @@ class PerformantErrorBoundary extends React.Component<
 
 const App = () => {
   return (
-    <PerformantErrorBoundary>
-      <AuthProvider>
-        <ImpersonationProvider>
-          <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <ProjectProvider>
-                  <Suspense fallback={<UnifiedLoading />}>
+    <ReactHealthCheck>
+      <EnhancedErrorBoundary>
+        <AuthProvider>
+          <ImpersonationProvider>
+            <QueryClientProvider client={queryClient}>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <ProjectProvider>
+                    <Suspense fallback={<UnifiedLoading />}>
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<LandingPage />} />
@@ -202,7 +228,8 @@ const App = () => {
           </QueryClientProvider>
         </ImpersonationProvider>
       </AuthProvider>
-    </PerformantErrorBoundary>
+    </EnhancedErrorBoundary>
+    </ReactHealthCheck>
   );
 };
 

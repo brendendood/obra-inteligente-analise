@@ -1,6 +1,5 @@
 
-import * as React from 'react';
-import { 
+import React, { 
   createContext, 
   useEffect, 
   useState, 
@@ -30,17 +29,16 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = useState<AuthState>({
+  const [state, setState] = useState<AuthState>(() => ({
     user: null,
     session: null,
     loading: true,
     isAuthenticated: false,
-  });
+  }));
 
-  // Use refs to prevent unnecessary re-renders during HMR
-  const lastAuthEventRef = useRef<string | null>(null);
-  const isInitializedRef = useRef(false);
+  // Simplified refs - remove complex logic that can cause issues
   const mountedRef = useRef(true);
+  const listenerSetupRef = useRef(false);
 
   const refreshAuth = useCallback(async () => {
     if (!mountedRef.current) return;
@@ -49,7 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
-        console.error('Auth error:', error);
+        console.error('🔴 AUTH: Error getting session:', error);
         if (mountedRef.current) {
           setState(prev => ({ ...prev, loading: false }));
         }
@@ -68,135 +66,110 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
       }
 
-      // Redirecionamento centralizado - apenas uma vez após login bem-sucedido
-      if (isAuthenticated && !isInitializedRef.current && window.location.pathname === '/login') {
-        console.log('🔄 AUTH: Redirecionando para painel após login bem-sucedido');
+      // Simple redirect logic - only on login page
+      if (isAuthenticated && window.location.pathname === '/login') {
+        console.log('✅ AUTH: Redirecting to dashboard after successful login');
         window.location.href = '/painel';
       }
-      
-      isInitializedRef.current = true;
     } catch (error) {
-      console.error('Auth refresh error:', error);
+      console.error('🔴 AUTH: Refresh error:', error);
       if (mountedRef.current) {
-        setState(prev => ({ ...prev, loading: false }));
+        setState({ user: null, session: null, loading: false, isAuthenticated: false });
       }
     }
   }, []);
 
   useEffect(() => {
+    if (listenerSetupRef.current) {
+      console.log('⚠️ AUTH: Already initialized, skipping...');
+      return;
+    }
+
     mountedRef.current = true;
+    listenerSetupRef.current = true;
     let subscription: any = null;
 
-    console.log('🔄 AUTH: Inicializando AuthProvider...');
+    console.log('✅ AUTH: Initializing AuthProvider...');
 
     // Initial auth check
     refreshAuth();
 
-    // Função para configurar listener apenas uma vez
-    const setupAuthListener = () => {
-      if (subscription) {
-        console.log('🔄 AUTH: Listener já existe, pulando...');
-        return;
-      }
-
-      console.log('🔄 AUTH: Configurando listener de autenticação...');
-      
-      const { data } = supabase.auth.onAuthStateChange(
-        (event, session) => {
-          if (!mountedRef.current) {
-            console.log('🔄 AUTH: Componente desmontado, ignorando evento:', event);
-            return;
-          }
-          
-          // Prevent duplicate events durante HMR em desenvolvimento
-          const eventKey = `${event}-${session?.user?.id || 'null'}`;
-          if (lastAuthEventRef.current === eventKey) {
-            console.log('🔄 AUTH: Evento duplicado ignorado (HMR):', event);
-            return;
-          }
-          lastAuthEventRef.current = eventKey;
-          
-          console.log('🔄 AUTH: Processando mudança de estado:', event);
-          
-          const user = session?.user || null;
-          const isAuthenticated = !!user && !!session;
-
-          if (mountedRef.current) {
-            setState({
-              user,
-              session,
-              loading: false,
-              isAuthenticated,
-            });
-          }
-
-          // Redirecionamento centralizado - apenas para login bem-sucedido
-          if (event === 'SIGNED_IN' && isAuthenticated && window.location.pathname === '/login') {
-            console.log('🔄 AUTH: Redirecionando para painel após SIGNED_IN');
-            window.location.href = '/painel';
-          }
-
-          // Capturar IP real e criar registro de login em background (sem bloquear UX)
-          if (event === 'SIGNED_IN' && user) {
-            console.log('📊 AUTH: Login detectado para:', user.email);
-            
-            // Executar em background após redirecionamento
-            setTimeout(async () => {
-              try {
-                console.log('🌐 Capturando IP real via frontend (background)...');
-                
-                // Capturar IP real do frontend primeiro
-                let realIP = null;
-                try {
-                  const response = await fetch('https://ipapi.co/ip/');
-                  if (response.ok) {
-                    realIP = (await response.text()).trim();
-                    console.log(`✅ IP real capturado do frontend: ${realIP}`);
-                  }
-                } catch (e) {
-                  console.warn('❌ Falha ao capturar IP do frontend:', e);
-                }
-                
-                const { data, error } = await supabase.functions.invoke('capture-real-ip', {
-                  body: { 
-                    user_id: user.id,
-                    force_capture: true,
-                    frontend_ip: realIP
-                  }
-                });
-
-                if (error) {
-                  console.error('❌ Erro na captura de IP:', error);
-                } else {
-                  console.log('✅ Geolocalização precisa iniciada:', data);
-                }
-              } catch (error) {
-                console.error('❌ Falha na captura de IP:', error);
-              }
-            }, 2000); // Delay maior para não interferir no redirecionamento
-          }
+    // Setup auth listener
+    try {
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if (!mountedRef.current) {
+          console.log('⚠️ AUTH: Component unmounted, ignoring event:', event);
+          return;
         }
-      );
+        
+        console.log('🔄 AUTH: Processing state change:', event);
+        
+        const user = session?.user || null;
+        const isAuthenticated = !!user && !!session;
+
+        if (mountedRef.current) {
+          setState({
+            user,
+            session,
+            loading: false,
+            isAuthenticated,
+          });
+        }
+
+        // Simple redirect logic
+        if (event === 'SIGNED_IN' && isAuthenticated && window.location.pathname === '/login') {
+          console.log('✅ AUTH: Redirecting after SIGNED_IN');
+          window.location.href = '/painel';
+        }
+
+        // Background IP capture
+        if (event === 'SIGNED_IN' && user) {
+          console.log('📊 AUTH: Login detected for:', user.email);
+          
+          setTimeout(async () => {
+            try {
+              let realIP = null;
+              try {
+                const response = await fetch('https://ipapi.co/ip/');
+                if (response.ok) {
+                  realIP = (await response.text()).trim();
+                }
+              } catch (e) {
+                console.warn('IP capture failed:', e);
+              }
+              
+              await supabase.functions.invoke('capture-real-ip', {
+                body: { 
+                  user_id: user.id,
+                  force_capture: true,
+                  frontend_ip: realIP
+                }
+              });
+            } catch (error) {
+              console.error('IP capture error:', error);
+            }
+          }, 2000);
+        }
+      });
       
       subscription = data.subscription;
-    };
-
-    // Setup do listener
-    setupAuthListener();
+    } catch (error) {
+      console.error('🔴 AUTH: Failed to setup listener:', error);
+    }
 
     return () => {
       mountedRef.current = false;
-      console.log('🔄 AUTH: Limpando AuthProvider...');
+      listenerSetupRef.current = false;
+      console.log('🧹 AUTH: Cleaning up...');
       
       if (subscription) {
-        console.log('🔄 AUTH: Removendo subscription...');
-        subscription.unsubscribe();
+        try {
+          subscription.unsubscribe();
+        } catch (error) {
+          console.error('Cleanup error:', error);
+        }
         subscription = null;
       }
-      
-      // Reset para evitar memory leaks
-      lastAuthEventRef.current = null;
-      isInitializedRef.current = false;
     };
   }, [refreshAuth]);
 

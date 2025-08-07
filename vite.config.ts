@@ -10,7 +10,13 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: {
-      overlay: true
+      overlay: true,
+      // Prevent React context corruption during HMR
+      clientPort: 8080
+    },
+    // Prevent multiple React instances
+    fs: {
+      strict: false
     }
   },
   plugins: [
