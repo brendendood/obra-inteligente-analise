@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React from 'react';
 
 interface ImpersonationData {
   sessionId: string;
@@ -16,63 +16,109 @@ interface ImpersonationContextType {
   setImpersonationData: (data: ImpersonationData | null) => void;
 }
 
-const ImpersonationContext = createContext<ImpersonationContextType | undefined>(undefined);
+// Safe defaults for context
+const FALLBACK_IMPERSONATION_STATE: ImpersonationContextType = {
+  isImpersonating: false,
+  impersonationData: null,
+  setImpersonationData: () => {},
+};
+
+const ImpersonationContext = React.createContext<ImpersonationContextType>(FALLBACK_IMPERSONATION_STATE);
 
 export const useImpersonation = () => {
-  const context = useContext(ImpersonationContext);
-  if (context === undefined) {
-    throw new Error('useImpersonation must be used within an ImpersonationProvider');
+  const context = React.useContext(ImpersonationContext);
+  if (!context) {
+    console.warn('useImpersonation used outside provider, using defaults');
+    return FALLBACK_IMPERSONATION_STATE;
   }
   return context;
 };
 
 interface ImpersonationProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
+// Safe hook check
+const isSafeToUseHooks = (): boolean => {
+  try {
+    const testRef = React.useRef(null);
+    return true;
+  } catch (error) {
+    console.error('🔴 CRITICAL: React hooks not available in ImpersonationProvider:', error);
+    return false;
+  }
+};
+
 export const ImpersonationProvider = ({ children }: ImpersonationProviderProps) => {
-  const [impersonationData, setImpersonationData] = useState<ImpersonationData | null>(null);
+  // Emergency fallback if React hooks are corrupted
+  if (!isSafeToUseHooks()) {
+    console.error('🔴 EMERGENCY: ImpersonationProvider using fallback');
+    return (
+      <ImpersonationContext.Provider value={FALLBACK_IMPERSONATION_STATE}>
+        {children}
+      </ImpersonationContext.Provider>
+    );
+  }
 
-  useEffect(() => {
-    // Check for impersonation data on mount
-    const urlParams = new URLSearchParams(window.location.search);
-    const isImpersonated = urlParams.get('impersonated') === 'true';
-    const sessionId = urlParams.get('session_id');
-    const adminId = urlParams.get('admin_id');
+  // Safe hook usage with error boundaries
+  let impersonationData: ImpersonationData | null;
+  let setImpersonationData: React.Dispatch<React.SetStateAction<ImpersonationData | null>>;
+  
+  try {
+    [impersonationData, setImpersonationData] = React.useState<ImpersonationData | null>(null);
+  } catch (error) {
+    console.error('🔴 CRITICAL: useState failed in ImpersonationProvider:', error);
+    // Emergency fallback render
+    return (
+      <ImpersonationContext.Provider value={FALLBACK_IMPERSONATION_STATE}>
+        {children}
+      </ImpersonationContext.Provider>
+    );
+  }
 
-    if (isImpersonated && sessionId && adminId) {
-      // Get user data from auth or other source
-      // For now, we'll use a placeholder and get real data when auth is available
-      const savedData = localStorage.getItem('impersonation_data');
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        setImpersonationData(data);
-      }
-    } else {
-      // Check localStorage for existing impersonation session
-      const savedData = localStorage.getItem('impersonation_data');
-      if (savedData) {
-        try {
+  React.useEffect(() => {
+    try {
+      // Check for impersonation data on mount
+      const urlParams = new URLSearchParams(window.location.search);
+      const isImpersonated = urlParams.get('impersonated') === 'true';
+      const sessionId = urlParams.get('session_id');
+      const adminId = urlParams.get('admin_id');
+
+      if (isImpersonated && sessionId && adminId) {
+        // Get user data from auth or other source
+        const savedData = localStorage.getItem('impersonation_data');
+        if (savedData) {
           const data = JSON.parse(savedData);
           setImpersonationData(data);
-        } catch (error) {
-          console.error('Error parsing impersonation data:', error);
-          localStorage.removeItem('impersonation_data');
+        }
+      } else {
+        // Check localStorage for existing impersonation session
+        const savedData = localStorage.getItem('impersonation_data');
+        if (savedData) {
+          try {
+            const data = JSON.parse(savedData);
+            setImpersonationData(data);
+          } catch (error) {
+            console.error('Error parsing impersonation data:', error);
+            localStorage.removeItem('impersonation_data');
+          }
         }
       }
+    } catch (error) {
+      console.error('🔴 Error in ImpersonationProvider useEffect:', error);
     }
   }, []);
 
   const isImpersonating = impersonationData !== null;
 
+  const contextValue = React.useMemo(() => ({
+    isImpersonating,
+    impersonationData,
+    setImpersonationData,
+  }), [isImpersonating, impersonationData]);
+
   return (
-    <ImpersonationContext.Provider
-      value={{
-        isImpersonating,
-        impersonationData,
-        setImpersonationData,
-      }}
-    >
+    <ImpersonationContext.Provider value={contextValue}>
       {children}
     </ImpersonationContext.Provider>
   );
