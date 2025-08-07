@@ -372,14 +372,14 @@ export const ModernAIChatMobile = () => {
   }
 
   return (
-    <div className="flex flex-col h-[100dvh] min-h-[100svh] bg-white overflow-hidden">
-      {/* Header com Navegação - Altura fixa */}
-      <div className="flex items-center px-4 py-3 h-16 bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm flex-shrink-0">
+    <div className="fixed inset-0 flex flex-col h-screen bg-white overflow-hidden">
+      {/* Header Fixo no Topo */}
+      <div className="fixed top-0 left-0 right-0 z-10 flex items-center h-16 bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => navigate('/painel')}
-          className="mr-3 h-8 w-8 p-0 hover:bg-white/20 text-white"
+          className="ml-4 mr-3 h-8 w-8 p-0 hover:bg-white/20 text-white"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -388,15 +388,22 @@ export const ModernAIChatMobile = () => {
           <h1 className="font-semibold text-lg">Lumi AI</h1>
         </div>
         
-        <div className="text-right">
+        <div className="text-right mr-4">
           <p className="text-xs opacity-90">Online</p>
         </div>
       </div>
 
-      {/* Área de Mensagens - Sem padding lateral */}
-      <div className="flex-1 overflow-y-auto px-4 bg-white" style={{ height: 'calc(100dvh - 64px - 120px)' }}>
+      {/* Área de Mensagens - Zero Padding Lateral */}
+      <div 
+        className="overflow-y-auto bg-white" 
+        style={{ 
+          marginTop: '64px', 
+          marginBottom: '100px',
+          height: 'calc(100vh - 164px)'
+        }}
+      >
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-center">
+          <div className="flex items-center justify-center h-full text-center px-6">
             <div>
               <div className="text-4xl mb-4">🤖</div>
               <h2 className="text-lg font-semibold text-foreground mb-2">Olá!</h2>
@@ -408,13 +415,12 @@ export const ModernAIChatMobile = () => {
         ) : (
           <div className="py-4">
             {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-              />
+              <div key={message.id} className="px-4 mb-3">
+                <MessageBubble message={message} />
+              </div>
             ))}
             {isTyping && (
-              <div className="flex justify-start mb-3">
+              <div className="flex justify-start mb-3 px-4">
                 <div className="bg-muted rounded-2xl px-4 py-3 max-w-[80%]">
                   <AITypingIndicator />
                 </div>
@@ -425,8 +431,8 @@ export const ModernAIChatMobile = () => {
         )}
       </div>
 
-      {/* Input Área - Altura fixa */}
-      <div className="px-4 py-3 bg-white border-t border-border h-[120px] flex-shrink-0">
+      {/* Input Fixo na Base */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border h-[100px] px-4 py-3">
         <div className="flex items-center space-x-3 mb-3">
           {/* Botão de Microfone */}
           <Button
