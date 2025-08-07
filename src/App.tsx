@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
+import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
@@ -71,19 +72,25 @@ const queryClient = new QueryClient({
   },
 });
 
-// Enhanced Error Boundary with React health checks
-class EnhancedErrorBoundary extends React.Component<
+// CRITICAL Error Boundary for React system issues
+class CriticalErrorBoundary extends React.Component<
   { children: React.ReactNode },
-  { hasError: boolean; error?: Error; errorInfo?: React.ErrorInfo }
+  { hasError: boolean; error?: Error; errorInfo?: React.ErrorInfo; isCritical?: boolean }
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, isCritical: false };
   }
 
   static getDerivedStateFromError(error: Error) {
     console.error('🔴 CRITICAL ERROR BOUNDARY:', error.message);
-    return { hasError: true, error };
+    
+    // Detect critical React errors
+    const isCritical = error.message.includes('useState') || 
+                      error.message.includes('Invalid hook call') ||
+                      error.message.includes('multiple copies of React');
+    
+    return { hasError: true, error, isCritical };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -93,13 +100,18 @@ class EnhancedErrorBoundary extends React.Component<
       componentStack: errorInfo.componentStack
     });
 
-    // Check if it's the useState error
-    if (error.message.includes('useState')) {
-      console.error('🔴 DETECTED useState NULL ERROR - React Context Issue');
-      // Force a complete reload to reset React state
+    // For critical React errors, force reload after showing message
+    if (this.state.isCritical) {
+      console.error('🔴 CRITICAL REACT ERROR DETECTED - FORCING RELOAD');
       setTimeout(() => {
+        // Clear all caches
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+          });
+        }
         window.location.reload();
-      }, 100);
+      }, 3000);
     }
 
     this.setState({ errorInfo });
@@ -107,12 +119,24 @@ class EnhancedErrorBoundary extends React.Component<
 
   render() {
     if (this.state.hasError) {
+      // Use emergency fallback for critical React errors
+      if (this.state.isCritical) {
+        return (
+          <EmergencyFallback 
+            error={this.state.error} 
+            resetError={() => {
+              this.setState({ hasError: false, error: undefined, isCritical: false });
+            }}
+          />
+        );
+      }
+      
+      // Use normal error fallback for other errors
       return (
         <ErrorFallback 
           error={this.state.error} 
           resetError={() => {
             this.setState({ hasError: false, error: undefined });
-            window.location.reload();
           }}
         />
       );
@@ -125,7 +149,7 @@ class EnhancedErrorBoundary extends React.Component<
 const App = () => {
   return (
     <ReactHealthCheck>
-      <EnhancedErrorBoundary>
+      <CriticalErrorBoundary>
         <AuthProvider>
           <ImpersonationProvider>
             <QueryClientProvider client={queryClient}>
@@ -227,8 +251,8 @@ const App = () => {
             </TooltipProvider>
           </QueryClientProvider>
         </ImpersonationProvider>
-      </AuthProvider>
-    </EnhancedErrorBoundary>
+        </AuthProvider>
+      </CriticalErrorBoundary>
     </ReactHealthCheck>
   );
 };

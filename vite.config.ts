@@ -27,7 +27,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force single React instance - CRITICAL FIX
+      "react": path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom")
     },
+    dedupe: ['react', 'react-dom']
   },
   build: {
     // Performance optimizations
@@ -81,7 +85,7 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: true,
   },
   
-  // Enhanced optimization
+  // Enhanced optimization - CRITICAL FIX for React issues
   optimizeDeps: {
     include: [
       'react',
@@ -96,7 +100,10 @@ export default defineConfig(({ mode }) => ({
       'tailwind-merge'
     ],
     exclude: ['@vite/client', '@vite/env'],
+    // CRITICAL: Force single React instance
+    force: true
   },
+  
   
   // Performance settings
   esbuild: {
