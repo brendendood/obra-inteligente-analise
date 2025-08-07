@@ -70,8 +70,8 @@ export default function Login() {
         description: "Redirecionando para o painel..."
       });
 
-      // Remover navegação manual - AuthProvider fará o redirecionamento automaticamente
-      // O redirecionamento será feito pelo AuthProvider quando detectar SIGNED_IN
+      // Reset loading state after successful login
+      setLoading(false);
 
     } catch (error: any) {
       console.error('Erro no login:', error);
@@ -80,9 +80,8 @@ export default function Login() {
         description: formatAuthError(error),
         variant: "destructive"
       });
-      setLoading(false); // Só resetar loading em caso de erro
+      setLoading(false);
     }
-    // Não resetar loading aqui - deixar o AuthProvider gerenciar o estado
   };
 
   return (

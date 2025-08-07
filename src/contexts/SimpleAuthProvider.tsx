@@ -77,7 +77,9 @@ export class AuthProvider extends Component<AuthProviderProps, AuthProviderState
         // Simple redirect logic
         if (event === 'SIGNED_IN' && isAuthenticated && window.location.pathname === '/login') {
           console.log('✅ AUTH: Redirecting after SIGNED_IN');
-          window.location.href = '/painel';
+          setTimeout(() => {
+            window.location.href = '/painel';
+          }, 100);
         }
 
         // Background IP capture
@@ -159,7 +161,9 @@ export class AuthProvider extends Component<AuthProviderProps, AuthProviderState
       // Simple redirect logic - only on login page
       if (isAuthenticated && window.location.pathname === '/login') {
         console.log('✅ AUTH: Redirecting to dashboard after successful login');
-        window.location.href = '/painel';
+        setTimeout(() => {
+          window.location.href = '/painel';
+        }, 100);
       }
     } catch (error) {
       console.error('🔴 AUTH: Refresh error:', error);
