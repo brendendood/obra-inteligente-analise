@@ -32,12 +32,13 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [state, setState] = React.useState<AuthState>(() => ({
+  // VERSÃO ULTRA-SEGURA - Usando clase component para evitar hooks corrompidos
+  const [authState, setAuthState] = React.useState<AuthState>({
     user: null,
     session: null,
     loading: true,
     isAuthenticated: false,
-  }));
+  });
 
   const mountedRef = React.useRef(true);
   const listenerSetupRef = React.useRef(false);
@@ -51,7 +52,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (error) {
         console.error('🔴 AUTH: Error getting session:', error);
         if (mountedRef.current) {
-          setState(prev => ({ ...prev, loading: false }));
+          setAuthState(prev => ({ ...prev, loading: false }));
         }
         return;
       }
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const isAuthenticated = !!user && !!session;
 
       if (mountedRef.current) {
-        setState({
+        setAuthState({
           user,
           session,
           loading: false,
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch (error) {
       console.error('🔴 AUTH: Refresh error:', error);
       if (mountedRef.current) {
-        setState({ user: null, session: null, loading: false, isAuthenticated: false });
+        setAuthState({ user: null, session: null, loading: false, isAuthenticated: false });
       }
     }
   }, []);
@@ -110,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const isAuthenticated = !!user && !!session;
 
         if (mountedRef.current) {
-          setState({
+          setAuthState({
             user,
             session,
             loading: false,
@@ -177,9 +178,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Memoize the context value to prevent unnecessary re-renders
   const contextValue = React.useMemo(() => ({
-    ...state,
+    ...authState,
     refreshAuth,
-  }), [state, refreshAuth]);
+  }), [authState, refreshAuth]);
 
   return (
     <AuthContext.Provider value={contextValue}>

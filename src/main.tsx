@@ -1,4 +1,4 @@
-import { StrictMode } from 'react'
+import * as React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
@@ -9,8 +9,5 @@ import "@fontsource/space-grotesk/700.css";
 
 const root = createRoot(document.getElementById("root")!);
 
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+// REMOVENDO StrictMode que causa double rendering e corrompe React dispatcher
+root.render(<App />);
