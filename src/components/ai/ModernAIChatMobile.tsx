@@ -311,12 +311,75 @@ export const ModernAIChatMobile = () => {
     textareaRef.current?.focus();
   };
 
-  const handleAudioRecorded = (audioBlob: Blob) => {
-    // Para implementar no futuro: converter audio para base64 e enviar
+  const handleAudioRecorded = async (audioBlob: Blob) => {
+    setIsTyping(true);
     toast({
-      title: "Gravação salva",
-      description: "Funcionalidade de áudio em desenvolvimento.",
+      title: "Transcrevendo áudio...",
+      description: "Convertendo sua fala em texto",
     });
+
+    try {
+      // Convert Blob to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        try {
+          const base64Audio = (reader.result as string).split(',')[1];
+          
+          // Call voice-to-text edge function
+          const { data, error } = await supabase.functions.invoke('voice-to-text', {
+            body: { audio: base64Audio }
+          });
+
+          if (error) {
+            throw new Error(error.message || 'Erro na transcrição');
+          }
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          const transcribedText = data.text?.trim();
+          
+          if (transcribedText) {
+            setInputMessage(transcribedText);
+            toast({
+              title: "Transcrição concluída",
+              description: "Você pode editar o texto antes de enviar",
+            });
+          } else {
+            throw new Error('Nenhum texto foi detectado no áudio');
+          }
+        } catch (error) {
+          console.error('Erro na transcrição:', error);
+          toast({
+            title: "Erro na transcrição",
+            description: error instanceof Error ? error.message : 'Não foi possível transcrever o áudio',
+            variant: "destructive",
+          });
+        } finally {
+          setIsTyping(false);
+        }
+      };
+
+      reader.onerror = () => {
+        setIsTyping(false);
+        toast({
+          title: "Erro no áudio",
+          description: "Não foi possível processar o arquivo de áudio",
+          variant: "destructive",
+        });
+      };
+    } catch (error) {
+      setIsTyping(false);
+      console.error('Erro ao processar áudio:', error);
+      toast({
+        title: "Erro no áudio",
+        description: "Não foi possível processar o arquivo de áudio",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusIcon = () => {
