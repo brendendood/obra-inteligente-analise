@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
-import { Send, Copy, Check, ArrowLeft, Mic, MicOff } from 'lucide-react';
+import { Send, Copy, Check, ArrowLeft, Mic, MicOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -384,8 +384,11 @@ export const ModernAIChatMobile = () => {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         
-        <div className="flex-1 text-center">
-          <h1 className="font-semibold text-lg">Lumi AI</h1>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-5 h-5 text-yellow-300" />
+            <h1 className="font-semibold text-lg">Lumi AI</h1>
+          </div>
         </div>
         
         <div className="text-right mr-4">

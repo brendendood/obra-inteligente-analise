@@ -45,17 +45,20 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   // Verifica se é a página de IA
   const isAIPage = location.pathname === '/ia';
   const shouldHideFooter = hideFooter || isAIPage;
+  
+  // Esconde sidebar apenas na página IA no mobile
+  const shouldHideSidebar = isMobile && isAIPage;
 
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
     container: "min-h-screen flex flex-col w-full bg-gray-50",
     main: cn(
       "flex-1 flex flex-col min-h-screen transition-none",
-      !isMobile && "ml-[280px]"
+      !isMobile && !shouldHideSidebar && "ml-[280px]"
     ),
     content: "flex-1 overflow-auto",
-    innerContent: isAIPage && !isMobile ? "h-full" : "h-full p-4 sm:p-6 lg:p-8"
-  }), [isMobile, isAIPage]);
+    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : "h-full p-4 sm:p-6 lg:p-8"
+  }), [isMobile, isAIPage, shouldHideSidebar]);
 
   // Early return for loading state with unified loading
   if (loading) {
@@ -69,7 +72,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
 
   return (
     <div className={layoutClasses.container}>
-      <MemoizedSidebar />
+      {!shouldHideSidebar && <MemoizedSidebar />}
       <main className={layoutClasses.main}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
