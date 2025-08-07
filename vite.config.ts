@@ -10,13 +10,17 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: {
-      overlay: true,
-      // Prevent React context corruption during HMR
+      overlay: false, // Disable overlay to prevent context corruption
       clientPort: 8080
     },
-    // Prevent multiple React instances
+    // Enhanced file system settings for React stability
     fs: {
-      strict: false
+      strict: false,
+      allow: ['..']
+    },
+    // Cache busting for providers
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
     }
   },
   plugins: [
@@ -27,11 +31,13 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Force single React instance - CRITICAL FIX
+      // CRITICAL: Force absolute single React instances
       "react": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom")
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime")
     },
-    dedupe: ['react', 'react-dom']
+    // Enhanced deduplication
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime']
   },
   build: {
     // Performance optimizations
