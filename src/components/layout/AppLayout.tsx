@@ -5,9 +5,11 @@ import { Sidebar } from './Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
+import { useLocation } from 'react-router-dom';
 
 interface AppLayoutProps {
   children: ReactNode;
+  hideFooter?: boolean;
 }
 
 // Optimized media query hook
@@ -35,9 +37,14 @@ MemoizedSidebar.displayName = 'MemoizedSidebar';
 const MemoizedFooter = memo(MemberFooter);
 MemoizedFooter.displayName = 'MemoizedFooter';
 
-export const AppLayout = memo<AppLayoutProps>(({ children }) => {
+export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   const { user, loading } = useAuth();
   const isMobile = useOptimizedMediaQuery('(max-width: 1023px)');
+  const location = useLocation();
+  
+  // Verifica se é a página de IA
+  const isAIPage = location.pathname === '/ia';
+  const shouldHideFooter = hideFooter || isAIPage;
 
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
@@ -47,8 +54,8 @@ export const AppLayout = memo<AppLayoutProps>(({ children }) => {
       !isMobile && "ml-[280px]"
     ),
     content: "flex-1 overflow-auto",
-    innerContent: "h-full p-4 sm:p-6 lg:p-8"
-  }), [isMobile]);
+    innerContent: isAIPage && !isMobile ? "h-full" : "h-full p-4 sm:p-6 lg:p-8"
+  }), [isMobile, isAIPage]);
 
   // Early return for loading state with unified loading
   if (loading) {
@@ -69,7 +76,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children }) => {
             {children}
           </div>
         </div>
-        <MemoizedFooter />
+        {!shouldHideFooter && <MemoizedFooter />}
       </main>
     </div>
   );

@@ -386,7 +386,7 @@ export const ModernAIChat = () => {
 
   const containerClasses = isMobile 
     ? "flex flex-col h-full bg-background"
-    : "flex flex-col h-full max-h-[calc(100vh-2rem)] bg-white rounded-lg border shadow-sm mx-6 mt-4 mb-4";
+    : "flex flex-col h-screen bg-background";
 
   if (isMobile) {
     return (
@@ -538,96 +538,142 @@ export const ModernAIChat = () => {
     );
   }
 
-  // Desktop version
+  // Desktop version - ChatGPT inspired design
   return (
     <div className={containerClasses}>
-      {/* Header Desktop */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-lg">🤖</span>
-          </div>
-          <div>
-            <h2 className="font-semibold text-gray-900">Assistente Lumi</h2>
-            <p className="text-sm text-gray-600">Tira-dúvidas geral de arquitetura e engenharia</p>
-          </div>
+      {/* Messages Area Desktop */}
+      <div className="flex-1 overflow-y-auto bg-background">
+        <div className="max-w-3xl mx-auto px-4">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center h-screen text-center space-y-6">
+              <div className="relative">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/40 rounded-3xl flex items-center justify-center animate-pulse">
+                  <span className="text-4xl">🤖</span>
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-primary rounded-full border-3 border-background animate-bounce" />
+              </div>
+              <div className="space-y-3">
+                <div className="w-40 h-4 bg-muted/50 rounded-full animate-pulse mx-auto" />
+                <div className="w-32 h-3 bg-muted/30 rounded-full animate-pulse mx-auto" />
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-screen text-center space-y-8 px-4">
+              <div className="w-24 h-24 bg-gradient-to-br from-primary/10 to-primary/20 rounded-3xl flex items-center justify-center">
+                <span className="text-5xl">💬</span>
+              </div>
+              
+              <div className="space-y-4">
+                <h1 className="text-4xl font-bold text-foreground">Assistente Lumi</h1>
+                <p className="text-muted-foreground text-xl leading-relaxed max-w-2xl">
+                  Olá! Sou seu assistente especializado em arquitetura e engenharia. Como posso ajudar hoje?
+                </p>
+              </div>
+
+              <div className="w-full max-w-2xl space-y-4 mt-12">
+                <p className="text-lg font-semibold text-muted-foreground text-left">Exemplos de perguntas:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { icon: "🏗️", text: "Como calcular a estrutura de uma laje?", prompt: "Como calcular a estrutura de uma laje?" },
+                    { icon: "🧱", text: "Quais materiais são melhores para fundação?", prompt: "Quais materiais são melhores para fundação?" },
+                    { icon: "📅", text: "Como fazer um cronograma de obra?", prompt: "Como fazer um cronograma de obra?" },
+                    { icon: "💰", text: "Como estimar custos de construção?", prompt: "Como estimar custos de construção?" }
+                  ].map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setInputMessage(suggestion.prompt)}
+                      className="p-6 text-left bg-muted/30 hover:bg-muted/50 rounded-2xl border border-border/30 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <span className="text-2xl">{suggestion.icon}</span>
+                        <span className="text-base font-medium text-foreground">{suggestion.text}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="py-8 space-y-6">
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isNewMessage={newMessageIds.has(message.id)}
+                />
+              ))}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] flex items-end space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center font-semibold text-white text-sm">
+                      AI
+                    </div>
+                    <AITypingIndicator />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </div>
-        
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            {getStatusIcon()}
-            <span className={`text-sm ${getStatusColor()}`}>
-              {connectionStatus === 'connected' ? 'Conectado' : 
-               connectionStatus === 'connecting' ? 'Conectando...' : 'Desconectado'}
-            </span>
+      </div>
+
+      {/* Input Area Desktop - Fixed bottom */}
+      <div className="border-t border-border bg-background sticky bottom-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          <div className="relative">
+            <Textarea
+              ref={textareaRef}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Faça uma pergunta sobre arquitetura ou engenharia..."
+              className="w-full resize-none min-h-[60px] max-h-40 border border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-2xl px-6 py-4 pr-16 text-base bg-background shadow-sm placeholder:text-muted-foreground/70"
+              disabled={isTyping || isSending || !conversationId}
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={!inputMessage.trim() || isTyping || isSending || !conversationId}
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 p-0 shadow-md transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100"
+            >
+              {(isTyping || isSending) ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-2 h-2 bg-primary-foreground rounded-full animate-pulse" />
+                </div>
+              ) : (
+                <Send className="w-5 h-5 text-primary-foreground" />
+              )}
+            </Button>
           </div>
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/painel')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Voltar ao Dashboard
-          </Button>
-        </div>
-      </div>
-
-      {/* Messages Area Desktop */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
-              <span className="text-2xl">🤖</span>
+          {!conversationId && (
+            <div className="flex items-center justify-center mt-4">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-pulse" />
+                <span>Inicializando conversa...</span>
+              </div>
             </div>
-            <p className="text-gray-600">Carregando conversa...</p>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-4">
-              <span className="text-2xl">🤖</span>
+          )}
+          
+          <div className="flex items-center justify-between mt-4 text-xs text-muted-foreground">
+            <div className="flex items-center space-x-2">
+              {getStatusIcon()}
+              <span className={getStatusColor()}>
+                {connectionStatus === 'connected' ? 'Conectado' : 
+                 connectionStatus === 'connecting' ? 'Conectando...' : 'Desconectado'}
+              </span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-800">Assistente Lumi</h3>
-            <p className="text-gray-600 max-w-md">
-              Olá! Sou seu assistente especializado em arquitetura e engenharia. 
-              Como posso ajudá-lo hoje?
-            </p>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/painel')}
+              className="text-muted-foreground hover:text-foreground text-xs"
+            >
+              <ArrowLeft className="w-3 h-3 mr-1" />
+              Voltar ao Dashboard
+            </Button>
           </div>
-        ) : (
-          <>
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isNewMessage={newMessageIds.has(message.id)}
-              />
-            ))}
-            {isTyping && <AITypingIndicator />}
-          </>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area Desktop */}
-      <div className="p-4 border-t bg-gray-50">
-        <div className="flex space-x-3">
-          <Textarea
-            ref={textareaRef}
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Digite sua pergunta sobre arquitetura ou engenharia..."
-            className="flex-1 resize-none min-h-[60px] max-h-32 border border-gray-200 focus:border-purple-500 focus:ring-purple-500"
-            disabled={isTyping || isSending || !conversationId}
-          />
-          <Button
-            onClick={sendMessage}
-            disabled={!inputMessage.trim() || isTyping || isSending || !conversationId}
-            className="h-auto px-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
         </div>
       </div>
     </div>
