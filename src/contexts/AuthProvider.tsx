@@ -1,5 +1,6 @@
 
-import React, { 
+import * as React from 'react';
+import { 
   createContext, 
   useEffect, 
   useState, 
