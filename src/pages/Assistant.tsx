@@ -1,12 +1,12 @@
 
-import { AssistantLayout } from '@/components/layout/AssistantLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { ModernAIChat } from '@/components/ai/ModernAIChat';
 
 const Assistant = () => {
   return (
-    <AssistantLayout>
+    <AppLayout>
       <ModernAIChat />
-    </AssistantLayout>
+    </AppLayout>
   );
 };
 
