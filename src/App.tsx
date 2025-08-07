@@ -11,9 +11,6 @@ import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { EmergencyFallback } from "@/components/error/EmergencyFallback";
-import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
-import { SuperSafeAuthProvider } from "@/components/error/SuperSafeAuthProvider";
-import { ProviderSafetyWrapper } from "@/components/error/ProviderSafetyWrapper";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
 
@@ -148,9 +145,9 @@ class CriticalErrorBoundary extends React.Component<
   }
 }
 
-// Normal Providers Component
-const NormalProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <SuperSafeAuthProvider>
+// Clean Providers Component
+const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AuthProvider>
     <ImpersonationProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
@@ -160,121 +157,108 @@ const NormalProviders: React.FC<{ children: React.ReactNode }> = ({ children }) 
         </TooltipProvider>
       </QueryClientProvider>
     </ImpersonationProvider>
-  </SuperSafeAuthProvider>
+  </AuthProvider>
 );
 
 const App = () => {
-  try {
-    return (
-      <ReactHealthCheck>
-        <CriticalErrorBoundary>
-          <ProviderSafetyWrapper NormalProviders={NormalProviders}>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Suspense fallback={<UnifiedLoading />}>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/cadastro" element={<Signup />} />
-                  <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
-                  <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
-                  <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
-                  <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
-                  
-                  <Route path="/admin-panel" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><AdminPanel /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  {/* Protected routes */}
-                  <Route path="/painel" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } />
-                  
-                  {/* Legacy redirects */}
-                  <Route path="/projetos" element={<Navigate to="/painel" replace />} />
-                  <Route path="/obras" element={<Navigate to="/painel" replace />} />
-                  
-                  <Route path="/upload" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><Upload /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/ia" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><Assistant /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/conta" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><Account /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/plano" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><Plan /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/ajuda" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><Help /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  <Route path="/contato" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><Contact /></LazyWrapper>
-                    </ProtectedRoute>
-                  } />
-                  
-                  {/* Project specific routes */}
-                  <Route path="/projeto/:projectId" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                    </ProtectedRoute>
-                  }>
-                    <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
-                    <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
-                    <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
-                    <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
-                    <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
-                  </Route>
-                  
-                  <Route path="/ia/:projectId" element={
-                    <ProtectedRoute>
-                      <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                    </ProtectedRoute>
-                  }>
-                    <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
-                  </Route>
+  return (
+    <CriticalErrorBoundary>
+      <AppProviders>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Suspense fallback={<UnifiedLoading />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
+              <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
+              <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+              <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+              <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
+              
+              <Route path="/admin-panel" element={
+                <ProtectedRoute>
+                  <LazyWrapper><AdminPanel /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              {/* Protected routes */}
+              <Route path="/painel" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              
+              {/* Legacy redirects */}
+              <Route path="/projetos" element={<Navigate to="/painel" replace />} />
+              <Route path="/obras" element={<Navigate to="/painel" replace />} />
+              
+              <Route path="/upload" element={
+                <ProtectedRoute>
+                  <LazyWrapper><Upload /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/ia" element={
+                <ProtectedRoute>
+                  <LazyWrapper><Assistant /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/conta" element={
+                <ProtectedRoute>
+                  <LazyWrapper><Account /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/plano" element={
+                <ProtectedRoute>
+                  <LazyWrapper><Plan /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/ajuda" element={
+                <ProtectedRoute>
+                  <LazyWrapper><Help /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/contato" element={
+                <ProtectedRoute>
+                  <LazyWrapper><Contact /></LazyWrapper>
+                </ProtectedRoute>
+              } />
+              
+              {/* Project specific routes */}
+              <Route path="/projeto/:projectId" element={
+                <ProtectedRoute>
+                  <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                </ProtectedRoute>
+              }>
+                <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
+                <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
+                <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
+                <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
+              </Route>
+              
+              <Route path="/ia/:projectId" element={
+                <ProtectedRoute>
+                  <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                </ProtectedRoute>
+              }>
+                <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+              </Route>
 
-                  <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
-                </Routes>
-              </Suspense>
-            </BrowserRouter>
-          </ProviderSafetyWrapper>
-        </CriticalErrorBoundary>
-      </ReactHealthCheck>
-    );
-  } catch (error) {
-    console.error('🔴 CRITICAL: App initialization failed:', error);
-    
-    // Auto-reload after 3 seconds
-    setTimeout(() => {
-      window.location.reload();
-    }, 3000);
-    
-    return <EmergencyFallback error={error as Error} />;
-  }
+              <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AppProviders>
+    </CriticalErrorBoundary>
+  );
 };
 
 export default App;

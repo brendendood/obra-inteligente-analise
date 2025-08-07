@@ -31,86 +31,13 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-// Safe hook check - verify React is properly loaded
-const isSafeToUseHooks = (): boolean => {
-  try {
-    // Test if React hooks dispatcher is available
-    const testRef = React.useRef(null);
-    return true;
-  } catch (error) {
-    console.error('🔴 CRITICAL: React hooks not available:', error);
-    return false;
-  }
-};
-
 export function AuthProvider({ children }: AuthProviderProps) {
-  // Emergency fallback if React hooks are corrupted
-  if (!isSafeToUseHooks()) {
-    console.error('🔴 EMERGENCY: React hooks corrupted, using fallback');
-    return (
-      <AuthContext.Provider value={{
-        ...FALLBACK_AUTH_STATE,
-        refreshAuth: async () => {
-          console.warn('AuthProvider in emergency mode - reloading page');
-          window.location.reload();
-        }
-      }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
-  // Safe hook usage with error boundaries
-  let state: AuthState;
-  let setState: React.Dispatch<React.SetStateAction<AuthState>>;
-  
-  try {
-    [state, setState] = React.useState<AuthState>(() => ({
-      user: null,
-      session: null,
-      loading: true,
-      isAuthenticated: false,
-    }));
-  } catch (error) {
-    console.error('🔴 CRITICAL: useState failed:', error);
-    // Emergency fallback render
-    return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 99999
-      }}>
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <h1 style={{ color: '#dc2626', fontSize: '24px', marginBottom: '16px' }}>
-            Sistema React Corrompido
-          </h1>
-          <p style={{ color: '#374151', marginBottom: '20px' }}>
-            Detectamos um erro crítico no React. Recarregando...
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              backgroundColor: '#dc2626',
-              color: 'white',
-              padding: '12px 24px',
-              borderRadius: '6px',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            Recarregar Agora
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const [state, setState] = React.useState<AuthState>(() => ({
+    user: null,
+    session: null,
+    loading: true,
+    isAuthenticated: false,
+  }));
 
   const mountedRef = React.useRef(true);
   const listenerSetupRef = React.useRef(false);

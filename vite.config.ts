@@ -31,13 +31,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // CRITICAL: Force absolute single React instances
+      // Force single React instance - DEFINITIVE FIX
       "react": path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime")
     },
-    // Enhanced deduplication
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime']
+    dedupe: ['react', 'react-dom'],
   },
   build: {
     // Performance optimizations
