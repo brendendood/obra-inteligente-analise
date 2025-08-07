@@ -20,6 +20,12 @@ interface DirectN8NPayload {
     source: string;
     chat_type: string;
   };
+  attachments?: Array<{
+    type: 'image' | 'document' | 'audio';
+    filename: string;
+    content: string; // base64
+    mimeType: string;
+  }>;
 }
 
 interface N8NResponse {
@@ -32,7 +38,8 @@ export const sendDirectToN8N = async (
   message: string,
   userId: string,
   conversationId: string,
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
+  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [],
+  attachments?: Array<{ type: 'image' | 'document' | 'audio'; filename: string; content: string; mimeType: string }> 
 ): Promise<string> => {
   try {
     // Buscar dados do usuário
@@ -67,7 +74,8 @@ export const sendDirectToN8N = async (
       context: {
         source: 'general_chat',
         chat_type: 'tira_duvidas'
-      }
+      },
+      ...(attachments && attachments.length > 0 && { attachments })
     };
 
     console.log('Enviando para N8N:', payload);
