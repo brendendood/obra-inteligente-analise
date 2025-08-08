@@ -29,6 +29,7 @@ export const ModernAIChatMobile = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 const messagesEndRef = useRef<HTMLDivElement>(null);
+const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
 const { toast } = useToast();
@@ -36,7 +37,11 @@ const { toast } = useToast();
   const navigate = useNavigate();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!messagesContainerRef.current) return;
+    requestAnimationFrame(() => {
+      const el = messagesContainerRef.current!;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    });
   };
 
   useEffect(() => {
@@ -422,7 +427,8 @@ const { toast } = useToast();
 
       {/* Área de Mensagens - Zero Padding Lateral */}
       <div 
-        className="overflow-y-auto overscroll-y-contain touch-pan-y bg-background"
+        ref={messagesContainerRef}
+        className="overflow-y-auto overscroll-contain touch-pan-y bg-background"
         style={{ 
           WebkitOverflowScrolling: 'touch',
           marginTop: '64px', 

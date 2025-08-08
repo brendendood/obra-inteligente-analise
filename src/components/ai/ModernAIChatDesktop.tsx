@@ -34,13 +34,18 @@ export const ModernAIChatDesktop = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 const messagesEndRef = useRef<HTMLDivElement>(null);
+const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
 const { toast } = useToast();
   const { user } = useAuth();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!messagesContainerRef.current) return;
+    requestAnimationFrame(() => {
+      const el = messagesContainerRef.current!;
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    });
   };
 
   useEffect(() => {
@@ -542,7 +547,7 @@ const { toast } = useToast();
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center h-full">
         <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/40 rounded-full flex items-center justify-center animate-pulse">
           <span className="text-2xl">🤖</span>
         </div>
@@ -555,7 +560,7 @@ const { toast } = useToast();
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full min-h-0">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
@@ -573,7 +578,7 @@ const { toast } = useToast();
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
         {!showHistory ? (
           /* Welcome Screen */
           <div className="flex flex-col items-center justify-center h-full px-6">
