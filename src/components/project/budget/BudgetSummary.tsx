@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Receipt } from 'lucide-react';
 import { BudgetData } from '@/utils/budgetGenerator';
-import { AutoAbbrevNumber } from '@/components/ui/AutoAbbrevNumber';
+
 interface BudgetSummaryProps {
   budgetData: BudgetData;
 }
@@ -25,7 +25,7 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
             <div className="text-xl sm:text-3xl font-bold text-gray-900 break-all">
-              R$ <AutoAbbrevNumber value={budgetData.total} />
+              R$ {budgetData.total.toLocaleString('pt-BR')}
             </div>
             <p className="text-xs sm:text-sm text-gray-600 truncate">
               Materiais e serviços
@@ -45,7 +45,7 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
             <div className="text-xl sm:text-3xl font-bold text-orange-700 break-all">
-              R$ <AutoAbbrevNumber value={budgetData.total_com_bdi - budgetData.total} />
+              R$ {(budgetData.total_com_bdi - budgetData.total).toLocaleString('pt-BR')}
             </div>
             <p className="text-xs sm:text-sm text-gray-600 truncate">
               Despesas indiretas
@@ -65,7 +65,7 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
             <div className="text-xl sm:text-3xl font-bold text-green-800 break-all">
-              R$ <AutoAbbrevNumber value={budgetData.total_com_bdi} />
+              R$ {budgetData.total_com_bdi.toLocaleString('pt-BR')}
             </div>
             <p className="text-xs sm:text-sm text-green-700 truncate">
               R$ {costPerSquareMeter.toLocaleString('pt-BR', { 
