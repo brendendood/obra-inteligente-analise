@@ -2,6 +2,7 @@
 import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Building2 } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
@@ -18,7 +19,7 @@ export const ProjectHeader = ({ projectName, projectId, currentSection, sectionS
   const { goBack } = useContextualNavigation();
 
   return (
-    <div className="bg-apple-gray-50 border-b border-apple-gray-200 sticky top-0 z-20">
+    <div className="bg-apple-gray-50 sticky top-0 z-20">
       <div className="p-6 space-y-4">
         {/* Breadcrumb e Voltar */}
         <div className="flex items-center space-x-4">
@@ -62,6 +63,7 @@ export const ProjectHeader = ({ projectName, projectId, currentSection, sectionS
           </div>
         </div>
       </div>
+      <Separator className="w-11/12 sm:w-10/12 mx-auto rounded-full bg-gray-200" />
     </div>
   );
 };
