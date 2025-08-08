@@ -56,7 +56,10 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       "flex-1 flex flex-col min-h-screen transition-none",
       !isMobile && !shouldHideSidebar && "ml-[280px]"
     ),
-    content: "flex-1 overflow-auto",
+    content: cn(
+      "flex-1",
+      isAIPage ? "overflow-hidden" : "overflow-auto"
+    ),
     innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : "h-full p-4 sm:p-6 lg:p-8"
   }), [isMobile, isAIPage, shouldHideSidebar]);
 

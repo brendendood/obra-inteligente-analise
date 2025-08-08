@@ -372,7 +372,7 @@ export const ModernAIChatMobile = () => {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col h-screen bg-white overflow-hidden">
+    <div className="fixed inset-0 flex flex-col h-[100dvh] bg-background overflow-hidden overscroll-none">
       {/* Header Fixo no Topo */}
       <div className="fixed top-0 left-0 right-0 z-10 flex items-center h-16 bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-sm">
         <Button
@@ -398,11 +398,12 @@ export const ModernAIChatMobile = () => {
 
       {/* Área de Mensagens - Zero Padding Lateral */}
       <div 
-        className="overflow-y-auto bg-white" 
+        className="overflow-y-auto overscroll-y-contain touch-pan-y bg-background"
         style={{ 
+          WebkitOverflowScrolling: 'touch',
           marginTop: '64px', 
           marginBottom: '100px',
-          height: 'calc(100vh - 164px)'
+          height: 'calc(100dvh - 164px)'
         }}
       >
         {messages.length === 0 ? (
