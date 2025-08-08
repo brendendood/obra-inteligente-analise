@@ -349,6 +349,13 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ai_usage_metrics_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
         ]
       }
       alert_configurations: {
@@ -428,6 +435,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_logs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -667,6 +681,82 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "project_analyses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      project_budget_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          environment: string | null
+          id: string
+          project_id: string
+          quantity: number
+          sinapi_code: string | null
+          sort_order: number | null
+          source: string | null
+          subtotal: number | null
+          topic: string | null
+          unit: string | null
+          unit_value: number
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          environment?: string | null
+          id?: string
+          project_id: string
+          quantity?: number
+          sinapi_code?: string | null
+          sort_order?: number | null
+          source?: string | null
+          subtotal?: number | null
+          topic?: string | null
+          unit?: string | null
+          unit_value?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          environment?: string | null
+          id?: string
+          project_id?: string
+          quantity?: number
+          sinapi_code?: string | null
+          sort_order?: number | null
+          source?: string | null
+          subtotal?: number | null
+          topic?: string | null
+          unit?: string | null
+          unit_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_budget_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_budget_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
         ]
       }
       project_conversations: {
@@ -698,6 +788,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_conversations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
           },
         ]
       }
@@ -749,6 +846,83 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "project_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
+        ]
+      }
+      project_schedule_tasks: {
+        Row: {
+          category: string | null
+          created_at: string
+          dependency_id: string | null
+          duration_days: number | null
+          end_date: string | null
+          id: string
+          project_id: string
+          source: string | null
+          stage_name: string
+          stage_number: number | null
+          start_date: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          dependency_id?: string | null
+          duration_days?: number | null
+          end_date?: string | null
+          id?: string
+          project_id: string
+          source?: string | null
+          stage_name: string
+          stage_number?: number | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          dependency_id?: string | null
+          duration_days?: number | null
+          end_date?: string | null
+          id?: string
+          project_id?: string
+          source?: string | null
+          stage_name?: string
+          stage_number?: number | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_schedule_tasks_dependency_id_fkey"
+            columns: ["dependency_id"]
+            isOneToOne: false
+            referencedRelation: "project_schedule_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_schedule_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_schedule_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
         ]
       }
       projects: {
@@ -765,6 +939,8 @@ export type Database = {
           file_size: number | null
           id: string
           name: string
+          pdf_checksum: string | null
+          pdf_url: string | null
           project_status: string | null
           project_type: string | null
           start_date: string | null
@@ -786,6 +962,8 @@ export type Database = {
           file_size?: number | null
           id?: string
           name: string
+          pdf_checksum?: string | null
+          pdf_url?: string | null
           project_status?: string | null
           project_type?: string | null
           start_date?: string | null
@@ -807,6 +985,8 @@ export type Database = {
           file_size?: number | null
           id?: string
           name?: string
+          pdf_checksum?: string | null
+          pdf_url?: string | null
           project_status?: string | null
           project_type?: string | null
           start_date?: string | null
@@ -1287,7 +1467,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_project_summary: {
+        Row: {
+          overall_end: string | null
+          overall_start: string | null
+          progress_percent: number | null
+          project_id: string | null
+          stages_completed: number | null
+          total_budget: number | null
+          total_items: number | null
+          total_stages: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_update_user_complete: {
