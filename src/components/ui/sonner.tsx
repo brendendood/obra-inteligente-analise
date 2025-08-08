@@ -1,14 +1,15 @@
-import { useTheme } from "next-themes"
-import { Toaster as Sonner, toast as sonnerToast } from "sonner"
 
-type ToasterProps = React.ComponentProps<typeof Sonner>
+import React from "react";
+import { Toaster as Sonner, toast as sonnerToast } from "sonner";
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
+type ToasterProps = React.ComponentProps<typeof Sonner>;
 
+// Removemos next-themes para evitar hooks de contexto fora de timing.
+// A aplicação já força tema light pelo ThemeProvider, então usamos "light" aqui.
+const Toaster = ({ theme, ...props }: ToasterProps) => {
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="light"
       className="toaster group"
       duration={1700}
       toastOptions={{
@@ -24,18 +25,18 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       {...props}
     />
-  )
-}
+  );
+};
 
 // Enforce 1.7s duration for all Sonner toasts
 const toast: any = (message: any, options?: any) => {
-  return sonnerToast(message as any, { ...(options || {}), duration: 1700 })
-}
+  return sonnerToast(message as any, { ...(options || {}), duration: 1700 });
+};
 
 toast.success = (message: any, options?: any) =>
-  sonnerToast.success(message, { ...(options || {}), duration: 1700 })
+  sonnerToast.success(message, { ...(options || {}), duration: 1700 });
 
 toast.error = (message: any, options?: any) =>
-  sonnerToast.error(message, { ...(options || {}), duration: 1700 })
+  sonnerToast.error(message, { ...(options || {}), duration: 1700 });
 
-export { Toaster, toast }
+export { Toaster, toast };

@@ -1,9 +1,7 @@
-
 import * as React from 'react';
 import { Suspense, lazy } from 'react';
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import SafeToasters from "@/components/ui/SafeToasters";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -172,8 +170,8 @@ const App = () => {
   return (
     <CriticalErrorBoundary>
       <AppProviders>
-        <Toaster />
-        <Sonner />
+        {/* Monta toasts somente após primeiro commit para evitar hooks fora de contexto */}
+        <SafeToasters />
         <BrowserRouter>
           <Suspense fallback={<UnifiedLoading />}>
             <Routes>
