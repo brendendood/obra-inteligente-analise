@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Receipt } from 'lucide-react';
 import { BudgetData } from '@/utils/budgetGenerator';
+import { InfoTooltip } from '@/components/ui/info-tooltip';
 
 interface BudgetSummaryProps {
   budgetData: BudgetData;
@@ -24,8 +25,8 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-xl sm:text-3xl font-bold text-gray-900 sm:whitespace-nowrap">
-              R$ {budgetData.total.toLocaleString('pt-BR')}
+            <div className="text-lg sm:text-2xl font-bold text-gray-900 sm:whitespace-nowrap">
+              R$ {budgetData.total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <p className="text-xs sm:text-sm text-gray-600 truncate">
               Materiais e serviços
@@ -40,12 +41,16 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
           <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 mr-2 flex-shrink-0" />
             <span className="truncate">BDI ({(budgetData.bdi * 100).toFixed(0)}%)</span>
+            <InfoTooltip
+              className="ml-1"
+              content="BDI (Benefícios e Despesas Indiretas): margem que cobre impostos, administração, riscos e lucro. Total = Custo Direto + (Custo Direto × BDI)."
+            />
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-xl sm:text-3xl font-bold text-orange-700 sm:whitespace-nowrap">
-              R$ {(budgetData.total_com_bdi - budgetData.total).toLocaleString('pt-BR')}
+            <div className="text-lg sm:text-2xl font-bold text-orange-700 sm:whitespace-nowrap">
+              R$ {(budgetData.total_com_bdi - budgetData.total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <p className="text-xs sm:text-sm text-gray-600 truncate">
               Despesas indiretas
@@ -64,13 +69,13 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-xl sm:text-3xl font-bold text-green-800 sm:whitespace-nowrap">
-              R$ {budgetData.total_com_bdi.toLocaleString('pt-BR')}
+            <div className="text-lg sm:text-2xl font-bold text-green-800 sm:whitespace-nowrap">
+              R$ {budgetData.total_com_bdi.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <p className="text-xs sm:text-sm text-green-700 truncate">
               R$ {costPerSquareMeter.toLocaleString('pt-BR', { 
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2 
               })}/m² ({budgetData.totalArea}m²)
             </p>
           </div>
