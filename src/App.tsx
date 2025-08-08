@@ -87,10 +87,13 @@ class CriticalErrorBoundary extends React.Component<
   static getDerivedStateFromError(error: Error) {
     console.error('🔴 CRITICAL ERROR BOUNDARY:', error.message);
     
-    // Detect critical React errors
-    const isCritical = error.message.includes('useState') || 
-                      error.message.includes('Invalid hook call') ||
-                      error.message.includes('multiple copies of React');
+    // Detect critical React errors (incl. useRef null from broken libs)
+    const msg = error?.message || '';
+    const isCritical = msg.includes('useState') || 
+                      msg.includes('Invalid hook call') ||
+                      msg.includes('multiple copies of React') ||
+                      msg.includes("reading 'useRef'") ||
+                      msg.includes('useRef');
     
     return { hasError: true, error, isCritical };
   }
