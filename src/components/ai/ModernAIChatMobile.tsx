@@ -33,6 +33,7 @@ export const ModernAIChatMobile = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const lastAssistantContentsRef = useRef<Set<string>>(new Set());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -129,6 +130,12 @@ export const ModernAIChatMobile = () => {
         },
         (payload) => {
           if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
+            const incomingContent = payload.new.content as string;
+            if (lastAssistantContentsRef.current.has(incomingContent)) {
+              lastAssistantContentsRef.current.delete(incomingContent);
+              return;
+            }
+
             const newMessage: ChatMessage = {
               id: payload.new.id,
               type: 'assistant',
@@ -186,17 +193,29 @@ export const ModernAIChatMobile = () => {
     try {
       await saveMessage(conversationId, messageContent, 'user');
 
-      const conversationHistory = messages.map(msg => ({
+      const conversationHistory = [...messages, userMessage].map(msg => ({
         role: msg.type,
         content: msg.content
       }));
 
-      await sendDirectToN8N(
+      const replyText = await sendDirectToN8N(
         messageContent,
         user.id,
         conversationId,
         conversationHistory
       );
+
+      const assistantMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        type: 'assistant',
+        content: replyText,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      setIsTyping(false);
+      lastAssistantContentsRef.current.add(replyText);
+      // Salvar em background
+      saveMessage(conversationId, replyText, 'assistant').catch((err) => console.error('Erro ao salvar msg IA:', err));
 
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
