@@ -23,6 +23,29 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Require authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate token and build auth-scoped client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authError || !authUser) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { sessionId }: EndImpersonationRequest = await req.json();
 
     if (!sessionId) {
@@ -39,15 +62,29 @@ serve(async (req) => {
       .eq('id', sessionId)
       .single();
 
-    // Log security action
-    if (sessionInfo) {
-      await supabaseAdmin.rpc('log_admin_security_action', {
-        p_admin_id: sessionInfo.admin_id,
-        p_action_type: 'impersonation_end',
-        p_target_user_id: sessionInfo.user_impersonated_id,
-        p_details: { session_id: sessionId }
-      });
+    // Authorization: only the admin who started the session or an admin user can end it
+    if (!sessionInfo) {
+      return new Response(
+        JSON.stringify({ error: 'Session not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const { data: isAdmin } = await supabaseClient.rpc('is_admin_user');
+    if (authUser.id !== sessionInfo.admin_id && !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Insufficient permissions' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Log security action
+    await supabaseAdmin.rpc('log_admin_security_action', {
+      p_admin_id: sessionInfo.admin_id,
+      p_action_type: 'impersonation_end',
+      p_target_user_id: sessionInfo.user_impersonated_id,
+      p_details: { session_id: sessionId }
+    });
 
     // End the impersonation session
     const { error: endError } = await supabaseAdmin.rpc('end_impersonation_session', {

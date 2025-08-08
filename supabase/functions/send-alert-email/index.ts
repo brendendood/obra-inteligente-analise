@@ -27,6 +27,31 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Require JWT authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: 'Missing authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user: authUser }, error: authError } = await supabaseAuth.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (authError || !authUser) {
+      return new Response(JSON.stringify({ error: 'Invalid authentication' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Admin check
+    const { data: isAdmin } = await supabaseAuth.rpc('is_admin_user');
+
     const { 
       alert_type, 
       message, 
@@ -35,6 +60,23 @@ serve(async (req) => {
       project_id, 
       metadata 
     }: AlertEmailRequest = await req.json();
+
+    // Enforce permissions for non-admin users
+    if (!isAdmin) {
+      const userAllowedTypes = ['user_inactive', 'subscription_expiring', 'project_stalled'];
+      if (!userAllowedTypes.includes(alert_type)) {
+        return new Response(JSON.stringify({ error: 'Insufficient permissions for this alert type' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (user_id && user_id !== authUser.id) {
+        return new Response(JSON.stringify({ error: 'Cannot send alerts for another user' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
 
     console.log(`📧 SEND-ALERT-EMAIL: Processando alerta ${alert_type} com severidade ${severity}`);
 

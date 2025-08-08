@@ -40,8 +40,9 @@ serve(async (req) => {
     }
 
     // Verify the admin user's token
+    const token = authHeader.replace('Bearer ', '');
     const { data: { user: adminUser }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace('Bearer ', '')
+      token
     );
 
     if (authError || !adminUser) {
@@ -51,8 +52,15 @@ serve(async (req) => {
       );
     }
 
-    // Check if user is admin
-    const { data: isAdmin, error: adminCheckError } = await supabaseAdmin.rpc('is_admin_user');
+    // Create an auth-scoped client so auth.uid() is set inside RPC/Policies
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: `Bearer ${token}` } } }
+    );
+
+    // Check if user is admin using their auth context
+    const { data: isAdmin, error: adminCheckError } = await supabaseAuth.rpc('is_admin_user');
     
     if (adminCheckError || !isAdmin) {
       return new Response(
@@ -118,11 +126,14 @@ serve(async (req) => {
     }
 
     // Generate access token for the target user (expires in 30 minutes)
+    const allowedOrigins = ['https://app.madenai.com', 'https://madenai.com', 'http://localhost:5173'];
+    const origin = req.headers.get('Origin') || '';
+    const safeOrigin = allowedOrigins.find(o => o === origin) ?? allowedOrigins[0];
     const { data: tokenData, error: tokenError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: targetUser.user.email!,
       options: {
-        redirectTo: `${req.headers.get('Origin') || 'http://localhost:5173'}/dashboard?impersonated=true&session_id=${sessionLog.id}&admin_id=${adminUser.id}`
+        redirectTo: `${safeOrigin}/dashboard?impersonated=true&session_id=${sessionLog.id}&admin_id=${adminUser.id}`
       }
     });
 
