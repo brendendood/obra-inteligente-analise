@@ -17,7 +17,7 @@ export const BudgetItemsList = ({
   onRemoveItem 
 }: BudgetItemsListProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50 overflow-hidden">
+    <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50 overflow-hidden -mx-6 sm:mx-0 rounded-none sm:rounded-xl">
       <CardContent className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900">

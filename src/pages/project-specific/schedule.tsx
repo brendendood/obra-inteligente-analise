@@ -1,7 +1,8 @@
 
 import { useProjectDetail } from '@/contexts/ProjectDetailContext';
-import { Clock } from 'lucide-react';
+import { Clock, MonitorSmartphone } from 'lucide-react';
 import { useState } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
 import { ScheduleSimulator } from '@/components/schedule/ScheduleSimulator';
 import { ScheduleExportDialog } from '@/components/schedule/ScheduleExportDialog';
@@ -78,6 +79,17 @@ const ProjectSpecificSchedule = () => {
         onSimulate={() => setShowSimulator(true)}
         onExport={() => setShowExportDialog(true)}
       />
+
+      {/* Mobile advisory for better experience */}
+      <div className="sm:hidden">
+        <Alert>
+          <MonitorSmartphone className="h-4 w-4" />
+          <AlertTitle>Melhor experiência em telas maiores</AlertTitle>
+          <AlertDescription>
+            Para visualizar e interagir com o cronograma com mais conforto, utilize um tablet ou computador.
+          </AlertDescription>
+        </Alert>
+      </div>
 
       {isGenerating && (
         <ScheduleGenerationProgress
