@@ -32,7 +32,7 @@ interface N8NResponse {
   response: string;
 }
 
-const N8N_WEBHOOK_URL = 'https://madeai-br.app.n8n.cloud/webhook-test/aa02ca52-8850-452e-9e72-4f79966aa544';
+const N8N_WEBHOOK_URL = 'https://madeai-br.app.n8n.cloud/webhook/aa02ca52-8850-452e-9e72-4f79966aa544';
 
 export const sendDirectToN8N = async (
   message: string,
