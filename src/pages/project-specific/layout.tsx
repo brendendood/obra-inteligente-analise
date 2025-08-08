@@ -1,16 +1,15 @@
 
-import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
 import { ProjectDetailProvider, useProjectDetail } from '@/contexts/ProjectDetailContext';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Calculator, Clock, Bot, FileText, Eye } from 'lucide-react';
+import { ProjectSectionMenu } from '@/components/project/navigation/ProjectSectionMenu';
 
 const ProjectSpecificLayoutContent = () => {
-  const { projectId } = useParams<{ projectId: string }>();
+  
   const { project, isLoading, error } = useProjectDetail();
-  const navigate = useNavigate();
+  
   const location = useLocation();
 
   // Determinar aba ativa baseada na URL
@@ -23,13 +22,6 @@ const ProjectSpecificLayoutContent = () => {
     return 'visao-geral';
   };
 
-  const handleTabChange = (value: string) => {
-    if (!projectId) return;
-    
-    const basePath = `/projeto/${projectId}`;
-    const newPath = value === 'visao-geral' ? basePath : `${basePath}/${value}`;
-    navigate(newPath);
-  };
 
   if (error) {
     return (
@@ -82,56 +74,16 @@ const ProjectSpecificLayoutContent = () => {
           currentSection={getSectionTitle(getCurrentTab())}
         />
         
-        <div className="flex-1 p-8 bg-apple-gray-50">
+        <div className="flex-1 p-6 sm:p-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
-            <Tabs value={getCurrentTab()} onValueChange={handleTabChange} className="w-full" aria-label="Selecionar seção do projeto">
-              {/* Sticky segmented control */}
-              <div className="sticky top-0 z-20 -mx-2 sm:mx-0 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border mb-4 sm:mb-6">
-                <div className="px-2 sm:px-0 max-w-5xl mx-auto">
-                  <TabsList className="w-full grid grid-cols-2 sm:grid-cols-5 gap-2 p-2 rounded-2xl bg-muted text-muted-foreground shadow-sm">
-                    <TabsTrigger 
-                      value="visao-geral" 
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3 px-3 text-xs sm:text-sm"
-                    >
-                      <Eye className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Visão Geral</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="orcamento" 
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3 px-3 text-xs sm:text-sm"
-                    >
-                      <Calculator className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Orçamento</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="cronograma" 
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3 px-3 text-xs sm:text-sm"
-                    >
-                      <Clock className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Cronograma</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="assistente" 
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3 px-3 text-xs sm:text-sm"
-                    >
-                      <Bot className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Assistente</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="documentos" 
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200 font-medium py-3 px-3 text-xs sm:text-sm"
-                    >
-                      <FileText className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Documentos</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-              </div>
-
-              <TabsContent value={getCurrentTab()} className="mt-0">
+            <div className="grid grid-cols-12 gap-4 sm:gap-6">
+              <aside className="col-span-12 md:col-span-3">
+                <ProjectSectionMenu />
+              </aside>
+              <section className="col-span-12 md:col-span-9 min-w-0">
                 <Outlet />
-              </TabsContent>
-            </Tabs>
+              </section>
+            </div>
           </div>
         </div>
       </div>
