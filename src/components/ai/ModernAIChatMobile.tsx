@@ -9,6 +9,7 @@ import { AITypingIndicator } from '@/components/ai/AITypingIndicator';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { MessageFormatter } from '@/components/ai/MessageFormatter';
 
 interface ChatMessage {
   id: string;
@@ -328,7 +329,7 @@ export const ModernAIChatMobile = () => {
             ? "bg-primary text-primary-foreground" 
             : "bg-muted text-muted-foreground"
         )}>
-          <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+          <MessageFormatter content={message.content} className="text-sm" />
           
           <div className="flex items-center justify-between mt-2">
             <span className={cn(
