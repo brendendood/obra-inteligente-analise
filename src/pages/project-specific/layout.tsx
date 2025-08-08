@@ -72,14 +72,12 @@ const ProjectSpecificLayoutContent = () => {
           projectName={project.name}
           projectId={project.id}
           currentSection={getSectionTitle(getCurrentTab())}
+          sectionSelector={<ProjectSectionSwitcher />}
         />
         
         <div className="flex-1 p-6 sm:p-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="space-y-4">
-              <div className="w-full">
-                <ProjectSectionSwitcher />
-              </div>
               <section className="min-w-0">
                 <Outlet />
               </section>

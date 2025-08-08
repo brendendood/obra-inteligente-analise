@@ -1,7 +1,8 @@
 
+import type { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Building2, Calendar, Ruler, CheckCircle, Clock } from 'lucide-react';
+import { ArrowLeft, Building2 } from 'lucide-react';
 import { useProject } from '@/contexts/ProjectContext';
 import { useContextualNavigation } from '@/hooks/useContextualNavigation';
 
@@ -9,9 +10,10 @@ interface ProjectHeaderProps {
   projectName: string;
   projectId: string;
   currentSection: string;
+  sectionSelector?: ReactNode;
 }
 
-export const ProjectHeader = ({ projectName, projectId, currentSection }: ProjectHeaderProps) => {
+export const ProjectHeader = ({ projectName, projectId, currentSection, sectionSelector }: ProjectHeaderProps) => {
   const { currentProject } = useProject();
   const { goBack } = useContextualNavigation();
 
@@ -43,18 +45,21 @@ export const ProjectHeader = ({ projectName, projectId, currentSection }: Projec
             </div>
           </div>
           
-          {/* Status */}
-          {currentProject && (
-            <Badge 
-              className={`${
-                currentProject?.analysis_data 
-                  ? 'bg-green-50 text-green-700 border-green-200' 
-                  : 'bg-yellow-50 text-yellow-700 border-yellow-200'
-              } font-medium px-3 py-1.5 rounded-lg`}
-            >
-              {currentProject?.analysis_data ? '✅ Analisado' : '⏳ Processando'}
-            </Badge>
-          )}
+          {/* Ações do Header (Seletor de seção + Status) */}
+          <div className="flex items-center gap-3">
+            {sectionSelector}
+            {currentProject && (
+              <Badge 
+                className={`${
+                  currentProject?.analysis_data 
+                    ? 'bg-green-50 text-green-700 border-green-200' 
+                    : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                } font-medium px-3 py-1.5 rounded-lg`}
+              >
+                {currentProject?.analysis_data ? '✅ Analisado' : '⏳ Processando'}
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
     </div>
