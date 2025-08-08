@@ -15,6 +15,7 @@ import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -154,7 +155,9 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       <QueryClientProvider client={queryClient}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="madenai-theme">
           <ProjectProvider>
-            {children}
+            <TooltipProvider delayDuration={200}>
+              {children}
+            </TooltipProvider>
           </ProjectProvider>
         </ThemeProvider>
       </QueryClientProvider>
