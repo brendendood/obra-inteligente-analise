@@ -86,11 +86,11 @@ export const BudgetWorkspace = ({
       {/* Budget content */}
       {budgetData && (
         <>
-          <div className="max-w-3xl mx-auto w-full">
+          <div className="max-w-2xl w-11/12 mx-auto">
             <BudgetSummary budgetData={budgetData} />
           </div>
-          <Separator className="w-11/12 mx-auto rounded-full bg-border/60" />
-          <div className="max-w-3xl mx-auto w-full">
+          <Separator className="w-10/12 mx-auto rounded-full bg-border/40" />
+          <div className="max-w-2xl w-11/12 mx-auto">
             <BudgetItemsList
               items={budgetData.items}
               dataReferencia={budgetData.data_referencia}

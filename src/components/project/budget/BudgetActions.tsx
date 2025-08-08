@@ -25,7 +25,7 @@ export const BudgetActions = ({
   darkFrame = false,
 }: BudgetActionsProps) => {
   const outlineClasses = darkFrame
-    ? "border-foreground/30 text-foreground"
+    ? "border-foreground/40 text-foreground"
     : "";
 
   return (
