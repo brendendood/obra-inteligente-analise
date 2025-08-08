@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectHeader } from '@/components/layout/ProjectHeader';
 import { ProjectDetailProvider, useProjectDetail } from '@/contexts/ProjectDetailContext';
 import { ErrorFallback } from '@/components/error/ErrorFallback';
-import { ProjectSectionMenu } from '@/components/project/navigation/ProjectSectionMenu';
+import { ProjectSectionSwitcher } from '@/components/project/navigation/ProjectSectionSwitcher';
 
 const ProjectSpecificLayoutContent = () => {
   
@@ -76,11 +76,11 @@ const ProjectSpecificLayoutContent = () => {
         
         <div className="flex-1 p-6 sm:p-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-12 gap-4 sm:gap-6">
-              <aside className="col-span-12 md:col-span-3">
-                <ProjectSectionMenu />
-              </aside>
-              <section className="col-span-12 md:col-span-9 min-w-0">
+            <div className="space-y-4">
+              <div className="w-full">
+                <ProjectSectionSwitcher />
+              </div>
+              <section className="min-w-0">
                 <Outlet />
               </section>
             </div>

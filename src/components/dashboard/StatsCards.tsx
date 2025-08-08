@@ -8,7 +8,7 @@ import {
   Clock,
   TrendingUp
 } from 'lucide-react';
-
+import { AutoAbbrevNumber } from '@/components/ui/AutoAbbrevNumber';
 interface StatsCardsProps {
   stats: {
     totalProjects: number;
@@ -50,9 +50,11 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
     },
     {
       title: "Investimento Total",
-      value: stats.totalInvestment > 0 
-        ? `R$ ${(stats.totalInvestment / 1000).toFixed(0)}k` 
-        : "R$ 0",
+      value: (
+        <span>
+          R$ <AutoAbbrevNumber value={stats.totalInvestment} />
+        </span>
+      ),
       description: `${stats.projectsWithBudget} projetos orçados (${budgetingRate}%)`,
       icon: DollarSign,
       iconColor: "text-green-600",
@@ -90,7 +92,7 @@ export const StatsCards = ({ stats }: StatsCardsProps) => {
     },
     {
       title: "Área Total",
-      value: `${stats.totalArea.toLocaleString()}m²`,
+      value: (<span><AutoAbbrevNumber value={stats.totalArea} />m²</span>),
       description: `Média: ${stats.averageArea}m² por projeto`,
       icon: TrendingUp,
       iconColor: "text-indigo-600",

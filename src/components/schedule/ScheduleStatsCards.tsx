@@ -2,7 +2,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Clock, Calculator, TrendingUp, Calendar } from 'lucide-react';
 import { ScheduleData } from '@/types/project';
-
+import { AutoAbbrevNumber } from '@/components/ui/AutoAbbrevNumber';
 interface ScheduleStatsCardsProps {
   scheduleData: ScheduleData;
 }
@@ -31,7 +31,7 @@ export const ScheduleStatsCards = ({ scheduleData }: ScheduleStatsCardsProps) =>
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm text-gray-600 truncate">Custo</p>
               <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
-                R$ {(scheduleData.totalCost / 1000).toFixed(0)}k
+                R$ <AutoAbbrevNumber value={scheduleData.totalCost} />
               </p>
             </div>
           </div>
