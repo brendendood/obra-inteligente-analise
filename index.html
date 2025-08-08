@@ -31,6 +31,9 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
     
+    <!-- Preload da logo para LCP -->
+    <link rel="preload" as="image" href="/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png" fetchpriority="high" />
+    
     <!-- DNS Prefetch para recursos externos -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" crossorigin />
@@ -39,19 +42,25 @@
   <body>
     <div id="root"></div>
     <script>
-      // Força limpeza agressiva de cache
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          names.forEach(function(name) {
-            caches.delete(name);
+      // Limpeza de cache e reload - habilitado apenas em desenvolvimento
+      (function() {
+        const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        if (!isDev) return;
+
+        // Força limpeza agressiva de cache (apenas DEV)
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            names.forEach(function(name) {
+              caches.delete(name);
+            });
           });
-        });
-      }
-      
-      // Força reload sem cache se necessário
-      if (performance.navigation.type !== 1 && !location.search.includes('force=1')) {
-        location.replace(location.href + (location.search ? '&' : '?') + 'force=1&t=' + Date.now());
-      }
+        }
+        
+        // Força reload sem cache se necessário (apenas DEV)
+        if (performance.navigation.type !== 1 && !location.search.includes('force=1')) {
+          location.replace(location.href + (location.search ? '&' : '?') + 'force=1&t=' + Date.now());
+        }
+      })();
     </script>
     <script type="module" src="/src/main.tsx?v=2" defer></script>
   </body>

@@ -11,6 +11,7 @@ interface UnifiedLogoProps {
   alt?: string;
   theme?: 'auto' | 'light' | 'dark';
   loading?: boolean;
+  priority?: boolean;
 }
 
 export const UnifiedLogo = ({ 
@@ -20,7 +21,8 @@ export const UnifiedLogo = ({
   className, 
   alt = 'MadenAI',
   theme = 'auto',
-  loading = false
+  loading = false,
+  priority = false
 }: UnifiedLogoProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,8 +145,9 @@ export const UnifiedLogo = ({
     <img
       src={logoSrc}
       alt={alt}
-      loading="eager"
+      loading={priority ? 'eager' : 'lazy'}
       decoding="async"
+      fetchPriority={priority ? 'high' : 'auto'}
       onError={handleImageError}
       onLoad={handleImageLoad}
       className={cn(

@@ -15,7 +15,7 @@ const Header = () => {
         <div className="flex justify-between items-center py-6 sm:py-8 lg:h-24">
           {/* Logo à esquerda - com destaque máximo */}
           <div className="flex items-center bg-gradient-to-r from-white to-apple-gray-50 rounded-2xl px-8 py-4 shadow-md border border-apple-gray-100 hover:shadow-lg transition-all duration-300">
-            <UnifiedLogo size="3xl" theme="auto" className="transition-all duration-300 hover:scale-105 filter hover:brightness-110" />
+            <UnifiedLogo size="3xl" theme="auto" priority className="transition-all duration-300 hover:scale-105 filter hover:brightness-110" />
           </div>
 
           {/* Desktop Actions - Apenas botão de auth */}
