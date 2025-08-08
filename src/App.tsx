@@ -14,7 +14,6 @@ import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
-import { ThemeProvider } from 'next-themes';
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -151,13 +150,13 @@ class CriticalErrorBoundary extends React.Component<
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <AuthProvider>
     <ImpersonationProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        
           <ProjectProvider>
             {children}
           </ProjectProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+        
+      </QueryClientProvider>
     </ImpersonationProvider>
   </AuthProvider>
 );

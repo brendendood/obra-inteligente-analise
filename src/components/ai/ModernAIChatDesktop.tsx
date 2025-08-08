@@ -37,7 +37,6 @@ export const ModernAIChatDesktop = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
-  const lastAssistantContentsRef = useRef<Set<string>>(new Set());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -142,13 +141,6 @@ export const ModernAIChatDesktop = () => {
           console.log('Nova mensagem detectada:', payload);
           
           if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
-            const incomingContent = payload.new.content as string;
-            if (lastAssistantContentsRef.current.has(incomingContent)) {
-              // Já exibida de forma otimista, evitar duplicação
-              lastAssistantContentsRef.current.delete(incomingContent);
-              return;
-            }
-
             const newMessage: ChatMessage = {
               id: payload.new.id,
               type: 'assistant',
@@ -223,29 +215,23 @@ export const ModernAIChatDesktop = () => {
     // Se estava mostrando sugestões, mudar para o histórico
     if (!showHistory) {
       setShowHistory(true);
-      // Carregar mensagens existentes de forma assíncrona (não bloquear envio)
-      (async () => {
-        try {
-          const { data: messageData } = await supabase
-            .from('ai_messages')
-            .select('id, content, role, created_at')
-            .eq('user_id', user.id)
-            .eq('conversation_id', conversationId)
-            .order('created_at', { ascending: true });
+      // Carregar mensagens existentes se necessário
+      const { data: messageData } = await supabase
+        .from('ai_messages')
+        .select('id, content, role, created_at')
+        .eq('user_id', user.id)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
 
-          if (messageData) {
-            const formattedMessages: ChatMessage[] = messageData.map((msg) => ({
-              id: msg.id,
-              type: msg.role as 'user' | 'assistant',
-              content: msg.content,
-              timestamp: new Date(msg.created_at)
-            }));
-            setMessages(formattedMessages);
-          }
-        } catch (e) {
-          console.error('Erro ao carregar histórico:', e);
-        }
-      })();
+      if (messageData) {
+        const formattedMessages: ChatMessage[] = messageData.map((msg) => ({
+          id: msg.id,
+          type: msg.role as 'user' | 'assistant',
+          content: msg.content,
+          timestamp: new Date(msg.created_at)
+        }));
+        setMessages(formattedMessages);
+      }
     }
 
     // Criar mensagem do usuário
@@ -276,36 +262,22 @@ export const ModernAIChatDesktop = () => {
         setSelectedFile(null); // Limpar arquivo após envio
       }
 
-      // Preparar histórico para contexto (inclui a mensagem atual)
-      const conversationHistory = [...messages, userMessage].map(msg => ({
+      // Preparar histórico para contexto
+      const conversationHistory = messages.map(msg => ({
         role: msg.type,
         content: msg.content
       }));
 
-      // Enviar para N8N e exibir resposta imediatamente
-      const replyText = await sendDirectToN8N(
-        messageContent,
+      // Enviar para N8N
+      await sendDirectToN8N(
+        inputMessage.trim() || '',
         user.id,
         conversationId,
         conversationHistory,
         attachments
       );
 
-      const assistantMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        type: 'assistant',
-        content: replyText,
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-      setIsTyping(false);
       setConnectionStatus('connected');
-      lastAssistantContentsRef.current.add(replyText);
-      // Salvar em background
-      saveMessage(conversationId, replyText, 'assistant').catch((err) => {
-        console.error('Erro ao salvar mensagem da IA:', err);
-      });
 
     } catch (error) {
       console.error('❌ Erro ao enviar mensagem:', error);
