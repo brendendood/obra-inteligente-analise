@@ -28,9 +28,10 @@ export const ModernAIChatMobile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
+const messagesEndRef = useRef<HTMLDivElement>(null);
+const textareaRef = useRef<HTMLTextAreaElement>(null);
+const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
+const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -129,6 +130,12 @@ export const ModernAIChatMobile = () => {
         },
         (payload) => {
           if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
+            // Dedupe contra mensagens assistente otimistas
+            if (optimisticAssistantContentsRef.current.has(payload.new.content)) {
+              optimisticAssistantContentsRef.current.delete(payload.new.content);
+              setIsTyping(false);
+              return;
+            }
             const newMessage: ChatMessage = {
               id: payload.new.id,
               type: 'assistant',
@@ -191,12 +198,28 @@ export const ModernAIChatMobile = () => {
         content: msg.content
       }));
 
-      await sendDirectToN8N(
+      const aiResponse = await sendDirectToN8N(
         messageContent,
         user.id,
         conversationId,
         conversationHistory
       );
+
+      if (aiResponse && aiResponse.trim()) {
+        const assistantMessage: ChatMessage = {
+          id: 'optimistic-' + crypto.randomUUID(),
+          type: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsTyping(false);
+        optimisticAssistantContentsRef.current.add(aiResponse);
+        // Salvar no Supabase em background
+        saveMessage(conversationId, aiResponse, 'assistant').catch((e) => {
+          console.error('Erro ao salvar resposta da IA:', e);
+        });
+      }
 
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);

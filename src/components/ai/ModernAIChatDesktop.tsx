@@ -33,9 +33,10 @@ export const ModernAIChatDesktop = () => {
   const [showContinueChat, setShowContinueChat] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { toast } = useToast();
+const messagesEndRef = useRef<HTMLDivElement>(null);
+const textareaRef = useRef<HTMLTextAreaElement>(null);
+const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
+const { toast } = useToast();
   const { user } = useAuth();
 
   const scrollToBottom = () => {
@@ -141,6 +142,13 @@ export const ModernAIChatDesktop = () => {
           console.log('Nova mensagem detectada:', payload);
           
           if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
+            // Dedupe contra mensagens assistente otimistas
+            if (optimisticAssistantContentsRef.current.has(payload.new.content)) {
+              optimisticAssistantContentsRef.current.delete(payload.new.content);
+              setIsTyping(false);
+              return;
+            }
+
             const newMessage: ChatMessage = {
               id: payload.new.id,
               type: 'assistant',
@@ -268,8 +276,8 @@ export const ModernAIChatDesktop = () => {
         content: msg.content
       }));
 
-      // Enviar para N8N
-      await sendDirectToN8N(
+      // Enviar para N8N e renderizar resposta de forma otimista
+      const aiResponse = await sendDirectToN8N(
         inputMessage.trim() || '',
         user.id,
         conversationId,
@@ -278,6 +286,22 @@ export const ModernAIChatDesktop = () => {
       );
 
       setConnectionStatus('connected');
+
+      if (aiResponse && aiResponse.trim()) {
+        const assistantMessage: ChatMessage = {
+          id: 'optimistic-' + crypto.randomUUID(),
+          type: 'assistant',
+          content: aiResponse,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsTyping(false);
+        optimisticAssistantContentsRef.current.add(aiResponse);
+        // Salvar no Supabase em background
+        saveMessage(conversationId, aiResponse, 'assistant').catch((e) => {
+          console.error('Erro ao salvar resposta da IA:', e);
+        });
+      }
 
     } catch (error) {
       console.error('❌ Erro ao enviar mensagem:', error);

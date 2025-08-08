@@ -1,6 +1,7 @@
 
 import * as React from 'react';
 import { Suspense, lazy } from 'react';
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 
@@ -151,11 +152,11 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <AuthProvider>
     <ImpersonationProvider>
       <QueryClientProvider client={queryClient}>
-        
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ProjectProvider>
             {children}
           </ProjectProvider>
-        
+        </ThemeProvider>
       </QueryClientProvider>
     </ImpersonationProvider>
   </AuthProvider>
