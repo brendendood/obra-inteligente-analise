@@ -159,7 +159,7 @@ export const AdvancedGanttChart = ({
   const weeksCount = Math.ceil(totalDays / 7);
 
   return (
-    <Card className="shadow-lg border-0 overflow-hidden -mx-3 sm:mx-0 rounded-xl">
+    <Card className="shadow-lg border-0 overflow-hidden rounded-xl">
       <CardHeader className="pb-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="min-w-0 flex-1">

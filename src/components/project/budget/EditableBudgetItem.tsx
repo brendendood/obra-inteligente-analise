@@ -175,7 +175,7 @@ export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetI
               </label>
               {!isEditing ? (
                 <div className="bg-blue-50 p-3 rounded-md text-center">
-                  <span className="text-lg font-semibold text-blue-700 whitespace-nowrap overflow-hidden text-ellipsis">
+                  <span className="text-lg font-semibold text-blue-700 whitespace-nowrap">
                     R$ {editData.preco_unitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -196,7 +196,7 @@ export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetI
                 Total
               </label>
               <div className="bg-green-50 p-3 rounded-md text-center border-2 border-green-200">
-                <span className="text-lg font-bold text-green-700 whitespace-nowrap overflow-hidden text-ellipsis block">
+                <span className="text-lg font-bold text-green-700 whitespace-nowrap block">
                   R$ {(Math.round(editData.quantidade) * editData.preco_unitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>

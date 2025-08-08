@@ -75,7 +75,7 @@ const ProjectSpecificLayoutContent = () => {
           sectionSelector={<ProjectSectionSwitcher />}
         />
         
-        <div className="flex-1 p-6 sm:p-8 bg-apple-gray-50">
+        <div className="flex-1 px-3 sm:px-8 py-6 sm:py-8 bg-apple-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="space-y-4">
               <section className="min-w-0">
