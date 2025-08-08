@@ -1,6 +1,7 @@
 
 import { Bot } from 'lucide-react';
 import { CompactUnifiedLoading } from '@/components/ui/unified-loading';
+import { TypingDots } from '@/components/ui/TypingDots';
 
 export const AITypingIndicator = () => {
   return (
@@ -11,7 +12,10 @@ export const AITypingIndicator = () => {
         </div>
         
         <div className="bg-gray-100 rounded-2xl px-4 py-3">
-          <CompactUnifiedLoading text="Respondendo..." />
+          <div className="flex items-center space-x-2">
+            <TypingDots />
+            <span className="sr-only">Respondendo...</span>
+          </div>
         </div>
       </div>
     </div>
