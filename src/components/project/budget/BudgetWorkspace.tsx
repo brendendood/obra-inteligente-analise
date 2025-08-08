@@ -9,6 +9,7 @@ import { AddItemDialog } from './AddItemDialog';
 import { BudgetExportDialog } from './BudgetExportDialog';
 import { BudgetHistoryDialog } from './BudgetHistoryDialog';
 import { BudgetData } from '@/utils/budgetGenerator';
+import { Separator } from '@/components/ui/separator';
 
 interface BudgetWorkspaceProps {
   project: Project;
@@ -69,6 +70,8 @@ export const BudgetWorkspace = ({
           onExport={() => setShowExportDialog(true)}
           onViewHistory={() => setShowHistoryDialog(true)}
           disabled={!budgetData}
+          showAdd={false}
+          darkFrame
         />
       </div>
 
@@ -83,18 +86,27 @@ export const BudgetWorkspace = ({
       {/* Budget content */}
       {budgetData && (
         <>
-          <BudgetSummary budgetData={budgetData} />
-          <BudgetItemsList
-            items={budgetData.items}
-            dataReferencia={budgetData.data_referencia}
-            onUpdateItem={onUpdateItem}
-            onRemoveItem={onRemoveItem}
-          />
-          <BudgetActions
-            onAddItem={() => setShowAddDialog(true)}
-            onExport={() => setShowExportDialog(true)}
-            onViewHistory={() => setShowHistoryDialog(true)}
-          />
+          <div className="max-w-3xl mx-auto w-full">
+            <BudgetSummary budgetData={budgetData} />
+          </div>
+          <Separator className="w-11/12 mx-auto rounded-full bg-border/60" />
+          <div className="max-w-3xl mx-auto w-full">
+            <BudgetItemsList
+              items={budgetData.items}
+              dataReferencia={budgetData.data_referencia}
+              onUpdateItem={onUpdateItem}
+              onRemoveItem={onRemoveItem}
+            />
+            <div className="mt-4">
+              <BudgetActions
+                onAddItem={() => setShowAddDialog(true)}
+                onExport={() => setShowExportDialog(true)}
+                onViewHistory={() => setShowHistoryDialog(true)}
+                showExport={false}
+                showHistory={false}
+              />
+            </div>
+          </div>
         </>
       )}
 

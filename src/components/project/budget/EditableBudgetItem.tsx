@@ -125,7 +125,7 @@ export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetI
           </div>
 
           {/* Dados técnicos em grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block">
                 Quantidade
@@ -169,36 +169,39 @@ export const EditableBudgetItem = ({ item, onUpdate, onRemove }: EditableBudgetI
               )}
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
-                Preço Unitário
-              </label>
-              {!isEditing ? (
-                <div className="bg-blue-50 p-3 rounded-md text-center">
-                  <span className="text-lg font-semibold text-blue-700 whitespace-nowrap">
-                    R$ {editData.preco_unitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {/* Preço Unitário + Total (empilhados verticalmente) */}
+            <div className="col-span-2 lg:col-span-1 space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  Preço Unitário
+                </label>
+                {!isEditing ? (
+                  <div className="bg-blue-50 p-3 rounded-md text-center">
+                    <span className="text-lg font-semibold text-blue-700 whitespace-nowrap">
+                      R$ {editData.preco_unitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                ) : (
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={editData.preco_unitario}
+                    onChange={(e) => setEditData({ ...editData, preco_unitario: parseFloat(e.target.value) || 0 })}
+                    className="text-center font-semibold rounded-md"
+                  />
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  Total
+                </label>
+                <div className="bg-green-50 p-3 rounded-md text-center border-2 border-green-200">
+                  <span className="text-lg font-bold text-green-700 whitespace-nowrap block">
+                    R$ {(Math.round(editData.quantidade) * editData.preco_unitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
-              ) : (
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={editData.preco_unitario}
-                  onChange={(e) => setEditData({ ...editData, preco_unitario: parseFloat(e.target.value) || 0 })}
-                  className="text-center font-semibold rounded-md"
-                />
-              )}
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
-                Total
-              </label>
-              <div className="bg-green-50 p-3 rounded-md text-center border-2 border-green-200">
-                <span className="text-lg font-bold text-green-700 whitespace-nowrap block">
-                  R$ {(Math.round(editData.quantidade) * editData.preco_unitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </span>
               </div>
             </div>
           </div>
