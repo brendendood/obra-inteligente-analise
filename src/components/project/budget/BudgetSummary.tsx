@@ -24,7 +24,7 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-xl sm:text-3xl font-bold text-gray-900 break-all">
+            <div className="text-xl sm:text-3xl font-bold text-gray-900 sm:whitespace-nowrap">
               R$ {budgetData.total.toLocaleString('pt-BR')}
             </div>
             <p className="text-xs sm:text-sm text-gray-600 truncate">
@@ -44,7 +44,7 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-xl sm:text-3xl font-bold text-orange-700 break-all">
+            <div className="text-xl sm:text-3xl font-bold text-orange-700 sm:whitespace-nowrap">
               R$ {(budgetData.total_com_bdi - budgetData.total).toLocaleString('pt-BR')}
             </div>
             <p className="text-xs sm:text-sm text-gray-600 truncate">
@@ -64,7 +64,7 @@ export const BudgetSummary = ({ budgetData }: BudgetSummaryProps) => {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-1 sm:space-y-2">
-            <div className="text-xl sm:text-3xl font-bold text-green-800 break-all">
+            <div className="text-xl sm:text-3xl font-bold text-green-800 sm:whitespace-nowrap">
               R$ {budgetData.total_com_bdi.toLocaleString('pt-BR')}
             </div>
             <p className="text-xs sm:text-sm text-green-700 truncate">
