@@ -25,13 +25,14 @@ export const TypingDots: React.FC<TypingDotsProps> = ({
 
   return (
     <div
-      className={cn('flex items-end gap-1.5 h-5', className)}
+      className={cn('flex items-center gap-1.5 h-5', className)}
       role="status"
       aria-label={ariaLabel}
+      aria-live="polite"
     >
-      <span className={cn('animate-bounce', baseDot, dotClassName)} style={{ animationDelay: '0ms' }} />
-      <span className={cn('animate-bounce', baseDot, dotClassName)} style={{ animationDelay: '150ms' }} />
-      <span className={cn('animate-bounce', baseDot, dotClassName)} style={{ animationDelay: '300ms' }} />
+      <span className={cn('animate-pulse', baseDot, dotClassName)} style={{ animationDelay: '0ms', animationDuration: '1s' }} />
+      <span className={cn('animate-pulse', baseDot, dotClassName)} style={{ animationDelay: '150ms', animationDuration: '1s' }} />
+      <span className={cn('animate-pulse', baseDot, dotClassName)} style={{ animationDelay: '300ms', animationDuration: '1s' }} />
     </div>
   );
 };

@@ -92,8 +92,19 @@ export const sendDirectToN8N = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const result: N8NResponse = await response.json();
-    return result.response || 'Desculpe, ocorreu um erro na resposta.';
+    const raw = await response.json();
+    console.log('N8N raw response:', raw);
+
+    // Try multiple possible fields for the assistant text
+    const extracted =
+      (typeof raw?.response === 'string' && raw.response) ||
+      (typeof raw?.text === 'string' && raw.text) ||
+      (typeof raw?.data?.response === 'string' && raw.data.response) ||
+      (typeof raw?.data?.text === 'string' && raw.data.text) ||
+      '';
+
+    // Return empty string when there's no clear text to avoid showing error placeholders
+    return extracted;
 
   } catch (error) {
     console.error('Erro ao enviar para N8N:', error);
