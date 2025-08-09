@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, memo } from 'react';
 import { Send, Copy, Check, Wifi, WifiOff, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -42,17 +42,21 @@ const pollIntervalRef = useRef<number | null>(null);
 const { toast } = useToast();
   const { user } = useAuth();
 
-  const scrollToBottom = () => {
-    if (!messagesContainerRef.current) return;
-    requestAnimationFrame(() => {
-      const el = messagesContainerRef.current!;
-      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    });
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
+    }
   };
 
-  useEffect(() => {
-    scrollToBottom();
+  useLayoutEffect(() => {
+    scrollToBottom('smooth');
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (showHistory) {
+      scrollToBottom('auto');
+    }
+  }, [showHistory]);
 
   // Inicializar conversa e carregar mensagens
   useEffect(() => {
@@ -320,9 +324,15 @@ const { toast } = useToast();
               content: msg.content,
               timestamp: new Date(msg.created_at)
             }));
-            setMessages(formattedMessages);
+            // Merge histórico carregado com mensagens já presentes (evitar sobrescrever)
+            setMessages(prev => {
+              const map = new Map<string, ChatMessage>();
+              formattedMessages.forEach(m => map.set(m.id, m));
+              prev.forEach(m => map.set(m.id, m));
+              return Array.from(map.values()).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+            });
           }
-        } catch {}
+        } catch { }
       })();
     }
 
@@ -455,7 +465,12 @@ const { toast } = useToast();
               content: msg.content,
               timestamp: new Date(msg.created_at)
             }));
-            setMessages(formattedMessages);
+            setMessages(prev => {
+              const map = new Map<string, ChatMessage>();
+              formattedMessages.forEach(m => map.set(m.id, m));
+              prev.forEach(m => map.set(m.id, m));
+              return Array.from(map.values()).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+            });
           }
         });
     }

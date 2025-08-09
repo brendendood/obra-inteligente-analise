@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, memo } from 'react';
 import { Send, Copy, Check, ArrowLeft, Mic, MicOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -57,16 +57,14 @@ const { toast } = useToast();
 const { user } = useAuth();
   const navigate = useNavigate();
 
-  const scrollToBottom = () => {
-    if (!messagesContainerRef.current) return;
-    requestAnimationFrame(() => {
-      const el = messagesContainerRef.current!;
-      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    });
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
+    }
   };
 
-  useEffect(() => {
-    scrollToBottom();
+  useLayoutEffect(() => {
+    scrollToBottom('smooth');
   }, [messages, isTyping]);
 
   // Inicializar conversa e carregar mensagens
