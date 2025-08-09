@@ -61,6 +61,10 @@ const { user } = useAuth();
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
     }
+    // Fallback direto no container de mensagens
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useLayoutEffect(() => {

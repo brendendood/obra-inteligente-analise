@@ -46,6 +46,10 @@ const { toast } = useToast();
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
     }
+    // Fallback direto no container de mensagens
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   };
 
   useLayoutEffect(() => {
@@ -444,7 +448,7 @@ const { toast } = useToast();
 
   const handleSuggestionClick = (prompt: string) => {
     setInputMessage(prompt);
-    textareaRef.current?.focus();
+    textareaRef.current?.focus({ preventScroll: true });
   };
 
   const handleContinueChat = () => {
@@ -661,7 +665,7 @@ const { toast } = useToast();
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background/95 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-6 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
             <span className="text-white font-semibold">AI</span>
@@ -677,7 +681,7 @@ const { toast } = useToast();
       </div>
 
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-28">
+      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y pb-40" style={{ WebkitOverflowScrolling: 'touch' }}>
         {!showHistory ? (
           /* Welcome Screen */
           <div className="flex flex-col items-center justify-center h-full px-6">
