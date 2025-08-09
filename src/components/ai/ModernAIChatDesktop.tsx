@@ -202,14 +202,18 @@ const { toast } = useToast();
     }
   };
 
-  // Auto-resize textarea
+  // Auto-resize textarea capped at 8 lines with internal scroll
   const adjustTextareaSize = () => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = 'auto';
-    const max = 160; // px
-    const newHeight = Math.min(el.scrollHeight, max);
+    const computed = window.getComputedStyle(el);
+    const lineHeight = parseFloat(computed.lineHeight || '20');
+    const maxLines = 8;
+    const maxHeight = lineHeight * maxLines;
+    const newHeight = Math.min(el.scrollHeight, maxHeight);
     el.style.height = `${newHeight}px`;
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
   };
 
   useEffect(() => {
@@ -739,7 +743,7 @@ const { toast } = useToast();
                   onKeyDown={handleKeyPress}
                   placeholder="Digite sua mensagem..."
                   disabled={isSending}
-                  className="min-h-[56px] resize-none pr-12 py-3"
+                  className="min-h-[56px] resize-none pr-12 py-3 overflow-y-auto"
                 />
                 <Button
                   onClick={sendMessage}
