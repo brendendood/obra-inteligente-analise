@@ -37,6 +37,7 @@ const messagesEndRef = useRef<HTMLDivElement>(null);
 const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
+const pollIntervalRef = useRef<number | null>(null);
 const { toast } = useToast();
   const { user } = useAuth();
 
@@ -173,6 +174,7 @@ const { toast } = useToast();
             
             setMessages(prev => [...prev, newMessage]);
             setIsTyping(false);
+            clearPolling();
           }
         }
       )
@@ -200,6 +202,66 @@ const { toast } = useToast();
     }
   };
 
+  // Auto-resize textarea
+  const adjustTextareaSize = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    const max = 160; // px
+    const newHeight = Math.min(el.scrollHeight, max);
+    el.style.height = `${newHeight}px`;
+  };
+
+  useEffect(() => {
+    adjustTextareaSize();
+  }, [inputMessage]);
+
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
+  }, []);
+
+  const clearPolling = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
+
+  const startPollingForAssistant = () => {
+    if (pollIntervalRef.current || !user?.id || !conversationId) return;
+    pollIntervalRef.current = window.setInterval(async () => {
+      try {
+        const { data } = await supabase
+          .from('ai_messages')
+          .select('id, content, role, created_at, conversation_id')
+          .eq('user_id', user.id)
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        if (data && data[0] && data[0].role === 'assistant' && data[0].conversation_id === conversationId) {
+          setMessages(prev => {
+            if (prev.some(m => m.id === data[0].id)) return prev;
+            const newMsg: ChatMessage = {
+              id: data[0].id,
+              type: 'assistant',
+              content: data[0].content,
+              timestamp: new Date(data[0].created_at)
+            };
+            return [...prev, newMsg];
+          });
+          setIsTyping(false);
+          clearPolling();
+        }
+      } catch (e) {
+        // swallow errors
+      }
+    }, 2000);
+  };
   // Converter arquivo para base64
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -224,6 +286,7 @@ const { toast } = useToast();
     setIsSending(true);
     setIsTyping(true);
     setConnectionStatus('connecting');
+    startPollingForAssistant();
 
     // Se estava mostrando sugestões, mudar para o histórico
     if (!showHistory) {
@@ -578,7 +641,7 @@ const { toast } = useToast();
       </div>
 
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain pb-28">
         {!showHistory ? (
           /* Welcome Screen */
           <div className="flex flex-col items-center justify-center h-full px-6">
@@ -651,7 +714,7 @@ const { toast } = useToast();
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border bg-background px-6 py-4">
+      <div className="sticky bottom-0 z-10 border-t border-border bg-background px-6 py-4">
         <div className="max-w-4xl mx-auto">
           <div className="relative">
             <div className="flex items-end space-x-3">
@@ -672,11 +735,11 @@ const { toast } = useToast();
                 <Textarea
                   ref={textareaRef}
                   value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
+                  onChange={(e) => { setInputMessage(e.target.value); adjustTextareaSize(); }}
                   onKeyDown={handleKeyPress}
                   placeholder="Digite sua mensagem..."
                   disabled={isSending}
-                  className="min-h-[48px] max-h-32 resize-none pr-12 py-3"
+                  className="min-h-[56px] resize-none pr-12 py-3"
                 />
                 <Button
                   onClick={sendMessage}
