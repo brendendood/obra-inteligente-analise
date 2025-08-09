@@ -1647,6 +1647,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_project_owner: {
+        Args: { check_project_id: number }
+        Returns: boolean
+      }
       is_superuser: {
         Args: Record<PropertyKey, never>
         Returns: boolean
