@@ -82,13 +82,13 @@ export const sendDirectToN8N = async (
     // Timeout + retry simples
     const attemptFetch = async (): Promise<Response> => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutId = setTimeout(() => controller.abort(), 9000); // fast timeout to keep UX <10s
       try {
         const res = await fetch(N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            'Accept': 'application/json, text/plain; q=0.9',
           },
           body: JSON.stringify(payload),
           signal: controller.signal,
@@ -100,29 +100,29 @@ export const sendDirectToN8N = async (
         throw e;
       }
     };
-
-    let response: Response;
-    try {
-      response = await attemptFetch();
-    } catch (e) {
-      // uma nova tentativa após 1s
-      await new Promise(r => setTimeout(r, 1000));
-      response = await attemptFetch();
-    }
+    const response = await attemptFetch();
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const raw = await response.json();
-    console.log('N8N raw response:', raw);
+    const contentType = response.headers.get('content-type') || '';
+    let extracted = '';
 
-    const extracted =
-      (typeof raw?.response === 'string' && raw.response) ||
-      (typeof raw?.text === 'string' && raw.text) ||
-      (typeof raw?.data?.response === 'string' && raw.data.response) ||
-      (typeof raw?.data?.text === 'string' && raw.data.text) ||
-      '';
+    if (contentType.includes('application/json')) {
+      const raw = await response.json();
+      console.log('N8N raw response:', raw);
+      extracted =
+        (typeof raw?.response === 'string' && raw.response) ||
+        (typeof raw?.text === 'string' && raw.text) ||
+        (typeof raw?.data?.response === 'string' && raw.data.response) ||
+        (typeof raw?.data?.text === 'string' && raw.data.text) ||
+        '';
+    } else {
+      const text = await response.text();
+      extracted = text || '';
+      console.log('N8N text response:', extracted);
+    }
 
     return extracted;
 

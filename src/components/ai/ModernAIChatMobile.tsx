@@ -32,6 +32,7 @@ const messagesEndRef = useRef<HTMLDivElement>(null);
 const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
+const placeholderRef = useRef<string | null>(null);
 
 // Auto-resize textarea capped at 8 lines with internal scroll
 const adjustTextareaSize = () => {
@@ -155,21 +156,28 @@ const { user } = useAuth();
         },
         (payload) => {
           if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
-            // Dedupe contra mensagens assistente otimistas
-            if (optimisticAssistantContentsRef.current.has(payload.new.content)) {
-              optimisticAssistantContentsRef.current.delete(payload.new.content);
+            const incomingContent: string = payload.new.content;
+            // Remover placeholder se existir e deduplicar otimista
+            setMessages(prev => {
+              let base = prev;
+              if (placeholderRef.current) {
+                base = base.filter(m => m.id !== placeholderRef.current);
+                placeholderRef.current = null;
+              }
+              if (optimisticAssistantContentsRef.current.has(incomingContent)) {
+                optimisticAssistantContentsRef.current.delete(incomingContent);
+                setIsTyping(false);
+                return base;
+              }
+              const newMessage: ChatMessage = {
+                id: payload.new.id,
+                type: 'assistant',
+                content: incomingContent,
+                timestamp: new Date(payload.new.created_at)
+              };
               setIsTyping(false);
-              return;
-            }
-            const newMessage: ChatMessage = {
-              id: payload.new.id,
-              type: 'assistant',
-              content: payload.new.content,
-              timestamp: new Date(payload.new.created_at)
-            };
-            
-            setMessages(prev => [...prev, newMessage]);
-            setIsTyping(false);
+              return [...base, newMessage];
+            });
           }
         }
       )
@@ -218,7 +226,19 @@ const { user } = useAuth();
     try {
       await saveMessage(conversationId, messageContent, 'user');
 
-      const conversationHistory = messages.map(msg => ({
+      // Placeholder de resposta rápida
+      const phId = 'placeholder-' + crypto.randomUUID();
+      placeholderRef.current = phId;
+      const placeholder: ChatMessage = {
+        id: phId,
+        type: 'assistant',
+        content: 'Certo! Estou processando e já te respondo...',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, placeholder]);
+
+      // Limitar histórico às últimas 8 entradas + atual
+      const conversationHistory = [...messages, userMessage].slice(-8).map(msg => ({
         role: msg.type,
         content: msg.content
       }));
@@ -231,19 +251,11 @@ const { user } = useAuth();
       );
 
       if (aiResponse && aiResponse.trim()) {
-        const assistantMessage: ChatMessage = {
-          id: 'optimistic-' + crypto.randomUUID(),
-          type: 'assistant',
-          content: aiResponse,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, assistantMessage]);
+        // Atualiza placeholder com a resposta rápida
+        setMessages(prev => prev.map(m => m.id === (placeholderRef.current || '') ? { ...m, content: aiResponse } : m));
         setIsTyping(false);
         optimisticAssistantContentsRef.current.add(aiResponse);
-        // Salvar no Supabase em background
-        saveMessage(conversationId, aiResponse, 'assistant').catch((e) => {
-          console.error('Erro ao salvar resposta da IA:', e);
-        });
+        // Não salvar no Supabase aqui; a resposta completa chegará via realtime
       }
 
     } catch (error) {

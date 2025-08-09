@@ -37,6 +37,7 @@ const messagesEndRef = useRef<HTMLDivElement>(null);
 const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
+const placeholderRef = useRef<string | null>(null);
 const pollIntervalRef = useRef<number | null>(null);
 const { toast } = useToast();
   const { user } = useAuth();
@@ -148,22 +149,30 @@ const { toast } = useToast();
           console.log('Nova mensagem detectada:', payload);
           
           if (payload.new.conversation_id === conversationId && payload.new.role === 'assistant') {
-            // Dedupe contra mensagens assistente otimistas
-            if (optimisticAssistantContentsRef.current.has(payload.new.content)) {
-              optimisticAssistantContentsRef.current.delete(payload.new.content);
-              setIsTyping(false);
-              return;
-            }
+            const incomingContent: string = payload.new.content;
 
             const newMessage: ChatMessage = {
               id: payload.new.id,
               type: 'assistant',
-              content: payload.new.content,
+              content: incomingContent,
               timestamp: new Date(payload.new.created_at)
             };
+
+            // Atualiza lista removendo placeholder (se existir) e deduplicando otimistas
+            setMessages(prev => {
+              let base = prev;
+              if (placeholderRef.current) {
+                base = base.filter(m => m.id !== placeholderRef.current);
+                placeholderRef.current = null;
+              }
+              if (optimisticAssistantContentsRef.current.has(incomingContent)) {
+                optimisticAssistantContentsRef.current.delete(incomingContent);
+                return base; // não adicionar duplicado
+              }
+              return [...base, newMessage];
+            });
             
             setNewMessageIds(prev => new Set([...prev, payload.new.id]));
-            
             setTimeout(() => {
               setNewMessageIds(prev => {
                 const newSet = new Set(prev);
@@ -172,7 +181,6 @@ const { toast } = useToast();
               });
             }, 300);
             
-            setMessages(prev => [...prev, newMessage]);
             setIsTyping(false);
             clearPolling();
           }
@@ -295,23 +303,27 @@ const { toast } = useToast();
     // Se estava mostrando sugestões, mudar para o histórico
     if (!showHistory) {
       setShowHistory(true);
-      // Carregar mensagens existentes se necessário
-      const { data: messageData } = await supabase
-        .from('ai_messages')
-        .select('id, content, role, created_at')
-        .eq('user_id', user.id)
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+      // Carregar mensagens existentes em background (não bloquear envio)
+      (async () => {
+        try {
+          const { data: messageData } = await supabase
+            .from('ai_messages')
+            .select('id, content, role, created_at')
+            .eq('user_id', user.id)
+            .eq('conversation_id', conversationId)
+            .order('created_at', { ascending: true });
 
-      if (messageData) {
-        const formattedMessages: ChatMessage[] = messageData.map((msg) => ({
-          id: msg.id,
-          type: msg.role as 'user' | 'assistant',
-          content: msg.content,
-          timestamp: new Date(msg.created_at)
-        }));
-        setMessages(formattedMessages);
-      }
+          if (messageData) {
+            const formattedMessages: ChatMessage[] = messageData.map((msg) => ({
+              id: msg.id,
+              type: msg.role as 'user' | 'assistant',
+              content: msg.content,
+              timestamp: new Date(msg.created_at)
+            }));
+            setMessages(formattedMessages);
+          }
+        } catch {}
+      })();
     }
 
     // Criar mensagem do usuário
@@ -328,6 +340,17 @@ const { toast } = useToast();
       // Salvar mensagem do usuário
       await saveMessage(conversationId, messageContent, 'user');
 
+      // Placeholder de resposta rápida
+      const phId = 'placeholder-' + crypto.randomUUID();
+      placeholderRef.current = phId;
+      const placeholder: ChatMessage = {
+        id: phId,
+        type: 'assistant',
+        content: 'Certo! Estou processando e já te respondo...'
+        ,timestamp: new Date()
+      };
+      setMessages(prev => [...prev, placeholder]);
+
       // Preparar anexos se houver
       let attachments = undefined;
       if (selectedFile) {
@@ -342,8 +365,8 @@ const { toast } = useToast();
         setSelectedFile(null); // Limpar arquivo após envio
       }
 
-      // Preparar histórico para contexto
-      const conversationHistory = messages.map(msg => ({
+      // Preparar histórico para contexto (somente últimas 8 entradas + a atual)
+      const conversationHistory = [...messages, userMessage].slice(-8).map(msg => ({
         role: msg.type,
         content: msg.content
       }));
@@ -360,19 +383,13 @@ const { toast } = useToast();
       setConnectionStatus('connected');
 
       if (aiResponse && aiResponse.trim()) {
-        const assistantMessage: ChatMessage = {
-          id: 'optimistic-' + crypto.randomUUID(),
-          type: 'assistant',
-          content: aiResponse,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, assistantMessage]);
+        // Atualiza o placeholder com a resposta rápida
+        setMessages(prev => prev.map(m =>
+          m.id === (placeholderRef.current || '') ? { ...m, content: aiResponse } : m
+        ));
         setIsTyping(false);
         optimisticAssistantContentsRef.current.add(aiResponse);
-        // Salvar no Supabase em background
-        saveMessage(conversationId, aiResponse, 'assistant').catch((e) => {
-          console.error('Erro ao salvar resposta da IA:', e);
-        });
+        // Não salvar no Supabase aqui; a resposta completa chegará via realtime
       }
 
     } catch (error) {
