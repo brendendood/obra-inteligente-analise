@@ -1,7 +1,8 @@
 
-import React from "react";
-import { Toaster as RadixToaster } from "./toaster";
-import { Toaster as SonnerToaster } from "./sonner";
+import React, { lazy, Suspense } from "react";
+const RadixToaster = lazy(() => import("./toaster").then(m => ({ default: m.Toaster })));
+const SonnerToaster = lazy(() => import("./sonner").then(m => ({ default: m.Toaster })));
+
 
 const SafeToasters: React.FC = () => {
   const [mounted, setMounted] = React.useState(false);
@@ -14,10 +15,10 @@ const SafeToasters: React.FC = () => {
   if (!mounted) return null;
 
   return (
-    <>
+    <Suspense fallback={null}>
       <RadixToaster />
       <SonnerToaster />
-    </>
+    </Suspense>
   );
 };
 
