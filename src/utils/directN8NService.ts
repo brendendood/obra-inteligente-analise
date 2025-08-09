@@ -79,14 +79,36 @@ export const sendDirectToN8N = async (
     };
 
     console.log('Enviando para N8N:', payload);
+    // Timeout + retry simples
+    const attemptFetch = async (): Promise<Response> => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      try {
+        const res = await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+        return res;
+      } catch (e) {
+        clearTimeout(timeoutId);
+        throw e;
+      }
+    };
 
-    const response = await fetch(N8N_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    let response: Response;
+    try {
+      response = await attemptFetch();
+    } catch (e) {
+      // uma nova tentativa após 1s
+      await new Promise(r => setTimeout(r, 1000));
+      response = await attemptFetch();
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -95,7 +117,6 @@ export const sendDirectToN8N = async (
     const raw = await response.json();
     console.log('N8N raw response:', raw);
 
-    // Try multiple possible fields for the assistant text
     const extracted =
       (typeof raw?.response === 'string' && raw.response) ||
       (typeof raw?.text === 'string' && raw.text) ||
@@ -103,7 +124,6 @@ export const sendDirectToN8N = async (
       (typeof raw?.data?.text === 'string' && raw.data.text) ||
       '';
 
-    // Return empty string when there's no clear text to avoid showing error placeholders
     return extracted;
 
   } catch (error) {

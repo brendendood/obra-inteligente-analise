@@ -14,7 +14,7 @@ export const sendToN8N = async (
   message: string, 
   context: SendMessageContext = {}
 ): Promise<string> => {
-  const webhookUrl = 'https://mandenai.app.n8n.cloud/webhook-test/ia-assistente';
+  const webhookUrl = 'https://madeai-br.app.n8n.cloud/webhook/chat-geral';
   
   // Preparar payload com contexto rico
   const payload = {
@@ -48,12 +48,19 @@ export const sendToN8N = async (
 
     const data = await response.json();
     
-    if (!data.response) {
-      throw new Error('Resposta inválida do webhook N8N');
+    const extracted =
+      (typeof data?.response === 'string' && data.response) ||
+      (typeof data?.text === 'string' && data.text) ||
+      (typeof data?.data?.response === 'string' && data.data.response) ||
+      (typeof data?.data?.text === 'string' && data.data.text) ||
+      '';
+
+    if (!extracted) {
+      throw new Error('invalid_response');
     }
 
     console.log('✅ Resposta recebida do N8N');
-    return data.response;
+    return extracted;
 
   } catch (error) {
     console.error('❌ Erro na comunicação com N8N:', error);
@@ -100,8 +107,10 @@ export const sendMessageToAgent = async (
       if (error.message === 'network') {
         return "Houve um erro ao conectar com o assistente de IA. Tente novamente em alguns instantes.";
       }
-      
-      // Fallback para resposta simulada
+
+      if (error.message === 'invalid_response') {
+        return "O assistente retornou uma resposta inválida. Tente novamente em instantes.";
+      }
       return getSimulatedResponse(message, context);
     }
   }

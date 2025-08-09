@@ -5,7 +5,7 @@ import { getBudgetFallback } from './fallbacks/budgetFallback';
 import { getScheduleFallback } from './fallbacks/scheduleFallback';
 import { getAnalysisFallback } from './fallbacks/analysisFallback';
 
-const BASE_N8N_URL = 'https://mandenai.app.n8n.cloud/webhook';
+const BASE_N8N_URL = 'https://madeai-br.app.n8n.cloud/webhook';
 
 export const AGENT_CONFIGS: Record<AgentType, AgentConfig> = {
   general: {

@@ -100,20 +100,31 @@ const sendToN8NAgent = async (
 
     const data = await response.json();
     
-    if (!data.response) {
-      throw new Error('Resposta inválida do agente N8N');
+    const extracted =
+      (typeof data?.response === 'string' && data.response) ||
+      (typeof data?.text === 'string' && data.text) ||
+      (typeof data?.data?.response === 'string' && data.data.response) ||
+      (typeof data?.data?.text === 'string' && data.data.text) ||
+      '';
+
+    if (!extracted) {
+      throw new Error('invalid_response');
     }
 
     console.log(`✅ Resposta recebida do agente ${agentType}`);
-    return data.response;
+    return extracted;
 
   } catch (error) {
     console.error(`❌ Erro na comunicação com agente ${agentType}:`, error);
     
-    if (error.name === 'AbortError') {
+    if ((error as any).name === 'AbortError') {
       throw new Error('timeout');
     }
-    
+
+    if ((error as any).message === 'invalid_response') {
+      throw new Error('invalid_response');
+    }
+
     throw new Error('network');
   }
 };
