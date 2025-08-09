@@ -32,8 +32,24 @@ const messagesEndRef = useRef<HTMLDivElement>(null);
 const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
+
+// Auto-resize textarea up to a sensible max height
+const adjustTextareaSize = () => {
+  const el = textareaRef.current;
+  if (!el) return;
+  el.style.height = 'auto';
+  const max = 160; // px
+  const newHeight = Math.min(el.scrollHeight, max);
+  el.style.height = `${newHeight}px`;
+};
+
+// Keep textarea sized as user types
+useEffect(() => {
+  adjustTextareaSize();
+}, [inputMessage]);
+
 const { toast } = useToast();
-  const { user } = useAuth();
+const { user } = useAuth();
   const navigate = useNavigate();
 
   const scrollToBottom = () => {
@@ -426,14 +442,11 @@ const { toast } = useToast();
       </div>
 
       {/* Área de Mensagens - Zero Padding Lateral */}
-      <div 
+      <div
         ref={messagesContainerRef}
-        className="overflow-y-auto overscroll-contain touch-pan-y bg-background"
-        style={{ 
-          WebkitOverflowScrolling: 'touch',
-          marginTop: '64px', 
-          marginBottom: '100px',
-          height: 'calc(100dvh - 164px)'
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-background pt-16 pb-40"
+        style={{
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         {messages.length === 0 ? (
@@ -466,7 +479,7 @@ const { toast } = useToast();
       </div>
 
       {/* Input Fixo na Base */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border h-[100px] px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="flex items-center space-x-3 mb-3">
           {/* Botão de Microfone */}
           <Button
@@ -493,11 +506,11 @@ const { toast } = useToast();
             <Textarea
               ref={textareaRef}
               value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
+              onChange={(e) => { setInputMessage(e.target.value); adjustTextareaSize(); }}
               onKeyDown={handleKeyPress}
-              placeholder="Write a Message"
+              placeholder="Digite sua mensagem..."
               disabled={isSending || isRecording}
-              className="min-h-[44px] max-h-[44px] resize-none pr-12 text-sm border-input rounded-3xl bg-muted/30 placeholder:text-muted-foreground overflow-hidden"
+              className="min-h-[56px] resize-none pr-12 text-sm border-input rounded-3xl bg-muted/30 placeholder:text-muted-foreground overflow-hidden"
             />
             
             {/* Botão de Envio */}
