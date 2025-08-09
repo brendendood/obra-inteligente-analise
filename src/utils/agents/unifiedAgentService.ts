@@ -1,4 +1,5 @@
 import { User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { Project } from '@/types/project';
 import { AgentType, RichAgentContext, AgentResponse, UserContext, ProjectContext, TechnicalContext } from './agentTypes';
 import { AGENT_CONFIGS } from './agentConfig';
@@ -72,7 +73,7 @@ const sendToN8NAgent = async (
   context: RichAgentContext
 ): Promise<string> => {
   const config = AGENT_CONFIGS[agentType];
-  
+
   console.log(`🤖 Enviando para agente ${agentType}:`, {
     message: context.message.substring(0, 50) + '...',
     project: context.project_context?.name,
@@ -80,31 +81,24 @@ const sendToN8NAgent = async (
   });
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), config.timeout);
-
-    const response = await fetch(config.webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(context),
-      signal: controller.signal
+    // Enviar via Edge Function com timeout
+    const invoke = supabase.functions.invoke('secure-n8n-proxy', {
+      body: { agentType, context },
     });
 
-    clearTimeout(timeoutId);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), config.timeout)
+    );
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+    const result = (await Promise.race([invoke, timeoutPromise])) as { data: any; error: any };
 
-    const data = await response.json();
-    
+    if (result?.error) throw result.error;
+
+    const data = result?.data || {};
     const extracted =
       (typeof data?.response === 'string' && data.response) ||
-      (typeof data?.text === 'string' && data.text) ||
-      (typeof data?.data?.response === 'string' && data.data.response) ||
-      (typeof data?.data?.text === 'string' && data.data.text) ||
+      (typeof data?.raw?.response === 'string' && data.raw.response) ||
+      (typeof data?.raw?.text === 'string' && data.raw.text) ||
       '';
 
     if (!extracted) {
@@ -116,8 +110,8 @@ const sendToN8NAgent = async (
 
   } catch (error) {
     console.error(`❌ Erro na comunicação com agente ${agentType}:`, error);
-    
-    if ((error as any).name === 'AbortError') {
+
+    if ((error as any).message === 'timeout') {
       throw new Error('timeout');
     }
 

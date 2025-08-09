@@ -140,27 +140,26 @@ const ProjectDetail = () => {
     setBudgetLoading(true);
     
     try {
-      // Integração com N8N
-      const response = await fetch('https://brendendood.app.n8n.cloud/webhook-test/agente-ia-orcamento', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          projectId: project.id,
-          projectName: project.name,
-          projectData: project.analysis_data,
-          totalArea: project.total_area,
-          userId: user?.id
-        })
+      // Integração via Edge Function segura
+      const { data, error } = await supabase.functions.invoke('secure-n8n-proxy', {
+        body: {
+          path: 'orcamento-ia',
+          payload: {
+            projectId: project.id,
+            projectName: project.name,
+            projectData: project.analysis_data,
+            totalArea: project.total_area,
+            userId: user?.id
+          }
+        }
       });
 
-      if (!response.ok) {
+      if (error) {
         throw new Error('Erro na comunicação com o serviço de orçamento');
       }
 
-      const data = await response.json();
-      setBudgetData(data);
+      const result = (data as any) || {};
+      setBudgetData(result);
       setActiveTab('budget');
       
       toast({

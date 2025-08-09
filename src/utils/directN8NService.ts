@@ -32,14 +32,12 @@ interface N8NResponse {
   response: string;
 }
 
-const N8N_WEBHOOK_URL = 'https://madeai-br.app.n8n.cloud/webhook/aa02ca52-8850-452e-9e72-4f79966aa544';
-
 export const sendDirectToN8N = async (
   message: string,
   userId: string,
   conversationId: string,
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [],
-  attachments?: Array<{ type: 'image' | 'document' | 'audio'; filename: string; content: string; mimeType: string }> 
+  attachments?: Array<{ type: 'image' | 'document' | 'audio'; filename: string; content: string; mimeType: string }>
 ): Promise<string> => {
   try {
     // Buscar dados do usuário
@@ -47,13 +45,13 @@ export const sendDirectToN8N = async (
       .from('user_profiles')
       .select('full_name, city, state, cargo')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     const { data: userSubscription } = await supabase
       .from('user_subscriptions')
       .select('plan')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     const { data: authUser } = await supabase.auth.getUser();
 
@@ -66,11 +64,11 @@ export const sendDirectToN8N = async (
       user_data: {
         id: userId,
         email: authUser.user?.email,
-        plan: userSubscription?.plan || 'free',
-        location: userProfile ? `${userProfile.city || ''}, ${userProfile.state || ''}`.trim().replace(/^,\s*|,\s*$/g, '') : undefined,
-        specialization: userProfile?.cargo || undefined,
+        plan: (userSubscription as any)?.plan || 'free',
+        location: userProfile ? `${(userProfile as any).city || ''}, ${(userProfile as any).state || ''}`.trim().replace(/^,\s*|,\s*$/g, '') : undefined,
+        specialization: (userProfile as any)?.cargo || undefined,
       },
-      conversation_history: conversationHistory.slice(-10), // Últimas 10 mensagens para contexto
+      conversation_history: conversationHistory.slice(-10),
       context: {
         source: 'general_chat',
         chat_type: 'tira_duvidas'
@@ -78,56 +76,39 @@ export const sendDirectToN8N = async (
       ...(attachments && attachments.length > 0 && { attachments })
     };
 
-    console.log('Enviando para N8N:', payload);
-    // Timeout + retry simples
-    const attemptFetch = async (): Promise<Response> => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 9000); // fast timeout to keep UX <10s
-      try {
-        const res = await fetch(N8N_WEBHOOK_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json, text/plain; q=0.9',
-          },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-        return res;
-      } catch (e) {
-        clearTimeout(timeoutId);
-        throw e;
-      }
-    };
-    const response = await attemptFetch();
+    // Enviar via edge function segura (general agent)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const invokePromise = supabase.functions.invoke('secure-n8n-proxy', {
+      body: { agentType: 'general', payload },
+    });
 
-    const contentType = response.headers.get('content-type') || '';
-    let extracted = '';
+    const result = await Promise.race([
+      invokePromise,
+      new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('timeout')))),
+    ]) as { data: any; error: any };
 
-    if (contentType.includes('application/json')) {
-      const raw = await response.json();
-      console.log('N8N raw response:', raw);
-      extracted =
-        (typeof raw?.response === 'string' && raw.response) ||
-        (typeof raw?.text === 'string' && raw.text) ||
-        (typeof raw?.data?.response === 'string' && raw.data.response) ||
-        (typeof raw?.data?.text === 'string' && raw.data.text) ||
-        '';
-    } else {
-      const text = await response.text();
-      extracted = text || '';
-      console.log('N8N text response:', extracted);
-    }
+    clearTimeout(timeout);
+
+    if ((result as any)?.error) throw (result as any).error;
+
+    const data = (result as any)?.data || {};
+    const extracted =
+      (typeof data?.response === 'string' && data.response) ||
+      (typeof data?.raw?.response === 'string' && data.raw.response) ||
+      (typeof data?.raw?.text === 'string' && data.raw.text) ||
+      '';
+
+    if (!extracted) throw new Error('invalid_response');
 
     return extracted;
 
-  } catch (error) {
-    console.error('Erro ao enviar para N8N:', error);
+  } catch (error: any) {
+    if (error?.message === 'timeout') {
+      throw new Error('Tempo esgotado ao conectar ao assistente. Tente novamente.');
+    }
+    console.error('Erro ao enviar para N8N (proxy):', error);
     throw new Error('Erro de conexão com o assistente. Tente novamente.');
   }
 };

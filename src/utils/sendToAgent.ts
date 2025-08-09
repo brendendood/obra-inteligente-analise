@@ -1,4 +1,4 @@
-
+import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { Project } from '@/types/project';
 
@@ -14,8 +14,6 @@ export const sendToN8N = async (
   message: string, 
   context: SendMessageContext = {}
 ): Promise<string> => {
-  const webhookUrl = 'https://madeai-br.app.n8n.cloud/webhook/chat-geral';
-  
   // Preparar payload com contexto rico
   const payload = {
     message: message.trim(),
@@ -24,53 +22,40 @@ export const sendToN8N = async (
     project_id: context.project?.id || null
   };
 
-  console.log('🚀 Enviando mensagem para N8N:', { message: message.substring(0, 50) + '...', payload });
+  console.log('🚀 Enviando mensagem (via proxy) para N8N:', { message: message.substring(0, 50) + '...', payload });
 
   try {
-    // Timeout de 30 segundos
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal
+    const invoke = supabase.functions.invoke('secure-n8n-proxy', {
+      body: { agentType: 'general', payload },
     });
 
-    clearTimeout(timeoutId);
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 30000));
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+    const result = (await Promise.race([invoke, timeoutPromise])) as { data: any; error: any };
 
-    const data = await response.json();
-    
+    if (result?.error) throw result.error;
+
+    const data = result?.data || {};
     const extracted =
       (typeof data?.response === 'string' && data.response) ||
-      (typeof data?.text === 'string' && data.text) ||
-      (typeof data?.data?.response === 'string' && data.data.response) ||
-      (typeof data?.data?.text === 'string' && data.data.text) ||
+      (typeof data?.raw?.response === 'string' && data.raw.response) ||
+      (typeof data?.raw?.text === 'string' && data.raw.text) ||
       '';
 
     if (!extracted) {
       throw new Error('invalid_response');
     }
 
-    console.log('✅ Resposta recebida do N8N');
+    console.log('✅ Resposta recebida do N8N (proxy)');
     return extracted;
 
-  } catch (error) {
-    console.error('❌ Erro na comunicação com N8N:', error);
-    
-    // Se for erro de timeout
-    if (error.name === 'AbortError') {
+  } catch (error: any) {
+    console.error('❌ Erro na comunicação com N8N (proxy):', error);
+
+    if (error?.message === 'timeout') {
       throw new Error('timeout');
     }
-    
-    // Outros erros de rede ou servidor
+
     throw new Error('network');
   }
 };
