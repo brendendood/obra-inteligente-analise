@@ -49,7 +49,8 @@ const FileDropzone = ({ file, onFileSelect, onProjectNameChange, projectName }: 
       'application/pdf': ['.pdf']
     },
     multiple: false,
-    maxSize: 50 * 1024 * 1024
+    maxSize: 50 * 1024 * 1024,
+    useFsAccessApi: false,
   });
 
   const resetFile = () => {

@@ -229,9 +229,8 @@ serve(async (req) => {
 
     console.log('✅ User authenticated:', user.email)
 
-    // Parse JSON body
     const body = await req.json()
-    const { fileName, originalName, projectName, fileSize } = body
+    const { fileName, originalName, projectName, fileSize, projectId, state, city } = body
 
     if (!fileName || !originalName) {
       console.error('❌ Missing required fields:', { fileName, originalName })
@@ -329,14 +328,12 @@ serve(async (req) => {
 
     console.log('💾 Persisting project with COMPLETE analysis data including budget and schedule...')
 
-    // Criar registro do projeto no banco com dados completos
-    const { data: project, error: projectError } = await supabase
-      .from('projects')
-      .insert({
-        user_id: user.id,
-        name: projectName || originalName.replace(/\.[^/.]+$/, ""),
-        file_path: fileName,
-        file_size: fileData.size,
+    let project: any = null
+    let projectError: any = null
+
+    if (projectId) {
+      // Atualizar projeto existente
+      const updatePayload: any = {
         analysis_data: analysisData,
         project_type: projectType,
         total_area: estimatedArea,
@@ -344,19 +341,53 @@ serve(async (req) => {
         extracted_text: isRealProject ? 
           'Texto extraído do projeto arquitetônico com análise técnica completa...' : 
           'Conteúdo do documento PDF processado...'
-      })
-      .select()
-      .single()
+      }
+      if (state) updatePayload.state = state
+      if (city) updatePayload.city = city
+
+      const upd = await supabase
+        .from('projects')
+        .update(updatePayload)
+        .eq('id', projectId)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+
+      project = upd.data
+      projectError = upd.error
+    } else {
+      // Criar registro do projeto no banco com dados completos
+      const ins = await supabase
+        .from('projects')
+        .insert({
+          user_id: user.id,
+          name: projectName || originalName.replace(/\.[^/.]+$/, ""),
+          file_path: fileName,
+          file_size: fileData.size,
+          analysis_data: analysisData,
+          project_type: projectType,
+          total_area: estimatedArea,
+          estimated_budget: budgetData.total_com_bdi,
+          extracted_text: isRealProject ? 
+            'Texto extraído do projeto arquitetônico com análise técnica completa...' : 
+            'Conteúdo do documento PDF processado...'
+        })
+        .select()
+        .single()
+
+      project = ins.data
+      projectError = ins.error
+    }
 
     if (projectError) {
-      console.error('❌ Error creating project:', projectError)
+      console.error('❌ Error creating/updating project:', projectError)
       return new Response(
-        JSON.stringify({ error: 'Failed to create project record' }),
+        JSON.stringify({ error: 'Failed to persist project record' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('🎉 Project created with AUTO budget and schedule data:', project.id)
+    console.log('🎉 Project persisted with AUTO budget and schedule data:', project.id)
 
     const message = isRealProject 
       ? `Projeto arquitetônico analisado! Orçamento de R$ ${budgetData.total_com_bdi.toLocaleString('pt-BR')} e cronograma de ${scheduleData.total_duration} dias gerados automaticamente.`

@@ -1,4 +1,4 @@
-
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload as UploadIcon, Zap } from 'lucide-react';
@@ -9,11 +9,14 @@ import FileDropzone from '@/components/upload/FileDropzone';
 import UploadProgress from '@/components/upload/UploadProgress';
 import UploadSuccess from '@/components/upload/UploadSuccess';
 import { useUploadLogic } from '@/hooks/useUploadLogic';
+import UploadProjectDialog from '@/components/upload/UploadProjectDialog';
 
 const Upload = () => {
   const {
     file,
     projectName,
+    stateUF,
+    cityName,
     uploading,
     progress,
     uploadComplete,
@@ -25,9 +28,13 @@ const Upload = () => {
     processingProgress,
     setFile,
     setProjectName,
+    setStateUF,
+    setCityName,
     handleUpload,
     resetUpload
   } = useUploadLogic();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   if (authLoading) {
     return (
@@ -81,30 +88,29 @@ const Upload = () => {
             <CardContent className="p-8">
               {!uploading && !uploadComplete && (
                 <>
-                  <ProjectNameField
-                    value={projectName}
-                    onChange={setProjectName}
-                    disabled={uploading}
-                  />
+                  <Button 
+                    onClick={() => setDialogOpen(true)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-semibold shadow-sm"
+                    size="lg"
+                  >
+                    <Zap className="h-5 w-5 mr-2" />
+                    Upload de Projeto
+                  </Button>
 
-                  <FileDropzone
-                    file={file}
-                    onFileSelect={setFile}
-                    onProjectNameChange={setProjectName}
+                  <UploadProjectDialog
+                    open={dialogOpen}
+                    onOpenChange={setDialogOpen}
                     projectName={projectName}
+                    setProjectName={setProjectName}
+                    file={file}
+                    setFile={setFile}
+                    stateUF={stateUF}
+                    setStateUF={setStateUF}
+                    cityName={cityName}
+                    setCityName={setCityName}
+                    onSubmit={async () => { await handleUpload(); setDialogOpen(false); }}
+                    submitting={uploading}
                   />
-
-                  {/* Action Button */}
-                  {file && projectName.trim() && (
-                    <Button 
-                      onClick={handleUpload}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-semibold shadow-sm"
-                      size="lg"
-                    >
-                      <Zap className="h-5 w-5 mr-2" />
-                      Analisar com IA
-                    </Button>
-                  )}
                 </>
               )}
 

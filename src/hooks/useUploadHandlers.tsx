@@ -7,6 +7,8 @@ import { validateCompleteUpload } from '@/utils/uploadValidator';
 interface UseUploadHandlersProps {
   file: File | null;
   projectName: string;
+  stateUF: string;
+  cityName: string;
   user: any;
   validatedProject: any;
   setUploading: (uploading: boolean) => void;
@@ -21,6 +23,8 @@ interface UseUploadHandlersProps {
 export const useUploadHandlers = ({
   file,
   projectName,
+  stateUF,
+  cityName,
   user,
   validatedProject,
   setUploading,
@@ -35,95 +39,105 @@ export const useUploadHandlers = ({
   const navigate = useNavigate();
 
   const handleUpload = async () => {
-    // Validação robusta antes do upload
-    console.log('🔍 UPLOAD: Iniciando validação...');
-    
+    console.log('🔍 UPLOAD (popup): validação inicial...');
+
     const validation = await validateCompleteUpload(file, projectName);
-    
     if (!validation.isValid) {
-      console.error('❌ UPLOAD: Validação falhou:', validation.combinedError);
       toast({
-        title: "❌ Validação falhou",
-        description: validation.combinedError || "Arquivo ou nome inválido",
-        variant: "destructive",
+        title: '❌ Validação falhou',
+        description: validation.combinedError || 'Arquivo ou nome inválido',
+        variant: 'destructive',
       });
       return;
     }
-    
+
     if (!user) {
-      toast({
-        title: "❌ Usuário não autenticado",
-        description: "Faça login novamente para continuar.",
-        variant: "destructive",
-      });
+      toast({ title: '❌ Usuário não autenticado', description: 'Faça login novamente.', variant: 'destructive' });
       return;
     }
-    
-    console.log('✅ UPLOAD: Validação aprovada:', {
-      fileName: file?.name,
-      projectName: projectName.trim(),
-      fileSize: validation.fileValidation.fileInfo?.sizeFormatted
-    });
-    
-    // Mostrar avisos se existirem
-    if (validation.fileValidation.warnings && validation.fileValidation.warnings.length > 0) {
-      validation.fileValidation.warnings.forEach(warning => {
-        toast({
-          title: "⚠️ Aviso",
-          description: warning,
-        });
-      });
+
+    if (!stateUF || !cityName) {
+      toast({ title: '❌ Campos obrigatórios', description: 'Selecione Estado e Cidade.', variant: 'destructive' });
+      return;
     }
 
     setUploading(true);
-    setProgress(0);
+    setProgress(5);
     startProcessing();
 
     try {
-      const fileName = `${user.id}/${Date.now()}-${file.name}`;
-      
-      // Progresso de upload
-      let currentProgress = 0;
-      const progressInterval = setInterval(() => {
-        currentProgress += 10;
-        if (currentProgress >= 80) {
-          clearInterval(progressInterval);
-          setProgress(80);
-        } else {
-          setProgress(currentProgress);
-        }
-      }, 200);
-
-      console.log('📤 Iniciando upload:', fileName);
-
-      // Upload do arquivo
+      // 1) Upload do arquivo primeiro (para respeitar NOT NULL de file_path)
+      const storagePath = `${user.id}/${Date.now()}-${file!.name}`;
       const { error: uploadError } = await supabase.storage
         .from('project-files')
-        .upload(fileName, file);
+        .upload(storagePath, file!);
 
       if (uploadError) {
         console.error('❌ Erro no storage:', uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
 
-      console.log('✅ Arquivo enviado, processando...');
-      setProgress(90);
+      setProgress(25);
 
-      // Processar projeto
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Sessão não encontrada. Faça login novamente.');
+      // 2) Criar projeto no banco com caminho do arquivo
+      const { data: createdProject, error: insertError } = await supabase
+        .from('projects')
+        .insert({
+          user_id: user.id,
+          name: projectName.trim(),
+          state: stateUF,
+          city: cityName,
+          country: 'Brasil',
+          project_status: 'draft',
+          file_path: storagePath,
+          file_size: file!.size,
+        })
+        .select()
+        .single();
+
+      if (insertError || !createdProject) {
+        console.error('❌ Erro ao criar projeto:', insertError);
+        throw new Error('Falha ao criar o projeto no banco de dados.');
       }
 
-      const { data, error: processError } = await supabase.functions
-        .invoke('upload-project', {
-          body: {
-            fileName,
-            originalName: file.name,
-            projectName: projectName.trim(),
-            fileSize: file.size
-          }
+      setProgress(45);
+
+      // 4) Enviar webhook ao N8N com ID do projeto, UF e user_id (sem cidade)
+      try {
+        const webhookUrl = 'https://madeai-br.app.n8n.cloud/webhook-test/upload-projeto';
+        const payload = {
+          project_id: createdProject.id,
+          user_id: user.id,
+          state: stateUF,
+          document_type: 'pdf',
+          file_name: file!.name,
+        };
+        const resp = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
+        if (!resp.ok) {
+          console.warn('⚠️ Webhook N8N retornou status não OK:', resp.status);
+        }
+      } catch (whErr) {
+        console.warn('⚠️ Falha ao enviar webhook N8N:', whErr);
+      }
+
+      setProgress(65);
+
+      // 5) Chamar edge function para processar e ATUALIZAR projeto existente
+      const { data, error: processError } = await supabase.functions.invoke('upload-project', {
+        body: {
+          fileName: storagePath,
+          originalName: file!.name,
+          projectName: projectName.trim(),
+          fileSize: file!.size,
+          projectId: createdProject.id,
+          state: stateUF,
+          city: cityName,
+        },
+      });
 
       if (processError) {
         console.error('❌ Erro no processamento:', processError);
@@ -134,48 +148,19 @@ export const useUploadHandlers = ({
         throw new Error(data?.error || 'Erro no processamento');
       }
 
-      clearInterval(progressInterval);
       setProgress(100);
       setUploadComplete(true);
       stopProcessing();
-      
-      console.log('🎉 Upload concluído:', data);
-      
-      toast({
-        title: "🎉 Upload concluído!",
-        description: data.message || "Seu projeto foi analisado com sucesso.",
-      });
 
-      // CORREÇÃO: Navegar diretamente para o projeto criado após 2 segundos
-      if (data.project?.id) {
-        console.log('🔄 Redirecionando para projeto:', data.project.id);
-        setTimeout(() => {
-          navigate(`/projeto/${data.project.id}`, { replace: true });
-        }, 2000);
-      } else {
-        // Fallback para projetos se não tiver ID do projeto
-        setTimeout(() => {
-          navigate('/projetos', { replace: true });
-        }, 2000);
-      }
+      toast({ title: '🎉 Projeto enviado!', description: data.message || 'Seu projeto foi analisado com sucesso.' });
 
-    } catch (error) {
+      // Redirecionar para o projeto criado
+      const pid = data.project?.id || createdProject.id;
+      setTimeout(() => navigate(`/projeto/${pid}`, { replace: true }), 1200);
+    } catch (error: any) {
       console.error('💥 Erro no upload:', error);
       stopProcessing();
-      
-      let errorMessage = "Erro desconhecido";
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
-      
-      toast({
-        title: "❌ Erro no upload",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      toast({ title: '❌ Erro no upload', description: error?.message || 'Erro desconhecido', variant: 'destructive' });
     } finally {
       setUploading(false);
     }

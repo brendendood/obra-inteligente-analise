@@ -12,11 +12,15 @@ export const useUploadLogic = () => {
   const {
     file,
     projectName,
+    stateUF,
+    cityName,
     uploading,
     progress,
     uploadComplete,
     setFile,
     setProjectName,
+    setStateUF,
+    setCityName,
     setUploading,
     setProgress,
     setUploadComplete,
@@ -35,6 +39,8 @@ export const useUploadLogic = () => {
   const { handleUpload } = useUploadHandlers({
     file,
     projectName,
+    stateUF,
+    cityName,
     user,
     validatedProject: null,
     setUploading,
@@ -50,6 +56,8 @@ export const useUploadLogic = () => {
     // State
     file,
     projectName,
+    stateUF,
+    cityName,
     uploading,
     progress,
     uploadComplete,
@@ -62,6 +70,8 @@ export const useUploadLogic = () => {
     // Actions
     setFile,
     setProjectName,
+    setStateUF,
+    setCityName,
     handleUpload,
     resetUpload
   };
