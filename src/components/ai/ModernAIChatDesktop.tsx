@@ -681,11 +681,18 @@ const { toast } = useToast();
       </div>
 
       {/* Messages Area */}
-      <div ref={messagesContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y pb-40" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div
+        ref={messagesContainerRef}
+        className={cn(
+          "flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y",
+          showHistory ? "pb-40" : "pb-16"
+        )}
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         {!showHistory ? (
           /* Welcome Screen */
-          <div className="flex flex-col items-center justify-center h-full px-6">
-            <div className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="flex flex-col items-center justify-start px-6 py-8">
+            <div className="max-w-4xl mx-auto text-center space-y-6">
               <div className="space-y-4">
                 <h1 className="text-4xl font-bold text-foreground">Assistente Lumi</h1>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
