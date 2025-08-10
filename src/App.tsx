@@ -170,8 +170,6 @@ const App = () => {
   return (
     <CriticalErrorBoundary>
       <AppProviders>
-        {/* Monta toasts somente após primeiro commit para evitar hooks fora de contexto */}
-        <SafeToasters />
         <BrowserRouter>
           <Suspense fallback={<UnifiedLoading />}>
             <Routes>
@@ -261,6 +259,8 @@ const App = () => {
               <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
             </Routes>
           </Suspense>
+          {/* Monta toasts após o Router para evitar qualquer problema de contexto/hook */}
+          <SafeToasters />
         </BrowserRouter>
       </AppProviders>
     </CriticalErrorBoundary>
