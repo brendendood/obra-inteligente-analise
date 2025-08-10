@@ -1,3 +1,4 @@
+
 // supabase/functions/secure-n8n-proxy/index.ts
 // Secure N8N proxy to prevent exposing PII and webhooks from the client
 // Uses JWT auth, validates allowed routes, and forwards payload server-side
@@ -76,14 +77,27 @@ Deno.serve(async (req) => {
     const agentType: string | undefined = body.agentType;
     const explicitPath: string | undefined = body.path || body.route; // support both keys
 
+    // Novo: permitir override para "general" via segredo
+    const generalOverride = Deno.env.get('N8N_GENERAL_PATH')?.trim();
+
     let path: string | undefined;
+    let targetOverrideUrl: string | undefined;
+
+    // Explicit path only if it's an allowed mapped path (mantém segurança)
     if (explicitPath && Object.values(AGENT_ROUTE_MAP).includes(explicitPath)) {
       path = explicitPath;
+    } else if (agentType === 'general' && generalOverride) {
+      // Se for URL completa, usar diretamente; se não, tratar como path (ex.: UUID do webhook)
+      if (/^https?:\/\//i.test(generalOverride)) {
+        targetOverrideUrl = generalOverride;
+      } else {
+        path = generalOverride;
+      }
     } else if (agentType && AGENT_ROUTE_MAP[agentType]) {
       path = AGENT_ROUTE_MAP[agentType];
     }
 
-    if (!path) {
+    if (!path && !targetOverrideUrl) {
       return new Response(JSON.stringify({ error: 'invalid_route' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -110,7 +124,16 @@ Deno.serve(async (req) => {
       },
     };
 
-    const targetUrl = buildTargetUrl(path);
+    const targetUrl = targetOverrideUrl || buildTargetUrl(path!);
+
+    // Log básico para diagnóstico (apenas nos logs da função)
+    console.log('Forwarding to N8N:', {
+      agentType,
+      used: targetOverrideUrl ? 'override_url' : 'mapped_path',
+      pathOrUrl: targetOverrideUrl || path,
+      user: authData.user.id,
+      time: new Date().toISOString(),
+    });
 
     const controller = new AbortController();
     const timeoutMs = Number(Deno.env.get('N8N_TIMEOUT_MS') || '30000');
