@@ -663,7 +663,7 @@ const { toast } = useToast();
   }
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="relative flex flex-col h-[100dvh] overflow-hidden overscroll-none">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center justify-between h-16 px-6 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
