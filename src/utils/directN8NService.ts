@@ -1,5 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// URL completa do webhook N8N para o chat geral (fornecida pelo cliente)
+const N8N_TARGET_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook/aa02ca52-8850-452e-9e72-4f79966aa544';
+
 interface DirectN8NPayload {
   message: string;
   user_id: string;
@@ -80,8 +83,9 @@ export const sendDirectToN8N = async (
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 12000);
 
+    console.info('[N8N] encaminhando via proxy', { conversationId, ts: new Date().toISOString() });
     const invokePromise = supabase.functions.invoke('secure-n8n-proxy', {
-      body: { agentType: 'general', payload },
+      body: { agentType: 'general', targetWebhook: N8N_TARGET_WEBHOOK, payload },
     });
 
     const result = await Promise.race([
@@ -100,7 +104,10 @@ export const sendDirectToN8N = async (
       (typeof data?.raw?.text === 'string' && data.raw.text) ||
       '';
 
-    if (!extracted) throw new Error('invalid_response');
+    if (!extracted) {
+      console.info('[N8N] resposta vazia, aguardando realtime', { conversationId });
+      return '';
+    }
 
     return extracted;
 
