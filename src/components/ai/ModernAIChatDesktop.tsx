@@ -685,14 +685,15 @@ const { toast } = useToast();
         ref={messagesContainerRef}
         className={cn(
           "flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y",
-          showHistory ? "pb-40" : "pb-16"
+          showHistory ? "pb-40" : "pb-6"
         )}
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {!showHistory ? (
           /* Welcome Screen */
-          <div className="flex flex-col items-center justify-start px-6 py-8">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
+          <div className="flex flex-col items-center justify-start px-6 py-3 mt-2">
+            <div className="max-w-4xl mx-auto text-center space-y-4">
+              <div className="text-5xl">🤖</div>
               <div className="space-y-4">
                 <h1 className="text-4xl font-bold text-foreground">Assistente Lumi</h1>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -704,7 +705,7 @@ const { toast } = useToast();
                 <Button 
                   onClick={handleContinueChat}
                   variant="outline"
-                  className="mb-6"
+                  className="mb-3"
                 >
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Continuar conversa anterior
