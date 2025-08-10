@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 // URL completa do webhook N8N para o chat geral (fornecida pelo cliente)
-const N8N_TARGET_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook/aa02ca52-8850-452e-9e72-4f79966aa544';
+const N8N_TARGET_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook-test/aa02ca52-8850-452e-9e72-4f79966aa544';
 
 interface DirectN8NPayload {
   message: string;
