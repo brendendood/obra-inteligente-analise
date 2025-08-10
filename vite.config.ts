@@ -28,14 +28,15 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     // FORÇA uma única instância do React
-    include: [
-      'react',
-      'react-dom',
-      'react-router-dom',
-      '@supabase/supabase-js',
-      '@tanstack/react-query',
-      'zustand'
-    ],
+      include: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react-router-dom',
+        '@supabase/supabase-js',
+        '@tanstack/react-query',
+        'zustand'
+      ],
     exclude: [],
     force: true,
     // CRÍTICO: Evita múltiplas instâncias
@@ -46,9 +47,10 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
       // CRITICAL: Force single React instance
       "react": path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom")
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime")
     },
-    dedupe: ['react', 'react-dom']
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
   },
   esbuild: {
     drop: mode === 'production' ? ['console', 'debugger'] : [],
