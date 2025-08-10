@@ -43,19 +43,7 @@ export const sendDirectToN8N = async (
   attachments?: Array<{ type: 'image' | 'document' | 'audio'; filename: string; content: string; mimeType: string }>
 ): Promise<string> => {
   try {
-    // Buscar dados do usuário
-    const { data: userProfile } = await supabase
-      .from('user_profiles')
-      .select('full_name, city, state, cargo')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    const { data: userSubscription } = await supabase
-      .from('user_subscriptions')
-      .select('plan')
-      .eq('user_id', userId)
-      .maybeSingle();
-
+    // Buscar apenas dados essenciais do usuário (rápido)
     const { data: authUser } = await supabase.auth.getUser();
 
     // Preparar payload
@@ -67,9 +55,7 @@ export const sendDirectToN8N = async (
       user_data: {
         id: userId,
         email: authUser.user?.email,
-        plan: (userSubscription as any)?.plan || 'free',
-        location: userProfile ? `${(userProfile as any).city || ''}, ${(userProfile as any).state || ''}`.trim().replace(/^,\s*|,\s*$/g, '') : undefined,
-        specialization: (userProfile as any)?.cargo || undefined,
+        plan: 'free',
       },
       conversation_history: conversationHistory.slice(-10),
       context: {
@@ -81,7 +67,7 @@ export const sendDirectToN8N = async (
 
     // Enviar via edge function segura (general agent)
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12000);
+    const timeout = setTimeout(() => controller.abort(), 6000);
 
     console.info('[N8N] encaminhando via proxy', { conversationId, ts: new Date().toISOString() });
     const invokePromise = supabase.functions.invoke('secure-n8n-proxy', {

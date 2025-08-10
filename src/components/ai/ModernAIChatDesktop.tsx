@@ -39,6 +39,8 @@ const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
 const placeholderRef = useRef<string | null>(null);
 const pollIntervalRef = useRef<number | null>(null);
+const inputContainerRef = useRef<HTMLDivElement>(null);
+const [bottomPad, setBottomPad] = useState(24);
 const { toast } = useToast();
   const { user } = useAuth();
 
@@ -236,14 +238,29 @@ const { toast } = useToast();
     adjustTextareaSize();
   }, [inputMessage]);
 
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-        pollIntervalRef.current = null;
-      }
-    };
-  }, []);
+useEffect(() => {
+  return () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
+}, []);
+
+useEffect(() => {
+  const updatePad = () => {
+    const h = inputContainerRef.current?.offsetHeight || 0;
+    setBottomPad(h + 8);
+  };
+  updatePad();
+  const ro = new ResizeObserver(() => updatePad());
+  if (inputContainerRef.current) ro.observe(inputContainerRef.current);
+  window.addEventListener('resize', updatePad);
+  return () => {
+    ro.disconnect();
+    window.removeEventListener('resize', updatePad);
+  };
+}, []);
 
   const clearPolling = () => {
     if (pollIntervalRef.current) {
@@ -375,15 +392,24 @@ const { toast } = useToast();
         content: msg.content
       }));
 
-      await sendDirectToN8N(
+      void sendDirectToN8N(
         inputMessage.trim() || '',
         user.id,
         conversationId,
         conversationHistory,
         attachments
-      );
-
-      setConnectionStatus('connected');
+      ).then(() => {
+        setConnectionStatus('connected');
+      }).catch((error) => {
+        console.error('❌ Erro ao enviar mensagem:', error);
+        setConnectionStatus('disconnected');
+        setIsTyping(false);
+        toast({
+          title: "Erro de conexão",
+          description: "Não foi possível enviar a mensagem. Tente novamente.",
+          variant: "destructive",
+        });
+      });
 
     } catch (error) {
       console.error('❌ Erro ao enviar mensagem:', error);
@@ -662,11 +688,8 @@ const { toast } = useToast();
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        className={cn(
-          "flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y",
-          showHistory ? "pb-24" : "pb-6"
-        )}
-        style={{ WebkitOverflowScrolling: 'touch' }}
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y"
+        style={{ WebkitOverflowScrolling: 'touch', paddingBottom: bottomPad }}
       >
         {!showHistory ? (
           /* Welcome Screen */
@@ -741,7 +764,7 @@ const { toast } = useToast();
       </div>
 
       {/* Input Area */}
-      <div className="sticky bottom-0 z-10 border-t border-border bg-background px-6 py-4">
+      <div className="sticky bottom-0 z-10 border-t border-border bg-background px-6 py-4" ref={inputContainerRef}>
         <div className="max-w-4xl mx-auto">
           <div className="relative">
             <div className="flex items-end space-x-3">

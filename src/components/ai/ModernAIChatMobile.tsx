@@ -33,6 +33,8 @@ const messagesContainerRef = useRef<HTMLDivElement>(null);
 const textareaRef = useRef<HTMLTextAreaElement>(null);
 const optimisticAssistantContentsRef = useRef<Set<string>>(new Set());
 const placeholderRef = useRef<string | null>(null);
+const inputContainerRef = useRef<HTMLDivElement>(null);
+const [bottomPad, setBottomPad] = useState(24);
 
 // Auto-resize textarea capped at 8 lines with internal scroll
 const adjustTextareaSize = () => {
@@ -52,6 +54,22 @@ const adjustTextareaSize = () => {
 useEffect(() => {
   adjustTextareaSize();
 }, [inputMessage]);
+
+// Dynamic bottom padding equal to input height
+useEffect(() => {
+  const updatePad = () => {
+    const h = inputContainerRef.current?.offsetHeight || 0;
+    setBottomPad(h + 8);
+  };
+  updatePad();
+  const ro = new ResizeObserver(() => updatePad());
+  if (inputContainerRef.current) ro.observe(inputContainerRef.current);
+  window.addEventListener('resize', updatePad);
+  return () => {
+    ro.disconnect();
+    window.removeEventListener('resize', updatePad);
+  };
+}, []);
 
 const { toast } = useToast();
 const { user } = useAuth();
@@ -235,12 +253,20 @@ const { user } = useAuth();
         content: msg.content
       }));
 
-      await sendDirectToN8N(
+      void sendDirectToN8N(
         messageContent,
         user.id,
         conversationId,
         conversationHistory
-      );
+      ).catch((error) => {
+        console.error('Erro ao enviar mensagem:', error);
+        setIsTyping(false);
+        toast({
+          title: "Erro de conexão",
+          description: "Não foi possível enviar a mensagem. Tente novamente.",
+          variant: "destructive",
+        });
+      });
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       setIsTyping(false);
@@ -443,9 +469,10 @@ const { user } = useAuth();
       {/* Área de Mensagens - Zero Padding Lateral */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-background pt-16 pb-24"
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-background pt-16"
         style={{
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          paddingBottom: bottomPad
         }}
       >
         {messages.length === 0 ? (
@@ -466,7 +493,7 @@ const { user } = useAuth();
               </div>
             ))}
             {isTyping && (
-              <div className="flex justify-start mb-3 px-4">
+              <div className="flex justify-start mb-1 px-4">
                 <div className="bg-muted rounded-2xl px-4 py-3 max-w-[80%]">
                   <AITypingIndicator />
                 </div>
@@ -478,7 +505,7 @@ const { user } = useAuth();
       </div>
 
       {/* Input Fixo na Base */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
+      <div ref={inputContainerRef} className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
         <div className="flex items-center space-x-3 mb-3">
           {/* Botão de Microfone */}
           <Button
