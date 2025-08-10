@@ -12,7 +12,8 @@ const corsHeaders = {
 
 // Map agent types to allowed N8N webhook paths
 const AGENT_ROUTE_MAP: Record<string, string> = {
-  general: 'chat-geral',
+  // Ajuste direto para o webhook fornecido pelo cliente (chat geral)
+  general: 'webhook-test/aa02ca52-8850-452e-9e72-4f79966aa544',
   project: 'projeto-chat',
   budget: 'orcamento-ia',
   schedule: 'cronograma-ia',
@@ -118,8 +119,9 @@ Deno.serve(async (req) => {
     ) {
       try {
         const url = new URL(clientTargetWebhook);
-        const allowedHost = new URL(Deno.env.get('N8N_BASE_URL') || 'https://madeai-br.app.n8n.cloud/webhook').hostname;
-        if (url.hostname === allowedHost && url.pathname.startsWith('/webhook/')) {
+        const allowedHost = new URL(Deno.env.get('N8N_BASE_URL') || 'https://madeai-br.app.n8n.cloud').hostname;
+        const allowedPath = url.pathname.startsWith('/webhook/') || url.pathname.startsWith('/webhook-test/');
+        if (url.hostname === allowedHost && allowedPath) {
           targetOverrideUrl = `${url.origin}${url.pathname}`.replace(/\/$/, '');
         }
       } catch (_) {}
@@ -129,9 +131,13 @@ Deno.serve(async (req) => {
     if (!targetOverrideUrl && explicitPath) {
       if (Object.values(AGENT_ROUTE_MAP).includes(explicitPath)) {
         path = explicitPath;
-      } else if (agentType === 'general' && (/^(webhook\/)?.+/.test(explicitPath))) {
-        // Permite "webhook/<uuid>" ou apenas "<uuid>"
-        path = explicitPath.startsWith('webhook/') ? explicitPath : `webhook/${explicitPath}`;
+      } else if (agentType === 'general' && (/^((webhook|webhook-test)\/)?.+/.test(explicitPath))) {
+        // Permite "webhook/<uuid>", "webhook-test/<uuid>" ou apenas "<uuid>"
+        if (explicitPath.startsWith('webhook/') || explicitPath.startsWith('webhook-test/')) {
+          path = explicitPath;
+        } else {
+          path = `webhook/${explicitPath}`;
+        }
       }
     }
 
@@ -181,6 +187,7 @@ Deno.serve(async (req) => {
       agentType,
       used: targetOverrideUrl ? 'override_url' : 'mapped_path',
       pathOrUrl: targetOverrideUrl || path,
+      targetUrl,
       user: authData.user.id,
       time: new Date().toISOString(),
     });
@@ -224,7 +231,7 @@ Deno.serve(async (req) => {
       '';
 
     return new Response(
-      JSON.stringify({ response: extracted, raw: result }),
+      JSON.stringify({ response: extracted, raw: result, status: resp.status, statusText: resp.statusText }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   } catch (err) {

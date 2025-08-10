@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 // URL completa do webhook N8N para o chat geral (fornecida pelo cliente)
 const N8N_TARGET_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook-test/aa02ca52-8850-452e-9e72-4f79966aa544';
@@ -43,59 +44,86 @@ export const sendDirectToN8N = async (
   attachments?: Array<{ type: 'image' | 'document' | 'audio'; filename: string; content: string; mimeType: string }>
 ): Promise<string> => {
   try {
-    // Buscar apenas dados essenciais do usuário (rápido)
-    const { data: authUser } = await supabase.auth.getUser();
+    const traceId = uuidv4();
+    const ts = new Date().toISOString();
 
-    // Preparar payload
-    const payload: DirectN8NPayload = {
+    // Payload mínimo solicitado
+    const minimalPayload = {
       message,
-      user_id: userId,
-      conversation_id: conversationId,
-      timestamp: new Date().toISOString(),
-      user_data: {
-        id: userId,
-        email: authUser.user?.email,
-        plan: 'free',
-      },
-      conversation_history: conversationHistory.slice(-10),
-      context: {
-        source: 'general_chat',
-        chat_type: 'tira_duvidas'
-      },
-      ...(attachments && attachments.length > 0 && { attachments })
+      chatId: conversationId,
+      userId,
+      timestamp: ts,
+      traceId,
+      ...(attachments && attachments.length > 0 ? { attachments } : {}),
     };
 
-    // Enviar via edge function segura (general agent)
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
-
-    console.info('[N8N] encaminhando via proxy', { conversationId, ts: new Date().toISOString() });
-    const invokePromise = supabase.functions.invoke('secure-n8n-proxy', {
-      body: { agentType: 'general', targetWebhook: N8N_TARGET_WEBHOOK, payload },
+    // Logs antes do envio
+    console.info('[Webhook] Pre-send', {
+      ts,
+      traceId,
+      chatId: conversationId,
+      userId,
+      preview: message.slice(0, 200),
+      url: N8N_TARGET_WEBHOOK,
     });
 
-    const result = await Promise.race([
-      invokePromise,
-      new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('timeout')))),
-    ]) as { data: any; error: any };
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
-    clearTimeout(timeout);
+    const tryInvoke = async () => {
+      return supabase.functions.invoke('secure-n8n-proxy', {
+        body: { agentType: 'general', targetWebhook: N8N_TARGET_WEBHOOK, payload: minimalPayload },
+      });
+    };
 
-    if ((result as any)?.error) throw (result as any).error;
+    let attempt = 0;
+    let lastError: any = null;
+    let result: { data: any; error: any } | null = null;
 
-    const data = (result as any)?.data || {};
-    const extracted =
-      (typeof data?.response === 'string' && data.response) ||
-      (typeof data?.raw?.response === 'string' && data.raw.response) ||
-      (typeof data?.raw?.text === 'string' && data.raw.text) ||
-      '';
+    const backoffs = [500, 1500];
 
-    if (!extracted) {
-      console.info('[N8N] resposta vazia, aguardando realtime', { conversationId });
-      return '';
+    while (attempt < 3) {
+      try {
+        const invokePromise = tryInvoke();
+        result = (await Promise.race([
+          invokePromise,
+          new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('timeout')))),
+        ])) as { data: any; error: any };
+
+        if (result?.error) throw result.error;
+
+        const data = result?.data || {};
+        const status = typeof data?.status === 'number' ? data.status : 200;
+
+        if (status >= 400) {
+          throw new Error(`n8n_status_${status}: ${String((data?.raw && (data.raw.error || data.raw.message || data.raw)) || '')}`.slice(0, 500));
+        }
+
+        console.info(`Webhook delivery: OK | status=${status} | traceId=${traceId} | ts=${ts}`);
+
+        const extracted =
+          (typeof data?.response === 'string' && data.response) ||
+          (typeof data?.raw?.response === 'string' && data.raw.response) ||
+          (typeof data?.raw?.text === 'string' && data.raw.text) ||
+          '';
+
+        clearTimeout(timeout);
+
+        return extracted;
+
+      } catch (err: any) {
+        lastError = err;
+        attempt++;
+        if (attempt >= 3) break;
+        const wait = backoffs[attempt - 1] || 1500;
+        await new Promise(res => setTimeout(res, wait));
+      }
     }
 
-    return extracted;
+    clearTimeout(timeout);
+    const reason = lastError?.message || 'unknown_error';
+    console.error(`Webhook delivery: FAIL | status=? | reason=${reason} | traceId=${traceId} | ts=${ts}`);
+    throw lastError || new Error('Falha ao enviar para o webhook');
 
   } catch (error: any) {
     if (error?.message === 'timeout') {
