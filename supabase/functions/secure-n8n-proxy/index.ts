@@ -73,27 +73,77 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
 
-    // Determine route
+    // Resolve destino com regras seguras e flexíveis para o agente "general"
+    const normalizeGeneralTarget = (): { url?: string; path?: string } => {
+      const full = Deno.env.get('N8N_GENERAL_WEBHOOK')?.trim();
+      const token = Deno.env.get('N8N_GENERAL_TOKEN')?.trim();
+      const pathOrToken = Deno.env.get('N8N_GENERAL_PATH')?.trim();
+
+      const asPath = (val: string) => {
+        if (val.startsWith('webhook/')) return val;
+        // UUID v4 -> vira webhook/<uuid>
+        if (/^[0-9a-fA-F-]{36}$/.test(val)) return `webhook/${val}`;
+        return val;
+      };
+
+      if (full) {
+        if (/^https?:\/\//i.test(full)) {
+          try {
+            const u = new URL(full);
+            if (u.pathname.includes('/webhook/')) return { url: `${u.origin}${u.pathname}`.replace(/\/$/, '') };
+            const t = token || (pathOrToken && /^[0-9a-fA-F-]{36}$/.test(pathOrToken) ? pathOrToken : undefined);
+            if (t) return { url: `${u.origin}/webhook/${t}` };
+            // Se vier domínio puro sem token, cai para outros segredos
+          } catch (_) {}
+        } else {
+          return { path: asPath(full) };
+        }
+      }
+
+      if (token) return { path: `webhook/${token}` };
+      if (pathOrToken) return { path: asPath(pathOrToken) };
+      return {};
+    };
+
     const agentType: string | undefined = body.agentType;
     const explicitPath: string | undefined = body.path || body.route; // support both keys
-
-    // Novo: permitir override para "general" via segredo
-    const generalOverride = Deno.env.get('N8N_GENERAL_PATH')?.trim();
+    const clientTargetWebhook: string | undefined = body.targetWebhook;
 
     let path: string | undefined;
     let targetOverrideUrl: string | undefined;
 
-    // Explicit path only if it's an allowed mapped path (mantém segurança)
-    if (explicitPath && Object.values(AGENT_ROUTE_MAP).includes(explicitPath)) {
-      path = explicitPath;
-    } else if (agentType === 'general' && generalOverride) {
-      // Se for URL completa, usar diretamente; se não, tratar como path (ex.: UUID do webhook)
-      if (/^https?:\/\//i.test(generalOverride)) {
-        targetOverrideUrl = generalOverride;
-      } else {
-        path = generalOverride;
+    // 1) Se o cliente fornecer uma URL completa e segura (apenas para agentType general), permitir
+    if (
+      agentType === 'general' && clientTargetWebhook && /^https?:\/\//i.test(clientTargetWebhook)
+    ) {
+      try {
+        const url = new URL(clientTargetWebhook);
+        const allowedHost = new URL(Deno.env.get('N8N_BASE_URL') || 'https://madeai-br.app.n8n.cloud/webhook').hostname;
+        if (url.hostname === allowedHost && url.pathname.startsWith('/webhook/')) {
+          targetOverrideUrl = `${url.origin}${url.pathname}`.replace(/\/$/, '');
+        }
+      } catch (_) {}
+    }
+
+    // 2) Caminho explícito: aceitar mapeados e também UUIDs para general
+    if (!targetOverrideUrl && explicitPath) {
+      if (Object.values(AGENT_ROUTE_MAP).includes(explicitPath)) {
+        path = explicitPath;
+      } else if (agentType === 'general' && (/^(webhook\/)?.+/.test(explicitPath))) {
+        // Permite "webhook/<uuid>" ou apenas "<uuid>"
+        path = explicitPath.startsWith('webhook/') ? explicitPath : `webhook/${explicitPath}`;
       }
-    } else if (agentType && AGENT_ROUTE_MAP[agentType]) {
+    }
+
+    // 3) Overrides por segredo (prioridade alta)
+    if (!path && !targetOverrideUrl && agentType === 'general') {
+      const resolved = normalizeGeneralTarget();
+      if (resolved.url) targetOverrideUrl = resolved.url;
+      if (resolved.path) path = resolved.path;
+    }
+
+    // 4) Fallback para mapeamento padrão por agente
+    if (!path && !targetOverrideUrl && agentType && AGENT_ROUTE_MAP[agentType]) {
       path = AGENT_ROUTE_MAP[agentType];
     }
 
