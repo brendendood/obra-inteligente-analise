@@ -70,11 +70,67 @@ export const sendDirectToN8N = async (
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
 
-    const tryInvoke = async () => {
-      return supabase.functions.invoke('secure-n8n-proxy', {
-        body: { agentType: 'general', targetWebhook: N8N_TARGET_WEBHOOK, payload: minimalPayload },
-      });
+    // Compatibilidade com payload antigo (inclui email e campos legados)
+    const { data: authUser } = await supabase.auth.getUser().catch(() => ({ data: { user: undefined } as any }));
+
+    const legacyPayload: DirectN8NPayload = {
+      message,
+      user_id: userId,
+      conversation_id: conversationId,
+      timestamp: ts,
+      user_data: {
+        id: userId,
+        email: authUser?.user?.email,
+        plan: 'free',
+      },
+      conversation_history: conversationHistory.slice(-10),
+      context: { source: 'general_chat', chat_type: 'tira_duvidas' },
+      ...(attachments && attachments.length > 0 ? { attachments } : {}),
     };
+
+    const fullPayload = { ...legacyPayload, ...minimalPayload };
+
+    // 1) Envio DIRETO ao webhook (sem proxy, sem bloqueios)
+    try {
+      const directResp = (await Promise.race([
+        fetch(N8N_TARGET_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fullPayload),
+          signal: controller.signal,
+          credentials: 'omit',
+        }),
+        new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('timeout')))),
+      ])) as Response;
+
+      const ct = directResp.headers.get('content-type') || '';
+      const directBody: any = ct.includes('application/json')
+        ? await directResp.json().catch(() => ({}))
+        : await directResp.text().catch(() => '');
+
+      if (!directResp.ok) {
+        const snippet = typeof directBody === 'string' ? directBody.slice(0, 500) : JSON.stringify(directBody).slice(0, 500);
+        throw new Error(`http_${directResp.status}: ${snippet}`);
+      }
+
+      console.info(`Webhook delivery: OK | status=${directResp.status} | traceId=${traceId} | ts=${ts}`);
+
+      const extracted =
+        (typeof directBody?.response === 'string' && directBody.response) ||
+        (typeof directBody === 'string' ? directBody : '') ||
+        '';
+
+      clearTimeout(timeout);
+      return extracted;
+    } catch (directErr: any) {
+      console.warn('[Webhook] Direct send failed, falling back to proxy', { traceId, reason: directErr?.message });
+    }
+
+    // 2) Fallback via edge function segura (2 tentativas)
+    const tryInvoke = async () =>
+      supabase.functions.invoke('secure-n8n-proxy', {
+        body: { agentType: 'general', targetWebhook: N8N_TARGET_WEBHOOK, payload: fullPayload },
+      });
 
     let attempt = 0;
     let lastError: any = null;
@@ -82,7 +138,7 @@ export const sendDirectToN8N = async (
 
     const backoffs = [500, 1500];
 
-    while (attempt < 3) {
+    while (attempt < 2) {
       try {
         const invokePromise = tryInvoke();
         result = (await Promise.race([
@@ -108,15 +164,13 @@ export const sendDirectToN8N = async (
           '';
 
         clearTimeout(timeout);
-
         return extracted;
-
       } catch (err: any) {
         lastError = err;
         attempt++;
-        if (attempt >= 3) break;
+        if (attempt >= 2) break;
         const wait = backoffs[attempt - 1] || 1500;
-        await new Promise(res => setTimeout(res, wait));
+        await new Promise((res) => setTimeout(res, wait));
       }
     }
 
