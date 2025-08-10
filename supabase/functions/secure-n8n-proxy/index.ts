@@ -74,6 +74,124 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
 
+    // Proxy-only fast path: PRIMARY/SECONDARY with retries, timeout and detailed logs
+    if (body.primaryWebhook) {
+      const payload = body.payload ?? body;
+      const primary: string = String(body.primaryWebhook);
+      const secondary: string | undefined = body.secondaryWebhook ? String(body.secondaryWebhook) : undefined;
+
+      // Minimal validation: require message string
+      const msg = typeof payload?.message === 'string' ? payload.message : '';
+      if (!msg.trim()) {
+        return new Response(JSON.stringify({ error: 'missing_message' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+
+      // Size limit: 10KB
+      const str = JSON.stringify(payload);
+      if (str.length > 10 * 1024) {
+        return new Response(JSON.stringify({ error: 'payload_too_large' }), {
+          status: 413,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+
+      const traceId = typeof payload?.traceId === 'string' ? payload.traceId : crypto.randomUUID();
+      const chatId = payload?.chatId || payload?.conversation_id || null;
+      const userId = payload?.userId || payload?.user_id || payload?.user_data?.id || authData.user.id;
+      const ts = new Date().toISOString();
+
+      console.info('[Proxy] Pre-send', {
+        ts,
+        traceId,
+        chatId,
+        userId,
+        url: primary,
+        preview: msg.slice(0, 200),
+      });
+
+      const timeoutMs = 30000;
+
+      const sendOnce = async (url: string): Promise<{ ok: boolean; status: number; statusText: string; text: string; notRegistered404: boolean } > => {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/plain; q=0.9' },
+            body: JSON.stringify(payload),
+            signal: controller.signal,
+          });
+          const ct = resp.headers.get('content-type') || '';
+          const text = ct.includes('application/json') ? JSON.stringify(await resp.json().catch(() => ({}))) : await resp.text().catch(() => '');
+          const snippet = typeof text === 'string' ? text.slice(0, 500) : String(text).slice(0, 500);
+          const notRegistered404 = resp.status === 404 && /not registered/i.test(snippet);
+          return { ok: resp.ok, status: resp.status, statusText: resp.statusText, text: snippet, notRegistered404 };
+        } finally {
+          clearTimeout(timeout);
+        }
+      };
+
+      const backoffs = [500, 1500];
+
+      // Try primary with retries
+      let result = null as null | { ok: boolean; status: number; statusText: string; text: string; notRegistered404: boolean };
+      let attempt = 0;
+      let reason: string | undefined;
+
+      while (attempt < 2) {
+        try {
+          result = await sendOnce(primary);
+          if (result.ok) {
+            console.info(`Webhook delivery: OK | status=${result.status} | traceId=${traceId} | ts=${new Date().toISOString()}`);
+            return new Response(
+              JSON.stringify({ status: result.status, statusText: result.statusText, response: result.text }),
+              { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            );
+          }
+          if (result.notRegistered404) break; // immediate fallback to secondary
+          reason = `http_${result.status}`;
+        } catch (e: any) {
+          reason = e?.message || 'network_error';
+        }
+        attempt++;
+        if (attempt < 2) await new Promise((r) => setTimeout(r, backoffs[attempt - 1] || 1500));
+      }
+
+      // Fallback to secondary if provided
+      if (secondary) {
+        console.warn('[Proxy] Primary failed or not registered, trying secondary');
+        attempt = 0;
+        while (attempt < 2) {
+          try {
+            result = await sendOnce(secondary);
+            if (result.ok) {
+              console.info(`Webhook delivery: OK | status=${result.status} | traceId=${traceId} | ts=${new Date().toISOString()}`);
+              return new Response(
+                JSON.stringify({ status: result.status, statusText: result.statusText, response: result.text }),
+                { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+              );
+            }
+            reason = `http_${result.status}`;
+          } catch (e: any) {
+            reason = e?.message || 'network_error';
+          }
+          attempt++;
+          if (attempt < 2) await new Promise((r) => setTimeout(r, backoffs[attempt - 1] || 1500));
+        }
+      }
+
+      const failStatus = result?.status ?? 599;
+      const failText = result?.text ?? '';
+      console.error(`Webhook delivery: FAIL | status=${failStatus} | reason=${reason || 'unknown'} | traceId=${traceId} | ts=${new Date().toISOString()} | body=${failText}`);
+      return new Response(
+        JSON.stringify({ status: failStatus, statusText: result?.statusText || 'error', response: failText }),
+        { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      );
+    }
+
     // Resolve destino com regras seguras e flexíveis para o agente "general"
     const normalizeGeneralTarget = (): { url?: string; path?: string } => {
       const full = Deno.env.get('N8N_GENERAL_WEBHOOK')?.trim();

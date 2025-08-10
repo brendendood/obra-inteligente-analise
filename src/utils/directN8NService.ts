@@ -1,8 +1,11 @@
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
 
-// URL completa do webhook N8N para o chat geral (fornecida pelo cliente)
-const N8N_TARGET_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook-test/aa02ca52-8850-452e-9e72-4f79966aa544';
+// Webhooks primário e secundário do N8N (proxy-only)
+const PRIMARY_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook/aa02ca52-8850-452e-9e72-4f79966aa544';
+const SECONDARY_WEBHOOK = 'https://madeai-br.app.n8n.cloud/webhook-test/aa02ca52-8850-452e-9e72-4f79966aa544';
+
+console.info(`READY | proxy-only active | primary=${PRIMARY_WEBHOOK} | secondary=${SECONDARY_WEBHOOK}`);
 
 interface DirectN8NPayload {
   message: string;
@@ -64,7 +67,7 @@ export const sendDirectToN8N = async (
       chatId: conversationId,
       userId,
       preview: message.slice(0, 200),
-      url: N8N_TARGET_WEBHOOK,
+      url: PRIMARY_WEBHOOK,
     });
 
     const controller = new AbortController();
@@ -90,47 +93,15 @@ export const sendDirectToN8N = async (
 
     const fullPayload = { ...legacyPayload, ...minimalPayload };
 
-    // 1) Envio DIRETO ao webhook (sem proxy, sem bloqueios)
-    try {
-      const directResp = (await Promise.race([
-        fetch(N8N_TARGET_WEBHOOK, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fullPayload),
-          signal: controller.signal,
-          credentials: 'omit',
-        }),
-        new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('timeout')))),
-      ])) as Response;
-
-      const ct = directResp.headers.get('content-type') || '';
-      const directBody: any = ct.includes('application/json')
-        ? await directResp.json().catch(() => ({}))
-        : await directResp.text().catch(() => '');
-
-      if (!directResp.ok) {
-        const snippet = typeof directBody === 'string' ? directBody.slice(0, 500) : JSON.stringify(directBody).slice(0, 500);
-        throw new Error(`http_${directResp.status}: ${snippet}`);
-      }
-
-      console.info(`Webhook delivery: OK | status=${directResp.status} | traceId=${traceId} | ts=${ts}`);
-
-      const extracted =
-        (typeof directBody?.response === 'string' && directBody.response) ||
-        (typeof directBody === 'string' ? directBody : '') ||
-        '';
-
-      clearTimeout(timeout);
-      return extracted;
-    } catch (directErr: any) {
-      console.warn('[Webhook] Direct send failed, falling back to proxy', { traceId, reason: directErr?.message });
-    }
-
-    // 2) Fallback via edge function segura (2 tentativas)
+    // Proxy-only: desabilitado envio direto do browser. Sempre usar edge function segura.
+    console.info('[Webhook] Proxy-only mode ativo - usando secure-n8n-proxy');
+    
+    // Definir função de invocação do proxy com PRIMARY/SECONDARY e payload completo
     const tryInvoke = async () =>
       supabase.functions.invoke('secure-n8n-proxy', {
-        body: { agentType: 'general', targetWebhook: N8N_TARGET_WEBHOOK, payload: fullPayload },
+        body: { primaryWebhook: PRIMARY_WEBHOOK, secondaryWebhook: SECONDARY_WEBHOOK, payload: fullPayload },
       });
+
 
     let attempt = 0;
     let lastError: any = null;
