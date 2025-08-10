@@ -306,7 +306,7 @@ const { toast } = useToast();
     setIsSending(true);
     setIsTyping(true);
     setConnectionStatus('connecting');
-    startPollingForAssistant();
+    // realtime via Supabase; polling desabilitado
 
     // Se estava mostrando sugestões, mudar para o histórico
     if (!showHistory) {
@@ -354,16 +354,6 @@ const { toast } = useToast();
       // Salvar mensagem do usuário
       await saveMessage(conversationId, messageContent, 'user');
 
-      // Placeholder de resposta rápida
-      const phId = 'placeholder-' + crypto.randomUUID();
-      placeholderRef.current = phId;
-      const placeholder: ChatMessage = {
-        id: phId,
-        type: 'assistant',
-        content: 'Certo! Estou processando e já te respondo...'
-        ,timestamp: new Date()
-      };
-      setMessages(prev => [...prev, placeholder]);
 
       // Preparar anexos se houver
       let attachments = undefined;
@@ -385,8 +375,7 @@ const { toast } = useToast();
         content: msg.content
       }));
 
-      // Enviar para N8N e renderizar resposta de forma otimista
-      const aiResponse = await sendDirectToN8N(
+      await sendDirectToN8N(
         inputMessage.trim() || '',
         user.id,
         conversationId,
@@ -395,16 +384,6 @@ const { toast } = useToast();
       );
 
       setConnectionStatus('connected');
-
-      if (aiResponse && aiResponse.trim()) {
-        // Atualiza o placeholder com a resposta rápida
-        setMessages(prev => prev.map(m =>
-          m.id === (placeholderRef.current || '') ? { ...m, content: aiResponse } : m
-        ));
-        setIsTyping(false);
-        optimisticAssistantContentsRef.current.add(aiResponse);
-        // Não salvar no Supabase aqui; a resposta completa chegará via realtime
-      }
 
     } catch (error) {
       console.error('❌ Erro ao enviar mensagem:', error);
@@ -685,7 +664,7 @@ const { toast } = useToast();
         ref={messagesContainerRef}
         className={cn(
           "flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y",
-          showHistory ? "pb-40" : "pb-6"
+          showHistory ? "pb-24" : "pb-6"
         )}
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
@@ -742,7 +721,7 @@ const { toast } = useToast();
                     />
                   ))}
                   {isTyping && (
-                    <div className="flex justify-start mb-6">
+                    <div className="flex justify-start mb-2">
                       <div className="flex items-start space-x-3 max-w-[80%]">
                         <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center text-sm">
                           AI

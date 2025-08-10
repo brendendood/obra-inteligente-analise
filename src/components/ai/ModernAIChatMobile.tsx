@@ -228,16 +228,6 @@ const { user } = useAuth();
     try {
       await saveMessage(conversationId, messageContent, 'user');
 
-      // Placeholder de resposta rápida
-      const phId = 'placeholder-' + crypto.randomUUID();
-      placeholderRef.current = phId;
-      const placeholder: ChatMessage = {
-        id: phId,
-        type: 'assistant',
-        content: 'Certo! Estou processando e já te respondo...',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, placeholder]);
 
       // Limitar histórico às últimas 8 entradas + atual
       const conversationHistory = [...messages, userMessage].slice(-8).map(msg => ({
@@ -245,21 +235,12 @@ const { user } = useAuth();
         content: msg.content
       }));
 
-      const aiResponse = await sendDirectToN8N(
+      await sendDirectToN8N(
         messageContent,
         user.id,
         conversationId,
         conversationHistory
       );
-
-      if (aiResponse && aiResponse.trim()) {
-        // Atualiza placeholder com a resposta rápida
-        setMessages(prev => prev.map(m => m.id === (placeholderRef.current || '') ? { ...m, content: aiResponse } : m));
-        setIsTyping(false);
-        optimisticAssistantContentsRef.current.add(aiResponse);
-        // Não salvar no Supabase aqui; a resposta completa chegará via realtime
-      }
-
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
       setIsTyping(false);
@@ -462,7 +443,7 @@ const { user } = useAuth();
       {/* Área de Mensagens - Zero Padding Lateral */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-background pt-16 pb-40"
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-background pt-16 pb-24"
         style={{
           WebkitOverflowScrolling: 'touch'
         }}
