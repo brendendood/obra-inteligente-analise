@@ -29,15 +29,12 @@ export default defineConfig(({ mode }) => ({
   optimizeDeps: {
     // FORÇA uma única instância do React
       include: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
         'react-router-dom',
         '@supabase/supabase-js',
         '@tanstack/react-query',
         'zustand'
       ],
-    exclude: [],
+    exclude: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
     force: true,
     // CRÍTICO: Evita múltiplas instâncias
     entries: ['src/main.tsx']
