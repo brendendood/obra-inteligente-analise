@@ -551,12 +551,6 @@ const { user } = useAuth();
           </div>
         </div>
         
-        {/* Footer Personalizado */}
-        <div className="text-center">
-          <span className="text-xs text-muted-foreground">
-            Lumi AI Chat V1.0.1 - Desenvolvida para Engenheiros e Arquitetos
-          </span>
-        </div>
       </div>
     </div>
   );
