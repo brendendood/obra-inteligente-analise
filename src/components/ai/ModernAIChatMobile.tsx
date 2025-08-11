@@ -89,6 +89,11 @@ const { user } = useAuth();
     scrollToBottom('smooth');
   }, [messages, isTyping]);
 
+  // Scroll novamente quando o input mudar de altura (ex.: teclado aberto)
+  useLayoutEffect(() => {
+    scrollToBottom('auto');
+  }, [bottomPad]);
+
   // Inicializar conversa e carregar mensagens
   useEffect(() => {
     if (!user?.id) return;
@@ -472,7 +477,7 @@ const { user } = useAuth();
         className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y bg-background pt-16"
         style={{
           WebkitOverflowScrolling: 'touch',
-          paddingBottom: bottomPad
+          paddingBottom: `calc(${bottomPad}px + env(safe-area-inset-bottom))`
         }}
       >
         {messages.length === 0 ? (
