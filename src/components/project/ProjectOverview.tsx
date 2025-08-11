@@ -1,16 +1,22 @@
-
+import React from 'react';
 import { useProjectDetail } from '@/contexts/ProjectDetailContext';
 import { useProjectNavigation } from '@/hooks/useProjectNavigation';
 import { useParams } from 'react-router-dom';
 import ProjectActionCard from './ProjectActionCard';
-import { Calculator, Calendar, Bot, FileText, Building2, Ruler, Clock } from 'lucide-react';
-import { ProjectAnalysisExporter } from './ProjectAnalysisExporter';
+import { Calculator, Calendar, Bot, FileText } from 'lucide-react';
 import { InlineUnifiedLoading } from '@/components/ui/unified-loading';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { runProjectAgentAndPersist } from '@/utils/agents/projectAgentProcessor';
 
 export const ProjectOverview = () => {
-  const { project } = useProjectDetail();
+  const { project, refetchProject } = useProjectDetail();
   const { navigateToProjectSection } = useProjectNavigation();
   const { projectId } = useParams<{ projectId: string }>();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [processing, setProcessing] = React.useState(false);
 
   if (!project) {
     return <InlineUnifiedLoading />;
@@ -19,6 +25,21 @@ export const ProjectOverview = () => {
   const handleNavigateToSection = (section: 'orcamento' | 'cronograma' | 'assistente' | 'documentos') => {
     if (projectId) {
       navigateToProjectSection(projectId, section);
+    }
+  };
+
+  const handleReprocess = async () => {
+    if (!project) return;
+    try {
+      setProcessing(true);
+      toast({ title: 'Reprocessando PDF', description: 'Aguarde enquanto analisamos o projeto.' });
+      await runProjectAgentAndPersist(project, user, { replaceExisting: true });
+      toast({ title: 'Pronto', description: 'Dados atualizados a partir do PDF.' });
+      await refetchProject();
+    } catch (e: any) {
+      toast({ title: 'Falha ao reprocessar', description: e.message || 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -35,15 +56,15 @@ export const ProjectOverview = () => {
               {project.total_area}m²
             </p>
           )}
-          
-          {/* Status Badge Mobile-Optimized */}
-          <div className="mt-3 sm:mt-4 inline-flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${
-              project.analysis_data ? 'bg-green-500' : 'bg-yellow-500'
-            }`} />
+          {/* Status + Actions */}
+          <div className="mt-3 sm:mt-4 inline-flex items-center gap-3">
+            <div className={`w-2 h-2 rounded-full ${project.analysis_data ? 'bg-green-500' : 'bg-yellow-500'}`} />
             <span className="text-sm text-muted-foreground">
               {project.analysis_data ? 'Pronto' : 'Processando'}
             </span>
+            <Button size="sm" variant="secondary" onClick={handleReprocess} disabled={processing}>
+              {processing ? 'Processando...' : 'Reprocessar PDF'}
+            </Button>
           </div>
         </div>
       </div>
