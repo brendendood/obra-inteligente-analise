@@ -1,7 +1,7 @@
-import React, { lazy, Suspense } from "react";
+import * as React from "react";
 
-const RadixToaster = lazy(() => import("./toaster").then(m => ({ default: m.Toaster })));
-const SonnerToaster = lazy(() => import("./sonner").then(m => ({ default: m.Toaster })));
+const RadixToaster = React.lazy(() => import("./toaster").then(m => ({ default: m.Toaster })));
+const SonnerToaster = React.lazy(() => import("./sonner").then(m => ({ default: m.Toaster })));
 
 // Isola erros dos sistemas de toast para não quebrar a aplicação inteira
 class ToasterErrorBoundary extends React.Component<{ children: React.ReactNode; onError?: (e: Error) => void }, { hasError: boolean }> {
@@ -34,7 +34,7 @@ const SafeToasters: React.FC = () => {
   if (!mounted) return null;
 
   return (
-    <Suspense fallback={null}>
+    <React.Suspense fallback={null}>
       {radixEnabled && (
         <ToasterErrorBoundary onError={() => setRadixEnabled(false)}>
           <RadixToaster />
@@ -43,7 +43,7 @@ const SafeToasters: React.FC = () => {
       <ToasterErrorBoundary>
         <SonnerToaster />
       </ToasterErrorBoundary>
-    </Suspense>
+    </React.Suspense>
   );
 };
 
