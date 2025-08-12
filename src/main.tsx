@@ -28,4 +28,5 @@ if (typeof window !== 'undefined' && (window as any).__madenai_sw_purged__ !== t
 }
 
 // REMOVENDO StrictMode que causa double rendering e corrompe React dispatcher
+console.info('[MadenAI] React version:', (React as any).version);
 root.render(<App />);

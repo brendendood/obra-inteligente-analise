@@ -14,6 +14,7 @@ import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -169,100 +170,102 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 const App = () => {
   return (
     <CriticalErrorBoundary>
-      <AppProviders>
-        <BrowserRouter>
-          <Suspense fallback={<UnifiedLoading />}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Signup />} />
-              <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
-              <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
-              <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
-              <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
-              
-              <Route path="/admin-panel" element={
-                <ProtectedRoute>
-                  <LazyWrapper><AdminPanel /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              {/* Protected routes */}
-              <Route path="/painel" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              
-              {/* Legacy redirects */}
-              <Route path="/projetos" element={<Navigate to="/painel" replace />} />
-              <Route path="/obras" element={<Navigate to="/painel" replace />} />
-              
-              <Route path="/upload" element={
-                <ProtectedRoute>
-                  <LazyWrapper><Upload /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/ia" element={
-                <ProtectedRoute>
-                  <LazyWrapper><Assistant /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/conta" element={
-                <ProtectedRoute>
-                  <LazyWrapper><Account /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/plano" element={
-                <ProtectedRoute>
-                  <LazyWrapper><Plan /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/ajuda" element={
-                <ProtectedRoute>
-                  <LazyWrapper><Help /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              <Route path="/contato" element={
-                <ProtectedRoute>
-                  <LazyWrapper><Contact /></LazyWrapper>
-                </ProtectedRoute>
-              } />
-              
-              {/* Project specific routes */}
-              <Route path="/projeto/:projectId" element={
-                <ProtectedRoute>
-                  <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                </ProtectedRoute>
-              }>
-                <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
-                <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
-                <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
-                <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
-                <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
-              </Route>
-              
-              <Route path="/ia/:projectId" element={
-                <ProtectedRoute>
-                  <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                </ProtectedRoute>
-              }>
-                <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
-              </Route>
+      <ReactHealthCheck>
+        <AppProviders>
+          <BrowserRouter>
+            <Suspense fallback={<UnifiedLoading />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/cadastro" element={<Signup />} />
+                <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
+                <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+                <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+                <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
+                
+                <Route path="/admin-panel" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><AdminPanel /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Protected routes */}
+                <Route path="/painel" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Legacy redirects */}
+                <Route path="/projetos" element={<Navigate to="/painel" replace />} />
+                <Route path="/obras" element={<Navigate to="/painel" replace />} />
+                
+                <Route path="/upload" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Upload /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/ia" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Assistant /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/conta" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Account /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/plano" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Plan /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/ajuda" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Help /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/contato" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Contact /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Project specific routes */}
+                <Route path="/projeto/:projectId" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
+                  <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
+                  <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
+                  <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                  <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
+                </Route>
+                
+                <Route path="/ia/:projectId" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                </Route>
 
-              <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
-            </Routes>
-          </Suspense>
-          {/* Monta toasts após o Router para evitar qualquer problema de contexto/hook */}
-          <SafeToasters />
-        </BrowserRouter>
-      </AppProviders>
+                <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
+              </Routes>
+            </Suspense>
+            {/* Monta toasts após o Router para evitar qualquer problema de contexto/hook */}
+            <SafeToasters />
+          </BrowserRouter>
+        </AppProviders>
+      </ReactHealthCheck>
     </CriticalErrorBoundary>
   );
 };

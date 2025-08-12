@@ -27,6 +27,13 @@ export default defineConfig(({ mode }) => ({
     minify: mode === 'production' ? 'esbuild' : false,
     sourcemap: mode === 'development',
     chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-router-dom'],
+        },
+      },
+    },
   },
   define: {
     global: 'globalThis',
@@ -52,6 +59,8 @@ export default defineConfig(({ mode }) => ({
       // Garante singleton de React/ReactDOM
       "react": reactAlias,
       "react-dom": reactDomAlias,
+      "react/jsx-runtime": path.join(reactAlias, "jsx-runtime"),
+      "react/jsx-dev-runtime": path.join(reactAlias, "jsx-dev-runtime"),
     },
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
   },

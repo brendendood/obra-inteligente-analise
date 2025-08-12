@@ -45,26 +45,35 @@
   <body>
     <div id="root"></div>
     <script>
-      // Limpeza de cache e reload - habilitado apenas em desenvolvimento
-      (function() {
-        const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        if (!isDev) return;
-
-        // Força limpeza agressiva de cache (apenas DEV)
-        if ('caches' in window) {
-          caches.keys().then(function(names) {
-            names.forEach(function(name) {
-              caches.delete(name);
-            });
-          });
-        }
-        
-        // Força reload sem cache se necessário (apenas DEV)
-        if (performance.navigation.type !== 1 && !location.search.includes('force=1')) {
-          location.replace(location.href + (location.search ? '&' : '?') + 'force=1&t=' + Date.now());
+      // Preboot: limpar SW e caches uma vez por sessão para evitar React duplicado e chunks obsoletos
+      (function () {
+        var VERSION = 'madenai-preboot-v7';
+        try {
+          var KEY = '__madenai_boot_version__';
+          var prev = sessionStorage.getItem(KEY);
+          if (prev !== VERSION) {
+            sessionStorage.setItem(KEY, VERSION);
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                regs.forEach(function (r) { r.unregister(); });
+              });
+            }
+            if ('caches' in window) {
+              caches.keys().then(function (names) {
+                return Promise.all(names.map(function (n) { return caches.delete(n); }));
+              });
+            }
+            // Evitar loop de reload com cache
+            if (!location.search.includes('force=1')) {
+              var sep = location.search ? '&' : '?';
+              location.replace(location.href + sep + 'force=1&t=' + Date.now());
+            }
+          }
+        } catch (e) {
+          console.warn('[MadenAI] Preboot purge skipped:', e);
         }
       })();
     </script>
-    <script type="module" src="/src/main.tsx?v=reactfix7" defer></script>
+    <script type="module" src="/src/main.tsx?v=reactfix8" defer></script>
   </body>
 </html>
