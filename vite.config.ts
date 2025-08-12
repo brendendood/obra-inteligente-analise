@@ -28,18 +28,13 @@ export default defineConfig(({ mode }) => ({
     global: 'globalThis',
   },
   optimizeDeps: {
-    // Garantir instância única do React durante o prebundle
     include: [
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
-      'react/jsx-dev-runtime',
       'react-router-dom',
       '@supabase/supabase-js',
       '@tanstack/react-query',
       'zustand'
     ],
-    exclude: [],
+    exclude: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
     force: true,
     entries: ['src/main.tsx']
   },
