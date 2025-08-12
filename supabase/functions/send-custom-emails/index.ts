@@ -33,34 +33,125 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log(`📧 SEND-EMAILS: Enviando email tipo "${email_type}" para ${recipient_email}`);
 
-    // Inicializar Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    // Inicializar Supabase client (opcional para logging)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+
+    // Garantir que a API key do Resend existe
+    if (!Deno.env.get('RESEND_API_KEY')) {
+      const msg = 'RESEND_API_KEY ausente. Configure em Supabase > Functions > Secrets.';
+      console.error('❌ SEND-EMAILS:', msg);
+      // Log opcional de falha
+      try {
+        if (supabase) {
+          await supabase.from('email_logs').insert({
+            user_id: user_data?.user_id || null,
+            email_type,
+            recipient_email,
+            subject: 'N/A (missing API key)',
+            status: 'failed',
+            template_version: '1.0',
+            metadata: { error: msg, user_data, reset_data }
+          });
+        }
+      } catch (_) {}
+      return new Response(JSON.stringify({ error: msg }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     // Gerar conteúdo do email baseado no tipo
     const emailContent = generateEmailContent(email_type, user_data, reset_data);
 
-    // Enviar email via Resend
-    const emailResponse = await resend.emails.send({
-      from: "MadenAI <noreply@arqcloud.com.br>",
-      to: [recipient_email],
-      subject: emailContent.subject,
-      html: emailContent.html,
-    });
+    // Definir remetente com fallback seguro
+    const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || '';
+    const fromName = Deno.env.get('RESEND_FROM_NAME') || 'MadenAI';
+    const fallbackFrom = 'MadenAI <onboarding@resend.dev>';
+    const preferredFrom = fromEmail ? `${fromName} <${fromEmail}>` : fallbackFrom;
 
-    console.log("✅ SEND-EMAILS: Email enviado:", emailResponse);
+    let emailResponse: any = null;
+    let usedFrom = preferredFrom;
 
-    // Registrar log do email
-    await supabase.from('email_logs').insert({
-      user_id: user_data?.user_id || null,
-      email_type,
-      recipient_email,
-      subject: emailContent.subject,
-      status: 'sent',
-      template_version: '1.0',
-      metadata: { email_id: emailResponse.data?.id, user_data, reset_data }
-    });
+    try {
+      // Primeira tentativa com remetente preferido
+      emailResponse = await resend.emails.send({
+        from: preferredFrom,
+        to: [recipient_email],
+        subject: emailContent.subject,
+        html: emailContent.html,
+      });
+    } catch (primaryErr: any) {
+      const msg = String(primaryErr?.message || primaryErr || 'Unknown error');
+      console.error('❌ SEND-EMAILS: Falha com remetente preferido:', msg);
+      const domainNotVerified = /domain.*(not verified|isn't verified|not allowed|unauthorized|forbidden)/i.test(msg);
+
+      if (preferredFrom !== fallbackFrom && domainNotVerified) {
+        // Retry com fallback remetente verificado da Resend
+        try {
+          usedFrom = fallbackFrom;
+          emailResponse = await resend.emails.send({
+            from: fallbackFrom,
+            to: [recipient_email],
+            subject: emailContent.subject,
+            html: emailContent.html,
+          });
+        } catch (fallbackErr: any) {
+          console.error('❌ SEND-EMAILS: Falha também com fallback:', fallbackErr);
+          // Logar falha (se possível) e propagar
+          try {
+            if (supabase) {
+              await supabase.from('email_logs').insert({
+                user_id: user_data?.user_id || null,
+                email_type,
+                recipient_email,
+                subject: emailContent.subject,
+                status: 'failed',
+                template_version: '1.0',
+                metadata: { error: String(fallbackErr?.message || fallbackErr), user_data, reset_data, used_from: usedFrom }
+              });
+            }
+          } catch (_) {}
+          throw fallbackErr;
+        }
+      } else {
+        // Sem fallback aplicável: logar e propagar
+        try {
+          if (supabase) {
+            await supabase.from('email_logs').insert({
+              user_id: user_data?.user_id || null,
+              email_type,
+              recipient_email,
+              subject: emailContent.subject,
+              status: 'failed',
+              template_version: '1.0',
+              metadata: { error: msg, user_data, reset_data, used_from: usedFrom }
+            });
+          }
+        } catch (_) {}
+        throw primaryErr;
+      }
+    }
+
+    console.log('✅ SEND-EMAILS: Email enviado:', emailResponse);
+
+    // Registrar log do email (se possível)
+    try {
+      if (supabase) {
+        await supabase.from('email_logs').insert({
+          user_id: user_data?.user_id || null,
+          email_type,
+          recipient_email,
+          subject: emailContent.subject,
+          status: 'sent',
+          template_version: '1.0',
+          metadata: { email_id: emailResponse?.data?.id, user_data, reset_data, used_from: usedFrom }
+        });
+      }
+    } catch (logErr) {
+      console.warn('⚠️ SEND-EMAILS: Não foi possível registrar o log do email:', logErr);
+    }
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
@@ -69,6 +160,7 @@ const handler = async (req: Request): Promise<Response> => {
         ...corsHeaders,
       },
     });
+
   } catch (error: any) {
     console.error("❌ SEND-EMAILS: Erro:", error);
     return new Response(
