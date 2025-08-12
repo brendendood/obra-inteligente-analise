@@ -28,17 +28,13 @@ export default defineConfig(({ mode }) => ({
     global: 'globalThis',
   },
   optimizeDeps: {
-    // Garantir uma única instância do React e evitar hook errors
+    // Evitar múltiplas cópias de React (não pré-empacotar react*)
     include: [
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
       'react-router-dom',
       '@supabase/supabase-js',
       '@tanstack/react-query',
       'zustand'
     ],
-    // Não exclua react-query: evita pacotes duplicados e hook call inválido
     exclude: [],
     force: true,
     entries: ['src/main.tsx']
