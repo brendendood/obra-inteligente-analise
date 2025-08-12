@@ -29,12 +29,16 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     include: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
       'react-router-dom',
       '@supabase/supabase-js',
       '@tanstack/react-query',
       'zustand'
     ],
-    exclude: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
+    exclude: [],
     force: true,
     entries: ['src/main.tsx']
   },
