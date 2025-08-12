@@ -22,29 +22,31 @@ class ToasterErrorBoundary extends React.Component<{ children: React.ReactNode; 
   }
 }
 
-const SafeToasters: React.FC = () => {
-  const [mounted, setMounted] = React.useState(false);
-  const [radixEnabled, setRadixEnabled] = React.useState(true);
-
-  React.useEffect(() => {
+class SafeToasters extends React.Component<{}, { mounted: boolean; radixEnabled: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { mounted: false, radixEnabled: true };
+  }
+  componentDidMount() {
     // Defer render dos toasts para após o primeiro commit
-    setMounted(true);
-  }, []);
+    this.setState({ mounted: true });
+  }
+  render() {
+    if (!this.state.mounted) return null;
 
-  if (!mounted) return null;
-
-  return (
-    <React.Suspense fallback={null}>
-      {radixEnabled && (
-        <ToasterErrorBoundary onError={() => setRadixEnabled(false)}>
-          <RadixToaster />
+    return (
+      <React.Suspense fallback={null}>
+        {this.state.radixEnabled && (
+          <ToasterErrorBoundary onError={() => this.setState({ radixEnabled: false })}>
+            <RadixToaster />
+          </ToasterErrorBoundary>
+        )}
+        <ToasterErrorBoundary>
+          <SonnerToaster />
         </ToasterErrorBoundary>
-      )}
-      <ToasterErrorBoundary>
-        <SonnerToaster />
-      </ToasterErrorBoundary>
-    </React.Suspense>
-  );
-};
+      </React.Suspense>
+    );
+  }
+}
 
 export default SafeToasters;
