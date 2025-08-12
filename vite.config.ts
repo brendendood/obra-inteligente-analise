@@ -4,6 +4,10 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+// Força todas as importações de React/ReactDOM para a mesma instância
+const reactAlias = path.resolve(__dirname, "node_modules/react");
+const reactDomAlias = path.resolve(__dirname, "node_modules/react-dom");
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -45,6 +49,9 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Garante singleton de React/ReactDOM
+      "react": reactAlias,
+      "react-dom": reactDomAlias,
     },
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
   },
