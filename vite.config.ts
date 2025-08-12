@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -28,16 +29,15 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     // FORÇA uma única instância do React
-      include: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'react-router-dom',
-        '@supabase/supabase-js',
-        '@tanstack/react-query',
-        'zustand'
-      ],
-    exclude: [],
+    include: [
+      // Removido: 'react', 'react-dom', 'react/jsx-runtime'
+      'react-router-dom',
+      '@supabase/supabase-js',
+      '@tanstack/react-query',
+      'zustand'
+    ],
+    // Evitar pré-empacotar libs que podem referenciar outra instância do React
+    exclude: ['@tanstack/react-query'],
     force: true,
     // CRÍTICO: Evita múltiplas instâncias
     entries: ['src/main.tsx']
