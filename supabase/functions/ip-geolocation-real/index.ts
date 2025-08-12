@@ -37,7 +37,7 @@ async function getGeolocationFromIP(ip: string): Promise<GeolocationResponse> {
   const apis = [
     {
       name: 'ipapi',
-      url: `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,timezone`,
+      url: `https://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,timezone`,
       parse: (data: any) => ({
         city: data.city || 'Não disponível',
         region: data.regionName || 'Não disponível',

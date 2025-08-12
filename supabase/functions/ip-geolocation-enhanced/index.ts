@@ -59,7 +59,7 @@ const providers: GeolocationProvider[] = [
   // 2. ip-api.com - Sem limites, boa precisão
   {
     name: 'IP-API',
-    url: (ip: string) => `http://ip-api.com/json/${ip}?fields=status,country,regionName,city,lat,lon,isp,timezone,query`,
+    url: (ip: string) => `https://ip-api.com/json/${ip}?fields=status,country,regionName,city,lat,lon,isp,timezone,query`,
     transform: (data: any) => {
       if (!data || data.status !== 'success' || !data.city) return null;
       return {
@@ -269,11 +269,34 @@ serve(async (req) => {
 
     const { ip_address, login_id, user_id, force_update = false } = await req.json();
 
+    // Auth required
+    const authHeader = req.headers.get('Authorization') || '';
+    const supabaseAuth = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY') || '', { global: { headers: { Authorization: authHeader } } });
+    const { data: auth } = await supabaseAuth.auth.getUser();
+    if (!auth?.user) {
+      return new Response(JSON.stringify({ success: false, error: 'unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (user_id && user_id !== auth.user.id) {
+      return new Response(JSON.stringify({ success: false, error: 'forbidden_user_mismatch' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     if (!ip_address) {
       return new Response(
         JSON.stringify({ success: false, error: 'IP address é obrigatório' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // If login_id provided, ensure it belongs to caller
+    if (login_id) {
+      const { data: loginRow } = await supabase
+        .from('user_login_history')
+        .select('user_id')
+        .eq('id', login_id)
+        .single();
+      if (!loginRow || loginRow.user_id !== auth.user.id) {
+        return new Response(JSON.stringify({ success: false, error: 'forbidden_login_ownership' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
     }
 
     console.log(`🔄 ENHANCED GEOLOCATION: Processando IP ${ip_address}, login_id: ${login_id}, user_id: ${user_id}`);

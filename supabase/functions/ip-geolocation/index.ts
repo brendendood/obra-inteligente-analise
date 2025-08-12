@@ -36,7 +36,7 @@ async function getGeolocationFromIP(ip: string): Promise<GeolocationResponse> {
   const apis = [
     {
       name: 'ipapi_com',
-      url: `http://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,timezone`,
+      url: `https://ip-api.com/json/${ip}?fields=status,message,country,regionName,city,lat,lon,isp,timezone`,
       parse: (data: any) => {
         if (data.status !== 'success') {
           throw new Error(data.message || 'Falha na API');
@@ -156,6 +156,29 @@ Deno.serve(async (req) => {
     // Extrair dados da requisição
     const { ip_address, login_id, user_id, force_update = false } = await req.json();
 
+    // Validar autenticação via JWT
+    const authHeader = req.headers.get('Authorization') || '';
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: auth } = await supabaseAuth.auth.getUser();
+    if (!auth?.user) {
+      return new Response(JSON.stringify({ success: false, error: 'unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Se user_id for fornecido, deve corresponder ao usuário autenticado
+    if (user_id && user_id !== auth.user.id) {
+      return new Response(JSON.stringify({ success: false, error: 'forbidden_user_mismatch' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     if (!ip_address) {
       throw new Error('IP address é obrigatório');
     }
@@ -164,11 +187,29 @@ Deno.serve(async (req) => {
       throw new Error('Login ID é obrigatório');
     }
 
+    // Verificar se o login_id pertence ao usuário autenticado
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    const { data: loginRow } = await supabaseAdmin
+      .from('user_login_history')
+      .select('user_id')
+      .eq('id', login_id)
+      .single();
+    if (!loginRow || loginRow.user_id !== auth.user.id) {
+      return new Response(JSON.stringify({ success: false, error: 'forbidden_login_ownership' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     console.log('📡 Capturando localização REAL para:', { 
       ip_address, 
       login_id, 
       user_id, 
-      force_update 
+      force_update, 
+      caller: auth.user.id 
     });
 
     // Obter geolocalização REAL e PRECISA
