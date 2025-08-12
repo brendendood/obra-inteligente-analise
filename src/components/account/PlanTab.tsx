@@ -19,11 +19,11 @@ export const PlanTab = () => {
 
   const getPlanDescription = (plan: string) => {
     switch (plan) {
-      case 'free': return 'Você está no plano Free do MadenAI';
-      case 'basic': return 'Você está no plano Basic do MadenAI';
-      case 'pro': return 'Você está no plano Pro do MadenAI';
-      case 'enterprise': return 'Você está no plano Enterprise do MadenAI';
-      default: return 'Você está no plano Free do MadenAI';
+      case 'free': return 'Você está no plano Free do MadeAI';
+      case 'basic': return 'Você está no plano Basic do MadeAI';
+      case 'pro': return 'Você está no plano Pro do MadeAI';
+      case 'enterprise': return 'Você está no plano Enterprise do MadeAI';
+      default: return 'Você está no plano Free do MadeAI';
     }
   };
 

@@ -149,7 +149,7 @@ export function useReferralSystem() {
         
         toast({
           title: "🎉 Primeiro projeto criado!",
-          description: "Parabéns por criar seu primeiro projeto no MadenAI!",
+          description: "Parabéns por criar seu primeiro projeto no MadeAI!",
           duration: 3000,
         });
       }

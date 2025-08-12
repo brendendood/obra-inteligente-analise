@@ -27,7 +27,7 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
     {
       id: '1',
       type: 'assistant',
-      content: `Olá! Sou a **MadenAI**, sua assistente especializada no projeto **${project.name}**.\n\nAnalisei todos os dados técnicos deste projeto de ${project.total_area}m² e estou pronta para responder suas perguntas sobre:\n\n• **Quantitativos e materiais**\n• **Especificações técnicas**\n• **Orçamentos e custos**\n• **Cronogramas de obra**\n• **Documentos do projeto**\n\nComo posso ajudá-lo hoje?`,
+      content: `Olá! Sou a **MadeAI**, sua assistente especializada no projeto **${project.name}**.\n\nAnalisei todos os dados técnicos deste projeto de ${project.total_area}m² e estou pronta para responder suas perguntas sobre:\n\n• **Quantitativos e materiais**\n• **Especificações técnicas**\n• **Orçamentos e custos**\n• **Cronogramas de obra**\n• **Documentos do projeto**\n\nComo posso ajudá-lo hoje?`,
       timestamp: new Date()
     }
   ]);
@@ -179,7 +179,7 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
             <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">MadenAI</h3>
+            <h3 className="font-semibold text-gray-900">MadeAI</h3>
             <p className="text-sm text-gray-500">Assistente especializada em {project.name}</p>
           </div>
         </div>
@@ -235,7 +235,7 @@ export const ProjectAIChat = ({ project, onQuestionClick }: ProjectAIChatProps) 
           
           {/* Disclaimer */}
           <p className="text-xs text-gray-500 text-center mt-2">
-            MadenAI pode cometer erros. Considere verificar informações importantes.
+            MadeAI pode cometer erros. Considere verificar informações importantes.
           </p>
         </div>
       </div>

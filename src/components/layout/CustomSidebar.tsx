@@ -45,7 +45,7 @@ export const CustomSidebar = ({ isCollapsed, onToggle }: CustomSidebarProps) => 
             isCollapsed ? "opacity-0" : "opacity-100"
           )}
         >
-          MadenAI
+          MadeAI
         </h1>
         
         <button

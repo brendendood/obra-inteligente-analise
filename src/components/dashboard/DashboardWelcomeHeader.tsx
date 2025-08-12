@@ -29,7 +29,7 @@ const DashboardWelcomeHeader = ({ userName, greeting, onRefresh, isLoading }: Da
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{greeting}, {userName}!</h2>
-              <p className="text-gray-600">Bem-vindo ao MadenAI. Gerencie seus projetos com inteligência artificial.</p>
+              <p className="text-gray-600">Bem-vindo ao MadeAI. Gerencie seus projetos com inteligência artificial.</p>
             </div>
           </div>
           

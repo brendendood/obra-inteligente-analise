@@ -155,7 +155,7 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <AuthProvider>
     <ImpersonationProvider>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="madenai-theme">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="madeai-theme">
           <ProjectProvider>
             <TooltipProvider delayDuration={200}>
               {children}

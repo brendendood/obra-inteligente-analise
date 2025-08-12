@@ -20,7 +20,7 @@ export const CompleteDataCleanup = () => {
       sessionStorage.clear();
       
       // Limpar cache específico dos projetos
-      const cacheKey = 'madenai_projects_cache';
+      const cacheKey = 'madeai_projects_cache';
       localStorage.removeItem(cacheKey);
       
       console.log('✅ Cache frontend limpo');

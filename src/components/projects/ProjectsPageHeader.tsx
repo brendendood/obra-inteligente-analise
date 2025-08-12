@@ -16,7 +16,7 @@ const ProjectsPageHeader = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Meus Projetos</h1>
             <p className="text-gray-600">
-              Gerencie e analise seus projetos com inteligência artificial MadenAI
+              Gerencie e analise seus projetos com inteligência artificial MadeAI
             </p>
           </div>
         </div>

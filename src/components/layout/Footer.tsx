@@ -17,7 +17,7 @@ const Footer = () => {
               Análise automatizada, orçamentos precisos e cronogramas inteligentes.
             </p>
             <div className="text-sm text-slate-400">
-              <p>© 2025 MadenAI. Todos os direitos reservados.</p>
+              <p>© 2025 MadeAI. Todos os direitos reservados.</p>
             </div>
           </div>
 

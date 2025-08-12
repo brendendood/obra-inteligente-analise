@@ -19,7 +19,7 @@ export const UnifiedLogo = ({
   size = 'md', 
   clickable = true, 
   className, 
-  alt = 'MadenAI',
+  alt = 'MadeAI',
   theme = 'auto',
   loading = false,
   priority = false

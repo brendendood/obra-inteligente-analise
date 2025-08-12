@@ -117,7 +117,7 @@ export const MemberFooter = () => {
         <div className="border-t border-slate-200 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
             <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
-              <span>MadenAI v2.0</span>
+              <span>MadeAI v2.0</span>
               <span>•</span>
               <span>Plano: {getPlanDisplayName(userData.plan)}</span>
               <span>•</span>
@@ -144,7 +144,7 @@ export const MemberFooter = () => {
           </div>
           <div className="text-center mt-4">
             <p className="text-xs text-slate-400">
-              © 2025 MadenAI - Todos os direitos reservados
+              © 2025 MadeAI - Todos os direitos reservados
             </p>
           </div>
         </div>

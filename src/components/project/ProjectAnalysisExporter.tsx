@@ -41,7 +41,7 @@ export const ProjectAnalysisExporter = ({ project }: ProjectAnalysisExporterProp
         tasks_count: project.analysis_data.schedule_data.tasks?.length || 0
       } : null,
       exported_at: new Date().toISOString(),
-      exported_by: "MadenAI Platform"
+      exported_by: "MadeAI Platform"
     };
 
     return JSON.stringify(analysisData, null, 2);

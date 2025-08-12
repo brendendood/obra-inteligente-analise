@@ -112,7 +112,7 @@ export const BudgetExportDialog = ({
               <FileText className="h-4 w-4 mr-3" />
               <div className="text-left">
                 <div className="font-medium">PDF Profissional (.pdf)</div>
-                <div className="text-xs opacity-90">Layout MadenAI com logo e formatação</div>
+                <div className="text-xs opacity-90">Layout MadeAI com logo e formatação</div>
               </div>
               {isExporting && <div className="ml-auto animate-spin">⏳</div>}
             </Button>

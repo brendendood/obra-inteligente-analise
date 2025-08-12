@@ -27,7 +27,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
     {
       id: '1',
       type: 'assistant',
-      content: `Olá! Sou a **MadenAI**, sua assistente especializada no projeto **${project.name}**.\n\nAnalisei todos os dados técnicos deste projeto de ${project.total_area}m² e estou pronta para responder suas perguntas sobre quantitativos, materiais, orçamentos, cronogramas e documentos.\n\nComo posso ajudá-lo hoje?`,
+      content: `Olá! Sou a **MadeAI**, sua assistente especializada no projeto **${project.name}**.\n\nAnalisei todos os dados técnicos deste projeto de ${project.total_area}m² e estou pronta para responder suas perguntas sobre quantitativos, materiais, orçamentos, cronogramas e documentos.\n\nComo posso ajudá-lo hoje?`,
       timestamp: new Date()
     }
   ]);
@@ -136,7 +136,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
               <Sparkles className="h-4 w-4 text-white" />
             </div>
             <div className="text-right">
-              <h3 className="font-semibold text-gray-900 text-sm">MadenAI</h3>
+              <h3 className="font-semibold text-gray-900 text-sm">MadeAI</h3>
               <p className="text-xs text-gray-500">{project.name}</p>
             </div>
           </div>
@@ -202,7 +202,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
-                    <span className="text-sm text-gray-500 ml-2">MadenAI está pensando...</span>
+                    <span className="text-sm text-gray-500 ml-2">MadeAI está pensando...</span>
                   </div>
                 </div>
               </div>
@@ -242,7 +242,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Mensagem MadenAI..."
+                placeholder="Mensagem MadeAI..."
                 disabled={isTyping}
                 className="min-h-[60px] max-h-[200px] resize-none border-gray-300 rounded-2xl pr-12 py-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 style={{ fontSize: isMobile ? '16px' : '14px' }}
@@ -260,7 +260,7 @@ export const ModernProjectAIChat = ({ project }: ModernProjectAIChatProps) => {
           </div>
           
           <p className="text-xs text-gray-500 text-center mt-3">
-            MadenAI pode cometer erros. Considere verificar informações importantes.
+            MadeAI pode cometer erros. Considere verificar informações importantes.
           </p>
         </div>
       </div>

@@ -16,7 +16,7 @@ export const ProjectAIHeader = ({ project }: ProjectAIHeaderProps) => {
             <Bot className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-base md:text-xl font-bold">IA MadenAI – {project.name}</h1>
+            <h1 className="text-base md:text-xl font-bold">IA MadeAI – {project.name}</h1>
             <p className="text-blue-100 mt-1 text-xs md:text-sm">Assistente especializado treinado neste projeto</p>
           </div>
         </div>

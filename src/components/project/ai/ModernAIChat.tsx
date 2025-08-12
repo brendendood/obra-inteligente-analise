@@ -37,7 +37,7 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
     {
       id: '1',
       type: 'assistant',
-      content: `Olá! Sou a **MadenAI**, sua assistente especializada no projeto **${project.name}**.\n\nAnalisei todos os dados técnicos e estou pronta para responder suas perguntas sobre quantitativos, especificações, orçamentos e cronogramas.\n\nComo posso ajudá-lo?`,
+      content: `Olá! Sou a **MadeAI**, sua assistente especializada no projeto **${project.name}**.\n\nAnalisei todos os dados técnicos e estou pronta para responder suas perguntas sobre quantitativos, especificações, orçamentos e cronogramas.\n\nComo posso ajudá-lo?`,
       timestamp: new Date()
     }
   ]);
@@ -275,7 +275,7 @@ export const ModernAIChat = ({ project }: ModernAIChatProps) => {
               <Bot className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">MadenAI</h3>
+              <h3 className="font-semibold text-gray-900">MadeAI</h3>
               <p className="text-sm text-gray-500">{project.name}</p>
             </div>
           </div>

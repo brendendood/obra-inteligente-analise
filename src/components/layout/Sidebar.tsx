@@ -148,7 +148,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
         <div className="flex items-center">
           <img 
             src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
-            alt="MadenAI" 
+            alt="MadeAI" 
             className="h-12 w-auto" 
           />
         </div>
@@ -172,7 +172,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
         <div className="flex items-center">
           <img 
             src="/lovable-uploads/6fd4d63a-4d95-4b1f-a41b-e2fa342c2181.png" 
-            alt="MadenAI" 
+            alt="MadeAI" 
             className="h-20 w-auto" 
           />
         </div>
