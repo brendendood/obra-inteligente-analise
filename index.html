@@ -30,6 +30,9 @@
     <!-- Preload de fontes críticas -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+
+    <!-- Preload da folha de estilos principal para reduzir bloqueio de renderização -->
+    <link rel="preload" href="/src/index.css" as="style" fetchpriority="high" />
     
     <!-- Preload da logo para LCP -->
     <link rel="preload" as="image" href="/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png" fetchpriority="high" />
