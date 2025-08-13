@@ -61,8 +61,18 @@ export default defineConfig(({ mode }) => ({
       "react-dom": reactDomAlias,
       "react/jsx-runtime": path.join(reactAlias, "jsx-runtime"),
       "react/jsx-dev-runtime": path.join(reactAlias, "jsx-dev-runtime"),
+      // Garante singleton de React Router
+      "react-router-dom": path.resolve(__dirname, "node_modules/react-router-dom"),
+      "react-router": path.resolve(__dirname, "node_modules/react-router"),
     },
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
+    dedupe: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'react-router',
+      'react-router-dom'
+    ]
   },
   esbuild: {
     drop: mode === 'production' ? ['console', 'debugger'] : [],
