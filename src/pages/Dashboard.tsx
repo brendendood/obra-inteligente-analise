@@ -4,22 +4,24 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { AppLayout } from '@/components/layout/AppLayout';
 import DashboardLoadingState from '@/components/dashboard/DashboardLoadingState';
-import { OptimizedDashboard } from '@/components/dashboard/OptimizedDashboard';
+import DashboardContent from '@/components/dashboard/DashboardContent';
+import DashboardWelcomeHeader from '@/components/dashboard/DashboardWelcomeHeader';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { ImpersonationBanner } from '@/components/admin/ImpersonationBanner';
 import { useUnifiedProjectRealtime } from '@/hooks/useUnifiedProjectRealtime';
 
-// Memoized components for better performance
-const MemoizedOptimizedDashboard = memo(OptimizedDashboard);
+const MemoizedDashboardContent = memo(DashboardContent);
+const MemoizedDashboardWelcomeHeader = memo(DashboardWelcomeHeader);
 
 const Dashboard = memo(() => {
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { isImpersonating, impersonationData } = useImpersonation();
   const navigate = useNavigate();
   
-  // Initialize project store
-  const { projects, isLoading: isLoadingProjects, error, fetchProjects, forceRefresh } = useUnifiedProjectStore();
+  // Initialize dashboard data
+  const { projects, stats, isDataLoading, forceRefresh } = useDashboardData();
   const { isRealtimeConnected } = useUnifiedProjectRealtime();
 
   // Handle authentication redirect
@@ -29,23 +31,14 @@ const Dashboard = memo(() => {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Auto-fetch projects when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated && !authLoading && user) {
-      console.log('🚀 DASHBOARD: Usuário autenticado, carregando projetos...');
-      fetchProjects();
-    }
-  }, [isAuthenticated, authLoading, user, fetchProjects]);
-  
   // Debug log para monitorar estado dos projetos
   useEffect(() => {
-    console.log('📈 DASHBOARD: Estado dos projetos atualizado:', {
+    console.log('📈 DASHBOARD: Estado dos dados atualizado:', {
       projectsCount: projects.length,
-      isLoading: isLoadingProjects,
-      error,
+      isLoading: isDataLoading,
       isRealtimeConnected
     });
-  }, [projects.length, isLoadingProjects, error, isRealtimeConnected]);
+  }, [projects.length, isDataLoading, isRealtimeConnected]);
 
   // Early returns for performance
   if (authLoading) {
@@ -74,13 +67,21 @@ const Dashboard = memo(() => {
       )}
       
       <AppLayout>
-        <MemoizedOptimizedDashboard
-          userName={userName}
-          projects={projects}
-          isLoadingProjects={isLoadingProjects}
-          error={error}
-          onRetry={forceRefresh}
-        />
+        <div className="space-y-6">
+          <MemoizedDashboardWelcomeHeader
+            userName={userName}
+            greeting={`Bem-vindo, ${userName}!`}
+            onRefresh={forceRefresh}
+            isLoading={isDataLoading}
+          />
+          
+          <MemoizedDashboardContent
+            stats={stats}
+            projects={projects}
+            isDataLoading={isDataLoading}
+            onRetry={forceRefresh}
+          />
+        </div>
       </AppLayout>
     </div>
   );

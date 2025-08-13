@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,7 @@ import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { GenderSelect } from '@/components/account/GenderSelect';
 import { useEmailSystem } from '@/hooks/useEmailSystem';
-import { ChevronLeft, ChevronRight, Check, Edit2, User, Briefcase } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, User, Building, Shield, Mail, ArrowLeft } from 'lucide-react';
 
 interface FormData {
   fullName: string;
@@ -54,29 +54,29 @@ const SignupWizard = () => {
     switch (step) {
       case 1:
         if (!formData.fullName.trim()) {
-          toast({ title: "❌ Nome obrigatório", description: "Por favor, preencha seu nome completo." });
+          toast({ title: "Nome obrigatório", description: "Por favor, preencha seu nome completo." });
           return false;
         }
         if (!formData.email.trim()) {
-          toast({ title: "❌ Email obrigatório", description: "Por favor, preencha seu email." });
+          toast({ title: "Email obrigatório", description: "Por favor, preencha seu email." });
           return false;
         }
         if (formData.password.length < 8) {
-          toast({ title: "❌ Senha muito fraca", description: "A senha deve ter pelo menos 8 caracteres." });
+          toast({ title: "Senha muito fraca", description: "A senha deve ter pelo menos 8 caracteres." });
           return false;
         }
         if (formData.password !== formData.confirmPassword) {
-          toast({ title: "❌ Senhas não coincidem", description: "Por favor, confirme sua senha corretamente." });
+          toast({ title: "Senhas não coincidem", description: "Por favor, confirme sua senha corretamente." });
           return false;
         }
         return true;
       case 3:
         if (!acceptedTerms) {
-          toast({ title: "❌ Aceite os termos", description: "Você deve aceitar os Termos de Uso." });
+          toast({ title: "Aceite os termos", description: "Você deve aceitar os Termos de Uso." });
           return false;
         }
         if (!acceptedPrivacy) {
-          toast({ title: "❌ Aceite a política", description: "Você deve aceitar a Política de Privacidade." });
+          toast({ title: "Aceite a política", description: "Você deve aceitar a Política de Privacidade." });
           return false;
         }
         return true;
@@ -101,9 +101,6 @@ const SignupWizard = () => {
     setLoading(true);
 
     try {
-      console.log('🔐 SIGNUP: Iniciando cadastro para:', formData.email);
-
-      // Registrar usuário no Supabase Auth (SEM emailRedirectTo para usar apenas Resend)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -115,21 +112,18 @@ const SignupWizard = () => {
             gender: formData.gender,
             ref_code: formData.refCode || undefined,
           }
-          // Removido emailRedirectTo para evitar email automático do Supabase
         }
       });
 
       if (authError) {
-        console.error('❌ SIGNUP: Erro na criação:', authError);
-        
         if (authError.message.includes('already registered')) {
           toast({
-            title: "❌ Email já cadastrado",
+            title: "Email já cadastrado",
             description: "Este email já possui uma conta. Tente fazer login ou usar outro email.",
           });
         } else {
           toast({
-            title: "❌ Erro no cadastro",
+            title: "Erro no cadastro",
             description: authError.message,
           });
         }
@@ -140,43 +134,25 @@ const SignupWizard = () => {
         throw new Error('Falha na criação do usuário');
       }
 
-      console.log('✅ SIGNUP: Usuário criado:', authData.user.id);
-
-      // O webhook auth-email-webhook agora enviará o email de verificação automaticamente
-      console.log('📧 SIGNUP: Webhook configurado para enviar email de verificação via Resend');
-
-      // Emails complementares via Resend (não bloqueantes)
+      // Emails complementares
       try {
-        // Email de boas-vindas
-        console.log('📧 SIGNUP: Enviando email de boas-vindas...');
         await sendWelcomeEmail(formData.email, formData.fullName);
-        console.log('✅ SIGNUP: Email de boas-vindas enviado');
-      } catch (emailError) {
-        console.error('⚠️ SIGNUP: Erro no email de boas-vindas:', emailError);
-      }
-
-      try {
-        // Email de onboarding
-        console.log('📧 SIGNUP: Enviando email de onboarding...');
         await sendOnboardingEmail(formData.email, formData.fullName);
-        console.log('✅ SIGNUP: Email de onboarding enviado');
       } catch (emailError) {
-        console.error('⚠️ SIGNUP: Erro no email de onboarding:', emailError);
+        console.error('Erro nos emails:', emailError);
       }
 
-      // Mostrar tela de sucesso
       setUserEmail(formData.email);
       setShowSuccess(true);
 
       toast({
-        title: "🎉 Cadastro realizado!",
+        title: "Cadastro realizado!",
         description: `Bem-vindo(a), ${formData.fullName}! Verifique seu email para ativar sua conta.`,
       });
 
     } catch (error: any) {
-      console.error('❌ SIGNUP: Erro geral:', error);
       toast({
-        title: "❌ Erro no cadastro",
+        title: "Erro no cadastro",
         description: error.message || "Erro inesperado. Tente novamente.",
       });
     } finally {
@@ -187,9 +163,7 @@ const SignupWizard = () => {
   const handleResendVerification = async () => {
     try {
       setLoading(true);
-      console.log('📧 RESEND: Reenviando verificação para:', userEmail);
-
-      // Usar a função de emails customizados diretamente
+      
       const { error } = await supabase.functions.invoke('send-custom-emails', {
         body: {
           email_type: 'verified_user',
@@ -206,14 +180,13 @@ const SignupWizard = () => {
       }
 
       toast({
-        title: "📧 Email reenviado!",
+        title: "Email reenviado!",
         description: "Verifique sua caixa de entrada (e spam) novamente.",
       });
 
     } catch (error: any) {
-      console.error('❌ RESEND: Erro:', error);
       toast({
-        title: "❌ Erro no reenvio",
+        title: "Erro no reenvio",
         description: error.message || "Não foi possível reenviar o email.",
       });
     } finally {
@@ -221,351 +194,394 @@ const SignupWizard = () => {
     }
   };
 
-  // Indicador de progresso
-  const ProgressIndicator = () => (
-    <div className="flex items-center justify-center mb-6">
-      {[1, 2, 3].map((step) => (
-        <React.Fragment key={step}>
-          <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
-            step <= currentStep 
-              ? 'bg-primary text-primary-foreground border-primary' 
-              : 'bg-background text-muted-foreground border-muted-foreground'
-          }`}>
-            {step < currentStep ? <Check className="w-4 h-4" /> : step}
-          </div>
-          {step < 3 && (
-            <div className={`w-12 h-0.5 mx-2 ${
-              step < currentStep ? 'bg-primary' : 'bg-muted-foreground'
-            }`} />
-          )}
-        </React.Fragment>
-      ))}
-    </div>
-  );
+  const getStepConfig = () => {
+    const configs = [
+      { icon: User, title: "Dados Pessoais", subtitle: "Informações básicas da conta" },
+      { icon: Building, title: "Dados Profissionais", subtitle: "Informações do trabalho" },
+      { icon: Shield, title: "Finalização", subtitle: "Termos e confirmação" }
+    ];
+    return configs[currentStep - 1];
+  };
 
   // Tela de sucesso após cadastro
   if (showSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <UnifiedLogo />
-            <CardTitle className="text-2xl text-green-600">✅ Cadastro Realizado!</CardTitle>
-            <CardDescription>
-              Verifique seu email para ativar sua conta
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Alert>
-              <AlertDescription>
-                <strong>📧 Email enviado para:</strong><br />
-                {userEmail}
-                <br /><br />
-                Clique no link de verificação para ativar sua conta e fazer login.
-                <br /><br />
-                <strong>⚠️ Não esqueça de verificar a pasta de spam!</strong>
-              </AlertDescription>
-            </Alert>
-            
-            <div className="space-y-2">
-              <Button 
-                onClick={handleResendVerification}
-                disabled={loading}
-                variant="outline" 
-                className="w-full"
-              >
-                {loading ? "Reenviando..." : "📧 Reenviar Email"}
-              </Button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="backdrop-blur-xl bg-white/80 border-0 shadow-2xl">
+            <CardContent className="p-8 text-center space-y-6">
+              <div className="flex justify-center mb-4">
+                <UnifiedLogo size="lg" />
+              </div>
               
-              <Button 
-                onClick={() => navigate('/login')}
-                variant="default" 
-                className="w-full"
-              >
-                Ir para Login
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="space-y-2">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-green-600" />
+                </div>
+                <h1 className="text-2xl font-semibold text-slate-900">
+                  Cadastro Realizado!
+                </h1>
+                <p className="text-slate-600">
+                  Verifique seu email para ativar sua conta
+                </p>
+              </div>
+
+              <Alert className="border-blue-200 bg-blue-50 text-left">
+                <Mail className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  <strong>Email enviado para:</strong><br />
+                  {userEmail}
+                  <br /><br />
+                  Clique no link de verificação para ativar sua conta.
+                  <br /><br />
+                  <strong>⚠️ Verifique também a pasta de spam!</strong>
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={handleResendVerification}
+                  disabled={loading}
+                  variant="outline" 
+                  className="w-full"
+                >
+                  {loading ? "Reenviando..." : "Reenviar Email"}
+                </Button>
+                
+                <Button 
+                  onClick={() => navigate('/login')}
+                  className="w-full"
+                >
+                  Ir para Login
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
-  // Renderizar conteúdo do passo atual
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Nome Completo *</Label>
-              <Input
-                id="fullName"
-                type="text"
-                value={formData.fullName}
-                onChange={(e) => handleInputChange('fullName', e.target.value)}
-                placeholder="Seu nome completo"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha *</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                placeholder="Mínimo 8 caracteres"
-                required
-              />
-              <PasswordStrengthIndicator password={formData.password} />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                placeholder="Digite a senha novamente"
-                required
-              />
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="company">Empresa</Label>
-              <Input
-                id="company"
-                type="text"
-                value={formData.company}
-                onChange={(e) => handleInputChange('company', e.target.value)}
-                placeholder="Nome da sua empresa (opcional)"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cargo">Cargo</Label>
-              <Input
-                id="cargo"
-                type="text"
-                value={formData.cargo}
-                onChange={(e) => handleInputChange('cargo', e.target.value)}
-                placeholder="Seu cargo (opcional)"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="gender">Gênero</Label>
-              <GenderSelect
-                value={formData.gender}
-                onValueChange={(value) => handleInputChange('gender', value)}
-              />
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            {/* Seção de Revisão dos Dados */}
-            <div className="bg-muted/30 rounded-lg p-4 space-y-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Check className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-lg">Revise seus dados</h3>
-              </div>
-              
-              {/* Dados Pessoais */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium">Dados Pessoais</span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentStep(1)}
-                    className="h-8 px-2 text-primary hover:text-primary/80"
-                  >
-                    <Edit2 className="w-3 h-3 mr-1" />
-                    Editar
-                  </Button>
-                </div>
-                <div className="pl-6 space-y-1 text-sm text-muted-foreground">
-                  <p><strong>Nome:</strong> {formData.fullName}</p>
-                  <p><strong>Email:</strong> {formData.email}</p>
-                </div>
-              </div>
-
-              {/* Dados Profissionais */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium">Dados Profissionais</span>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentStep(2)}
-                    className="h-8 px-2 text-primary hover:text-primary/80"
-                  >
-                    <Edit2 className="w-3 h-3 mr-1" />
-                    Editar
-                  </Button>
-                </div>
-                <div className="pl-6 space-y-1 text-sm text-muted-foreground">
-                  <p><strong>Empresa:</strong> {formData.company || 'Não informado'}</p>
-                  <p><strong>Cargo:</strong> {formData.cargo || 'Não informado'}</p>
-                  <p><strong>Gênero:</strong> {
-                    formData.gender === 'male' ? 'Masculino' : 
-                    formData.gender === 'female' ? 'Feminino' : 'Não informar'
-                  }</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Código de Indicação */}
-            <div className="space-y-2">
-              <Label htmlFor="refCode">Código de Indicação (opcional)</Label>
-              <Input
-                id="refCode"
-                type="text"
-                value={formData.refCode}
-                onChange={(e) => handleInputChange('refCode', e.target.value)}
-                placeholder="REF_XXXXXXXX"
-              />
-            </div>
-
-            {/* Termos e Políticas */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={acceptedTerms}
-                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
-                />
-                <Label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Aceito os <Link to="/terms" className="text-primary underline">Termos de Uso</Link> *
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="privacy"
-                  checked={acceptedPrivacy}
-                  onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
-                />
-                <Label htmlFor="privacy" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Aceito a <Link to="/privacy" className="text-primary underline">Política de Privacidade</Link> *
-                </Label>
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1: return "Informações Básicas";
-      case 2: return "Informações Profissionais";
-      case 3: return "Finalizar Cadastro";
-      default: return "";
-    }
-  };
-
-  const getStepDescription = () => {
-    switch (currentStep) {
-      case 1: return "Crie sua conta com segurança";
-      case 2: return "Conte-nos sobre seu trabalho";
-      case 3: return "Aceite os termos e finalize";
-      default: return "";
-    }
-  };
+  const stepConfig = getStepConfig();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <UnifiedLogo />
-          <CardTitle className="text-2xl">{getStepTitle()}</CardTitle>
-          <CardDescription>{getStepDescription()}</CardDescription>
-          <ProgressIndicator />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {renderStepContent()}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <UnifiedLogo size="lg" />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            Criar Conta
+          </h1>
+          <p className="text-slate-600">
+            Junte-se à MadenAI e transforme seus projetos
+          </p>
+        </div>
 
-            <div className="flex justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStep === 1}
-                className="flex items-center gap-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Voltar
-              </Button>
+        {/* Progress Indicator */}
+        <div className="flex items-center justify-center mb-8">
+          {[1, 2, 3].map((step) => (
+            <React.Fragment key={step}>
+              <div className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+                step <= currentStep 
+                  ? 'bg-primary text-white border-primary shadow-lg' 
+                  : 'bg-white text-slate-400 border-slate-300'
+              }`}>
+                {step < currentStep ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <span className="font-medium">{step}</span>
+                )}
+                {step <= currentStep && (
+                  <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse" />
+                )}
+              </div>
+              {step < 3 && (
+                <div className={`w-16 h-0.5 mx-2 transition-all duration-300 ${
+                  step < currentStep ? 'bg-primary' : 'bg-slate-300'
+                }`} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
 
-              {currentStep < 3 ? (
-                <Button
-                  type="button"
-                  onClick={nextStep}
-                  className="flex items-center gap-2"
-                >
-                  Próximo
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="flex items-center gap-2"
-                >
-                  {loading ? 'Criando...' : 'Criar Conta'}
-                  <Check className="w-4 h-4" />
-                </Button>
+        {/* Main Card */}
+        <Card className="backdrop-blur-xl bg-white/80 border-0 shadow-2xl">
+          <CardContent className="p-8">
+            {/* Step Header */}
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <stepConfig.icon className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  {stepConfig.title}
+                </h2>
+                <p className="text-sm text-slate-600">
+                  {stepConfig.subtitle}
+                </p>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <div className="space-y-6">
+              {currentStep === 1 && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="fullName" className="text-slate-700 font-medium">
+                      Nome Completo *
+                    </Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      value={formData.fullName}
+                      onChange={(e) => handleInputChange('fullName', e.target.value)}
+                      placeholder="Seu nome completo"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="text-slate-700 font-medium">
+                      Email *
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder="seu@email.com"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="password" className="text-slate-700 font-medium">
+                      Senha *
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      placeholder="Mínimo 8 caracteres"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                      required
+                    />
+                    <PasswordStrengthIndicator password={formData.password} />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="confirmPassword" className="text-slate-700 font-medium">
+                      Confirmar Senha *
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      placeholder="Digite a senha novamente"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 2 && (
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="company" className="text-slate-700 font-medium">
+                      Empresa
+                    </Label>
+                    <Input
+                      id="company"
+                      type="text"
+                      value={formData.company}
+                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      placeholder="Nome da sua empresa (opcional)"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="cargo" className="text-slate-700 font-medium">
+                      Cargo
+                    </Label>
+                    <Input
+                      id="cargo"
+                      type="text"
+                      value={formData.cargo}
+                      onChange={(e) => handleInputChange('cargo', e.target.value)}
+                      placeholder="Seu cargo (opcional)"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="gender" className="text-slate-700 font-medium">
+                      Gênero
+                    </Label>
+                    <GenderSelect
+                      value={formData.gender}
+                      onValueChange={(value) => handleInputChange('gender', value)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="refCode" className="text-slate-700 font-medium">
+                      Código de Indicação
+                    </Label>
+                    <Input
+                      id="refCode"
+                      type="text"
+                      value={formData.refCode}
+                      onChange={(e) => handleInputChange('refCode', e.target.value)}
+                      placeholder="REF_XXXXXXXX (opcional)"
+                      className="mt-1 bg-white/50 border-slate-200 focus:border-primary focus:ring-primary"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {currentStep === 3 && (
+                <div className="space-y-6">
+                  {/* Review Section */}
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                    <h3 className="font-semibold text-slate-900 mb-3 flex items-center">
+                      <Check className="w-5 h-5 text-green-600 mr-2" />
+                      Revise seus dados
+                    </h3>
+                    
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <span className="font-medium text-slate-700">Nome:</span>
+                        <span className="ml-2 text-slate-600">{formData.fullName}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">Email:</span>
+                        <span className="ml-2 text-slate-600">{formData.email}</span>
+                      </div>
+                      {formData.company && (
+                        <div>
+                          <span className="font-medium text-slate-700">Empresa:</span>
+                          <span className="ml-2 text-slate-600">{formData.company}</span>
+                        </div>
+                      )}
+                      {formData.cargo && (
+                        <div>
+                          <span className="font-medium text-slate-700">Cargo:</span>
+                          <span className="ml-2 text-slate-600">{formData.cargo}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Terms and Policies */}
+                  <div className="space-y-4">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="terms"
+                        checked={acceptedTerms}
+                        onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="terms" className="text-sm text-slate-700 leading-relaxed">
+                        Aceito os <Link to="/terms" className="text-primary hover:underline font-medium">Termos de Uso</Link> *
+                      </Label>
+                    </div>
+                    
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="privacy"
+                        checked={acceptedPrivacy}
+                        onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="privacy" className="text-sm text-slate-700 leading-relaxed">
+                        Aceito a <Link to="/privacy" className="text-primary hover:underline font-medium">Política de Privacidade</Link> *
+                      </Label>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
-          </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Já tem uma conta?{' '}
-              <Link to="/login" className="text-primary underline hover:no-underline">
-                Fazer Login
-              </Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-200">
+              <div className="flex space-x-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate('/login')}
+                  className="text-slate-600 hover:text-slate-900"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Voltar ao Login
+                </Button>
+              </div>
+
+              <div className="flex space-x-3">
+                {currentStep > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    className="px-6"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-1" />
+                    Anterior
+                  </Button>
+                )}
+                
+                {currentStep < 3 ? (
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-6"
+                  >
+                    Próximo
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="px-8"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Criando conta...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Criar Conta
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-6">
+          <p className="text-sm text-slate-600">
+            Já tem uma conta?{' '}
+            <Link to="/login" className="text-primary hover:underline font-medium">
+              Fazer login
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
