@@ -2,15 +2,15 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
-// Mapeamento de remetentes essenciais (apenas transacionais)
+// Mapeamento de remetentes - USANDO APENAS FALLBACK VERIFICADO
 const SENDER_MAP: Record<string, { fromEmail: string; fromName: string; replyTo?: string }> = {
-  password_reset: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI Autenticação" },
-  verified_user: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI Verificação" },
-  welcome_user:   { fromEmail: "made@madeai.com.br",   fromName: "MadenAI" },
-  onboarding_step1: { fromEmail: "made@madeai.com.br", fromName: "MadenAI" },
-  usage_limit_reached: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" },
-  account_deactivated: { fromEmail: "suporte@madeai.com.br", fromName: "Suporte MadenAI", replyTo: "suporte@madeai.com.br" },
-  default: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" }, // Fallback seguro
+  password_reset: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI Autenticação" },
+  verified_user: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI Verificação" },
+  welcome_user:   { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" },
+  onboarding_step1: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" },
+  usage_limit_reached: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" },
+  account_deactivated: { fromEmail: "onboarding@resend.dev", fromName: "Suporte MadenAI", replyTo: "onboarding@resend.dev" },
+  default: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" }, // Fallback verificado
 };
 
 function getSenderByType(emailType: string) {
@@ -198,48 +198,42 @@ const handler = async (req: Request): Promise<Response> => {
       } as any;
     }
 
-    const preferredFrom = `${resolved.fromName} <${resolved.fromEmail}>`;
-    const fallbackFrom = 'MadenAI <onboarding@resend.dev>';
-
+    // USAR APENAS DOMÍNIO VERIFICADO PARA GARANTIR ENTREGA
+    const verifiedFrom = 'MadenAI <onboarding@resend.dev>';
+    
     let emailResponse: any = null;
-    let usedFrom = preferredFrom;
 
+    console.log(`📧 SEND-EMAILS: Enviando ${email_type} para ${recipient_email} usando domínio verificado: ${verifiedFrom}`);
+    
     try {
-      console.log(`📧 SEND-EMAILS: Tentando enviar com remetente: ${preferredFrom}`);
       emailResponse = await resend.emails.send({
-        from: preferredFrom,
+        from: verifiedFrom,
         to: [recipient_email],
         subject: resolved.subject,
         html: resolved.html,
         text: stripHtmlToText(resolved.html),
-        ...(resolved.replyTo ? { reply_to: resolved.replyTo } : {}),
-        tags: [{ name: 'category', value: TYPE_TO_KEY[email_type] || email_type }, { name: 'type', value: 'transactional' }],
+        tags: [
+          { name: 'category', value: TYPE_TO_KEY[email_type] || email_type }, 
+          { name: 'type', value: 'transactional' },
+          { name: 'environment', value: 'production' }
+        ],
       });
-      console.log(`✅ SEND-EMAILS: Email enviado com sucesso usando ${preferredFrom}`);
-    } catch (primaryErr: any) {
-      const msg = String(primaryErr?.message || primaryErr || 'Unknown error');
-      console.error('❌ SEND-EMAILS: Falha com remetente preferido:', msg);
-      const domainNotVerified = /domain.*(not verified|isn't verified|not allowed|unauthorized|forbidden)/i.test(msg);
-      if (preferredFrom !== fallbackFrom && domainNotVerified) {
-        try {
-          console.log(`📧 SEND-EMAILS: Tentando fallback com ${fallbackFrom}`);
-          usedFrom = fallbackFrom;
-          emailResponse = await resend.emails.send({
-            from: fallbackFrom,
-            to: [recipient_email],
-            subject: resolved.subject,
-            html: resolved.html,
-            text: stripHtmlToText(resolved.html),
-            tags: [{ name: 'category', value: TYPE_TO_KEY[email_type] || email_type }, { name: 'type', value: 'transactional' }],
-          });
-          console.log(`✅ SEND-EMAILS: Email enviado com sucesso usando fallback ${fallbackFrom}`);
-        } catch (fallbackErr: any) {
-          console.error('❌ SEND-EMAILS: Falha também com fallback:', fallbackErr);
-          throw fallbackErr;
-        }
-      } else {
-        throw primaryErr;
+      console.log(`✅ SEND-EMAILS: Email ${email_type} enviado com sucesso! ID: ${emailResponse?.data?.id}`);
+    } catch (sendErr: any) {
+      console.error('❌ SEND-EMAILS: Falha ao enviar email:', sendErr?.message || sendErr);
+      
+      // Tentar diagnóstico detalhado
+      if (sendErr?.message?.includes('API key')) {
+        console.error('❌ SEND-EMAILS: Problema com API key do Resend');
       }
+      if (sendErr?.message?.includes('domain')) {
+        console.error('❌ SEND-EMAILS: Problema com domínio não verificado');
+      }
+      if (sendErr?.message?.includes('rate limit')) {
+        console.error('❌ SEND-EMAILS: Rate limit atingido');
+      }
+      
+      throw sendErr;
     }
 
     // Log do sucesso
@@ -253,7 +247,12 @@ const handler = async (req: Request): Promise<Response> => {
           status: 'sent',
           template_key: TYPE_TO_KEY[email_type] || email_type,
           template_version: '1.0',
-          metadata: { email_id: emailResponse?.data?.id, vars, used_from: usedFrom }
+          metadata: { 
+            email_id: emailResponse?.data?.id, 
+            vars, 
+            used_from: verifiedFrom,
+            resend_response: emailResponse?.data 
+          }
         });
       }
     } catch (logErr) {
@@ -265,8 +264,10 @@ const handler = async (req: Request): Promise<Response> => {
       debug: {
         email_type,
         template_used: resolved.template_key,
-        from_used: usedFrom,
-        verification_url: verification_data?.verification_url
+        from_used: verifiedFrom,
+        verification_url: verification_data?.verification_url,
+        email_id: emailResponse?.data?.id,
+        resend_status: 'sent'
       }
     }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
 
