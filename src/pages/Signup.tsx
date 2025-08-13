@@ -74,7 +74,7 @@ const Signup = () => {
     try {
       console.log('🔐 SIGNUP: Iniciando cadastro para:', formData.email);
 
-      // Registrar usuário no Supabase Auth
+      // Registrar usuário no Supabase Auth (SEM emailRedirectTo para usar apenas Resend)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -85,8 +85,8 @@ const Signup = () => {
             cargo: formData.cargo,
             gender: formData.gender,
             ref_code: formData.refCode || undefined,
-          },
-          emailRedirectTo: `${window.location.origin}/login?verified=true`
+          }
+          // Removido emailRedirectTo para evitar email automático do Supabase
         }
       });
 
