@@ -16,12 +16,47 @@ interface BulkEmailRequest {
 }
 
 const SENDER_MAP: Record<string, { email: string; name: string; replyTo?: string }> = {
-  verified_user: { email: 'verificacao@madeai.com.br', name: 'MadenAI Verificação' },
-  welcome_user: { email: 'boas-vindas@madeai.com.br', name: 'Equipe MadenAI' },
-  onboarding_step1: { email: 'onboarding@madeai.com.br', name: 'MadenAI Onboarding' },
-  project_milestone: { email: 'notificacoes@madeai.com.br', name: 'MadenAI' },
-  usage_limit_reached: { email: 'notificacoes@madeai.com.br', name: 'MadenAI' },
-  default: { email: 'noreply@madeai.com.br', name: 'MadenAI' }
+  verified_user: { email: 'verificacao@madeai.com.br', name: 'MadeAI Verificação' },
+  welcome_user: { email: 'boas-vindas@madeai.com.br', name: 'Equipe MadeAI' },
+  onboarding_step1: { email: 'onboarding@madeai.com.br', name: 'MadeAI Onboarding' },
+  project_milestone: { email: 'notificacoes@madeai.com.br', name: 'MadeAI' },
+  usage_limit_reached: { email: 'notificacoes@madeai.com.br', name: 'MadeAI' },
+  default: { email: 'noreply@madeai.com.br', name: 'MadeAI' }
+};
+
+// Rate limiting configuration - Resend allows 2 emails/second max
+const RATE_LIMIT_CONFIG = {
+  emailDelay: 600, // 600ms delay = 1.67 emails/second (safe margin)
+  batchSize: 3, // Smaller batches for better control
+  batchDelay: 2000, // 2 seconds between batches
+  retryDelay: 2000, // 2 seconds wait on rate limit error
+  maxRetries: 3 // Maximum retry attempts per email
+};
+
+// Smart delay function
+const smartDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Rate limit retry function
+const sendEmailWithRetry = async (resend: any, emailData: any, maxRetries: number = RATE_LIMIT_CONFIG.maxRetries) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await resend.emails.send(emailData);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      return response;
+    } catch (error: any) {
+      const isRateLimit = error.message?.includes('Too many requests') || error.message?.includes('rate limit');
+      
+      if (isRateLimit && attempt < maxRetries) {
+        console.log(`⏳ BULK-SENDER: Rate limit detectado, tentativa ${attempt}/${maxRetries}, aguardando ${RATE_LIMIT_CONFIG.retryDelay}ms...`);
+        await smartDelay(RATE_LIMIT_CONFIG.retryDelay);
+        continue;
+      }
+      
+      throw error;
+    }
+  }
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -58,8 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`📧 BULK-SENDER: Encontrados ${users.length} usuários`);
 
-    // Process emails in batches to avoid rate limiting
-    const batchSize = 5;
+    // Process emails with robust rate limiting
     const results = {
       total_users: users.length,
       total_emails: users.length * email_types.length,
@@ -68,8 +102,13 @@ const handler = async (req: Request): Promise<Response> => {
       errors: [] as string[]
     };
 
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
+    let emailCount = 0;
+    const totalEmails = results.total_emails;
+
+    for (let i = 0; i < users.length; i += RATE_LIMIT_CONFIG.batchSize) {
+      const batch = users.slice(i, i + RATE_LIMIT_CONFIG.batchSize);
+      
+      console.log(`📦 BULK-SENDER: Processando lote ${Math.ceil((i + 1) / RATE_LIMIT_CONFIG.batchSize)} de ${Math.ceil(users.length / RATE_LIMIT_CONFIG.batchSize)}`);
       
       // Process each user in the batch
       for (const user of batch) {
@@ -84,47 +123,71 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Send each selected email type
         for (const emailType of email_types) {
+          emailCount++;
+          
           try {
-            const senderInfo = SENDER_MAP[emailType] || SENDER_MAP.default;
+            // Preparar variáveis para o template
+            const templateVars = {
+              full_name: userName,
+              app_name: 'MadeAI',
+              login_url: 'https://app.madeai.com.br/login',
+              support_email: 'suporte@madeai.com.br',
+              user_email: userEmail
+            };
             
-            // Get email content based on type
-            const emailContent = getEmailContent(emailType, userName, userEmail);
+            // Buscar template no banco
+            const template = await getEmailTemplate(supabase, emailType, templateVars);
+            
+            if (!template) {
+              results.failed++;
+              results.errors.push(`${emailType} para ${userEmail}: Template não encontrado no banco de dados`);
+              continue;
+            }
             
             if (test_mode) {
-              console.log(`🧪 TEST-MODE: Email ${emailType} para ${userEmail}:`, emailContent.subject);
+              console.log(`🧪 TEST-MODE: Email ${emailType} para ${userEmail} (${emailCount}/${totalEmails})`);
               results.successful++;
+              await smartDelay(RATE_LIMIT_CONFIG.emailDelay);
               continue;
             }
 
-            // Send real email
-            const emailResponse = await resend.emails.send({
-              from: `${senderInfo.name} <${senderInfo.email}>`,
-              to: [userEmail],
-              subject: emailContent.subject,
-              html: emailContent.html,
-              replyTo: senderInfo.replyTo || senderInfo.email
-            });
+            console.log(`📧 BULK-SENDER: Enviando ${emailType} para ${userEmail} (${emailCount}/${totalEmails})...`);
 
-            if (emailResponse.error) {
-              throw new Error(emailResponse.error.message);
-            }
+            // Send email with retry logic
+            const emailData = {
+              from: `${template.fromName} <${template.fromEmail}>`,
+              to: [userEmail],
+              subject: template.subject,
+              html: template.html,
+            };
+
+            await sendEmailWithRetry(resend, emailData);
 
             results.successful++;
             console.log(`✅ BULK-SENDER: Email ${emailType} enviado para ${userEmail}`);
 
-            // Small delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Robust delay between emails (600ms = 1.67 emails/second)
+            if (emailCount < totalEmails) {
+              console.log(`⏳ BULK-SENDER: Aguardando ${RATE_LIMIT_CONFIG.emailDelay}ms para próximo email...`);
+              await smartDelay(RATE_LIMIT_CONFIG.emailDelay);
+            }
 
           } catch (error: any) {
             results.failed++;
             results.errors.push(`${emailType} para ${userEmail}: ${error.message}`);
             console.error(`❌ BULK-SENDER: Erro ao enviar ${emailType} para ${userEmail}:`, error);
+            
+            // Even on error, wait to avoid hitting rate limits
+            await smartDelay(RATE_LIMIT_CONFIG.emailDelay);
           }
         }
       }
 
       // Longer delay between batches
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (i + RATE_LIMIT_CONFIG.batchSize < users.length) {
+        console.log(`⏸️ BULK-SENDER: Aguardando ${RATE_LIMIT_CONFIG.batchDelay}ms entre lotes...`);
+        await smartDelay(RATE_LIMIT_CONFIG.batchDelay);
+      }
     }
 
     // Log bulk sending activity
@@ -172,134 +235,70 @@ const handler = async (req: Request): Promise<Response> => {
   }
 };
 
-function getEmailContent(emailType: string, userName: string, userEmail: string): { subject: string; html: string } {
-  const baseUrl = 'https://madeai.com.br';
+// Buscar template no banco de dados
+async function getEmailTemplate(supabase: any, emailType: string, vars: Record<string, any>): Promise<{ subject: string; html: string; fromEmail: string; fromName: string } | null> {
+  console.log(`📧 BULK-SENDER: Buscando template para tipo: ${emailType}`);
   
-  switch (emailType) {
-    case 'verified_user':
-      return {
-        subject: `✉️ Confirme seu email - MadenAI`,
-        html: `
-          <h1>Confirme seu email, ${userName}!</h1>
-          <p>Olá <strong>${userName}</strong>,</p>
-          <p>Obrigado por se cadastrar na MadenAI! Para garantir a segurança da sua conta e ter acesso completo à plataforma, você precisa confirmar seu endereço de email.</p>
-          <p>
-            <a href="${baseUrl}/auth/verify" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Confirmar Email
-            </a>
-          </p>
-          <p>Se você não criou uma conta na MadenAI, pode ignorar este email com segurança.</p>
-          <p>Equipe MadenAI</p>
-        `
-      };
-
-    case 'welcome_user':
-      return {
-        subject: `🎉 Bem-vindo(a) à MadenAI, ${userName}!`,
-        html: `
-          <h1>Bem-vindo(a) à MadenAI!</h1>
-          <p>Olá <strong>${userName}</strong>,</p>
-          <p>É com grande satisfação que damos as boas-vindas à nossa plataforma de gestão de obras com inteligência artificial!</p>
-          <p>Agora você pode:</p>
-          <ul>
-            <li>✅ Criar e gerenciar projetos de construção</li>
-            <li>🤖 Usar nossa IA para análises inteligentes</li>
-            <li>📊 Gerar orçamentos automáticos</li>
-            <li>📅 Criar cronogramas otimizados</li>
-          </ul>
-          <p>
-            <a href="${baseUrl}/dashboard" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Acessar Plataforma
-            </a>
-          </p>
-          <p>Equipe MadenAI</p>
-        `
-      };
-
-    case 'onboarding_step1':
-      return {
-        subject: `🚀 Primeiros passos na MadenAI - ${userName}`,
-        html: `
-          <h1>Seus primeiros passos na MadenAI</h1>
-          <p>Olá <strong>${userName}</strong>,</p>
-          <p>Para aproveitar ao máximo nossa plataforma, preparamos um guia rápido:</p>
-          <ol>
-            <li><strong>Faça upload do seu primeiro projeto</strong> - Adicione plantas, documentos ou dados</li>
-            <li><strong>Explore o assistente IA</strong> - Faça perguntas sobre seu projeto</li>
-            <li><strong>Gere um orçamento</strong> - Nossa IA criará estimativas precisas</li>
-            <li><strong>Crie um cronograma</strong> - Planeje todas as etapas da obra</li>
-          </ol>
-          <p>
-            <a href="${baseUrl}/upload" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Começar Agora
-            </a>
-          </p>
-          <p>Qualquer dúvida, estamos aqui para ajudar!</p>
-          <p>Equipe MadenAI</p>
-        `
-      };
-
-    case 'project_milestone':
-      return {
-        subject: `🎯 Parabéns pelo marco alcançado, ${userName}!`,
-        html: `
-          <h1>Parabéns pelo seu progresso!</h1>
-          <p>Olá <strong>${userName}</strong>,</p>
-          <p>Você está indo muito bem na MadenAI! Continue explorando todas as funcionalidades.</p>
-          <p>Que tal experimentar:</p>
-          <ul>
-            <li>🔄 Atualizar um orçamento existente</li>
-            <li>📈 Exportar relatórios em PDF</li>
-            <li>🎯 Usar filtros avançados</li>
-          </ul>
-          <p>
-            <a href="${baseUrl}/dashboard" style="background: #fd7e14; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Ver Projetos
-            </a>
-          </p>
-          <p>Continue o excelente trabalho!</p>
-          <p>Equipe MadenAI</p>
-        `
-      };
-
-    case 'usage_limit_reached':
-      return {
-        subject: `⚡ Expanda suas possibilidades na MadenAI, ${userName}`,
-        html: `
-          <h1>Hora de expandir suas possibilidades</h1>
-          <p>Olá <strong>${userName}</strong>,</p>
-          <p>Vemos que você está aproveitando muito bem a MadenAI! 🎉</p>
-          <p>Para continuar criando projetos ilimitados, considere nossos planos pagos:</p>
-          <ul>
-            <li>✅ Projetos ilimitados</li>
-            <li>🤖 IA avançada</li>
-            <li>📊 Relatórios premium</li>
-            <li>🎯 Suporte prioritário</li>
-          </ul>
-          <p>
-            <a href="${baseUrl}/plan" style="background: #6f42c1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Ver Planos
-            </a>
-          </p>
-          <p>Equipe MadenAI</p>
-        `
-      };
-
-    default:
-      return {
-        subject: `Mensagem da MadenAI para ${userName}`,
-        html: `
-          <h1>Olá ${userName}!</h1>
-          <p>Esta é uma mensagem de teste da MadenAI.</p>
-          <p>
-            <a href="${baseUrl}" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Acessar MadenAI
-            </a>
-          </p>
-          <p>Equipe MadenAI</p>
-        `
-      };
+  // Mapear tipos para chaves de template
+  const typeToKey: Record<string, string> = {
+    'verified_user': 'verified_user',
+    'welcome_user': 'welcome_user', 
+    'onboarding_step1': 'onboarding_step1',
+    'project_milestone': 'project_milestone',
+    'usage_limit_reached': 'usage_limit_reached'
+  };
+  
+  const templateKey = typeToKey[emailType];
+  if (!templateKey) {
+    console.error(`❌ BULK-SENDER: Tipo de email não mapeado: ${emailType}`);
+    return null;
   }
+  
+  try {
+    const { data: template, error } = await supabase
+      .from('email_templates')
+      .select('*')
+      .eq('template_key', templateKey)
+      .eq('enabled', true)
+      .single();
+    
+    if (error) {
+      console.error(`❌ BULK-SENDER: Erro ao buscar template ${templateKey}:`, error);
+      return null;
+    }
+    
+    if (!template) {
+      console.error(`❌ BULK-SENDER: Template não encontrado: ${templateKey}`);
+      return null;
+    }
+    
+    console.log(`✅ BULK-SENDER: Template encontrado: ${templateKey}`);
+    
+    // Substituir variáveis no subject e html
+    const subject = mergePlaceholders(template.subject, vars);
+    const html = mergePlaceholders(template.html, vars);
+    
+    return {
+      subject,
+      html,
+      fromEmail: template.from_email || 'noreply@madeai.com.br',
+      fromName: template.from_name || 'MadeAI'
+    };
+    
+  } catch (err) {
+    console.error(`❌ BULK-SENDER: Erro inesperado ao buscar template ${templateKey}:`, err);
+    return null;
+  }
+}
+
+// Função para substituir placeholders
+function mergePlaceholders(text: string, vars: Record<string, any>): string {
+  let result = text;
+  for (const [key, value] of Object.entries(vars)) {
+    const placeholder = `{{${key}}}`;
+    result = result.replace(new RegExp(placeholder, 'g'), String(value || ''));
+  }
+  return result;
 }
 
 serve(handler);
