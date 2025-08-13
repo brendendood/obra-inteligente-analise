@@ -31,6 +31,28 @@ export function useEmailSystem() {
     }
   };
 
+  const sendOnboardingEmail = async (userEmail: string, userName?: string) => {
+    try {
+      console.log('📧 EMAIL-SYSTEM: Enviando email de onboarding (passo 1) para', userEmail);
+      const { data, error } = await supabase.functions.invoke('send-custom-emails', {
+        body: {
+          email_type: 'onboarding_step1',
+          recipient_email: userEmail,
+          user_data: {
+            full_name: userName || 'Usuário',
+            user_id: user?.id,
+          },
+        },
+      });
+      if (error) throw error;
+      console.log('✅ EMAIL-SYSTEM: Email de onboarding enviado:', data);
+      return { success: true, data };
+    } catch (error: any) {
+      console.error('❌ EMAIL-SYSTEM: Erro ao enviar email de onboarding:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   const sendPasswordResetEmail = async (userEmail: string, resetUrl: string, userName?: string) => {
     try {
       console.log('📧 EMAIL-SYSTEM: Enviando email de reset de senha para', userEmail);
@@ -143,6 +165,7 @@ export function useEmailSystem() {
 
   return {
     sendWelcomeEmail,
+    sendOnboardingEmail,
     sendPasswordResetEmail,
     sendProjectMilestoneEmail,
     sendAccountCancelledEmail,

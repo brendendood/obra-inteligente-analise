@@ -4,12 +4,14 @@ import { getPlanLimit } from '@/utils/planUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useEmailSystem } from '@/hooks/useEmailSystem';
 
 export const useProjectLimits = () => {
   const { userData, refetch: refetchUserData } = useUserData();
   const { useCredit, hasCredits, getCreditsCount } = useReferralSystem();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { sendUsageLimitEmail } = useEmailSystem();
 
   const canCreateProject = () => {
     const basePlanLimit = getPlanLimit(userData.plan, 0);
@@ -34,6 +36,20 @@ export const useProjectLimits = () => {
         variant: "destructive",
         duration: 5000,
       });
+
+      // Enviar e-mail de limite atingido (uma vez por usuário/limite)
+      try {
+        const userEmail = user?.email;
+        const guardKey = `usage_limit_notified_${user?.id}_${totalLimit}`;
+        const userName = userData.profile?.full_name || (user?.user_metadata?.full_name as string | undefined);
+        if (userEmail && !localStorage.getItem(guardKey)) {
+          await sendUsageLimitEmail(userEmail, userData.plan, userData.projectCount, userName);
+          localStorage.setItem(guardKey, '1');
+        }
+      } catch (e) {
+        console.warn('Falha ao enviar email de limite atingido:', e);
+      }
+
       return false;
     }
 

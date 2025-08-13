@@ -109,6 +109,42 @@ export class AuthProvider extends Component<AuthProviderProps, AuthProviderState
               console.error('IP capture error:', error);
             }
           }, 2000);
+
+          // Emails: welcome + onboarding (gatilho no primeiro login)
+          try {
+            const uEmail = user.email as string | null;
+            const uName = (user.user_metadata?.full_name as string) || 'Usuário';
+            if (uEmail) {
+              const welcomeKey = `welcome_email_sent_${user.id}`;
+              const onboardKey = `onboarding1_email_sent_${user.id}`;
+
+              if (!localStorage.getItem(welcomeKey)) {
+                await supabase.functions.invoke('send-custom-emails', {
+                  body: {
+                    email_type: 'welcome_user',
+                    recipient_email: uEmail,
+                    user_data: { full_name: uName, user_id: user.id },
+                  },
+                });
+                localStorage.setItem(welcomeKey, '1');
+                console.log('✅ Welcome email disparado');
+              }
+
+              if (!localStorage.getItem(onboardKey)) {
+                await supabase.functions.invoke('send-custom-emails', {
+                  body: {
+                    email_type: 'onboarding_step1',
+                    recipient_email: uEmail,
+                    user_data: { full_name: uName, user_id: user.id },
+                  },
+                });
+                localStorage.setItem(onboardKey, '1');
+                console.log('✅ Onboarding step 1 email disparado');
+              }
+            }
+          } catch (e) {
+            console.warn('Falha ao disparar emails de onboarding/welcome:', e);
+          }
         }
       });
       

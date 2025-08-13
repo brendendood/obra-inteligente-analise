@@ -14,6 +14,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { validateEmail } from '@/utils/authValidation';
+import { useEmailSystem } from '@/hooks/useEmailSystem';
 
 interface ForgotPasswordModalProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const { sendPasswordResetEmail } = useEmailSystem();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,9 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
       });
 
       if (error) throw error;
+
+      // Dispara email customizado de confirmação/branding
+      await sendPasswordResetEmail(email, `${window.location.origin}/reset-password`);
 
       toast({
         title: "✅ Email enviado!",
