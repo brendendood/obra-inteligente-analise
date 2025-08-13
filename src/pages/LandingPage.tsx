@@ -41,18 +41,6 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
-// Hook seguro para navegação que verifica se o contexto está disponível
-const useSafeNavigate = () => {
-  try {
-    return useNavigate();
-  } catch (error) {
-    console.warn('Navigate context not available, using fallback');
-    return (path: string, options?: any) => {
-      window.location.href = path;
-    };
-  }
-};
-
 // Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
@@ -105,7 +93,7 @@ const useCountAnimation = (target: number, duration: number = 2000) => {
 };
 
 const LandingPage = () => {
-  const navigate = useSafeNavigate();
+  const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [scrollY, setScrollY] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
