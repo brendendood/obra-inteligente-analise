@@ -1,12 +1,16 @@
 
+import { useEffect } from 'react';
 import { QuickActions } from './QuickActions';
 import { DashboardStatsGrid } from './DashboardStatsGrid';
+
 import { EnhancedProjectsSection } from './EnhancedProjectsSection';
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
+import { useUnifiedProjectStore, useProjectStats } from '@/stores/unifiedProjectStore';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
 
 interface DashboardContentProps {
+  stats: any;
   projects: any[];
   isDataLoading: boolean;
   error?: string | null;
@@ -14,12 +18,17 @@ interface DashboardContentProps {
 }
 
 const DashboardContent = ({ 
+  stats, 
   projects, 
   isDataLoading,
   error,
   onRetry 
 }: DashboardContentProps) => {
-  // Usar apenas os dados recebidos por props - SEM fazer novas requisições ao store
+  // Usar apenas os dados do Zustand - SEM fazer novas requisições
+  const { clearError } = useUnifiedProjectStore();
+  
+  // Estatísticas dos projetos
+  const { recentProjects } = useProjectStats();
   
   // Hook para gerenciar exclusão
   const {
@@ -33,7 +42,15 @@ const DashboardContent = ({
   // Métricas avançadas completas baseadas nos projetos do usuário
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
 
-  // Não fazer auto-clear de erro para evitar loops
+  // Limpar erro automaticamente
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        clearError();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, clearError]);
 
   return (
     <div className="flex flex-col space-y-6 w-full min-w-0">

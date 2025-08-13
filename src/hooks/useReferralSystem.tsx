@@ -51,7 +51,7 @@ export function useReferralSystem() {
 
       // Generate referral link
       if (data.ref_code) {
-        setReferralLink(`https://madeai.com.br/cadastro?ref=${data.ref_code}`);
+        setReferralLink(`https://arqcloud.com.br/cadastro?ref=${data.ref_code}`);
       }
 
       // Fetch referral count

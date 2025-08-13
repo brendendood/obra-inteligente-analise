@@ -5,13 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import DOMPurify from 'dompurify';
-import { Plus, Save, Eye, Mail, RefreshCw, Send, Users, AlertTriangle, Clock } from 'lucide-react';
+import { Plus, Save, Eye, Mail, RefreshCw } from 'lucide-react';
 
 interface EmailTemplate {
   id: string;
@@ -29,14 +26,6 @@ export const AdminEmailTemplates = () => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Bulk email states
-  const [bulkSending, setBulkSending] = useState(false);
-  const [bulkProgress, setBulkProgress] = useState(0);
-  const [bulkTotal, setBulkTotal] = useState(0);
-  const [bulkLogs, setBulkLogs] = useState<string[]>([]);
-  const [selectedEmailTypes, setSelectedEmailTypes] = useState<string[]>(['welcome_user']);
-  const [userCount, setUserCount] = useState(0);
-
   const selected = useMemo(
     () => templates.find(t => t.id === selectedId) || null,
     [templates, selectedId]
@@ -46,7 +35,6 @@ export const AdminEmailTemplates = () => {
 
   useEffect(() => {
     loadTemplates();
-    loadUserCount();
 
     // Realtime updates
     const channel = (supabase as any)
@@ -76,19 +64,6 @@ export const AdminEmailTemplates = () => {
       toast({ title: 'Erro ao carregar', description: e.message || 'Falha ao buscar templates.', variant: 'destructive' });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadUserCount = async () => {
-    try {
-      const { count, error } = await (supabase as any)
-        .from('user_profiles')
-        .select('*', { count: 'exact', head: true });
-
-      if (error) throw error;
-      setUserCount(count || 0);
-    } catch (error) {
-      console.error('Erro ao carregar contagem de usuários:', error);
     }
   };
 
@@ -135,75 +110,6 @@ export const AdminEmailTemplates = () => {
     }
   };
 
-  const startBulkEmailSending = async () => {
-    if (selectedEmailTypes.length === 0) {
-      toast({
-        title: "Erro",
-        description: "Selecione pelo menos um tipo de email",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setBulkSending(true);
-    setBulkProgress(0);
-    setBulkLogs(['🚀 Iniciando envio em massa...']);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('bulk-email-sender', {
-        body: {
-          email_types: selectedEmailTypes,
-          test_mode: false
-        }
-      });
-
-      if (error) throw error;
-
-      setBulkTotal(data.total_users);
-      setBulkLogs(prev => [...prev, `📋 Enviando para ${data.total_users} usuários...`]);
-      
-      // Simular progresso real
-      let progress = 0;
-      const totalEmails = data.total_emails;
-      const interval = setInterval(() => {
-        progress += Math.random() * 15;
-        if (progress >= 100) {
-          progress = 100;
-          setBulkSending(false);
-          setBulkLogs(prev => [...prev, `✅ Envio concluído! ${data.successful} sucessos, ${data.failed} falhas`]);
-          clearInterval(interval);
-          toast({
-            title: "Concluído",
-            description: `Emails enviados: ${data.successful} sucessos, ${data.failed} falhas`
-          });
-        }
-        setBulkProgress(progress);
-        
-        if (progress % 25 === 0) {
-          setBulkLogs(prev => [...prev, `⏳ Progresso: ${Math.round(progress)}%`]);
-        }
-      }, 800);
-
-    } catch (error: any) {
-      console.error('Erro no envio em massa:', error);
-      setBulkLogs(prev => [...prev, `❌ Erro: ${error.message}`]);
-      setBulkSending(false);
-      toast({
-        title: "Erro",
-        description: "Erro no envio em massa",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const emailTypeOptions = [
-    { id: 'verified_user', label: 'Email de Verificação', description: 'Email enviado quando usuário confirma cadastro' },
-    { id: 'welcome_user', label: 'Email de Boas-vindas', description: 'Email de boas-vindas para novos usuários' },
-    { id: 'onboarding_step1', label: 'Onboarding Passo 1', description: 'Email enviado no primeiro login' },
-    { id: 'project_milestone', label: 'Marco de Projeto', description: 'Email de comemoração de marcos' },
-    { id: 'usage_limit_reached', label: 'Limite de Uso', description: 'Notificação de limite atingido' }
-  ];
-
   const previewHtml = useMemo(() => {
     return DOMPurify.sanitize(selected?.html || '', { USE_PROFILES: { html: true } });
   }, [selected?.html]);
@@ -215,7 +121,7 @@ export const AdminEmailTemplates = () => {
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Mail className="h-5 w-5 text-blue-600" /> Templates de E-mail
           </h2>
-          <p className="text-gray-600">Gerencie templates e envie emails em massa</p>
+          <p className="text-gray-600">Gerencie o HTML dos e-mails do MadeAI em tempo real</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => loadTemplates()}>
@@ -226,114 +132,6 @@ export const AdminEmailTemplates = () => {
           </Button>
         </div>
       </div>
-
-      {/* Bulk Email Testing Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Send className="h-5 w-5 text-green-600" />
-            Teste de Emails em Massa
-          </CardTitle>
-          <p className="text-sm text-gray-600">
-            Envie emails de teste para todos os usuários cadastrados ({userCount} usuários)
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <h4 className="text-sm font-medium mb-3">Tipos de Email para Enviar:</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {emailTypeOptions.map((option) => (
-                <div key={option.id} className="flex items-start space-x-2">
-                  <Checkbox
-                    id={option.id}
-                    checked={selectedEmailTypes.includes(option.id)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setSelectedEmailTypes(prev => [...prev, option.id]);
-                      } else {
-                        setSelectedEmailTypes(prev => prev.filter(t => t !== option.id));
-                      }
-                    }}
-                  />
-                  <div className="space-y-1">
-                    <label
-                      htmlFor={option.id}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      {option.label}
-                    </label>
-                    <p className="text-xs text-muted-foreground">
-                      {option.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {bulkSending && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span>Progresso: {Math.round(bulkProgress)}%</span>
-                <span>{bulkTotal} usuários</span>
-              </div>
-              <Progress value={bulkProgress} className="w-full" />
-            </div>
-          )}
-
-          {bulkLogs.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Log de Envio:</h4>
-              <div className="bg-gray-50 p-3 rounded-md max-h-32 overflow-y-auto">
-                {bulkLogs.map((log, index) => (
-                  <div key={index} className="text-xs text-gray-600 font-mono">
-                    {log}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              Este teste enviará emails reais para todos os usuários cadastrados. 
-              Use com responsabilidade e apenas em ambiente de desenvolvimento.
-            </AlertDescription>
-          </Alert>
-
-          <div className="flex gap-2">
-            <Button
-              onClick={startBulkEmailSending}
-              disabled={bulkSending || selectedEmailTypes.length === 0}
-              className="flex items-center gap-2"
-            >
-              {bulkSending ? (
-                <>
-                  <Clock className="h-4 w-4 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4" />
-                  Enviar para {userCount} Usuários
-                </>
-              )}
-            </Button>
-            
-            <Button
-              variant="outline"
-              onClick={() => {
-                setBulkLogs([]);
-                setBulkProgress(0);
-              }}
-              disabled={bulkSending}
-            >
-              Limpar Log
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Lista de templates */}

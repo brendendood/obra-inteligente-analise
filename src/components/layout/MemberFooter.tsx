@@ -98,13 +98,13 @@ export const MemberFooter = () => {
                 Contato
               </Link>
               <Link 
-                to="/terms" 
+                to="/termos" 
                 className="block text-sm text-slate-600 hover:text-slate-900 transition-colors duration-200"
               >
                 Termos de Uso
               </Link>
               <Link 
-                to="/privacy" 
+                to="/privacidade" 
                 className="block text-sm text-slate-600 hover:text-slate-900 transition-colors duration-200"
               >
                 Privacidade

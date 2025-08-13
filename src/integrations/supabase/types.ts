@@ -1680,14 +1680,6 @@ export type Database = {
           top_features: Json
         }[]
       }
-      get_bulk_email_users: {
-        Args: { limit_count?: number }
-        Returns: {
-          user_id: string
-          full_name: string
-          email: string
-        }[]
-      }
       get_geolocation_quality_report: {
         Args: Record<PropertyKey, never>
         Returns: {

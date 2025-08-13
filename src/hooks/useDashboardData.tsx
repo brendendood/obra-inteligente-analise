@@ -18,7 +18,7 @@ interface DashboardStats {
 }
 
 export const useDashboardData = () => {
-  const { projects, isLoading: isLoadingProjects, forceRefresh } = useUnifiedProjectStore();
+  const { projects, isLoading: isLoadingProjects } = useUnifiedProjectStore();
   const mountedRef = useRef(true);
   
   // Memoize expensive calculations
@@ -117,7 +117,6 @@ export const useDashboardData = () => {
   return {
     projects,
     stats,
-    isDataLoading: isLoadingProjects,
-    forceRefresh
+    isLoadingProjects
   };
 };
