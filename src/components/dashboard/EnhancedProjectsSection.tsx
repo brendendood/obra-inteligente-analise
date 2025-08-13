@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,7 +76,7 @@ export const EnhancedProjectsSection = ({
   const paginatedProjects = filteredAndSortedProjects.slice(startIndex, startIndex + PROJECTS_PER_PAGE);
 
   // Reset página quando filtros mudam
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, sortBy]);
 
