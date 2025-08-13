@@ -88,7 +88,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.error('❌ EMAIL-VERIFICATION (GET): Erro na verificação:', error);
           
           // Redirecionar para página de erro
-          const errorUrl = `/login?error=${encodeURIComponent('Token inválido ou expirado')}`;
+          const errorUrl = `https://madeai.com.br/login?error=${encodeURIComponent('Token inválido ou expirado')}`;
           return new Response(null, {
             status: 302,
             headers: { 
@@ -101,7 +101,7 @@ const handler = async (req: Request): Promise<Response> => {
         console.log('✅ EMAIL-VERIFICATION (GET): Token verificado com sucesso');
 
         // Redirecionar para página de sucesso ou login
-        const successUrl = `/login?verified=true&message=${encodeURIComponent('Email verificado com sucesso! Agora você pode fazer login.')}`;
+        const successUrl = `https://madeai.com.br/login?verified=true&message=${encodeURIComponent('Email verificado com sucesso! Agora você pode fazer login.')}`;
         return new Response(null, {
           status: 302,
           headers: { 
@@ -112,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
       } catch (verifyError: any) {
         console.error('❌ EMAIL-VERIFICATION (GET): Erro na verificação:', verifyError);
         
-        const errorUrl = `/login?error=${encodeURIComponent('Erro ao verificar email')}`;
+        const errorUrl = `https://madeai.com.br/login?error=${encodeURIComponent('Erro ao verificar email')}`;
         return new Response(null, {
           status: 302,
           headers: { 

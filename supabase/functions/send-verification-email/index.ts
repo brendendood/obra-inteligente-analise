@@ -40,10 +40,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Buscar usuário pelo email para obter o token de confirmação
-    const { data: { user }, error: getUserError } = await supabase.auth.admin.getUserByEmail(email);
+    // Buscar usuário pelo email usando listUsers (método correto)
+    const { data: { users }, error: getUserError } = await supabase.auth.admin.listUsers({
+      filter: `email.eq.${email}`
+    });
     
-    if (getUserError || !user) {
+    if (getUserError || !users || users.length === 0) {
       console.error('❌ SEND-VERIFICATION: Usuário não encontrado:', getUserError);
       return new Response(JSON.stringify({ error: 'Usuário não encontrado' }), {
         status: 404,
@@ -51,23 +53,30 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Gerar novo token de confirmação
-    const { error: generateError } = await supabase.auth.admin.generateLink({
+    const user = users[0];
+
+    // Gerar novo link de verificação usando generateLink
+    const { data: linkData, error: generateError } = await supabase.auth.admin.generateLink({
       type: 'signup',
       email: email,
       options: {
-        redirectTo: `${supabaseUrl}/functions/v1/email-verification?redirect_to=${encodeURIComponent('/painel')}`
+        redirectTo: `https://madeai.com.br/painel`
       }
     });
 
-    if (generateError) {
+    if (generateError || !linkData) {
       console.error('❌ SEND-VERIFICATION: Erro ao gerar token:', generateError);
       throw generateError;
     }
 
-    // Gerar URL de verificação personalizada
-    const baseUrl = 'https://arqcloud.com.br';
-    const verificationUrl = `${supabaseUrl}/functions/v1/email-verification?token=${user.email_confirmation_sent_at}&type=signup&email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('/painel')}`;
+    // Extrair o token do URL gerado
+    const tokenUrl = new URL(linkData.properties.action_link);
+    const token = tokenUrl.searchParams.get('token');
+    const tokenHash = tokenUrl.searchParams.get('token_hash');
+    
+    // Gerar URL de verificação personalizada com token correto
+    const baseUrl = 'https://madeai.com.br';
+    const verificationUrl = `${supabaseUrl}/functions/v1/email-verification?token=${tokenHash}&type=signup&email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('https://madeai.com.br/painel')}`;
 
     // Enviar email customizado via nossa edge function
     const emailResponse = await supabase.functions.invoke('send-custom-emails', {
@@ -81,7 +90,7 @@ const handler = async (req: Request): Promise<Response> => {
         },
         verification_data: {
           verification_url: verificationUrl,
-          token: user.email_confirmation_sent_at
+          token: token || tokenHash
         }
       }
     });
