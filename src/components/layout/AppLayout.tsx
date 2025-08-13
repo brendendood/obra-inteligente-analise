@@ -42,9 +42,10 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   const isMobile = useOptimizedMediaQuery('(max-width: 1023px)');
   const location = useLocation();
   
-  // Verifica se é a página de IA
+  // Verifica páginas especiais
   const isAIPage = location.pathname === '/ia';
   const isProjectPage = location.pathname.startsWith('/projeto');
+  const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
   const shouldHideFooter = hideFooter || isAIPage;
   
   // Esconde sidebar apenas na página IA no mobile
@@ -61,8 +62,16 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       "flex-1",
       isAIPage ? "overflow-hidden" : "overflow-auto"
     ),
-    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : (isProjectPage ? "h-full p-0 sm:p-4 lg:p-6" : "h-full p-4 sm:p-6 lg:p-8")
-  }), [isMobile, isAIPage, shouldHideSidebar, isProjectPage]);
+    innerContent: isAIPage && !isMobile 
+      ? "h-full" 
+      : shouldHideSidebar 
+      ? "h-full" 
+      : isDashboard 
+      ? "h-full p-2 sm:p-3" // Padding reduzido para dashboard
+      : isProjectPage 
+      ? "h-full p-0 sm:p-4 lg:p-6" 
+      : "h-full p-4 sm:p-6 lg:p-8"
+  }), [isMobile, isAIPage, shouldHideSidebar, isProjectPage, isDashboard]);
 
   // Early return for loading state with unified loading
   if (loading) {

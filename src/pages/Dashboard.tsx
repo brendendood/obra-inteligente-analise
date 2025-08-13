@@ -75,7 +75,7 @@ const Dashboard = memo(() => {
       )}
       
       <AppLayout>
-        <div className="space-y-6">
+        <div className="space-y-3 sm:space-y-4">
           <MemoizedDashboardWelcomeHeader
             userName={userName}
             greeting={`Bem-vindo`}

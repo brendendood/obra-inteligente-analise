@@ -1,9 +1,9 @@
 
 import React from 'react';
-import SignupWizard from '@/components/auth/SignupWizard';
+import EnhancedSignupWizard from '@/components/auth/EnhancedSignupWizard';
 
 const Signup = () => {
-  return <SignupWizard />;
+  return <EnhancedSignupWizard />;
 };
 
 export default Signup;
