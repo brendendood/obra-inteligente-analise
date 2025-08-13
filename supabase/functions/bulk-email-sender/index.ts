@@ -37,15 +37,13 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get all users with valid emails
+    // Get all users with valid emails - JOIN correto com auth.users
     let query = supabase
       .from('user_profiles')
       .select(`
         user_id,
         full_name,
-        user_id!inner(
-          email
-        )
+        email:user_id (email)
       `)
       .not('user_id', 'is', null);
 
@@ -84,7 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
       
       // Process each user in the batch
       for (const user of batch) {
-        const userEmail = (user.user_id as any)?.email;
+        const userEmail = (user.email as any)?.email;
         const userName = user.full_name || 'Usuário';
 
         if (!userEmail) {
