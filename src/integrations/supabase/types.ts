@@ -1300,11 +1300,13 @@ export type Database = {
           created_at: string
           credits: number | null
           date_of_birth: string | null
+          deactivated_at: string | null
           empresa: string | null
           full_name: string | null
           gender: string | null
           has_created_first_project: boolean | null
           id: string
+          is_active: boolean
           last_login: string | null
           phone: string | null
           ref_code: string | null
@@ -1331,11 +1333,13 @@ export type Database = {
           created_at?: string
           credits?: number | null
           date_of_birth?: string | null
+          deactivated_at?: string | null
           empresa?: string | null
           full_name?: string | null
           gender?: string | null
           has_created_first_project?: boolean | null
           id?: string
+          is_active?: boolean
           last_login?: string | null
           phone?: string | null
           ref_code?: string | null
@@ -1362,11 +1366,13 @@ export type Database = {
           created_at?: string
           credits?: number | null
           date_of_birth?: string | null
+          deactivated_at?: string | null
           empresa?: string | null
           full_name?: string | null
           gender?: string | null
           has_created_first_project?: boolean | null
           id?: string
+          is_active?: boolean
           last_login?: string | null
           phone?: string | null
           ref_code?: string | null

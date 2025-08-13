@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Mail, Lock, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useEmailSystem } from '@/hooks/useEmailSystem';
+import { useNavigate } from 'react-router-dom';
 
 interface SecurityTabProps {
   isLoading: boolean;
@@ -15,6 +17,8 @@ interface SecurityTabProps {
 export const SecurityTab = ({ isLoading, setIsLoading }: SecurityTabProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { sendAccountCancelledEmail } = useEmailSystem();
   
   const [emailData, setEmailData] = useState({
     newEmail: '',
@@ -27,7 +31,8 @@ export const SecurityTab = ({ isLoading, setIsLoading }: SecurityTabProps) => {
     confirmPassword: ''
   });
 
-  const [deactivatePassword, setDeactivatePassword] = useState('');
+  // Substitui a confirmação por senha por confirmação textual "DESATIVAR"
+  const [deactivationConfirm, setDeactivationConfirm] = useState('');
 
   const handleEmailChange = async () => {
     if (emailData.newEmail !== emailData.confirmEmail) {
@@ -113,30 +118,74 @@ export const SecurityTab = ({ isLoading, setIsLoading }: SecurityTabProps) => {
   };
 
   const handleAccountDeactivation = async () => {
-    if (!deactivatePassword) {
+    // Exigir confirmação exata "DESATIVAR"
+    if (deactivationConfirm.trim() !== 'DESATIVAR') {
       toast({
         title: "❌ Erro",
-        description: "Digite sua senha atual para confirmar.",
+        description: 'Para desativar sua conta, digite exatamente "DESATIVAR".',
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!user?.id || !user?.email) {
+      toast({
+        title: "❌ Erro",
+        description: "Usuário não autenticado.",
         variant: "destructive"
       });
       return;
     }
 
     setIsLoading(true);
+    const { supabase } = await import('@/integrations/supabase/client');
+
     try {
-      // Aqui seria implementada a lógica de desativação via edge function
-      // Por enquanto, vamos simular o envio do e-mail de confirmação
+      console.log('🔻 Desativando conta para user_id:', user.id);
+
+      // 1) Atualiza o perfil como desativado
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          is_active: false,
+          deactivated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        console.error('❌ Erro ao atualizar perfil:', updateError);
+        throw updateError;
+      }
+
+      // 2) Envia email "account_deactivated"
+      console.log('📧 Enviando email de conta desativada para:', user.email);
+      const fullName =
+        (user.user_metadata && (user.user_metadata.full_name as string)) || 'Usuário';
+      const emailResult = await sendAccountCancelledEmail(user.email, fullName);
+
+      if (!emailResult?.success) {
+        console.warn('⚠️ Falha ao enviar email de desativação:', emailResult?.error);
+      }
+
+      // 3) Feedback ao usuário
       toast({
-        title: "📧 Confirmação enviada",
-        description: "Um link de confirmação foi enviado para seu e-mail. Clique para desativar sua conta definitivamente.",
+        title: "✅ Conta desativada",
+        description: "Sua conta foi desativada e um e-mail de confirmação foi enviado.",
         variant: "destructive"
       });
-      
-      setDeactivatePassword('');
+
+      // 4) Logout e redirecionamento
+      await supabase.auth.signOut();
+      setDeactivationConfirm('');
+      // Pequeno delay para evitar corrida de estado de auth
+      setTimeout(() => {
+        navigate('/login');
+      }, 300);
     } catch (error) {
+      console.error('💥 Erro na desativação de conta:', error);
       toast({
-        title: "❌ Erro", 
-        description: "Não foi possível processar a solicitação.",
+        title: "❌ Erro",
+        description: "Não foi possível desativar a conta. Tente novamente.",
         variant: "destructive"
       });
     } finally {
@@ -216,11 +265,15 @@ export const SecurityTab = ({ isLoading, setIsLoading }: SecurityTabProps) => {
         </p>
         
         <div className="space-y-3">
+          <Label htmlFor="deact-confirm" className="text-red-700">
+            Para confirmar, digite: DESATIVAR
+          </Label>
           <Input
-            placeholder="Digite sua senha atual para confirmar"
-            type="password"
-            value={deactivatePassword}
-            onChange={(e) => setDeactivatePassword(e.target.value)}
+            id="deact-confirm"
+            placeholder="Digite DESATIVAR para confirmar"
+            type="text"
+            value={deactivationConfirm}
+            onChange={(e) => setDeactivationConfirm(e.target.value)}
           />
           <Button 
             onClick={handleAccountDeactivation} 
