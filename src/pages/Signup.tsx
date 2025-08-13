@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
-import { PasswordStrengthMeter } from '@/components/ui/PasswordStrengthMeter';
+import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { GenderSelect } from '@/components/account/GenderSelect';
 
 const Signup = () => {
@@ -28,26 +29,11 @@ const Signup = () => {
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [passwordStrength, setPasswordStrength] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    if (field === 'password') {
-      const strength = calculatePasswordStrength(value);
-      setPasswordStrength(strength);
-    }
-  };
-
-  const calculatePasswordStrength = (password: string): number => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (/[A-Z]/.test(password)) strength += 25;
-    if (/[0-9]/.test(password)) strength += 25;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
-    return strength;
   };
 
   const validateForm = (): boolean => {
@@ -143,7 +129,6 @@ const Signup = () => {
 
         if (emailError) {
           console.error('⚠️ SIGNUP: Erro no email de verificação:', emailError);
-          // Não falhar o cadastro por causa do email
           toast({
             title: "⚠️ Aviso",
             description: "Cadastro realizado, mas houve problema no envio do email de verificação. Tente reenviar.",
@@ -307,7 +292,7 @@ const Signup = () => {
                 placeholder="Mínimo 8 caracteres"
                 required
               />
-              <PasswordStrengthMeter strength={passwordStrength} />
+              <PasswordStrengthIndicator password={formData.password} />
             </div>
 
             {/* Confirmar Senha */}
@@ -374,7 +359,7 @@ const Signup = () => {
                 <Checkbox
                   id="terms"
                   checked={acceptedTerms}
-                  onCheckedChange={setAcceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
                 />
                 <Label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Aceito os <Link to="/terms" className="text-primary underline">Termos de Uso</Link> *
@@ -385,7 +370,7 @@ const Signup = () => {
                 <Checkbox
                   id="privacy"
                   checked={acceptedPrivacy}
-                  onCheckedChange={setAcceptedPrivacy}
+                  onCheckedChange={(checked) => setAcceptedPrivacy(checked === true)}
                 />
                 <Label htmlFor="privacy" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Aceito a <Link to="/privacy" className="text-primary underline">Política de Privacidade</Link> *
