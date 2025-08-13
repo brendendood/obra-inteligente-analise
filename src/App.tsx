@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthProvider';
+import { ProjectProvider } from '@/contexts/ProjectContext';
 import { Toaster } from '@/components/ui/toaster';
 import SafeToasters from '@/components/ui/SafeToasters';
 import LandingPage from '@/pages/LandingPage';
@@ -42,8 +43,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <div className="App">
-            <Routes>
+          <ProjectProvider>
+            <div className="App">
+              <Routes>
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
@@ -126,6 +128,7 @@ function App() {
             <Toaster />
             <SafeToasters />
           </div>
+          </ProjectProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
