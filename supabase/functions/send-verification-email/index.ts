@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
@@ -40,34 +41,22 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Buscar usuário pelo email para obter o token de confirmação
-    const { data: { user }, error: getUserError } = await supabase.auth.admin.getUserByEmail(email);
-    
-    if (getUserError || !user) {
-      console.error('❌ SEND-VERIFICATION: Usuário não encontrado:', getUserError);
-      return new Response(JSON.stringify({ error: 'Usuário não encontrado' }), {
-        status: 404,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    // Gerar novo token de confirmação
-    const { error: generateError } = await supabase.auth.admin.generateLink({
+    // Gerar link de verificação usando o método oficial do Supabase
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'signup',
       email: email,
       options: {
-        redirectTo: `${supabaseUrl}/functions/v1/email-verification?redirect_to=${encodeURIComponent('/painel')}`
+        redirectTo: `${supabaseUrl.replace('.supabase.co', '')}/auth/callback?next=/painel`
       }
     });
 
-    if (generateError) {
-      console.error('❌ SEND-VERIFICATION: Erro ao gerar token:', generateError);
-      throw generateError;
+    if (linkError || !linkData.properties?.action_link) {
+      console.error('❌ SEND-VERIFICATION: Erro ao gerar link:', linkError);
+      throw new Error('Falha ao gerar link de verificação');
     }
 
-    // Gerar URL de verificação personalizada
-    const baseUrl = 'https://arqcloud.com.br';
-    const verificationUrl = `${supabaseUrl}/functions/v1/email-verification?token=${user.email_confirmation_sent_at}&type=signup&email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('/painel')}`;
+    const verificationUrl = linkData.properties.action_link;
+    console.log('🔗 SEND-VERIFICATION: Link gerado:', verificationUrl);
 
     // Enviar email customizado via nossa edge function
     const emailResponse = await supabase.functions.invoke('send-custom-emails', {
@@ -75,13 +64,12 @@ const handler = async (req: Request): Promise<Response> => {
         email_type: 'verified_user',
         recipient_email: email,
         user_data: {
-          full_name: user_data?.full_name || user.user_metadata?.full_name || 'Usuário',
-          user_id: user.id,
+          full_name: user_data?.full_name || 'Usuário',
+          user_id: user_data?.user_id,
           email: email
         },
         verification_data: {
-          verification_url: verificationUrl,
-          token: user.email_confirmation_sent_at
+          verification_url: verificationUrl
         }
       }
     });
@@ -95,7 +83,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: 'Email de verificação enviado com sucesso!' 
+      message: 'Email de verificação enviado com sucesso!',
+      verification_url: verificationUrl
     }), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders }

@@ -10,7 +10,7 @@ const SENDER_MAP: Record<string, { fromEmail: string; fromName: string; replyTo?
   onboarding_step1: { fromEmail: "made@madeai.com.br", fromName: "MadenAI" },
   usage_limit_reached: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" },
   account_deactivated: { fromEmail: "suporte@madeai.com.br", fromName: "Suporte MadenAI", replyTo: "suporte@madeai.com.br" },
-  default: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" },
+  default: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" }, // Fallback seguro
 };
 
 function getSenderByType(emailType: string) {
@@ -138,7 +138,6 @@ const handler = async (req: Request): Promise<Response> => {
     if (!Deno.env.get('RESEND_API_KEY')) {
       const msg = 'RESEND_API_KEY ausente. Configure em Supabase > Functions > Secrets.';
       console.error('❌ SEND-EMAILS:', msg);
-      try { if (supabase) { await supabase.from('email_logs').insert({ user_id: user_data?.user_id || null, email_type, recipient_email, subject: 'N/A', status: 'failed', template_version: '1.0', metadata: { error: msg, user_data, reset_data, extra_data } }); } } catch (_) {}
       return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
 
@@ -206,6 +205,7 @@ const handler = async (req: Request): Promise<Response> => {
     let usedFrom = preferredFrom;
 
     try {
+      console.log(`📧 SEND-EMAILS: Tentando enviar com remetente: ${preferredFrom}`);
       emailResponse = await resend.emails.send({
         from: preferredFrom,
         to: [recipient_email],
@@ -215,12 +215,14 @@ const handler = async (req: Request): Promise<Response> => {
         ...(resolved.replyTo ? { reply_to: resolved.replyTo } : {}),
         tags: [{ name: 'category', value: TYPE_TO_KEY[email_type] || email_type }, { name: 'type', value: 'transactional' }],
       });
+      console.log(`✅ SEND-EMAILS: Email enviado com sucesso usando ${preferredFrom}`);
     } catch (primaryErr: any) {
       const msg = String(primaryErr?.message || primaryErr || 'Unknown error');
       console.error('❌ SEND-EMAILS: Falha com remetente preferido:', msg);
       const domainNotVerified = /domain.*(not verified|isn't verified|not allowed|unauthorized|forbidden)/i.test(msg);
       if (preferredFrom !== fallbackFrom && domainNotVerified) {
         try {
+          console.log(`📧 SEND-EMAILS: Tentando fallback com ${fallbackFrom}`);
           usedFrom = fallbackFrom;
           emailResponse = await resend.emails.send({
             from: fallbackFrom,
@@ -230,19 +232,17 @@ const handler = async (req: Request): Promise<Response> => {
             text: stripHtmlToText(resolved.html),
             tags: [{ name: 'category', value: TYPE_TO_KEY[email_type] || email_type }, { name: 'type', value: 'transactional' }],
           });
+          console.log(`✅ SEND-EMAILS: Email enviado com sucesso usando fallback ${fallbackFrom}`);
         } catch (fallbackErr: any) {
           console.error('❌ SEND-EMAILS: Falha também com fallback:', fallbackErr);
-          try { if (supabase) { await supabase.from('email_logs').insert({ user_id: user_data?.user_id || null, email_type, recipient_email, subject: resolved.subject, status: 'failed', template_key: TYPE_TO_KEY[email_type] || email_type, template_version: '1.0', metadata: { error: String(fallbackErr?.message || fallbackErr), vars, used_from: usedFrom } }); } } catch (_) {}
           throw fallbackErr;
         }
       } else {
-        try { if (supabase) { await supabase.from('email_logs').insert({ user_id: user_data?.user_id || null, email_type, recipient_email, subject: resolved.subject, status: 'failed', template_key: TYPE_TO_KEY[email_type] || email_type, template_version: '1.0', metadata: { error: msg, vars, used_from: usedFrom } }); } } catch (_) {}
         throw primaryErr;
       }
     }
 
-    console.log('✅ SEND-EMAILS: Email enviado:', emailResponse);
-
+    // Log do sucesso
     try {
       if (supabase) {
         await supabase.from('email_logs').insert({
@@ -260,7 +260,15 @@ const handler = async (req: Request): Promise<Response> => {
       console.warn('⚠️ SEND-EMAILS: Não foi possível registrar o log do email:', logErr);
     }
 
-    return new Response(JSON.stringify(emailResponse), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    return new Response(JSON.stringify({
+      ...emailResponse,
+      debug: {
+        email_type,
+        template_used: resolved.template_key,
+        from_used: usedFrom,
+        verification_url: verification_data?.verification_url
+      }
+    }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
 
   } catch (error: any) {
     console.error("❌ SEND-EMAILS: Erro:", error);
@@ -278,16 +286,17 @@ function generateEmailContent(
   const baseUrl = 'https://arqcloud.com.br';
 
   switch (emailType) {
-    case 'welcome':
-      return {
-        subject: '🎉 Bem-vindo à MadenAI!',
-        html: generateWelcomeTemplate(userName, baseUrl)
-      };
-
     case 'verified_user':
       return {
         subject: '✉️ Confirme seu email - MadenAI',
         html: generateVerificationTemplate(userName, verificationData?.verification_url || '', baseUrl)
+      };
+    
+    case 'welcome':
+    case 'welcome_user':
+      return {
+        subject: '🎉 Bem-vindo à MadenAI!',
+        html: generateWelcomeTemplate(userName, baseUrl)
       };
     
     case 'password_reset':
@@ -303,6 +312,7 @@ function generateEmailContent(
       };
     
     case 'account_cancelled':
+    case 'account_deactivated':
       return {
         subject: '😢 Sentiremos sua falta - MadenAI',
         html: generateCancelledTemplate(userName, baseUrl)
@@ -314,88 +324,6 @@ function generateEmailContent(
         html: generateDefaultTemplate(userName, baseUrl)
       };
   }
-}
-
-function generateWelcomeTemplate(userName: string, baseUrl: string): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Bem-vindo à MadenAI</title>
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-            .container { max-width: 600px; margin: 0 auto; background: white; }
-            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; }
-            .logo { color: white; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
-            .header-subtitle { color: rgba(255,255,255,0.9); font-size: 16px; }
-            .content { padding: 40px 20px; }
-            .title { color: #2d3748; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-            .text { color: #4a5568; font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
-            .cta-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
-            .features { margin: 30px 0; }
-            .feature { display: flex; align-items: center; margin: 15px 0; }
-            .feature-icon { color: #667eea; margin-right: 15px; font-size: 20px; }
-            .footer { background: #f7fafc; padding: 30px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
-            .contact-btn { background: #48bb78; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 15px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <div class="logo">MadenAI</div>
-                <div class="header-subtitle">Transforme seus projetos com Inteligência Artificial</div>
-            </div>
-            
-            <div class="content">
-                <h1 class="title">Bem-vindo, ${userName}! 🎉</h1>
-                
-                <p class="text">
-                    Estamos muito felizes em tê-lo(a) conosco! A MadenAI é a plataforma que vai revolucionar a forma como você gerencia seus projetos de construção.
-                </p>
-                
-                <div class="features">
-                    <div class="feature">
-                        <span class="feature-icon">🤖</span>
-                        <span>Assistente de IA especializado em construção</span>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">💰</span>
-                        <span>Orçamentos automáticos e precisos</span>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">📅</span>
-                        <span>Cronogramas inteligentes</span>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">📊</span>
-                        <span>Análises detalhadas de projetos</span>
-                    </div>
-                </div>
-                
-                <div style="text-align: center;">
-                    <a href="${baseUrl}/painel" class="cta-button">Começar Agora</a>
-                </div>
-                
-                <p class="text">
-                    Pronto para criar seu primeiro projeto? Nossa IA está esperando para ajudá-lo a transformar suas ideias em realidade!
-                </p>
-            </div>
-            
-            <div class="footer">
-                <p style="color: #718096; margin-bottom: 10px;">
-                    Precisa de ajuda? Estamos aqui para você!
-                </p>
-                <a href="${baseUrl}/#contact" class="contact-btn">Entrar em Contato</a>
-                <p style="color: #a0aec0; font-size: 14px; margin-top: 20px;">
-                    © 2024 MadenAI. Todos os direitos reservados.
-                </p>
-            </div>
-        </div>
-    </body>
-    </html>
-  `;
 }
 
 function generateVerificationTemplate(userName: string, verificationUrl: string, baseUrl: string): string {
@@ -471,6 +399,88 @@ function generateVerificationTemplate(userName: string, verificationUrl: string,
                 <p style="color: #718096; margin-bottom: 10px;">
                     Precisa de ajuda? Entre em contato conosco!
                 </p>
+                <p style="color: #a0aec0; font-size: 14px; margin-top: 20px;">
+                    © 2024 MadenAI. Todos os direitos reservados.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateWelcomeTemplate(userName: string, baseUrl: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bem-vindo à MadenAI</title>
+        <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            .container { max-width: 600px; margin: 0 auto; background: white; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; }
+            .logo { color: white; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+            .header-subtitle { color: rgba(255,255,255,0.9); font-size: 16px; }
+            .content { padding: 40px 20px; }
+            .title { color: #2d3748; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+            .text { color: #4a5568; font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
+            .cta-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+            .features { margin: 30px 0; }
+            .feature { display: flex; align-items: center; margin: 15px 0; }
+            .feature-icon { color: #667eea; margin-right: 15px; font-size: 20px; }
+            .footer { background: #f7fafc; padding: 30px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
+            .contact-btn { background: #48bb78; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 15px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">MadenAI</div>
+                <div class="header-subtitle">Transforme seus projetos com Inteligência Artificial</div>
+            </div>
+            
+            <div class="content">
+                <h1 class="title">Bem-vindo, ${userName}! 🎉</h1>
+                
+                <p class="text">
+                    Estamos muito felizes em tê-lo(a) conosco! A MadenAI é a plataforma que vai revolucionar a forma como você gerencia seus projetos de construção.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <span class="feature-icon">🤖</span>
+                        <span>Assistente de IA especializado em construção</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💰</span>
+                        <span>Orçamentos automáticos e precisos</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📅</span>
+                        <span>Cronogramas inteligentes</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📊</span>
+                        <span>Análises detalhadas de projetos</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <a href="${baseUrl}/painel" class="cta-button">Começar Agora</a>
+                </div>
+                
+                <p class="text">
+                    Pronto para criar seu primeiro projeto? Nossa IA está esperando para ajudá-lo a transformar suas ideias em realidade!
+                </p>
+            </div>
+            
+            <div class="footer">
+                <p style="color: #718096; margin-bottom: 10px;">
+                    Precisa de ajuda? Estamos aqui para você!
+                </p>
+                <a href="${baseUrl}/#contact" class="contact-btn">Entrar em Contato</a>
                 <p style="color: #a0aec0; font-size: 14px; margin-top: 20px;">
                     © 2024 MadenAI. Todos os direitos reservados.
                 </p>
