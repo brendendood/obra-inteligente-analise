@@ -142,67 +142,26 @@ const SignupWizard = () => {
 
       console.log('✅ SIGNUP: Usuário criado:', authData.user.id);
 
-      // Sequência de emails via Resend
-      const emailPromises = [];
+      // O webhook auth-email-webhook agora enviará o email de verificação automaticamente
+      console.log('📧 SIGNUP: Webhook configurado para enviar email de verificação via Resend');
 
-      // 1. Email de verificação personalizado
+      // Emails complementares via Resend (não bloqueantes)
       try {
-        console.log('📧 SIGNUP: Enviando email de verificação via Resend...');
-        
-        const verificationPromise = supabase.functions.invoke('send-verification-email', {
-          body: {
-            email: formData.email,
-            user_data: {
-              full_name: formData.fullName,
-              user_id: authData.user.id
-            }
-          }
-        });
-        emailPromises.push(verificationPromise);
-
-      } catch (emailError) {
-        console.error('⚠️ SIGNUP: Erro na função de verificação:', emailError);
-      }
-
-      // 2. Email de boas-vindas
-      try {
+        // Email de boas-vindas
         console.log('📧 SIGNUP: Enviando email de boas-vindas...');
-        const welcomePromise = sendWelcomeEmail(formData.email, formData.fullName);
-        emailPromises.push(welcomePromise);
+        await sendWelcomeEmail(formData.email, formData.fullName);
+        console.log('✅ SIGNUP: Email de boas-vindas enviado');
       } catch (emailError) {
         console.error('⚠️ SIGNUP: Erro no email de boas-vindas:', emailError);
       }
 
-      // 3. Email de onboarding
       try {
+        // Email de onboarding
         console.log('📧 SIGNUP: Enviando email de onboarding...');
-        const onboardingPromise = sendOnboardingEmail(formData.email, formData.fullName);
-        emailPromises.push(onboardingPromise);
+        await sendOnboardingEmail(formData.email, formData.fullName);
+        console.log('✅ SIGNUP: Email de onboarding enviado');
       } catch (emailError) {
         console.error('⚠️ SIGNUP: Erro no email de onboarding:', emailError);
-      }
-
-      // Aguardar todos os emails (sem bloquear o processo se algum falhar)
-      const emailResults = await Promise.allSettled(emailPromises);
-      
-      let emailErrors = 0;
-      emailResults.forEach((result, index) => {
-        const emailTypes = ['verificação', 'boas-vindas', 'onboarding'];
-        if (result.status === 'rejected') {
-          console.error(`❌ SIGNUP: Falha no email de ${emailTypes[index]}:`, result.reason);
-          emailErrors++;
-        } else {
-          console.log(`✅ SIGNUP: Email de ${emailTypes[index]} enviado com sucesso`);
-        }
-      });
-
-      if (emailErrors > 0) {
-        toast({
-          title: "⚠️ Aviso",
-          description: `Cadastro realizado! ${emailErrors} email(s) podem ter falhado. Verifique sua caixa de entrada.`,
-        });
-      } else {
-        console.log('✅ SIGNUP: Todos os emails enviados com sucesso');
       }
 
       // Mostrar tela de sucesso
@@ -230,11 +189,14 @@ const SignupWizard = () => {
       setLoading(true);
       console.log('📧 RESEND: Reenviando verificação para:', userEmail);
 
-      const { error } = await supabase.functions.invoke('send-verification-email', {
+      // Usar a função de emails customizados diretamente
+      const { error } = await supabase.functions.invoke('send-custom-emails', {
         body: {
-          email: userEmail,
+          email_type: 'verified_user',
+          recipient_email: userEmail,
           user_data: {
-            full_name: formData.fullName
+            full_name: formData.fullName,
+            verification_url: '#'
           }
         }
       });
