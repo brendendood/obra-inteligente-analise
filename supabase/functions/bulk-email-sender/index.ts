@@ -37,21 +37,9 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get all users with valid emails - JOIN correto com auth.users
-    let query = supabase
-      .from('user_profiles')
-      .select(`
-        user_id,
-        full_name,
-        email:user_id (email)
-      `)
-      .not('user_id', 'is', null);
-
-    if (limit) {
-      query = query.limit(limit);
-    }
-
-    const { data: users, error: usersError } = await query;
+    // Buscar usuários para envio em massa usando RPC
+    const { data: users, error: usersError } = await supabase
+      .rpc('get_bulk_email_users', { limit_count: limit });
 
     if (usersError) {
       console.error('❌ BULK-SENDER: Erro ao buscar usuários:', usersError);
@@ -82,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
       
       // Process each user in the batch
       for (const user of batch) {
-        const userEmail = (user.email as any)?.email;
+        const userEmail = user.email;
         const userName = user.full_name || 'Usuário';
 
         if (!userEmail) {
