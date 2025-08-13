@@ -34,6 +34,9 @@ verify_jwt = false
 [functions.webhook-automation]
 verify_jwt = false
 
+[functions.bulk-email-sender]
+verify_jwt = false
+
 [functions.admin-impersonate]
 verify_jwt = true
 
