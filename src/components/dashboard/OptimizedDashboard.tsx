@@ -42,36 +42,32 @@ const OptimizedDashboard = memo(({
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
 
   return (
-    <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Header Section */}
-      <div className="bg-card border border-border rounded-apple p-6 sm:p-8 w-full">
-        <div className="flex items-center justify-between w-full mb-6">
-          <EnhancedBreadcrumb />
-        </div>
-        
-        <div className="min-w-0 flex-1">
-          <SmartGreeting userName={userName} />
-          <ArchitectQuote />
-        </div>
+    <div className="flex flex-col space-y-6 w-full min-w-0 p-4 sm:p-6">
+      {/* Header - Simples */}
+      <div className="w-full">
+        <EnhancedBreadcrumb />
+      </div>
+      
+      {/* Greeting + Quote - Layout Horizontal */}
+      <div className="w-full space-y-3">
+        <SmartGreeting userName={userName} />
+        <ArchitectQuote />
       </div>
 
-      {/* Content Sections */}
-      <div className="w-full space-y-8">
-        {/* 1. Ações Rápidas */}
-        <QuickActions />
-        
-        {/* 2. Hub de Projetos */}
-        <EnhancedProjectsSection
-          projects={projects}
-          isLoading={isLoadingProjects}
-          onDeleteProject={confirmDelete}
-        />
-        
-        {/* 3. Métricas Avançadas */}
-        <DashboardStatsGrid 
-          advancedMetrics={advancedMetrics}
-        />
-      </div>
+      {/* Ações Rápidas */}
+      <QuickActions />
+      
+      {/* Hub de Projetos */}
+      <EnhancedProjectsSection
+        projects={projects}
+        isLoading={isLoadingProjects}
+        onDeleteProject={confirmDelete}
+      />
+      
+      {/* Métricas Avançadas */}
+      <DashboardStatsGrid 
+        advancedMetrics={advancedMetrics}
+      />
 
       {/* Dialog de Confirmação de Exclusão */}
       <ProjectDeleteConfirmDialog
