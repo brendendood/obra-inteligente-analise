@@ -38,7 +38,8 @@ import {
   Mail,
   Phone
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 // Hook para contador animado OTIMIZADO
@@ -125,7 +126,7 @@ const LandingPage = () => {
   // Redirecionamento automático para usuários autenticados
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate('/painel');
+      navigate('/painel', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
 

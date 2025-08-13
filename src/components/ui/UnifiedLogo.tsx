@@ -73,8 +73,8 @@ export const UnifiedLogo = ({
     }
 
     // Navegação contextual para usuários autenticados
-    if (location.pathname.startsWith('/admin')) {
-      navigate('/admin');
+    if (location.pathname.startsWith('/admin-panel')) {
+      navigate('/admin-panel');
     } else {
       navigate('/painel');
     }

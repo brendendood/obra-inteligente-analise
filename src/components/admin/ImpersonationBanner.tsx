@@ -40,7 +40,7 @@ export const ImpersonationBanner = ({ impersonatedUser, sessionId, adminId }: Im
       await supabase.auth.signOut();
       
       // Redirect to admin panel
-      window.location.href = '/admin';
+      window.location.href = '/admin-panel';
       
       toast.success('Sessão de impersonação encerrada');
     } catch (error) {

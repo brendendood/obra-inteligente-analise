@@ -24,7 +24,7 @@ export const QuickActions = () => {
       icon: Settings,
       title: "Painel Admin",
       description: "Acessar painel administrativo",
-      action: () => navigate("/admin")
+      action: () => navigate("/admin-panel")
     }] : [])
   ];
 

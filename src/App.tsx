@@ -1,142 +1,273 @@
+import * as React from 'react';
+import { Suspense, lazy } from 'react';
+import { ThemeProvider } from "next-themes";
+import SafeToasters from "@/components/ui/SafeToasters";
 
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/contexts/AuthProvider';
-import { ProjectProvider } from '@/contexts/ProjectContext';
-import { Toaster } from '@/components/ui/toaster';
-import SafeToasters from '@/components/ui/SafeToasters';
-import LandingPage from '@/pages/LandingPage';
-import Login from '@/pages/Login';
-import Signup from '@/pages/Signup';
-import Dashboard from '@/pages/Dashboard';
-import Upload from '@/pages/Upload';
-import Projects from '@/pages/Index';
-import ProjectDetail from '@/pages/ProjectDetail';
-import Budget from '@/pages/Budget';
-import Schedule from '@/pages/Schedule';
-import Assistant from '@/pages/Assistant';
-import Documents from '@/pages/Documents';
-import Account from '@/pages/Account';
-import Help from '@/pages/Help';
-import Contact from '@/pages/Contact';
-import Plan from '@/pages/Plan';
-import Privacy from '@/pages/Privacy';
-import Terms from '@/pages/Terms';
-import NotFound from '@/pages/NotFound';
-import ResetPassword from '@/pages/ResetPassword';
-import AdminPanel from '@/pages/AdminPanel';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import './App.css';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { ProjectProvider } from "@/contexts/ProjectContext";
+import { AuthProvider } from "@/contexts/SimpleAuthProvider";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { ErrorFallback } from "@/components/error/ErrorFallback";
+import { EmergencyFallback } from "@/components/error/EmergencyFallback";
+import { LazyWrapper } from "@/components/ui/lazy-wrapper";
+import { UnifiedLoading } from "@/components/ui/unified-loading";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
 
+// Critical pages (preloaded)
+import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+
+// Lazy loaded pages with intelligent preloading
+const Upload = lazy(() => import("./pages/Upload"));
+const Assistant = lazy(() => import("./pages/Assistant"));
+const Account = lazy(() => import("./pages/Account"));
+const Plan = lazy(() => import("./pages/Plan"));
+const Help = lazy(() => import("./pages/Help"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Project specific pages
+const ProjectSpecificLayout = lazy(() => import("./pages/project-specific/layout"));
+const ProjectSpecificOverview = lazy(() => import("./pages/project-specific/overview"));
+const ProjectSpecificBudget = lazy(() => import("./pages/project-specific/budget"));
+const ProjectSpecificSchedule = lazy(() => import("./pages/project-specific/schedule"));
+const ProjectSpecificAssistant = lazy(() => import("./pages/project-specific/assistant"));
+const ProjectSpecificDocumentsPage = lazy(() => import("./pages/project-specific/documents"));
+
+// Ultra-optimized Query Client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: false,
+      // Extended cache times for better performance
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      gcTime: 30 * 60 * 1000, // 30 minutes
+      
+      // Smart retry strategy
+      retry: (failureCount, error: any) => {
+        if (error?.status === 404 || error?.status === 403) return false;
+        return failureCount < 2;
+      },
+      
+      // Performance optimizations
+      networkMode: 'online',
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always',
+      refetchOnMount: 'always',
+      
+      // Request deduplication
+      refetchInterval: false,
+    },
+    mutations: {
+      retry: 1,
+      networkMode: 'online',
     },
   },
 });
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <ProjectProvider>
-            <div className="App">
-              <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/cadastro" element={<Signup />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              {/* Rotas em português redirecionando para inglês */}
-              <Route path="/termos" element={<Terms />} />
-              <Route path="/privacidade" element={<Privacy />} />
-              <Route path="/politica" element={<Privacy />} />
-              
-              {/* Protected routes */}
-              <Route path="/painel" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/upload" element={
-                <ProtectedRoute>
-                  <Upload />
-                </ProtectedRoute>
-              } />
-              <Route path="/projetos" element={
-                <ProtectedRoute>
-                  <Projects />
-                </ProtectedRoute>
-              } />
-              <Route path="/projeto/:id" element={
-                <ProtectedRoute>
-                  <ProjectDetail />
-                </ProtectedRoute>
-              } />
-              <Route path="/orcamento" element={
-                <ProtectedRoute>
-                  <Budget />
-                </ProtectedRoute>
-              } />
-              <Route path="/cronograma" element={
-                <ProtectedRoute>
-                  <Schedule />
-                </ProtectedRoute>
-              } />
-              <Route path="/assistente" element={
-                <ProtectedRoute>
-                  <Assistant />
-                </ProtectedRoute>
-              } />
-              <Route path="/documentos" element={
-                <ProtectedRoute>
-                  <Documents />
-                </ProtectedRoute>
-              } />
-              <Route path="/conta" element={
-                <ProtectedRoute>
-                  <Account />
-                </ProtectedRoute>
-              } />
-              <Route path="/ajuda" element={
-                <ProtectedRoute>
-                  <Help />
-                </ProtectedRoute>
-              } />
-              <Route path="/contato" element={
-                <ProtectedRoute>
-                  <Contact />
-                </ProtectedRoute>
-              } />
-              <Route path="/plano" element={
-                <ProtectedRoute>
-                  <Plan />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedRoute>
-                  <AdminPanel />
-                </ProtectedRoute>
-              } />
-              
-              {/* 404 route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            
-            <Toaster />
-            <SafeToasters />
-          </div>
-          </ProjectProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
-  );
+// CRITICAL Error Boundary for React system issues
+class CriticalErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error?: Error; errorInfo?: React.ErrorInfo; isCritical?: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, isCritical: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    console.error('🔴 CRITICAL ERROR BOUNDARY:', error.message);
+    
+    // Detect critical React errors (incl. useRef null from broken libs)
+    const msg = error?.message || '';
+    const isCritical = msg.includes('useState') || 
+                      msg.includes('Invalid hook call') ||
+                      msg.includes('multiple copies of React') ||
+                      msg.includes("reading 'useRef'") ||
+                      msg.includes('useRef');
+    
+    return { hasError: true, error, isCritical };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('🔴 ERROR BOUNDARY DETAILS:', {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack
+    });
+
+    // For critical React errors, force reload after showing message
+    if (this.state.isCritical) {
+      console.error('🔴 CRITICAL REACT ERROR DETECTED - FORCING RELOAD');
+      setTimeout(() => {
+        // Clear all caches
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+          });
+        }
+        window.location.reload();
+      }, 3000);
+    }
+
+    this.setState({ errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // Use emergency fallback for critical React errors
+      if (this.state.isCritical) {
+        return (
+          <EmergencyFallback 
+            error={this.state.error} 
+            resetError={() => {
+              this.setState({ hasError: false, error: undefined, isCritical: false });
+            }}
+          />
+        );
+      }
+      
+      // Use normal error fallback for other errors
+      return (
+        <ErrorFallback 
+          error={this.state.error} 
+          resetError={() => {
+            this.setState({ hasError: false, error: undefined });
+          }}
+        />
+      );
+    }
+
+    return this.props.children;
+  }
 }
+
+// Clean Providers Component
+const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <AuthProvider>
+    <ImpersonationProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="madeai-theme">
+          <ProjectProvider>
+            <TooltipProvider delayDuration={200}>
+              {children}
+            </TooltipProvider>
+          </ProjectProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ImpersonationProvider>
+  </AuthProvider>
+);
+
+const App = () => {
+  return (
+    <CriticalErrorBoundary>
+      <ReactHealthCheck>
+        <AppProviders>
+          
+            <Suspense fallback={<UnifiedLoading />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/cadastro" element={<Signup />} />
+                <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
+                <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+                <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+                <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
+                
+                <Route path="/admin-panel" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><AdminPanel /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Protected routes */}
+                <Route path="/painel" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                
+                {/* Legacy redirects */}
+                <Route path="/projetos" element={<Navigate to="/painel" replace />} />
+                <Route path="/obras" element={<Navigate to="/painel" replace />} />
+                
+                <Route path="/upload" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Upload /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/ia" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Assistant /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/conta" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Account /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/plano" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Plan /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/ajuda" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Help /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/contato" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><Contact /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Project specific routes */}
+                <Route path="/projeto/:projectId" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
+                  <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
+                  <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
+                  <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                  <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
+                </Route>
+                
+                <Route path="/ia/:projectId" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                </Route>
+
+                <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
+              </Routes>
+            </Suspense>
+            {/* Monta toasts após o Router para evitar qualquer problema de contexto/hook */}
+            <SafeToasters />
+          
+        </AppProviders>
+      </ReactHealthCheck>
+    </CriticalErrorBoundary>
+  );
+};
 
 export default App;
