@@ -38,9 +38,20 @@ import {
   Mail,
   Phone
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+
+// Hook seguro para navegação que verifica se o contexto está disponível
+const useSafeNavigate = () => {
+  try {
+    return useNavigate();
+  } catch (error) {
+    console.warn('Navigate context not available, using fallback');
+    return (path: string, options?: any) => {
+      window.location.href = path;
+    };
+  }
+};
 
 // Hook para contador animado OTIMIZADO
 const useCountAnimation = (target: number, duration: number = 2000) => {
@@ -94,7 +105,7 @@ const useCountAnimation = (target: number, duration: number = 2000) => {
 };
 
 const LandingPage = () => {
-  const navigate = useNavigate();
+  const navigate = useSafeNavigate();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [scrollY, setScrollY] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
@@ -126,7 +137,7 @@ const LandingPage = () => {
   // Redirecionamento automático para usuários autenticados
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate('/painel', { replace: true });
+      navigate('/painel');
     }
   }, [isAuthenticated, authLoading, navigate]);
 
