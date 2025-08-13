@@ -197,8 +197,9 @@ export const AdminEmailTemplates = () => {
   };
 
   const emailTypeOptions = [
+    { id: 'verified_user', label: 'Email de Verificação', description: 'Email enviado quando usuário confirma cadastro' },
     { id: 'welcome_user', label: 'Email de Boas-vindas', description: 'Email de boas-vindas para novos usuários' },
-    { id: 'onboarding_step1', label: 'Onboarding Passo 1', description: 'Primeiro email de onboarding' },
+    { id: 'onboarding_step1', label: 'Onboarding Passo 1', description: 'Email enviado no primeiro login' },
     { id: 'project_milestone', label: 'Marco de Projeto', description: 'Email de comemoração de marcos' },
     { id: 'usage_limit_reached', label: 'Limite de Uso', description: 'Notificação de limite atingido' }
   ];

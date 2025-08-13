@@ -16,8 +16,11 @@ interface BulkEmailRequest {
 }
 
 const SENDER_MAP: Record<string, { email: string; name: string; replyTo?: string }> = {
+  verified_user: { email: 'verificacao@madeai.com.br', name: 'MadenAI Verificação' },
   welcome_user: { email: 'boas-vindas@madeai.com.br', name: 'Equipe MadenAI' },
   onboarding_step1: { email: 'onboarding@madeai.com.br', name: 'MadenAI Onboarding' },
+  project_milestone: { email: 'notificacoes@madeai.com.br', name: 'MadenAI' },
+  usage_limit_reached: { email: 'notificacoes@madeai.com.br', name: 'MadenAI' },
   default: { email: 'noreply@madeai.com.br', name: 'MadenAI' }
 };
 
@@ -173,6 +176,23 @@ function getEmailContent(emailType: string, userName: string, userEmail: string)
   const baseUrl = 'https://madeai.com.br';
   
   switch (emailType) {
+    case 'verified_user':
+      return {
+        subject: `✉️ Confirme seu email - MadenAI`,
+        html: `
+          <h1>Confirme seu email, ${userName}!</h1>
+          <p>Olá <strong>${userName}</strong>,</p>
+          <p>Obrigado por se cadastrar na MadenAI! Para garantir a segurança da sua conta e ter acesso completo à plataforma, você precisa confirmar seu endereço de email.</p>
+          <p>
+            <a href="${baseUrl}/auth/verify" style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+              Confirmar Email
+            </a>
+          </p>
+          <p>Se você não criou uma conta na MadenAI, pode ignorar este email com segurança.</p>
+          <p>Equipe MadenAI</p>
+        `
+      };
+
     case 'welcome_user':
       return {
         subject: `🎉 Bem-vindo(a) à MadenAI, ${userName}!`,

@@ -2,15 +2,15 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
-// Mapeamento de remetentes - USANDO APENAS FALLBACK VERIFICADO
+// Mapeamento de remetentes - USANDO DOMÍNIO @madeai.com.br UNIFICADO
 const SENDER_MAP: Record<string, { fromEmail: string; fromName: string; replyTo?: string }> = {
-  password_reset: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI Autenticação" },
-  verified_user: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI Verificação" },
-  welcome_user:   { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" },
-  onboarding_step1: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" },
-  usage_limit_reached: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" },
-  account_deactivated: { fromEmail: "onboarding@resend.dev", fromName: "Suporte MadenAI", replyTo: "onboarding@resend.dev" },
-  default: { fromEmail: "onboarding@resend.dev", fromName: "MadenAI" }, // Fallback verificado
+  password_reset: { fromEmail: "autenticacao@madeai.com.br", fromName: "MadenAI Autenticação" },
+  verified_user: { fromEmail: "verificacao@madeai.com.br", fromName: "MadenAI Verificação" },
+  welcome_user:   { fromEmail: "boas-vindas@madeai.com.br", fromName: "MadenAI" },
+  onboarding_step1: { fromEmail: "onboarding@madeai.com.br", fromName: "MadenAI" },
+  usage_limit_reached: { fromEmail: "notificacoes@madeai.com.br", fromName: "MadenAI" },
+  account_deactivated: { fromEmail: "suporte@madeai.com.br", fromName: "Suporte MadenAI", replyTo: "suporte@madeai.com.br" },
+  default: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" }, // Fallback unificado
 };
 
 function getSenderByType(emailType: string) {
@@ -198,16 +198,16 @@ const handler = async (req: Request): Promise<Response> => {
       } as any;
     }
 
-    // USAR APENAS DOMÍNIO VERIFICADO PARA GARANTIR ENTREGA
-    const verifiedFrom = 'MadenAI <onboarding@resend.dev>';
+    // USAR DOMÍNIO @madeai.com.br UNIFICADO
+    const finalFrom = `${resolved.fromName} <${resolved.fromEmail}>`;
     
     let emailResponse: any = null;
 
-    console.log(`📧 SEND-EMAILS: Enviando ${email_type} para ${recipient_email} usando domínio verificado: ${verifiedFrom}`);
+    console.log(`📧 SEND-EMAILS: Enviando ${email_type} para ${recipient_email} usando: ${finalFrom}`);
     
     try {
       emailResponse = await resend.emails.send({
-        from: verifiedFrom,
+        from: finalFrom,
         to: [recipient_email],
         subject: resolved.subject,
         html: resolved.html,
@@ -250,7 +250,7 @@ const handler = async (req: Request): Promise<Response> => {
           metadata: { 
             email_id: emailResponse?.data?.id, 
             vars, 
-            used_from: verifiedFrom,
+            used_from: finalFrom,
             resend_response: emailResponse?.data 
           }
         });
@@ -264,7 +264,7 @@ const handler = async (req: Request): Promise<Response> => {
       debug: {
         email_type,
         template_used: resolved.template_key,
-        from_used: verifiedFrom,
+        from_used: finalFrom,
         verification_url: verification_data?.verification_url,
         email_id: emailResponse?.data?.id,
         resend_status: 'sent'
