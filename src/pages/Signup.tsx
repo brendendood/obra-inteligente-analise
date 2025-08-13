@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { GenderSelect } from '@/components/account/GenderSelect';
+import { useEmailSystem } from '@/hooks/useEmailSystem';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -31,6 +32,7 @@ const Signup = () => {
   const [userEmail, setUserEmail] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { sendWelcomeEmail, sendOnboardingEmail } = useEmailSystem();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -113,11 +115,14 @@ const Signup = () => {
 
       console.log('✅ SIGNUP: Usuário criado:', authData.user.id);
 
-      // Enviar email de verificação personalizado
+      // Sequência de emails via Resend
+      const emailPromises = [];
+
+      // 1. Email de verificação personalizado
       try {
-        console.log('📧 SIGNUP: Enviando email de verificação...');
+        console.log('📧 SIGNUP: Enviando email de verificação via Resend...');
         
-        const { error: emailError } = await supabase.functions.invoke('send-verification-email', {
+        const verificationPromise = supabase.functions.invoke('send-verification-email', {
           body: {
             email: formData.email,
             user_data: {
@@ -126,18 +131,51 @@ const Signup = () => {
             }
           }
         });
+        emailPromises.push(verificationPromise);
 
-        if (emailError) {
-          console.error('⚠️ SIGNUP: Erro no email de verificação:', emailError);
-          toast({
-            title: "⚠️ Aviso",
-            description: "Cadastro realizado, mas houve problema no envio do email de verificação. Tente reenviar.",
-          });
-        } else {
-          console.log('✅ SIGNUP: Email de verificação enviado');
-        }
       } catch (emailError) {
-        console.error('⚠️ SIGNUP: Erro na função de email:', emailError);
+        console.error('⚠️ SIGNUP: Erro na função de verificação:', emailError);
+      }
+
+      // 2. Email de boas-vindas
+      try {
+        console.log('📧 SIGNUP: Enviando email de boas-vindas...');
+        const welcomePromise = sendWelcomeEmail(formData.email, formData.fullName);
+        emailPromises.push(welcomePromise);
+      } catch (emailError) {
+        console.error('⚠️ SIGNUP: Erro no email de boas-vindas:', emailError);
+      }
+
+      // 3. Email de onboarding
+      try {
+        console.log('📧 SIGNUP: Enviando email de onboarding...');
+        const onboardingPromise = sendOnboardingEmail(formData.email, formData.fullName);
+        emailPromises.push(onboardingPromise);
+      } catch (emailError) {
+        console.error('⚠️ SIGNUP: Erro no email de onboarding:', emailError);
+      }
+
+      // Aguardar todos os emails (sem bloquear o processo se algum falhar)
+      const emailResults = await Promise.allSettled(emailPromises);
+      
+      let emailErrors = 0;
+      emailResults.forEach((result, index) => {
+        const emailTypes = ['verificação', 'boas-vindas', 'onboarding'];
+        if (result.status === 'rejected') {
+          console.error(`❌ SIGNUP: Falha no email de ${emailTypes[index]}:`, result.reason);
+          emailErrors++;
+        } else {
+          console.log(`✅ SIGNUP: Email de ${emailTypes[index]} enviado com sucesso`);
+        }
+      });
+
+      if (emailErrors > 0) {
+        toast({
+          title: "⚠️ Aviso",
+          description: `Cadastro realizado! ${emailErrors} email(s) podem ter falhado. Verifique sua caixa de entrada.`,
+        });
+      } else {
+        console.log('✅ SIGNUP: Todos os emails enviados com sucesso');
       }
 
       // Mostrar tela de sucesso
