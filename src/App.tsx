@@ -53,6 +53,10 @@ function App() {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              {/* Rotas em português redirecionando para inglês */}
+              <Route path="/termos" element={<Terms />} />
+              <Route path="/privacidade" element={<Privacy />} />
+              <Route path="/politica" element={<Privacy />} />
               
               {/* Protected routes */}
               <Route path="/painel" element={

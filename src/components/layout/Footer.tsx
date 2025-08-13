@@ -25,10 +25,10 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Links Úteis</h3>
             <div className="space-y-2">
-              <Link to="/termos" className="block text-slate-400 hover:text-white transition-colors duration-200">
+              <Link to="/terms" className="block text-slate-400 hover:text-white transition-colors duration-200">
                 Termos de Uso
               </Link>
-              <Link to="/politica" className="block text-slate-400 hover:text-white transition-colors duration-200">
+              <Link to="/privacy" className="block text-slate-400 hover:text-white transition-colors duration-200">
                 Política de Privacidade
               </Link>
               <a href="mailto:suporte@maden.ai" className="block text-slate-400 hover:text-white transition-colors duration-200">
