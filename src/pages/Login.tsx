@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import { Button } from '@/components/ui/button';
@@ -24,15 +24,36 @@ export default function Login() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signInWithGoogle, signInWithApple, loading: socialLoading } = useSocialAuth();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
+    // Verificar mensagens de verificação de email
+    const verified = searchParams.get('verified');
+    const error = searchParams.get('error');
+    const message = searchParams.get('message');
+
+    if (verified === 'true') {
+      toast({
+        title: "✅ Email verificado!",
+        description: message || "Seu email foi verificado com sucesso! Agora você pode fazer login.",
+        duration: 7000,
+      });
+    } else if (error) {
+      toast({
+        title: "❌ Erro na verificação",
+        description: decodeURIComponent(error),
+        variant: "destructive",
+        duration: 7000,
+      });
+    }
+
     const setupWelcomeMessage = async () => {
       const ipResult = await detectUserByIP();
       setWelcomeMessage(getWelcomeMessage(ipResult));
     };
     
     setupWelcomeMessage();
-  }, []);
+  }, [searchParams, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +84,20 @@ export default function Login() {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        // Verificar se é erro de email não confirmado
+        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
+          toast({
+            title: "📧 Email não verificado",
+            description: "Você precisa confirmar seu email antes de fazer login. Verifique sua caixa de entrada.",
+            variant: "destructive",
+            duration: 8000,
+          });
+          setLoading(false);
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "✅ Login realizado com sucesso!",

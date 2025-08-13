@@ -62,5 +62,14 @@ enabled = true
 port = 54325
 inspector_port = 5432
 
+[functions.send-custom-emails]
+verify_jwt = false
+
+[functions.send-verification-email]
+verify_jwt = false
+
+[functions.email-verification]
+verify_jwt = false
+
 [analytics]
 enabled = false
