@@ -92,7 +92,9 @@ class CriticalErrorBoundary extends React.Component<
                       msg.includes('Invalid hook call') ||
                       msg.includes('multiple copies of React') ||
                       msg.includes("reading 'useRef'") ||
-                      msg.includes('useRef');
+                      msg.includes('useRef') ||
+                      msg.includes('useContext') ||
+                      msg.includes('Cannot read properties of null');
     
     return { hasError: true, error, isCritical };
   }
@@ -150,18 +152,16 @@ class CriticalErrorBoundary extends React.Component<
   }
 }
 
-// Clean Providers Component
+// Clean Providers Component - ThemeProvider temporarily removed due to React corruption
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <AuthProvider>
     <ImpersonationProvider>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="madeai-theme">
-          <ProjectProvider>
-            <TooltipProvider delayDuration={200}>
-              {children}
-            </TooltipProvider>
-          </ProjectProvider>
-        </ThemeProvider>
+        <ProjectProvider>
+          <TooltipProvider delayDuration={200}>
+            {children}
+          </TooltipProvider>
+        </ProjectProvider>
       </QueryClientProvider>
     </ImpersonationProvider>
   </AuthProvider>
