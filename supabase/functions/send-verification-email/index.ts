@@ -54,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
       type: 'signup',
       email: email,
       options: {
-        redirectTo: `https://arqcloud.com.br/auth/callback?next=/painel`
+        redirectTo: `https://madeai.com.br/auth/callback?next=/painel`
       }
     });
 

@@ -158,7 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Variáveis globais para merge
     const appName = 'MadenAI';
-    const baseUrl = 'https://arqcloud.com.br';
+    const baseUrl = 'https://madeai.com.br';
     const vars: Record<string, any> = {
       app_name: appName,
       app_url: baseUrl,
@@ -284,7 +284,7 @@ function generateEmailContent(
   verificationData?: any
 ): { subject: string; html: string } {
   const userName = userData?.full_name || 'Usuário';
-  const baseUrl = 'https://arqcloud.com.br';
+  const baseUrl = 'https://madeai.com.br';
 
   switch (emailType) {
     case 'verified_user':

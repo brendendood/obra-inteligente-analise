@@ -97,7 +97,7 @@ export function ReferralSystemTest() {
   };
 
   const openSignupWithReferral = () => {
-    window.open('https://arqcloud.com.br/cadastro?ref=REF_fae0ee4b', '_blank');
+    window.open('https://madeai.com.br/cadastro?ref=REF_fae0ee4b', '_blank');
   };
 
   return (
