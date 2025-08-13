@@ -53,7 +53,7 @@ const NotFound = () => {
           
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-500">
-              <strong>MadenAI</strong> - Plataforma de Gestão de Projetos
+              <strong>MadeAI</strong> - Plataforma de Gestão de Projetos
             </p>
           </div>
         </CardContent>

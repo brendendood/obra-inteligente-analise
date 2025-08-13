@@ -470,7 +470,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
-              Por que engenheiros e arquitetos escolhem o MadenAI?
+              Por que engenheiros e arquitetos escolhem o MadeAI?
             </h2>
             <p className="text-xl text-slate-600">
               Deixe a IA fazer o trabalho pesado enquanto você foca no que realmente importa: criar projetos excepcionais
@@ -957,7 +957,7 @@ const LandingPage = () => {
               <div className="mb-4">
                 <img 
                   src="/lovable-uploads/c77446ad-cd65-4beb-a2f8-86ad4e6eccd7.png" 
-                  alt="MadenAI" 
+                  alt="MadeAI" 
                   className="h-16 w-auto" 
                 />
               </div>
@@ -1079,7 +1079,7 @@ const LandingPage = () => {
             <div className="flex items-center">
               <img 
                 src="/lovable-uploads/171e0d43-b586-47df-b8ac-01d0f9546728.png" 
-                alt="MadenAI" 
+                alt="MadeAI" 
                 className="h-12 w-auto opacity-75 hover:opacity-100 transition-opacity duration-200" 
               />
             </div>

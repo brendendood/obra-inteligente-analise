@@ -34,7 +34,7 @@ interface UnifiedProjectState {
 
 // Cache configuration - otimizado para desenvolvimento
 const CACHE_TTL = import.meta.env.DEV ? 30 * 1000 : 5 * 60 * 1000; // 30s dev, 5min prod
-const CACHE_KEY = 'madenai_projects_unified_cache';
+const CACHE_KEY = 'madeai_projects_unified_cache';
 
 // Cache helpers robustos
 const getCache = () => {

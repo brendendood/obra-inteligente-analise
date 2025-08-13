@@ -120,7 +120,7 @@ const Contact = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-900">Fale Conosco</h1>
-              <p className="text-slate-600">Estamos aqui para ajudar você a aproveitar ao máximo o MadenAI</p>
+              <p className="text-slate-600">Estamos aqui para ajudar você a aproveitar ao máximo o MadeAI</p>
             </div>
           </div>
         </div>

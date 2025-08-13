@@ -236,12 +236,12 @@ function Signup() {
         setSuccess(true);
         toast({
           title: "✅ Conta criada com sucesso!",
-          description: "Verifique seu email para confirmar sua conta e acessar o MadenAI."
+          description: "Verifique seu email para confirmar sua conta e acessar o MadeAI."
         });
       } else {
         toast({
           title: "✅ Conta criada com sucesso!",
-          description: "Bem-vindo ao MadenAI!"
+          description: "Bem-vindo ao MadeAI!"
         });
         navigate('/painel');
       }
@@ -570,7 +570,7 @@ function Signup() {
                     <Link to="/privacy" className="text-primary hover:underline" target="_blank">
                       Política de Privacidade
                     </Link>{' '}
-                    do MadenAI
+                    do MadeAI
                   </Label>
                 </div>
               </div>

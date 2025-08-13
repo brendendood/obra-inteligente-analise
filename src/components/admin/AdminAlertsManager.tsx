@@ -133,7 +133,7 @@ export const AdminAlertsManager = () => {
           event_type: 'test_webhook',
           user_data: {
             id: 'test-user',
-            email: 'test@madenai.com',
+            email: 'test@madeai.com',
             name: 'Teste Admin'
           },
           event_data: {

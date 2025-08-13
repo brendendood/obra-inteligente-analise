@@ -22,7 +22,7 @@ export const WelcomeSection = ({ userName, onRefresh, isLoading }: WelcomeSectio
       </div>
       
       <div className="flex items-center space-x-4">
-        {/* Logo da MadenAI */}
+        {/* Logo da MadeAI */}
         <div className="flex items-center">
           <UnifiedLogo size="lg" clickable={false} theme="auto" />
         </div>

@@ -32,7 +32,7 @@ const Help = () => {
     {
       icon: <BookOpen className="h-8 w-8 text-blue-600" />,
       title: "Guia de Início Rápido",
-      description: "Aprenda a usar o MadenAI em poucos minutos",
+      description: "Aprenda a usar o MadeAI em poucos minutos",
       type: "Guia",
       action: "Ler Guia",
       href: "#quick-start"
@@ -83,7 +83,7 @@ const Help = () => {
     // Seção: Uploads e Formatos
     {
       question: "Quais tipos de arquivo de projeto posso enviar para análise?",
-      answer: "O MadenAI aceita plantas em PDF, arquivos DWG/AutoCAD, imagens de projetos (JPG, PNG), planilhas de orçamento (Excel, CSV) e documentos técnicos (Word, PDF). Para melhores resultados na análise de IA, recomendamos plantas em PDF de alta qualidade ou arquivos DWG nativos."
+      answer: "O MadeAI aceita plantas em PDF, arquivos DWG/AutoCAD, imagens de projetos (JPG, PNG), planilhas de orçamento (Excel, CSV) e documentos técnicos (Word, PDF). Para melhores resultados na análise de IA, recomendamos plantas em PDF de alta qualidade ou arquivos DWG nativos."
     },
     {
       question: "Como faço upload dos meus projetos de construção?",
@@ -132,7 +132,7 @@ const Help = () => {
       answer: "Sim! O cronograma segue a sequência lógica: fundação → estrutura → alvenaria → instalações → acabamentos → limpeza. Você pode ajustar prazos e dependências conforme sua metodologia construtiva."
     },
     {
-      question: "Posso usar o MadenAI para reformas e ampliações?",
+      question: "Posso usar o MadeAI para reformas e ampliações?",
       answer: "Perfeitamente! A IA analisa plantas de reforma, identifica elementos existentes vs. novos, calcula materiais para demolição/construção e gera orçamentos específicos para reformas. Muito útil para arquitetos e engenheiros especializados em retrofit."
     },
     
@@ -142,7 +142,7 @@ const Help = () => {
       answer: "No plano Enterprise, acesse 'Configurações do Projeto' → 'Compartilhar' → adicione emails dos membros da equipe (engenheiros, arquitetos, orçamentistas). Cada membro pode visualizar, editar ou apenas comentar, conforme as permissões definidas."
     },
     {
-      question: "Posso integrar o MadenAI com outros softwares da construção?",
+      question: "Posso integrar o MadeAI com outros softwares da construção?",
       answer: "Atualmente exportamos dados em formatos padrão (Excel, CSV, PDF) compatíveis com softwares como Sienge, TQS, AltoQi e planilhas personalizadas. Integrações diretas estão em desenvolvimento."
     },
     
@@ -192,7 +192,7 @@ const Help = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-slate-900">Ajuda e Suporte</h1>
-              <p className="text-slate-600">Encontre respostas, tutoriais e recursos para dominar o MadenAI</p>
+              <p className="text-slate-600">Encontre respostas, tutoriais e recursos para dominar o MadeAI</p>
             </div>
           </div>
         </div>

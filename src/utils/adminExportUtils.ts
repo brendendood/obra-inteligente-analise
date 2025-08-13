@@ -34,7 +34,7 @@ export interface LoginHistoryRecord {
 export const exportUsersToExcel = (users: AdminUserExport[]) => {
   try {
     const mainData = [
-      ['RELATÓRIO DE USUÁRIOS - MADENAI'],
+      ['RELATÓRIO DE USUÁRIOS - MADEAI'],
       [''],
       ['Gerado em:', new Date().toLocaleString('pt-BR')],
       ['Total de usuários:', users.length.toString()],
@@ -80,7 +80,7 @@ export const exportUsersToExcel = (users: AdminUserExport[]) => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
     
-    const filename = `Usuarios_MadenAI_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const filename = `Usuarios_MadeAI_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, filename);
     
     return { success: true, filename };
@@ -113,7 +113,7 @@ export const exportUsersToCSV = (users: AdminUserExport[]) => {
     ]);
 
     const csvContent = [
-      `Relatório de Usuários - MadenAI;;;;;;;;;;;;;`,
+      `Relatório de Usuários - MadeAI;;;;;;;;;;;;;`,
       `Gerado em: ${new Date().toLocaleString('pt-BR')};;;;;;;;;;;;;`,
       `Total: ${users.length} usuários;;;;;;;;;;;;;`,
       '',
@@ -124,7 +124,7 @@ export const exportUsersToCSV = (users: AdminUserExport[]) => {
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Usuarios_MadenAI_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `Usuarios_MadeAI_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     
     return { success: true, filename: link.download };
@@ -137,7 +137,7 @@ export const exportUsersToCSV = (users: AdminUserExport[]) => {
 export const exportLoginHistoryToExcel = (loginHistory: LoginHistoryRecord[]) => {
   try {
     const mainData = [
-      ['HISTÓRICO DE LOGINS - MADENAI'],
+      ['HISTÓRICO DE LOGINS - MADEAI'],
       [''],
       ['Gerado em:', new Date().toLocaleString('pt-BR')],
       ['Total de registros:', loginHistory.length.toString()],
@@ -179,7 +179,7 @@ export const exportLoginHistoryToExcel = (loginHistory: LoginHistoryRecord[]) =>
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Histórico de Logins');
     
-    const filename = `Historico_Logins_MadenAI_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const filename = `Historico_Logins_MadeAI_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, filename);
     
     return { success: true, filename };

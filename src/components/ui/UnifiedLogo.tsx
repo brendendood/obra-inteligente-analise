@@ -92,7 +92,7 @@ export const UnifiedLogo = ({
     setImageError(false);
   };
 
-  // Logo da MadenAI - usando a nova imagem enviada pelo usuário
+  // Logo da MadeAI - usando a nova imagem enviada pelo usuário
   const logoSrc = `/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png`;
   
   // Debug: Log se a imagem está carregando

@@ -4,7 +4,7 @@ import { ScheduleData } from '@/types/project';
 export const exportScheduleToExcel = (scheduleData: ScheduleData, projectName: string) => {
   try {
     const mainData = [
-      ['CRONOGRAMA - MADENAI'],
+      ['CRONOGRAMA - MADEAI'],
       ['Projeto:', projectName],
       ['Duração:', `${scheduleData.totalDuration} dias`],
       [''],

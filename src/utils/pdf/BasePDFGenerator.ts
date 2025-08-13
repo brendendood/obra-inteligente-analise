@@ -42,14 +42,14 @@ export class BasePDFGenerator {
   protected addHeader(options: PDFExportOptions): number {
     let yPosition = 25;
 
-    // Logo da MadenAI - Com logo real integrada
+    // Logo da MadeAI - Com logo real integrada
     if (options.includeLogo) {
       try {
         // Logo estilizada com cores da marca (preto + azul)
         this.doc.setTextColor(0, 123, 255); // Azul da logo
         this.doc.setFontSize(18);
         this.doc.setFont('helvetica', 'bold');
-        this.doc.text('Maden', this.margin, yPosition);
+        this.doc.text('Made', this.margin, yPosition);
         
         this.doc.setTextColor(0, 0, 0); // Preto da logo
         this.doc.text('AI', this.margin + 25, yPosition);
@@ -63,7 +63,7 @@ export class BasePDFGenerator {
         this.doc.setTextColor(0, 0, 0);
         this.doc.setFontSize(16);
         this.doc.setFont('helvetica', 'bold');
-        this.doc.text('MadenAI', this.margin, yPosition);
+        this.doc.text('MadeAI', this.margin, yPosition);
         yPosition += 20;
       }
     }
@@ -97,8 +97,8 @@ export class BasePDFGenerator {
     
     this.doc.setFontSize(8);
     this.doc.setTextColor(128, 128, 128);
-    this.doc.text('Gerado por MadenAI - Plataforma de Gestão de Obras', this.margin, footerY);
-    this.doc.text(`www.madenai.com | Página ${this.doc.getCurrentPageInfo().pageNumber}`, this.pageWidth - 80, footerY);
+    this.doc.text('Gerado por MadeAI - Plataforma de Gestão de Obras', this.margin, footerY);
+    this.doc.text(`www.madeai.com | Página ${this.doc.getCurrentPageInfo().pageNumber}`, this.pageWidth - 80, footerY);
   }
 
   protected checkPageBreak(currentY: number): number {

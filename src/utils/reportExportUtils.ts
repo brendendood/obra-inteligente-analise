@@ -13,7 +13,7 @@ export const generateAdminPDFReport = async (data: ReportData | null, type: stri
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.text('MadenAI', 25, 25);
+  doc.text('MadeAI', 25, 25);
 
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(18);
@@ -83,7 +83,7 @@ export const generateAdminCSVReport = async (data: ReportData | null, type: stri
   if (!data) return;
 
   const csvData = [
-    ['Relatório MadenAI - Administrativo'],
+    ['Relatório MadeAI - Administrativo'],
     [`Tipo: ${type}`],
     [`Período: ${filters.dateRange.from.toLocaleDateString('pt-BR')} a ${filters.dateRange.to.toLocaleDateString('pt-BR')}`],
     [`Gerado em: ${new Date().toLocaleString('pt-BR')}`],

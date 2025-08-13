@@ -1,4 +1,4 @@
-// Security validation utilities for MadenAI
+// Security validation utilities for MadeAI
 export const validateUserInput = (input: string, maxLength: number = 1000): string => {
   if (!input || typeof input !== 'string') {
     return '';

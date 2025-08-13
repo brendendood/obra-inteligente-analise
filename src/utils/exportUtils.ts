@@ -8,7 +8,7 @@ export const exportToExcel = (budgetData: BudgetData, projectName: string) => {
   try {
     // Criar planilha principal com dados do orçamento
     const mainData = [
-      ['ORÇAMENTO DETALHADO - MADENAI'],
+      ['ORÇAMENTO DETALHADO - MADEAI'],
       [''],
       ['Projeto:', projectName],
       ['Data:', budgetData.data_referencia],
@@ -96,7 +96,7 @@ export const exportToPDF = (budgetData: BudgetData, projectName: string) => {
     
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
-    doc.text('MadenAI - Plataforma de Gestão de Projetos', 20, 35);
+    doc.text('MadeAI - Plataforma de Gestão de Projetos', 20, 35);
     
     // Informações do projeto
     doc.setFontSize(14);

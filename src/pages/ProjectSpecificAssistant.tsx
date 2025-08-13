@@ -30,7 +30,7 @@ const ProjectSpecificAssistantContent = () => {
               <div className="w-16 h-16 mx-auto bg-gray-900 rounded-full flex items-center justify-center mb-6">
                 <Bot className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Carregando MadenAI</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Carregando MadeAI</h3>
               <p className="text-gray-500 mb-6">
                 Preparando sua assistente especializada...
               </p>
