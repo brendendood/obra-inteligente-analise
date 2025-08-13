@@ -2,12 +2,9 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
-// Mapeamento de remetentes por tipo (todos @madeai.com.br)
+// Mapeamento de remetentes essenciais (apenas transacionais)
 const SENDER_MAP: Record<string, { fromEmail: string; fromName: string; replyTo?: string }> = {
-  welcome: { fromEmail: "suporte@madeai.com.br", fromName: "MadenAI Suporte" },
   password_reset: { fromEmail: "auth@madeai.com.br", fromName: "MadenAI Autenticação" },
-  project_milestone: { fromEmail: "projetos@madeai.com.br", fromName: "MadenAI Projetos" },
-  account_cancelled: { fromEmail: "suporte@madeai.com.br", fromName: "MadenAI Suporte" },
   default: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" },
 };
 
@@ -35,7 +32,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  email_type: 'welcome' | 'password_reset' | 'project_milestone' | 'account_cancelled';
+  email_type: 'password_reset';
   recipient_email: string;
   user_data?: {
     full_name?: string;
@@ -53,14 +50,21 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const { email_type, recipient_email, user_data, reset_data }: EmailRequest = await req.json();
-    console.log(`📧 SEND-EMAILS: Enviando email tipo "${email_type}" para ${recipient_email}`);
+try {
+  const { email_type, recipient_email, user_data, reset_data }: EmailRequest = await req.json();
+  // Guard: only allow essential transactional types
+  if (email_type !== 'password_reset') {
+    return new Response(JSON.stringify({ error: 'Unsupported email_type' }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  }
+  console.log(`📧 SEND-EMAILS: Enviando email tipo "${email_type}" para ${recipient_email}`);
 
-    // Inicializar Supabase client (opcional para logging)
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
+  // Inicializar Supabase client (opcional para logging)
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
     // Garantir que a API key do Resend existe
     if (!Deno.env.get('RESEND_API_KEY')) {

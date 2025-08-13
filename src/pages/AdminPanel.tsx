@@ -15,7 +15,7 @@ import {
   ChevronLeft,
   MessageCircle,
   Globe,
-  Mail
+  
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
@@ -25,41 +25,15 @@ import { AdminAIConversations } from '@/components/admin/AdminAIConversations';
 import { ReferralSystemTest } from '@/components/admin/ReferralSystemTest';
 import { GeolocationManager } from '@/components/admin/GeolocationManager';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
-import { useEmailSystem } from '@/hooks/useEmailSystem';
-import { toast } from '@/hooks/use-toast';
+
+
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { isAdmin, adminStats, loading, error, user, loadAdminStats, forceRefresh } = useUnifiedAdmin();
   const navigate = useNavigate();
 
-  const { sendWelcomeEmail } = useEmailSystem();
-  const [sendingTestEmail, setSendingTestEmail] = useState(false);
 
-  const handleSendTestEmail = async () => {
-    if (!user?.email) {
-      toast({
-        title: 'E-mail não encontrado',
-        description: 'Usuário atual não possui e-mail.',
-      });
-      return;
-    }
-    try {
-      setSendingTestEmail(true);
-      await sendWelcomeEmail(user.email, user.email.split('@')[0] || undefined);
-      toast({
-        title: 'E-mail enviado',
-        description: `Enviamos um e-mail de teste para ${user.email}.`,
-      });
-    } catch (err: any) {
-      toast({
-        title: 'Falha ao enviar',
-        description: err?.message || 'Verifique os logs da função.',
-      });
-    } finally {
-      setSendingTestEmail(false);
-    }
-  };
 
   useEffect(() => {
     if (isAdmin && !adminStats) {
@@ -236,16 +210,6 @@ const AdminPanel = () => {
               <span className="text-sm text-gray-600">
                 👋 {user.email}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSendTestEmail}
-                disabled={sendingTestEmail}
-                className="flex items-center gap-2"
-              >
-                <Mail className="w-4 h-4" />
-                {sendingTestEmail ? 'Enviando...' : 'E-mail de teste'}
-              </Button>
               <Button 
                 variant="outline" 
                 size="sm"

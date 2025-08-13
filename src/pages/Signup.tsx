@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { validateEmail, validatePassword, formatAuthError } from '@/utils/authValidation';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
-import { useEmailSystem } from '@/hooks/useEmailSystem';
+
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 
 type SignupStep = 1 | 2 | 3;
@@ -61,7 +61,6 @@ function Signup() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signInWithGoogle, signInWithApple, loading: socialLoading } = useSocialAuth();
-  const { sendWelcomeEmail } = useEmailSystem();
 
   // Check for referral code on component mount and validate it
   useEffect(() => {
@@ -213,25 +212,19 @@ function Signup() {
 
       if (error) throw error;
 
-      if (data.user && !data.session) {
-        // Enviar email de boas-vindas
-        await sendWelcomeEmail(formData.email, formData.fullName);
-        
-        setSuccess(true);
-        toast({
-          title: "✅ Conta criada com sucesso!",
-          description: "Verifique seu email para confirmar sua conta e acessar o MadenAI."
-        });
-      } else if (data.session) {
-        // Enviar email de boas-vindas para login direto
-        await sendWelcomeEmail(formData.email, formData.fullName);
-        
-        toast({
-          title: "✅ Conta criada com sucesso!",
-          description: "Bem-vindo ao MadenAI!"
-        });
-        navigate('/painel');
-      }
+if (data.user && !data.session) {
+  setSuccess(true);
+  toast({
+    title: "✅ Conta criada com sucesso!",
+    description: "Verifique seu email para confirmar sua conta e acessar o MadenAI."
+  });
+} else if (data.session) {
+  toast({
+    title: "✅ Conta criada com sucesso!",
+    description: "Bem-vindo ao MadenAI!"
+  });
+  navigate('/painel');
+}
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({
