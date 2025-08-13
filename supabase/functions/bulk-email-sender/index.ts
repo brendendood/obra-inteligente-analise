@@ -16,12 +16,47 @@ interface BulkEmailRequest {
 }
 
 const SENDER_MAP: Record<string, { email: string; name: string; replyTo?: string }> = {
-  verified_user: { email: 'verificacao@madeai.com.br', name: 'MadenAI Verificação' },
-  welcome_user: { email: 'boas-vindas@madeai.com.br', name: 'Equipe MadenAI' },
-  onboarding_step1: { email: 'onboarding@madeai.com.br', name: 'MadenAI Onboarding' },
-  project_milestone: { email: 'notificacoes@madeai.com.br', name: 'MadenAI' },
-  usage_limit_reached: { email: 'notificacoes@madeai.com.br', name: 'MadenAI' },
-  default: { email: 'noreply@madeai.com.br', name: 'MadenAI' }
+  verified_user: { email: 'verificacao@madeai.com.br', name: 'MadeAI Verificação' },
+  welcome_user: { email: 'boas-vindas@madeai.com.br', name: 'Equipe MadeAI' },
+  onboarding_step1: { email: 'onboarding@madeai.com.br', name: 'MadeAI Onboarding' },
+  project_milestone: { email: 'notificacoes@madeai.com.br', name: 'MadeAI' },
+  usage_limit_reached: { email: 'notificacoes@madeai.com.br', name: 'MadeAI' },
+  default: { email: 'noreply@madeai.com.br', name: 'MadeAI' }
+};
+
+// Rate limiting configuration - Resend allows 2 emails/second max
+const RATE_LIMIT_CONFIG = {
+  emailDelay: 600, // 600ms delay = 1.67 emails/second (safe margin)
+  batchSize: 3, // Smaller batches for better control
+  batchDelay: 2000, // 2 seconds between batches
+  retryDelay: 2000, // 2 seconds wait on rate limit error
+  maxRetries: 3 // Maximum retry attempts per email
+};
+
+// Smart delay function
+const smartDelay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Rate limit retry function
+const sendEmailWithRetry = async (resend: any, emailData: any, maxRetries: number = RATE_LIMIT_CONFIG.maxRetries) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await resend.emails.send(emailData);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+      return response;
+    } catch (error: any) {
+      const isRateLimit = error.message?.includes('Too many requests') || error.message?.includes('rate limit');
+      
+      if (isRateLimit && attempt < maxRetries) {
+        console.log(`⏳ BULK-SENDER: Rate limit detectado, tentativa ${attempt}/${maxRetries}, aguardando ${RATE_LIMIT_CONFIG.retryDelay}ms...`);
+        await smartDelay(RATE_LIMIT_CONFIG.retryDelay);
+        continue;
+      }
+      
+      throw error;
+    }
+  }
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -58,8 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`📧 BULK-SENDER: Encontrados ${users.length} usuários`);
 
-    // Process emails in batches to avoid rate limiting
-    const batchSize = 5;
+    // Process emails with robust rate limiting
     const results = {
       total_users: users.length,
       total_emails: users.length * email_types.length,
@@ -68,8 +102,13 @@ const handler = async (req: Request): Promise<Response> => {
       errors: [] as string[]
     };
 
-    for (let i = 0; i < users.length; i += batchSize) {
-      const batch = users.slice(i, i + batchSize);
+    let emailCount = 0;
+    const totalEmails = results.total_emails;
+
+    for (let i = 0; i < users.length; i += RATE_LIMIT_CONFIG.batchSize) {
+      const batch = users.slice(i, i + RATE_LIMIT_CONFIG.batchSize);
+      
+      console.log(`📦 BULK-SENDER: Processando lote ${Math.ceil((i + 1) / RATE_LIMIT_CONFIG.batchSize)} de ${Math.ceil(users.length / RATE_LIMIT_CONFIG.batchSize)}`);
       
       // Process each user in the batch
       for (const user of batch) {
@@ -84,13 +123,13 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Send each selected email type
         for (const emailType of email_types) {
+          emailCount++;
+          
           try {
-            const senderInfo = SENDER_MAP[emailType] || SENDER_MAP.default;
-            
             // Preparar variáveis para o template
             const templateVars = {
               full_name: userName,
-              app_name: 'MadenAI',
+              app_name: 'MadeAI',
               login_url: 'https://app.madeai.com.br/login',
               support_email: 'suporte@madeai.com.br',
               user_email: userEmail
@@ -106,39 +145,49 @@ const handler = async (req: Request): Promise<Response> => {
             }
             
             if (test_mode) {
-              console.log(`🧪 TEST-MODE: Email ${emailType} para ${userEmail}:`, template.subject);
+              console.log(`🧪 TEST-MODE: Email ${emailType} para ${userEmail} (${emailCount}/${totalEmails})`);
               results.successful++;
+              await smartDelay(RATE_LIMIT_CONFIG.emailDelay);
               continue;
             }
 
-            // Send real email using template from database
-            const emailResponse = await resend.emails.send({
+            console.log(`📧 BULK-SENDER: Enviando ${emailType} para ${userEmail} (${emailCount}/${totalEmails})...`);
+
+            // Send email with retry logic
+            const emailData = {
               from: `${template.fromName} <${template.fromEmail}>`,
               to: [userEmail],
               subject: template.subject,
               html: template.html,
-            });
+            };
 
-            if (emailResponse.error) {
-              throw new Error(emailResponse.error.message);
-            }
+            await sendEmailWithRetry(resend, emailData);
 
             results.successful++;
             console.log(`✅ BULK-SENDER: Email ${emailType} enviado para ${userEmail}`);
 
-            // Small delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Robust delay between emails (600ms = 1.67 emails/second)
+            if (emailCount < totalEmails) {
+              console.log(`⏳ BULK-SENDER: Aguardando ${RATE_LIMIT_CONFIG.emailDelay}ms para próximo email...`);
+              await smartDelay(RATE_LIMIT_CONFIG.emailDelay);
+            }
 
           } catch (error: any) {
             results.failed++;
             results.errors.push(`${emailType} para ${userEmail}: ${error.message}`);
             console.error(`❌ BULK-SENDER: Erro ao enviar ${emailType} para ${userEmail}:`, error);
+            
+            // Even on error, wait to avoid hitting rate limits
+            await smartDelay(RATE_LIMIT_CONFIG.emailDelay);
           }
         }
       }
 
       // Longer delay between batches
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (i + RATE_LIMIT_CONFIG.batchSize < users.length) {
+        console.log(`⏸️ BULK-SENDER: Aguardando ${RATE_LIMIT_CONFIG.batchDelay}ms entre lotes...`);
+        await smartDelay(RATE_LIMIT_CONFIG.batchDelay);
+      }
     }
 
     // Log bulk sending activity
@@ -233,7 +282,7 @@ async function getEmailTemplate(supabase: any, emailType: string, vars: Record<s
       subject,
       html,
       fromEmail: template.from_email || 'noreply@madeai.com.br',
-      fromName: template.from_name || 'MadenAI'
+      fromName: template.from_name || 'MadeAI'
     };
     
   } catch (err) {
