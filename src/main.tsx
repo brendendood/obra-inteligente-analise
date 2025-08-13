@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
+import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import "@fontsource/space-grotesk/400.css";
 import "@fontsource/space-grotesk/500.css";
@@ -29,4 +30,4 @@ if (typeof window !== 'undefined' && (window as any).__madeai_sw_purged__ !== tr
 
 // REMOVENDO StrictMode que causa double rendering e corrompe React dispatcher
 console.info('[MadeAI] React version:', (React as any).version);
-root.render(<App />);
+root.render(<BrowserRouter><App /></BrowserRouter>);
