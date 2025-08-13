@@ -5,6 +5,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 // Mapeamento de remetentes essenciais (apenas transacionais)
 const SENDER_MAP: Record<string, { fromEmail: string; fromName: string; replyTo?: string }> = {
   password_reset: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI Autenticação" },
+  verified_user: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI Verificação" },
   welcome_user:   { fromEmail: "made@madeai.com.br",   fromName: "MadenAI" },
   onboarding_step1: { fromEmail: "made@madeai.com.br", fromName: "MadenAI" },
   usage_limit_reached: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" },
@@ -39,6 +40,7 @@ const corsHeaders = {
 const TYPE_TO_KEY: Record<string, string> = {
   welcome: 'welcome_user',
   welcome_user: 'welcome_user',
+  verified_user: 'verified_user',
   onboarding_step1: 'onboarding_step1',
   password_reset: 'password_reset',
   project_milestone: 'project_milestone',
@@ -80,7 +82,7 @@ async function resolveTemplate(supabase: any, emailType: string, vars: Record<st
 }
 
 interface EmailRequest {
-  email_type: 'welcome' | 'welcome_user' | 'onboarding_step1' | 'password_reset' | 'project_milestone' | 'usage_limit_reached' | 'account_cancelled' | 'account_deactivated';
+  email_type: 'welcome' | 'welcome_user' | 'verified_user' | 'onboarding_step1' | 'password_reset' | 'project_milestone' | 'usage_limit_reached' | 'account_cancelled' | 'account_deactivated';
   recipient_email: string;
   user_data?: {
     full_name?: string;
@@ -96,6 +98,10 @@ interface EmailRequest {
     token?: string;
     token_expires_minutes?: number;
   };
+  verification_data?: {
+    verification_url?: string;
+    token?: string;
+  };
   extra_data?: {
     upgrade_url?: string;
     onboarding_cta_url?: string;
@@ -109,10 +115,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email_type, recipient_email, user_data, reset_data, extra_data }: EmailRequest = await req.json();
+    const { email_type, recipient_email, user_data, reset_data, verification_data, extra_data }: EmailRequest = await req.json();
 
     const allowedTypes = [
-      'welcome', 'welcome_user', 'onboarding_step1', 'password_reset', 'project_milestone', 'usage_limit_reached', 'account_cancelled', 'account_deactivated'
+      'welcome', 'welcome_user', 'verified_user', 'onboarding_step1', 'password_reset', 'project_milestone', 'usage_limit_reached', 'account_cancelled', 'account_deactivated'
     ];
     if (!allowedTypes.includes(email_type)) {
       return new Response(JSON.stringify({ error: 'Unsupported email_type' }), {
@@ -169,6 +175,8 @@ const handler = async (req: Request): Promise<Response> => {
       onboarding_step: user_data?.onboarding_step || 1,
       reset_url: reset_data?.reset_url || '',
       token_expires_minutes: reset_data?.token_expires_minutes || 60,
+      verification_url: verification_data?.verification_url || '',
+      verification_token: verification_data?.token || '',
       upgrade_url: extra_data?.upgrade_url || `${baseUrl}/planos`,
       onboarding_cta_url: extra_data?.onboarding_cta_url || `${baseUrl}/painel`,
       deactivated_at: extra_data?.deactivated_at || new Date().toLocaleString('pt-BR'),
@@ -180,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Caso não encontre, usar geradores padrão
     if (!resolved) {
-      const fallback = generateEmailContent(email_type, user_data, reset_data);
+      const fallback = generateEmailContent(email_type, user_data, reset_data, verification_data);
       resolved = {
         subject: mergePlaceholders(fallback.subject, vars),
         html: mergePlaceholders(fallback.html, vars),
@@ -263,7 +271,8 @@ const handler = async (req: Request): Promise<Response> => {
 function generateEmailContent(
   emailType: string, 
   userData?: any, 
-  resetData?: any
+  resetData?: any,
+  verificationData?: any
 ): { subject: string; html: string } {
   const userName = userData?.full_name || 'Usuário';
   const baseUrl = 'https://arqcloud.com.br';
@@ -273,6 +282,12 @@ function generateEmailContent(
       return {
         subject: '🎉 Bem-vindo à MadenAI!',
         html: generateWelcomeTemplate(userName, baseUrl)
+      };
+
+    case 'verified_user':
+      return {
+        subject: '✉️ Confirme seu email - MadenAI',
+        html: generateVerificationTemplate(userName, verificationData?.verification_url || '', baseUrl)
       };
     
     case 'password_reset':
@@ -373,6 +388,89 @@ function generateWelcomeTemplate(userName: string, baseUrl: string): string {
                     Precisa de ajuda? Estamos aqui para você!
                 </p>
                 <a href="${baseUrl}/#contact" class="contact-btn">Entrar em Contato</a>
+                <p style="color: #a0aec0; font-size: 14px; margin-top: 20px;">
+                    © 2024 MadenAI. Todos os direitos reservados.
+                </p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+}
+
+function generateVerificationTemplate(userName: string, verificationUrl: string, baseUrl: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Confirme seu Email - MadenAI</title>
+        <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+            .container { max-width: 600px; margin: 0 auto; background: white; }
+            .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 40px 20px; text-align: center; }
+            .logo { color: white; font-size: 28px; font-weight: bold; margin-bottom: 10px; }
+            .header-subtitle { color: rgba(255,255,255,0.9); font-size: 16px; }
+            .content { padding: 40px 20px; }
+            .title { color: #2d3748; font-size: 24px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+            .text { color: #4a5568; font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
+            .cta-button { display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; text-align: center; }
+            .verification-box { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center; }
+            .footer { background: #f7fafc; padding: 30px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
+            .security-notice { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 15px; margin: 20px 0; }
+            .security-notice-text { color: #dc2626; font-size: 14px; margin: 0; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">MadenAI</div>
+                <div class="header-subtitle">Confirme seu email para ativar sua conta</div>
+            </div>
+            
+            <div class="content">
+                <h1 class="title">Confirme seu email, ${userName}! ✉️</h1>
+                
+                <p class="text">
+                    Obrigado por se cadastrar na MadenAI! Para garantir a segurança da sua conta e ter acesso completo à plataforma, você precisa confirmar seu endereço de email.
+                </p>
+                
+                <div class="verification-box">
+                    <p style="margin: 0 0 15px 0; color: #374151; font-weight: 500;">
+                        Clique no botão abaixo para confirmar seu email:
+                    </p>
+                    <a href="${verificationUrl}" class="cta-button" style="display: inline-block;">
+                        ✅ Confirmar Email
+                    </a>
+                </div>
+                
+                <p class="text">
+                    Após a confirmação, você terá acesso completo aos recursos da MadenAI:
+                </p>
+                
+                <ul style="color: #4a5568; line-height: 1.8; margin-left: 20px;">
+                    <li>🤖 Assistente de IA especializado em construção</li>
+                    <li>💰 Geração automática de orçamentos</li>
+                    <li>📅 Cronogramas inteligentes</li>
+                    <li>📊 Análises detalhadas de projetos</li>
+                </ul>
+                
+                <div class="security-notice">
+                    <p class="security-notice-text">
+                        <strong>⚠️ Importante:</strong> Este link expira em 24 horas. Se não confirmou a tempo, você pode solicitar um novo email de confirmação.
+                    </p>
+                </div>
+                
+                <p class="text" style="font-size: 14px; color: #6b7280;">
+                    Se você não criou uma conta na MadenAI, pode ignorar este email com segurança.
+                </p>
+            </div>
+            
+            <div class="footer">
+                <p style="color: #718096; margin-bottom: 10px;">
+                    Precisa de ajuda? Entre em contato conosco!
+                </p>
                 <p style="color: #a0aec0; font-size: 14px; margin-top: 20px;">
                     © 2024 MadenAI. Todos os direitos reservados.
                 </p>

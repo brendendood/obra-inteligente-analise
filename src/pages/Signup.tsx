@@ -201,6 +201,7 @@ function Signup() {
         userData.ref_code = referralCode;
       }
 
+      // Signup sem confirmação de email automática
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -212,19 +213,38 @@ function Signup() {
 
       if (error) throw error;
 
-if (data.user && !data.session) {
-  setSuccess(true);
-  toast({
-    title: "✅ Conta criada com sucesso!",
-    description: "Verifique seu email para confirmar sua conta e acessar o MadenAI."
-  });
-} else if (data.session) {
-  toast({
-    title: "✅ Conta criada com sucesso!",
-    description: "Bem-vindo ao MadenAI!"
-  });
-  navigate('/painel');
-}
+      // Sempre enviar email customizado de verificação
+      if (data.user) {
+        try {
+          const verificationResponse = await supabase.functions.invoke('send-verification-email', {
+            body: {
+              email: formData.email,
+              user_data: {
+                full_name: formData.fullName,
+                user_id: data.user.id
+              }
+            }
+          });
+
+          if (verificationResponse.error) {
+            console.warn('Erro ao enviar email de verificação:', verificationResponse.error);
+          }
+        } catch (emailError) {
+          console.warn('Falha ao disparar email de verificação:', emailError);
+        }
+
+        setSuccess(true);
+        toast({
+          title: "✅ Conta criada com sucesso!",
+          description: "Verifique seu email para confirmar sua conta e acessar o MadenAI."
+        });
+      } else {
+        toast({
+          title: "✅ Conta criada com sucesso!",
+          description: "Bem-vindo ao MadenAI!"
+        });
+        navigate('/painel');
+      }
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({
@@ -248,8 +268,11 @@ if (data.user && !data.session) {
             Conta criada com sucesso!
           </h2>
           <p className="text-muted-foreground">
-            Enviamos um email de confirmação para <strong>{formData.email}</strong>.
-            Clique no link do email para ativar sua conta.
+            Enviamos um email de verificação para <strong>{formData.email}</strong>.
+            Clique no link "Confirmar Email" no email para ativar sua conta e ter acesso completo à plataforma.
+          </p>
+          <p className="text-sm text-muted-foreground mt-4">
+            <strong>⚠️ Importante:</strong> Você só conseguirá fazer login após confirmar seu email.
           </p>
           <Button asChild className="w-full">
             <Link to="/login">Ir para Login</Link>
