@@ -12,7 +12,7 @@ export function useEmailSystem() {
       
       const { data, error } = await supabase.functions.invoke('send-custom-emails', {
         body: {
-          email_type: 'welcome',
+          email_type: 'welcome_user',
           recipient_email: userEmail,
           user_data: {
             full_name: userName || 'Usuário',
@@ -94,11 +94,10 @@ export function useEmailSystem() {
 
   const sendAccountCancelledEmail = async (userEmail: string, userName?: string) => {
     try {
-      console.log('📧 EMAIL-SYSTEM: Enviando email de conta cancelada para', userEmail);
-      
+      console.log('📧 EMAIL-SYSTEM: Enviando email de conta desativada para', userEmail);
       const { data, error } = await supabase.functions.invoke('send-custom-emails', {
         body: {
-          email_type: 'account_cancelled',
+          email_type: 'account_deactivated',
           recipient_email: userEmail,
           user_data: {
             full_name: userName || 'Usuário',
@@ -106,13 +105,38 @@ export function useEmailSystem() {
           }
         }
       });
-
       if (error) throw error;
-      
-      console.log('✅ EMAIL-SYSTEM: Email de cancelamento enviado:', data);
+      console.log('✅ EMAIL-SYSTEM: Email de desativação enviado:', data);
       return { success: true, data };
     } catch (error: any) {
-      console.error('❌ EMAIL-SYSTEM: Erro ao enviar email de cancelamento:', error);
+      console.error('❌ EMAIL-SYSTEM: Erro ao enviar email de desativação:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const sendUsageLimitEmail = async (userEmail: string, planName: string, usedProjects: number, userName?: string) => {
+    try {
+      console.log('📧 EMAIL-SYSTEM: Enviando email de limite de uso para', userEmail);
+      const { data, error } = await supabase.functions.invoke('send-custom-emails', {
+        body: {
+          email_type: 'usage_limit_reached',
+          recipient_email: userEmail,
+          user_data: {
+            full_name: userName || 'Usuário',
+            user_id: user?.id,
+            plan_name: planName,
+            used_projects: usedProjects,
+          },
+          extra_data: {
+            upgrade_url: `${window.location.origin}/plan`
+          }
+        }
+      });
+      if (error) throw error;
+      console.log('✅ EMAIL-SYSTEM: Email de limite enviado:', data);
+      return { success: true, data };
+    } catch (error: any) {
+      console.error('❌ EMAIL-SYSTEM: Erro ao enviar email de limite:', error);
       return { success: false, error: error.message };
     }
   };
@@ -121,6 +145,7 @@ export function useEmailSystem() {
     sendWelcomeEmail,
     sendPasswordResetEmail,
     sendProjectMilestoneEmail,
-    sendAccountCancelledEmail
+    sendAccountCancelledEmail,
+    sendUsageLimitEmail
   };
 }

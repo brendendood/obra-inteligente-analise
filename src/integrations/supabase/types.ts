@@ -527,6 +527,7 @@ export type Database = {
           sent_at: string | null
           status: string
           subject: string
+          template_key: string | null
           template_version: string | null
           user_id: string | null
         }
@@ -539,6 +540,7 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subject: string
+          template_key?: string | null
           template_version?: string | null
           user_id?: string | null
         }
@@ -551,6 +553,7 @@ export type Database = {
           sent_at?: string | null
           status?: string
           subject?: string
+          template_key?: string | null
           template_version?: string | null
           user_id?: string | null
         }
@@ -558,30 +561,48 @@ export type Database = {
       }
       email_templates: {
         Row: {
+          category: string | null
           created_at: string
           description: string | null
+          enabled: boolean | null
+          from_email: string | null
+          from_name: string | null
           html: string
           id: string
+          locale: string | null
+          reply_to: string | null
           subject: string
           template_key: string
           updated_at: string
           updated_by: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
           description?: string | null
+          enabled?: boolean | null
+          from_email?: string | null
+          from_name?: string | null
           html: string
           id?: string
+          locale?: string | null
+          reply_to?: string | null
           subject?: string
           template_key: string
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
           description?: string | null
+          enabled?: boolean | null
+          from_email?: string | null
+          from_name?: string | null
           html?: string
           id?: string
+          locale?: string | null
+          reply_to?: string | null
           subject?: string
           template_key?: string
           updated_at?: string

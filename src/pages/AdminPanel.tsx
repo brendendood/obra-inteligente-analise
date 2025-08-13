@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   MessageCircle,
   Globe,
+  Mail,
   
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
@@ -24,8 +25,8 @@ import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
 import { AdminAIConversations } from '@/components/admin/AdminAIConversations';
 import { ReferralSystemTest } from '@/components/admin/ReferralSystemTest';
 import { GeolocationManager } from '@/components/admin/GeolocationManager';
+import { AdminEmailTemplates } from '@/components/admin/AdminEmailTemplates';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
-
 
 
 const AdminPanel = () => {
