@@ -45,7 +45,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   // Verifica páginas especiais
   const isAIPage = location.pathname === '/ia';
   const isProjectPage = location.pathname.startsWith('/projeto');
-  const isDashboard = location.pathname === '/' || location.pathname === '/dashboard';
+  const isDashboard = location.pathname === '/' || location.pathname === '/dashboard' || location.pathname === '/painel';
   const shouldHideFooter = hideFooter || isAIPage;
   
   // Esconde sidebar apenas na página IA no mobile
