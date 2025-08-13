@@ -1,6 +1,8 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
+import { Resend } from "npm:resend@2.0.0";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,6 +16,30 @@ interface AlertEmailRequest {
   user_id?: string;
   project_id?: string;
   metadata?: Record<string, any>;
+}
+
+function stripHtmlToText(html: string): string {
+  try {
+    return html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  } catch {
+    return "";
+  }
+}
+
+function getAlertSender(alertType: string): { from: string; name: string } {
+  // Remetentes enxutos por categoria
+  if (['user_inactive', 'project_stalled'].includes(alertType)) {
+    return { from: 'projetos@madeai.com.br', name: 'MadenAI Projetos' };
+  }
+  if (['subscription_expiring'].includes(alertType)) {
+    return { from: 'billing@madeai.com.br', name: 'MadenAI Cobrança' };
+  }
+  // Alertas administrativos/sistema (inclui ai_cost_spike, system_error, high_usage, etc.)
+  return { from: 'suporte@madeai.com.br', name: 'MadenAI Suporte' };
 }
 
 serve(async (req) => {
@@ -91,10 +117,10 @@ serve(async (req) => {
 
       if (profile) {
         // Obter email do usuário via auth
-        const { data: authUser } = await supabase.auth.admin.getUserById(user_id);
+        const { data: authUserData } = await supabase.auth.admin.getUserById(user_id);
         userData = {
           name: profile.full_name || 'Usuário',
-          email: authUser.user?.email
+          email: authUserData.user?.email
         };
       }
     }
@@ -115,8 +141,8 @@ serve(async (req) => {
     const emailContent = generateEmailContent(alert_type, message, severity, userData, projectData, metadata);
 
     // Lista de emails administrativos para receber alertas críticos
-    const adminEmails = ['admin@madenai.com', 'suporte@madenai.com'];
-    const recipientEmails = [];
+    const adminEmails = ['admin@madeai.com.br', 'suporte@madeai.com.br'];
+    const recipientEmails: string[] = [];
 
     // Adicionar email do usuário se disponível e alerta for para usuário
     if (userData?.email && ['user_inactive', 'subscription_expiring', 'project_stalled'].includes(alert_type)) {
@@ -138,11 +164,23 @@ serve(async (req) => {
       });
     }
 
-    // Simular envio de email (aqui você integraria com Resend, SendGrid, etc.)
-    console.log('📧 EMAIL SIMULADO:');
-    console.log(`Para: ${recipientEmails.join(', ')}`);
-    console.log(`Assunto: ${emailContent.subject}`);
-    console.log(`Conteúdo: ${emailContent.html}`);
+    // Enviar email via Resend com remetente por categoria
+    const sender = getAlertSender(alert_type);
+    const from = `${sender.name} <${sender.from}>`;
+
+    console.log('📧 SEND-ALERT-EMAIL: Enviando via Resend', { to: recipientEmails, from });
+
+    const emailResponse = await resend.emails.send({
+      from,
+      to: recipientEmails,
+      subject: emailContent.subject,
+      html: emailContent.html,
+      text: stripHtmlToText(emailContent.html),
+      tags: [
+        { name: 'category', value: `alert_${alert_type}` },
+        { name: 'severity', value: severity }
+      ],
+    });
 
     // Registrar tentativa de envio
     await supabase
@@ -154,7 +192,8 @@ serve(async (req) => {
         metadata: {
           recipients: recipientEmails,
           subject: emailContent.subject,
-          original_alert: { alert_type, message, severity, metadata }
+          original_alert: { alert_type, message, severity, metadata },
+          email_id: emailResponse?.data?.id
         }
       });
 
@@ -168,7 +207,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('💥 SEND-ALERT-EMAIL: Erro crítico:', error);
     return new Response(JSON.stringify({ 
       error: error.message 

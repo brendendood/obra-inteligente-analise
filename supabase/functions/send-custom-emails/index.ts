@@ -2,6 +2,31 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 
+// Mapeamento de remetentes por tipo (todos @madeai.com.br)
+const SENDER_MAP: Record<string, { fromEmail: string; fromName: string; replyTo?: string }> = {
+  welcome: { fromEmail: "suporte@madeai.com.br", fromName: "MadenAI Suporte" },
+  password_reset: { fromEmail: "auth@madeai.com.br", fromName: "MadenAI Autenticação" },
+  project_milestone: { fromEmail: "projetos@madeai.com.br", fromName: "MadenAI Projetos" },
+  account_cancelled: { fromEmail: "suporte@madeai.com.br", fromName: "MadenAI Suporte" },
+  default: { fromEmail: "noreply@madeai.com.br", fromName: "MadenAI" },
+};
+
+function getSenderByType(emailType: string) {
+  return SENDER_MAP[emailType] || SENDER_MAP.default;
+}
+
+function stripHtmlToText(html: string): string {
+  try {
+    return html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  } catch {
+    return "";
+  }
+}
+
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
@@ -30,7 +55,6 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { email_type, recipient_email, user_data, reset_data }: EmailRequest = await req.json();
-    
     console.log(`📧 SEND-EMAILS: Enviando email tipo "${email_type}" para ${recipient_email}`);
 
     // Inicializar Supabase client (opcional para logging)
@@ -42,7 +66,6 @@ const handler = async (req: Request): Promise<Response> => {
     if (!Deno.env.get('RESEND_API_KEY')) {
       const msg = 'RESEND_API_KEY ausente. Configure em Supabase > Functions > Secrets.';
       console.error('❌ SEND-EMAILS:', msg);
-      // Log opcional de falha
       try {
         if (supabase) {
           await supabase.from('email_logs').insert({
@@ -65,22 +88,24 @@ const handler = async (req: Request): Promise<Response> => {
     // Gerar conteúdo do email baseado no tipo
     const emailContent = generateEmailContent(email_type, user_data, reset_data);
 
-    // Definir remetente com fallback seguro
-    const fromEmail = Deno.env.get('RESEND_FROM_EMAIL') || '';
-    const fromName = Deno.env.get('RESEND_FROM_NAME') || 'MadenAI';
+    // Remetente preferido por tipo
+    const sender = getSenderByType(email_type);
+    const preferredFrom = `${sender.fromName} <${sender.fromEmail}>`;
     const fallbackFrom = 'MadenAI <onboarding@resend.dev>';
-    const preferredFrom = fromEmail ? `${fromName} <${fromEmail}>` : fallbackFrom;
 
     let emailResponse: any = null;
     let usedFrom = preferredFrom;
 
     try {
-      // Primeira tentativa com remetente preferido
+      // Primeira tentativa com remetente preferido (domínio @madeai.com.br)
       emailResponse = await resend.emails.send({
         from: preferredFrom,
         to: [recipient_email],
         subject: emailContent.subject,
         html: emailContent.html,
+        text: stripHtmlToText(emailContent.html),
+        ...(sender.replyTo ? { reply_to: sender.replyTo } : {}),
+        tags: [{ name: 'category', value: email_type }, { name: 'type', value: 'transactional' }],
       });
     } catch (primaryErr: any) {
       const msg = String(primaryErr?.message || primaryErr || 'Unknown error');
@@ -96,10 +121,11 @@ const handler = async (req: Request): Promise<Response> => {
             to: [recipient_email],
             subject: emailContent.subject,
             html: emailContent.html,
+            text: stripHtmlToText(emailContent.html),
+            tags: [{ name: 'category', value: email_type }, { name: 'type', value: 'transactional' }],
           });
         } catch (fallbackErr: any) {
           console.error('❌ SEND-EMAILS: Falha também com fallback:', fallbackErr);
-          // Logar falha (se possível) e propagar
           try {
             if (supabase) {
               await supabase.from('email_logs').insert({
@@ -116,7 +142,6 @@ const handler = async (req: Request): Promise<Response> => {
           throw fallbackErr;
         }
       } else {
-        // Sem fallback aplicável: logar e propagar
         try {
           if (supabase) {
             await supabase.from('email_logs').insert({
@@ -178,7 +203,6 @@ function generateEmailContent(
   userData?: any, 
   resetData?: any
 ): { subject: string; html: string } {
-  
   const userName = userData?.full_name || 'Usuário';
   const baseUrl = 'https://arqcloud.com.br';
 
