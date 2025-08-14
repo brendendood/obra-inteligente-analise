@@ -213,53 +213,13 @@ function Signup() {
 
       if (error) throw error;
 
-      // Sempre enviar email customizado de verificação
-      if (data.user) {
-        try {
-          const verificationResponse = await supabase.functions.invoke('send-verification-email', {
-            body: {
-              email: formData.email,
-              user_data: {
-                full_name: formData.fullName,
-                user_id: data.user.id
-              }
-            }
-          });
+      toast({
+        title: "✅ Conta criada com sucesso!",
+        description: "Bem-vindo ao MadeAI! Redirecionando para o painel..."
+      });
 
-          if (verificationResponse.error) {
-            console.warn('Erro ao enviar email de verificação:', verificationResponse.error);
-            toast({
-              title: "⚠️ Aviso",
-              description: "Conta criada mas houve problema no envio do email. Tente reenviar na tela de login.",
-              variant: "destructive"
-            });
-          } else {
-            toast({
-              title: "✅ Email enviado!",
-              description: "Verifique sua caixa de entrada para confirmar seu email.",
-            });
-          }
-        } catch (emailError) {
-          console.warn('Falha ao disparar email de verificação:', emailError);
-          toast({
-            title: "⚠️ Aviso",
-            description: "Conta criada mas houve problema no envio do email. Tente reenviar na tela de login.",
-            variant: "destructive"
-          });
-        }
-
-        setSuccess(true);
-        toast({
-          title: "✅ Conta criada com sucesso!",
-          description: "Verifique seu email para confirmar sua conta e acessar o MadeAI."
-        });
-      } else {
-        toast({
-          title: "✅ Conta criada com sucesso!",
-          description: "Bem-vindo ao MadeAI!"
-        });
-        navigate('/painel');
-      }
+      // Redirecionar direto para o painel
+      navigate('/painel');
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({
@@ -272,30 +232,6 @@ function Signup() {
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex items-center justify-center p-8">
-        <div className="w-full max-w-md text-center space-y-6">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-            <Check className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-foreground">
-            Conta criada com sucesso!
-          </h2>
-          <p className="text-muted-foreground">
-            Enviamos um email de verificação para <strong>{formData.email}</strong>.
-            Clique no link "Confirmar Email" no email para ativar sua conta e ter acesso completo à plataforma.
-          </p>
-          <p className="text-sm text-muted-foreground mt-4">
-            <strong>⚠️ Importante:</strong> Você só conseguirá fazer login após confirmar seu email.
-          </p>
-          <Button asChild className="w-full">
-            <Link to="/login">Ir para Login</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex">

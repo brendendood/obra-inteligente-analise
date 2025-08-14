@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -1544,19 +1544,19 @@ export type Database = {
     Functions: {
       admin_update_user_complete: {
         Args: {
-          target_user_id: string
           admin_user_id: string
           profile_data?: Json
           subscription_data?: Json
+          target_user_id: string
         }
         Returns: Json
       }
       award_points: {
         Args: {
-          target_user_id: string
-          points: number
           action_type: string
           details?: Json
+          points: number
+          target_user_id: string
         }
         Returns: undefined
       }
@@ -1579,9 +1579,9 @@ export type Database = {
       example_function: {
         Args: Record<PropertyKey, never>
         Returns: {
+          created_at: string
           user_id: number
           username: string
-          created_at: string
         }[]
       }
       fix_existing_referrals: {
@@ -1611,88 +1611,88 @@ export type Database = {
       get_admin_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_users: number
-          total_projects: number
           active_subscriptions: number
+          ai_usage_this_month: number
           monthly_revenue: number
           new_users_this_month: number
-          ai_usage_this_month: number
+          total_projects: number
+          total_users: number
         }[]
       }
       get_admin_users_with_auth_data: {
         Args: Record<PropertyKey, never>
         Returns: {
-          profile_id: string
-          user_id: string
+          avatar_url: string
+          cargo: string
+          city: string
+          company: string
+          country: string
+          created_at: string
           email: string
           email_confirmed_at: string
           full_name: string
-          company: string
-          phone: string
-          city: string
-          state: string
-          country: string
-          cargo: string
-          avatar_url: string
           gender: string
-          tags: string[]
-          created_at: string
           last_sign_in_at: string
+          phone: string
+          profile_id: string
+          state: string
           subscription_plan: string
           subscription_status: string
+          tags: string[]
+          user_id: string
         }[]
       }
       get_admin_users_with_real_location: {
         Args: Record<PropertyKey, never>
         Returns: {
-          profile_id: string
-          user_id: string
+          avatar_url: string
+          cargo: string
+          city: string
+          company: string
+          country: string
+          created_at: string
           email: string
           email_confirmed_at: string
           full_name: string
-          company: string
-          phone: string
-          city: string
-          state: string
-          country: string
-          cargo: string
-          avatar_url: string
           gender: string
-          tags: string[]
-          created_at: string
+          last_login_ip: string
           last_sign_in_at: string
+          phone: string
+          profile_id: string
+          real_location: string
+          state: string
           subscription_plan: string
           subscription_status: string
-          real_location: string
-          last_login_ip: string
+          tags: string[]
+          user_id: string
         }[]
       }
       get_advanced_admin_analytics: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_users: number
-          active_users_week: number
           active_users_month: number
-          avg_session_duration: number
-          total_ai_calls: number
+          active_users_week: number
           ai_cost_month: number
+          avg_session_duration: number
           conversion_rate: number
           top_features: Json
+          total_ai_calls: number
+          total_users: number
         }[]
       }
       get_bulk_email_users: {
         Args: { limit_count?: number }
         Returns: {
-          user_id: string
-          full_name: string
           email: string
+          full_name: string
+          user_id: string
         }[]
       }
       get_geolocation_quality_report: {
         Args: Record<PropertyKey, never>
         Returns: {
-          metric: string
           count: number
+          metric: string
           percentage: number
         }[]
       }
@@ -1707,8 +1707,8 @@ export type Database = {
       get_user_engagement: {
         Args: Record<PropertyKey, never>
         Returns: {
-          user_id: string
           engagement_score: number
+          user_id: string
         }[]
       }
       is_admin_user: {
@@ -1725,16 +1725,16 @@ export type Database = {
       }
       log_admin_security_action: {
         Args: {
-          p_admin_id: string
           p_action_type: string
-          p_target_user_id?: string
+          p_admin_id: string
           p_details?: Json
           p_success?: boolean
+          p_target_user_id?: string
         }
         Returns: undefined
       }
       manual_login_insert: {
-        Args: { p_user_id: string; p_ip_address?: string }
+        Args: { p_ip_address?: string; p_user_id: string }
         Returns: string
       }
       recover_historical_logins: {
@@ -1763,13 +1763,13 @@ export type Database = {
       }
       update_login_location_by_ip: {
         Args: {
-          login_id: string
-          ip_address: string
           city_name: string
-          region_name: string
           country_name: string
+          ip_address: string
           lat?: number
           lng?: number
+          login_id: string
+          region_name: string
         }
         Returns: undefined
       }
@@ -1780,10 +1780,10 @@ export type Database = {
       validate_geolocation_quality: {
         Args: {
           p_city: string
-          p_region: string
           p_country: string
           p_latitude: number
           p_longitude: number
+          p_region: string
         }
         Returns: boolean
       }

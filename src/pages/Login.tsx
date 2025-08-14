@@ -18,8 +18,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [resendingEmail, setResendingEmail] = useState(false);
-  const [showResendButton, setShowResendButton] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState('Faça login para continuar');
   
   const { toast } = useToast();
@@ -27,33 +25,13 @@ export default function Login() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Verificar mensagens de verificação de email
-    const verified = searchParams.get('verified');
-    const error = searchParams.get('error');
-    const message = searchParams.get('message');
-
-    if (verified === 'true') {
-      toast({
-        title: "✅ Email verificado!",
-        description: message || "Seu email foi verificado com sucesso! Agora você pode fazer login.",
-        duration: 7000,
-      });
-    } else if (error) {
-      toast({
-        title: "❌ Erro na verificação",
-        description: decodeURIComponent(error),
-        variant: "destructive",
-        duration: 7000,
-      });
-    }
-
     const setupWelcomeMessage = async () => {
       const ipResult = await detectUserByIP();
       setWelcomeMessage(getWelcomeMessage(ipResult));
     };
     
     setupWelcomeMessage();
-  }, [searchParams, toast]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,18 +63,6 @@ export default function Login() {
       });
 
       if (error) {
-        // Verificar se é erro de email não confirmado
-        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
-          setShowResendButton(true);
-          toast({
-            title: "📧 Email não verificado",
-            description: "Você precisa confirmar seu email antes de fazer login. Use o botão abaixo para reenviar o email de verificação.",
-            variant: "destructive",
-            duration: 8000,
-          });
-          setLoading(false);
-          return;
-        }
         throw error;
       }
 
@@ -119,48 +85,6 @@ export default function Login() {
     }
   };
 
-  const handleResendEmail = async () => {
-    if (!email || !validateEmail(email)) {
-      toast({
-        title: "❌ Email necessário",
-        description: "Por favor, insira um email válido primeiro.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setResendingEmail(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('send-verification-email', {
-        body: {
-          email: email,
-          user_data: {
-            full_name: 'Usuário'
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "✅ Email reenviado!",
-        description: "Verifique sua caixa de entrada para o novo email de verificação.",
-        duration: 6000,
-      });
-
-      setShowResendButton(false);
-    } catch (error: any) {
-      console.error('Erro ao reenviar email:', error);
-      toast({
-        title: "❌ Erro ao reenviar",
-        description: error.message || "Não foi possível reenviar o email de verificação.",
-        variant: "destructive"
-      });
-    } finally {
-      setResendingEmail(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex items-center justify-center p-8">
@@ -256,19 +180,6 @@ export default function Login() {
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
 
-          {/* Resend Email Button - appears only when needed */}
-          {showResendButton && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleResendEmail}
-              disabled={resendingEmail}
-              className="w-full flex items-center gap-2"
-            >
-              <Send className="h-4 w-4" />
-              {resendingEmail ? 'Enviando...' : 'Reenviar email de verificação'}
-            </Button>
-          )}
 
           {/* Sign Up Link */}
           <div className="text-center">

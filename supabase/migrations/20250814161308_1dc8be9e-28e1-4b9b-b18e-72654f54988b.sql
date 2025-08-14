@@ -1,0 +1,2 @@
+-- Limpar templates de email da tabela email_templates (se existir)
+DELETE FROM public.email_templates WHERE template_key IN ('verified_user', 'welcome_email', 'onboarding_step1', 'password_reset', 'account_cancelled', 'usage_limit_reached');

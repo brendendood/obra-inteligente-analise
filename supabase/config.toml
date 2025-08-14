@@ -19,8 +19,8 @@ enable_signup = true
 
 [auth.email]
 enable_signup = true
-double_confirm_changes = true
-enable_confirmations = true
+double_confirm_changes = false
+enable_confirmations = false
 
 [db]
 port = 54322
@@ -40,15 +40,6 @@ verify_jwt = true
 [functions.admin-end-impersonation]
 verify_jwt = true
 
-[functions.chat-assistant]
-verify_jwt = false
-
-[functions.send-alert-email]
-verify_jwt = false
-
-[functions.ip-geolocation]
-verify_jwt = false
-
 [functions.secure-n8n-proxy]
 verify_jwt = true
 
@@ -61,15 +52,6 @@ file_size_limit = "50MiB"
 enabled = true
 port = 54325
 inspector_port = 5432
-
-[functions.send-custom-emails]
-verify_jwt = false
-
-[functions.send-verification-email]
-verify_jwt = false
-
-[functions.email-verification]
-verify_jwt = false
 
 [analytics]
 enabled = false
