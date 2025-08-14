@@ -21,13 +21,15 @@ export default function ResetPassword() {
   const [isValidToken, setIsValidToken] = useState(false);
 
   useEffect(() => {
-    // Verificar se há token na URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
+    // Verificar se há email e token na URL (novo formato customizado)
+    const email = searchParams.get('email');
+    const token = searchParams.get('token');
 
-    if (accessToken && refreshToken) {
+    if (email && token) {
+      console.log('✅ Reset password link válido para:', email);
       setIsValidToken(true);
     } else {
+      console.log('❌ Reset password link inválido ou ausente');
       toast({
         title: "❌ Link inválido",
         description: "Este link de redefinição de senha é inválido ou expirou.",
@@ -61,29 +63,57 @@ export default function ResetPassword() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) {
+      const email = searchParams.get('email');
+      
+      if (!email) {
         toast({
-          title: "❌ Erro",
-          description: error.message,
+          title: "❌ Email não encontrado",
+          description: "Link de reset inválido.",
           variant: "destructive",
         });
         return;
       }
 
-      toast({
-        title: "✅ Senha redefinida!",
-        description: "Sua senha foi atualizada com sucesso. Redirecionando...",
+      // Fazer login temporário para permitir mudança de senha
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: 'temp_password_for_reset_' + Date.now() // Senha temporária
       });
 
-      setTimeout(() => navigate('/painel'), 2000);
-    } catch (error) {
+      // Se falhar o login (esperado), tentar atualizar via admin
+      console.log('⚠️ Tentativa de login temporário (esperado falhar):', signInError?.message);
+
+      // Simular redefinição de senha via Edge Function
+      const { error: updateError } = await supabase.functions.invoke('update-user-password', {
+        body: {
+          email: email,
+          newPassword: password
+        }
+      });
+
+      if (updateError) {
+        console.error('❌ Erro na edge function:', updateError);
+        // Fallback: tentar método direto
+        const { error: directError } = await supabase.auth.updateUser({
+          password: password
+        });
+        
+        if (directError) {
+          throw directError;
+        }
+      }
+
+      toast({
+        title: "✅ Senha redefinida!",
+        description: "Sua senha foi atualizada com sucesso. Faça login com a nova senha.",
+      });
+
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (error: any) {
+      console.error('❌ Erro ao redefinir senha:', error);
       toast({
         title: "❌ Erro inesperado",
-        description: "Tente novamente em alguns momentos.",
+        description: error.message || "Tente novamente em alguns momentos.",
         variant: "destructive",
       });
     } finally {

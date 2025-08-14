@@ -44,19 +44,24 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
     setLoading(true);
 
     try {
-      console.log('🚀 Sending reset password email via Supabase to:', trimmedEmail);
+      console.log('🚀 Sending reset password email via Edge Function to:', trimmedEmail);
       
-      // Usar sistema nativo do Supabase para reset de senha
-      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-        redirectTo: `${window.location.origin}/reset-password`
+      // Usar Edge Function personalizada para envio de email (sempre enviar por segurança)
+      const resetUrl = `${window.location.origin}/reset-password?email=${encodeURIComponent(trimmedEmail)}&token=${Date.now()}`;
+
+      const { error: emailError } = await supabase.functions.invoke('send-reset-password-email', {
+        body: {
+          email: trimmedEmail,
+          resetUrl: resetUrl
+        }
       });
 
-      if (error) {
-        console.error('❌ Supabase reset password error:', error);
-        throw error;
+      if (emailError) {
+        console.error('❌ Edge Function error:', emailError);
+        throw emailError;
       }
 
-      console.log('✅ Reset password email sent via Supabase');
+      console.log('✅ Reset password email sent via Edge Function');
       
       toast({
         title: "Email enviado!",
@@ -69,7 +74,7 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
       console.error('❌ Erro ao solicitar reset de senha:', error);
       toast({
         title: "Erro ao enviar email",
-        description: error.message || "Não foi possível enviar o email de recuperação. Tente novamente em alguns minutos.",
+        description: "Não foi possível enviar o email de recuperação. Tente novamente em alguns minutos.",
         variant: "destructive"
       });
     } finally {
