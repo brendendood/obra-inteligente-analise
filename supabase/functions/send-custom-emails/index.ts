@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  email_type: 'welcome_user' | 'onboarding_step1' | 'project_milestone' | 'account_deactivated' | 'usage_limit_reached';
+  email_type: 'welcome_user' | 'onboarding_step1' | 'project_milestone' | 'account_deactivated' | 'usage_limit_reached' | 'password_reset';
   recipient_email: string;
   user_data?: {
     full_name?: string;
