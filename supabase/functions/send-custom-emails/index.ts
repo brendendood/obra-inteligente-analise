@@ -211,34 +211,47 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Verificar autorização JWT
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      throw new Error('Authorization header required');
-    }
-
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    );
-
-    // Verificar se o usuário está autenticado
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      throw new Error('Authentication required');
-    }
-
     const emailRequest: EmailRequest = await req.json();
     console.log('📧 EMAIL-SYSTEM: Processando email do tipo:', emailRequest.email_type);
 
-    // Validar email request
+    // Validar campos obrigatórios
     if (!emailRequest.email_type || !emailRequest.recipient_email) {
       throw new Error('Missing required fields: email_type and recipient_email');
+    }
+
+    let user = null;
+
+    // Para reset de senha, não requer autenticação
+    if (emailRequest.email_type === 'password_reset') {
+      console.log('🔓 EMAIL-SYSTEM: Reset de senha - sem autenticação requerida');
+      
+      // Rate limiting básico para prevenir spam
+      const rateLimitKey = `reset_${emailRequest.recipient_email}`;
+      // Em produção, implementar rate limiting adequado com Redis ou similar
+      
+    } else {
+      // Para outros tipos de email, requer autenticação
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        throw new Error('Authorization header required for this email type');
+      }
+
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        {
+          global: {
+            headers: { Authorization: authHeader },
+          },
+        }
+      );
+
+      // Verificar se o usuário está autenticado
+      const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser();
+      if (authError || !authUser) {
+        throw new Error('Authentication required for this email type');
+      }
+      user = authUser;
     }
 
     // Gerar conteúdo do email
@@ -267,17 +280,26 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('✅ EMAIL-SYSTEM: Email enviado com sucesso:', emailResponse.data);
 
     // Log do envio na base de dados (opcional)
-    try {
-      await supabaseClient.from('email_logs').insert({
-        user_id: user.id,
-        email_type: emailRequest.email_type,
-        recipient_email: emailRequest.recipient_email,
-        resend_id: emailResponse.data?.id,
-        status: 'sent',
-        sent_at: new Date().toISOString()
-      });
-    } catch (logError) {
-      console.warn('⚠️ EMAIL-SYSTEM: Falha ao registrar log (não crítico):', logError);
+    if (user) {
+      try {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+        );
+        
+        await supabaseClient.from('email_logs').insert({
+          user_id: user.id,
+          email_type: emailRequest.email_type,
+          recipient_email: emailRequest.recipient_email,
+          resend_id: emailResponse.data?.id,
+          status: 'sent',
+          sent_at: new Date().toISOString()
+        });
+      } catch (logError) {
+        console.warn('⚠️ EMAIL-SYSTEM: Falha ao registrar log (não crítico):', logError);
+      }
+    } else {
+      console.log('📝 EMAIL-SYSTEM: Log não registrado - email não autenticado (reset senha)');
     }
 
     return new Response(

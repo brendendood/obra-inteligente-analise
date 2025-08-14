@@ -34,7 +34,7 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
     if (!validateEmail(trimmedEmail)) {
       console.log('❌ Email validation failed for reset password');
       toast({
-        title: "❌ Email inválido",
+        title: "Email inválido",
         description: "Por favor, insira um email válido (exemplo: usuario@dominio.com).",
         variant: "destructive"
       });
@@ -68,7 +68,7 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
       console.log('✅ Reset password email sent via custom system');
       
       toast({
-        title: "✅ Email enviado!",
+        title: "Email enviado!",
         description: `Instruções enviadas para ${trimmedEmail}. Verifique sua caixa de entrada e spam.`,
       });
 
@@ -77,7 +77,7 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
     } catch (error: any) {
       console.error('❌ Erro ao solicitar reset de senha:', error);
       toast({
-        title: "❌ Erro ao enviar email",
+        title: "Erro ao enviar email",
         description: error.message || "Não foi possível enviar o email de recuperação. Tente novamente em alguns minutos.",
         variant: "destructive"
       });
