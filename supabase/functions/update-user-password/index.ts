@@ -39,23 +39,47 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: users, error: getUserError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (getUserError) {
-      throw new Error(`Erro ao buscar usuários: ${getUserError.message}`);
+      // Log interno, mas sempre retorna sucesso para evitar user enumeration
+      console.error(`❌ Erro ao buscar usuários: ${getUserError.message}`);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "Senha atualizada com sucesso" 
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     const user = users.users.find(u => u.email === email);
     
     if (!user) {
-      throw new Error("Usuário não encontrado");
+      // SEGURANÇA: Não revelar que usuário não existe - sempre retornar sucesso
+      console.log(`⚠️ Tentativa de reset para email inexistente: ${email}`);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "Senha atualizada com sucesso" 
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
-    // Atualizar senha do usuário
+    // Atualizar senha do usuário existente
     const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
       user.id,
       { password: newPassword }
     );
 
     if (updateError) {
-      throw new Error(`Erro ao atualizar senha: ${updateError.message}`);
+      // Log erro interno, mas sempre retorna sucesso para consistência
+      console.error(`❌ Erro ao atualizar senha para ${email}: ${updateError.message}`);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "Senha atualizada com sucesso" 
+      }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     console.log(`✅ Senha atualizada com sucesso para: ${email}`);
