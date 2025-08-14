@@ -11,7 +11,7 @@ max_rows = 1000
 enabled = true
 port = 54324
 site_url = "https://madeai.com.br"
-additional_redirect_urls = ["https://madeai.com.br", "https://madeai.com.br/auth/callback"]
+additional_redirect_urls = ["https://madeai.com.br", "https://madeai.com.br/auth/callback", "https://madeai.com.br/confirm-email"]
 jwt_expiry = 3600
 refresh_token_rotation_enabled = true
 refresh_token_reuse_interval = 10
@@ -21,6 +21,10 @@ enable_signup = true
 enable_signup = true
 double_confirm_changes = false
 enable_confirmations = true
+
+[auth.hook.send_email]
+enabled = true
+uri = "https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/send-confirmation-email"
 
 [db]
 port = 54322
@@ -42,6 +46,9 @@ verify_jwt = true
 
 [functions.secure-n8n-proxy]
 verify_jwt = true
+
+[functions.send-confirmation-email]
+verify_jwt = false
 
 [storage]
 enabled = true
