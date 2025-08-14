@@ -31,15 +31,8 @@ function stripHtmlToText(html: string): string {
 }
 
 function getAlertSender(alertType: string): { from: string; name: string } {
-  // Remetentes enxutos por categoria
-  if (['user_inactive', 'project_stalled'].includes(alertType)) {
-    return { from: 'projetos@madeai.com.br', name: 'MadenAI Projetos' };
-  }
-  if (['subscription_expiring'].includes(alertType)) {
-    return { from: 'billing@madeai.com.br', name: 'MadenAI Cobrança' };
-  }
-  // Alertas administrativos/sistema (inclui ai_cost_spike, system_error, high_usage, etc.)
-  return { from: 'suporte@madeai.com.br', name: 'MadenAI Suporte' };
+  // Usar apenas suporte@madeai.com.br para unificar remetente
+  return { from: 'suporte@madeai.com.br', name: 'MadenAI' };
 }
 
 serve(async (req) => {

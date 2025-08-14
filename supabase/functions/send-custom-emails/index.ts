@@ -187,7 +187,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Enviar email via Resend usando domínio verificado
     const emailResponse = await resend.emails.send({
-      from: "MadenAI <onboarding@resend.dev>",
+      from: "MadenAI <suporte@madeai.com.br>",
       to: [emailRequest.recipient_email],
       subject: emailContent.subject,
       html: emailContent.html,
