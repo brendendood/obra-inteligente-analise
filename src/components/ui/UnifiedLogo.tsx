@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 interface UnifiedLogoProps {
   variant?: 'full' | 'icon' | 'favicon';
@@ -20,17 +20,18 @@ export const UnifiedLogo = ({
   clickable = true, 
   className, 
   alt = 'MadeAI',
-  theme = 'auto',
+  theme = 'dark', // Default to dark for better performance
   loading = false,
   priority = false
 }: UnifiedLogoProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  // Only use auth hook if clickable (performance optimization)
+  const { isAuthenticated } = clickable ? useAuth() : { isAuthenticated: false };
   const [imageError, setImageError] = useState(false);
-  const [logoTheme, setLogoTheme] = useState<'light' | 'dark'>('dark');
 
-  const sizeClasses = {
+  // Memoize size classes for better performance
+  const sizeClasses = useMemo(() => ({
     xs: 'h-4',
     sm: 'h-6',
     md: 'h-8',
@@ -38,33 +39,10 @@ export const UnifiedLogo = ({
     xl: 'h-16',
     '2xl': 'h-20',
     '3xl': 'h-24'
-  };
+  }), []);
 
-  // Detect background theme
-  useEffect(() => {
-    if (theme !== 'auto') {
-      setLogoTheme(theme);
-      return;
-    }
-
-    // Auto-detect based on context or system theme
-    const isDarkMode = document.documentElement.classList.contains('dark') ||
-                      window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    // Check if parent has dark background
-    const parentElement = document.querySelector('[data-logo-background]');
-    if (parentElement) {
-      const bgColor = window.getComputedStyle(parentElement).backgroundColor;
-      const isDarkBg = bgColor.includes('rgb') && 
-                      bgColor.match(/\d+/g)?.slice(0, 3)
-                        .reduce((sum, val) => sum + parseInt(val), 0) < 384; // 128*3
-      setLogoTheme(isDarkBg ? 'light' : 'dark');
-    } else {
-      setLogoTheme(isDarkMode ? 'light' : 'dark');
-    }
-  }, [theme]);
-
-  const handleClick = () => {
+  // Optimized click handler with useCallback
+  const handleClick = useCallback(() => {
     if (!clickable || loading) return;
 
     if (!isAuthenticated) {
@@ -78,27 +56,20 @@ export const UnifiedLogo = ({
     } else {
       navigate('/painel');
     }
-  };
+  }, [clickable, loading, isAuthenticated, navigate, location.pathname]);
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.error('[UnifiedLogo] ERRO: Logo falhou ao carregar!');
-    console.error('[UnifiedLogo] URL tentada:', e.currentTarget.src);
-    console.error('[UnifiedLogo] Erro completo:', e);
+  // Optimized error handler
+  const handleImageError = useCallback(() => {
     setImageError(true);
-  };
+  }, []);
 
-  const handleImageLoad = () => {
-    console.log('[UnifiedLogo] ✅ SUCESSO: Logo carregada!');
+  // Optimized load handler
+  const handleImageLoad = useCallback(() => {
     setImageError(false);
-  };
+  }, []);
 
   // Logo da MadeAI - usando a nova imagem enviada pelo usuário
   const logoSrc = `/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png`;
-  
-  // Debug: Log se a imagem está carregando
-  useEffect(() => {
-    console.log('[UnifiedLogo] Tentando carregar logo:', logoSrc);
-  }, [logoSrc]);
 
   // Loading state
   if (loading) {
@@ -115,14 +86,14 @@ export const UnifiedLogo = ({
     );
   }
 
-  // Fallback temporário para DEBUG - mostra texto para identificar o problema
+  // Fast SVG fallback for errors
   if (imageError) {
     return (
-      <div 
+      <svg
         className={cn(
           sizeClasses[size],
-          'flex items-center justify-center bg-red-100 border border-red-300 rounded text-red-700 text-xs font-bold',
-          clickable && 'cursor-pointer transition-all duration-200 hover:scale-105',
+          'object-contain transition-all duration-200',
+          clickable && 'cursor-pointer hover:scale-105',
           className
         )}
         onClick={handleClick}
@@ -135,9 +106,13 @@ export const UnifiedLogo = ({
             handleClick();
           }
         }}
+        viewBox="0 0 100 24"
+        fill="none"
       >
-        ERRO LOGO
-      </div>
+        <text x="50" y="12" textAnchor="middle" dominantBaseline="middle" className="text-xs font-bold fill-primary">
+          MadeAI
+        </text>
+      </svg>
     );
   }
 
@@ -146,7 +121,7 @@ export const UnifiedLogo = ({
       src={logoSrc}
       alt={alt}
       loading={priority ? 'eager' : 'lazy'}
-      decoding="async"
+      decoding={priority ? 'sync' : 'async'}
       fetchPriority={priority ? 'high' : 'auto'}
       onError={handleImageError}
       onLoad={handleImageLoad}
