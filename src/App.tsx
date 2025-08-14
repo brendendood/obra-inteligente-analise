@@ -21,6 +21,7 @@ import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ConfirmAccount from "./pages/ConfirmAccount";
+import ConfirmEmail from "./pages/ConfirmEmail";
 import Dashboard from "./pages/Dashboard";
 
 // Lazy loaded pages with intelligent preloading
@@ -182,6 +183,7 @@ const App = () => {
                 <Route path="/cadastro" element={<Signup />} />
                 <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
                 <Route path="/auth/callback" element={<ConfirmAccount />} />
+                <Route path="/confirm-email" element={<ConfirmEmail />} />
                 <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
                 <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
                 <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
