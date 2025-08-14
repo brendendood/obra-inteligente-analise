@@ -15,7 +15,6 @@ import { validateUserInput } from '@/utils/securityValidation';
 import { useSecurityMonitoring } from '@/hooks/useSecurityMonitoring';
 import { PasswordStrengthMeter } from '@/components/ui/PasswordStrengthMeter';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useResendAuth } from '@/hooks/useResendAuth';
 
 interface AuthComponentProps {
   onAuthSuccess?: (user: User) => void;
@@ -30,7 +29,6 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const { toast } = useToast();
   const { trackFailedLogin } = useSecurityMonitoring();
-  const { signUpWithResend, loading: resendLoading } = useResendAuth();
   
   // Usar o contexto de autenticação existente em vez de criar outro listener
   const { user, isAuthenticated } = useAuth();
@@ -95,16 +93,23 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
         return;
       }
 
-      // Usar sistema Resend para verificação de email
-      const result = await signUpWithResend({
+      const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        fullName: sanitizedFullName
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: sanitizedFullName
+          }
+        }
       });
 
-      if (!result.success) {
-        throw new Error(result.error);
-      }
+      if (error) throw error;
+
+      toast({
+        title: "✅ Cadastro realizado!",
+        description: "Verifique seu email para confirmar a conta.",
+      });
     } catch (error) {
       console.error('Signup error:', error);
       toast({
@@ -353,10 +358,10 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={loading || resendLoading || !acceptedTerms}
+                disabled={loading || !acceptedTerms}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
-                {(loading || resendLoading) ? 'Cadastrando...' : 'Cadastrar'}
+                {loading ? 'Cadastrando...' : 'Cadastrar'}
               </Button>
             </form>
           </TabsContent>
