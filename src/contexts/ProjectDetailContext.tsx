@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext, createContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +13,7 @@ interface ProjectDetailContextType {
   refetchProject: () => Promise<void>;
 }
 
-const ProjectDetailContext = React.createContext<ProjectDetailContextType | undefined>(undefined);
+const ProjectDetailContext = createContext<ProjectDetailContextType | undefined>(undefined);
 
 interface ProjectDetailProviderProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ interface ProjectDetailProviderProps {
 // Safe hook check
 const isSafeToUseHooks = (): boolean => {
   try {
-    const testRef = React.useRef(null);
+    const testRef = useRef(null);
     return true;
   } catch (error) {
     console.error('🔴 CRITICAL: React hooks not available in ProjectDetailProvider:', error);
@@ -51,9 +51,9 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   let setError: any;
 
   try {
-    [project, setProject] = React.useState<Project | null>(null);
-    [isLoading, setIsLoading] = React.useState(true);
-    [error, setError] = React.useState<string | null>(null);
+    [project, setProject] = useState<Project | null>(null);
+    [isLoading, setIsLoading] = useState(true);
+    [error, setError] = useState<string | null>(null);
   } catch (error) {
     console.error('🔴 CRITICAL: useState failed in ProjectDetailProvider:', error);
     return (
@@ -65,7 +65,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
   const { toast } = useToast();
   const { getProjectById, fetchProjects, projects } = useUnifiedProjectStore();
 
-  const fetchProject = React.useCallback(async () => {
+  const fetchProject = useCallback(async () => {
     if (!projectId) {
       setError('ID do projeto não fornecido');
       setIsLoading(false);
@@ -110,12 +110,12 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
     }
   }, [projectId, toast, getProjectById, fetchProjects]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchProject();
   }, [fetchProject]);
 
   // Auto-sync quando o ProjectStore é atualizado
-  React.useEffect(() => {
+  useEffect(() => {
     if (projectId && projects.length > 0) {
       const updatedProject = getProjectById(projectId);
       if (updatedProject && (!project || project.updated_at !== updatedProject.updated_at)) {
@@ -141,7 +141,7 @@ export const ProjectDetailProvider = ({ children }: ProjectDetailProviderProps) 
 };
 
 export const useProjectDetail = (): ProjectDetailContextType => {
-  const context = React.useContext(ProjectDetailContext);
+  const context = useContext(ProjectDetailContext);
   if (context === undefined) {
     throw new Error('useProjectDetail deve ser usado dentro de um ProjectDetailProvider');
   }

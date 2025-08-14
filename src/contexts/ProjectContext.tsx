@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext, createContext } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Project, ProjectContextType } from '@/types/project';
 import { useProjectStorage } from '@/hooks/useProjectStorage';
@@ -7,12 +7,12 @@ import { useProjectUpload } from '@/hooks/useProjectUpload';
 import { useProjectValidation } from '@/hooks/useProjectValidation';
 import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 
-const ProjectContext = React.createContext<ProjectContextType | undefined>(undefined);
+const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 // Safe hook check
 const isSafeToUseHooks = (): boolean => {
   try {
-    const testRef = React.useRef(null);
+    const testRef = useRef(null);
     return true;
   } catch (error) {
     console.error('🔴 CRITICAL: React hooks not available in ProjectProvider:', error);
@@ -37,8 +37,8 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   let setIsLoading: any;
 
   try {
-    [currentProject, setCurrentProjectState] = React.useState<Project | null>(null);
-    [isLoading, setIsLoading] = React.useState(false);
+    [currentProject, setCurrentProjectState] = useState<Project | null>(null);
+    [isLoading, setIsLoading] = useState(false);
   } catch (error) {
     console.error('🔴 CRITICAL: useState failed in ProjectProvider:', error);
     return (
@@ -53,13 +53,13 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const { validateProject } = useProjectValidation();
   const { projects: allProjects } = useUnifiedProjectStore();
 
-  const clearAllProjects = React.useCallback(() => {
+  const clearAllProjects = useCallback(() => {
     console.log('🧹 PROJECT CONTEXT: Limpando todos os projetos');
     setCurrentProjectState(null);
     clearProjectFromStorage();
   }, [clearProjectFromStorage]);
 
-  const setCurrentProject = React.useCallback((project: Project | null) => {
+  const setCurrentProject = useCallback((project: Project | null) => {
     console.log('📌 PROJECT CONTEXT: Atualizando projeto atual:', project?.name || 'null');
     setCurrentProjectState(project);
     saveProjectToStorage(project);
@@ -68,7 +68,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const { uploadProject } = useProjectUpload(setCurrentProject);
 
   // Validar projeto salvo quando auth estiver pronto
-  React.useEffect(() => {
+  useEffect(() => {
     const validateSavedProject = () => {
       console.log('🔍 PROJECT CONTEXT: Validando projeto salvo', { loading, isAuthenticated, userId: user?.id });
       
@@ -107,7 +107,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }, [loading, isAuthenticated, user?.id, allProjects, getProjectFromStorage, clearAllProjects, saveProjectToStorage]);
 
-  const loadUserProjects = React.useCallback(async (): Promise<Project[]> => {
+  const loadUserProjects = useCallback(async (): Promise<Project[]> => {
     console.log('📋 PROJECT CONTEXT: Retornando projetos do Zustand store');
     
     if (!allProjects || allProjects.length === 0) {
@@ -150,7 +150,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useProject() {
-  const context = React.useContext(ProjectContext);
+  const context = useContext(ProjectContext);
   if (context === undefined) {
     throw new Error('useProject must be used within a ProjectProvider');
   }

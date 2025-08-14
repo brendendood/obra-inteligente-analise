@@ -15,6 +15,7 @@ import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
+import { SafeHooksProvider } from "@/components/providers/SafeHooksProvider";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -156,17 +157,19 @@ class CriticalErrorBoundary extends React.Component<
 
 // Clean Providers Component - ThemeProvider temporarily removed due to React corruption
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <AuthProvider>
-    <ImpersonationProvider>
-      <QueryClientProvider client={queryClient}>
-        <ProjectProvider>
-          <TooltipProvider delayDuration={200}>
-            {children}
-          </TooltipProvider>
-        </ProjectProvider>
-      </QueryClientProvider>
-    </ImpersonationProvider>
-  </AuthProvider>
+  <SafeHooksProvider>
+    <AuthProvider>
+      <ImpersonationProvider>
+        <QueryClientProvider client={queryClient}>
+          <ProjectProvider>
+            <TooltipProvider delayDuration={200}>
+              {children}
+            </TooltipProvider>
+          </ProjectProvider>
+        </QueryClientProvider>
+      </ImpersonationProvider>
+    </AuthProvider>
+  </SafeHooksProvider>
 );
 
 const App = () => {

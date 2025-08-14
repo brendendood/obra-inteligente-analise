@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
   const { user, isAuthenticated } = useAuth();
 
   // Chamar callback quando houver usuário
-  React.useEffect(() => {
+  useEffect(() => {
     if (user && isAuthenticated && onAuthSuccess) {
       onAuthSuccess(user);
     }
