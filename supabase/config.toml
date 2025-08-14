@@ -22,13 +22,6 @@ enable_signup = true
 double_confirm_changes = false
 enable_confirmations = true
 
-# SMTP Configuration using Resend
-smtp_host = "smtp.resend.com"
-smtp_port = 587
-smtp_user = "resend"
-smtp_pass = "env(RESEND_API_KEY)"
-smtp_sender_name = "MadenAI"
-
 [db]
 port = 54322
 
