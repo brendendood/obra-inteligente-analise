@@ -53,33 +53,9 @@ export function useEmailSystem() {
     }
   };
 
-  const sendPasswordResetEmail = async (userEmail: string, resetUrl: string, userName?: string) => {
-    try {
-      console.log('📧 EMAIL-SYSTEM: Enviando email de reset de senha para', userEmail);
-      
-      const { data, error } = await supabase.functions.invoke('send-custom-emails', {
-        body: {
-          email_type: 'password_reset',
-          recipient_email: userEmail,
-          user_data: {
-            full_name: userName || 'Usuário',
-            user_id: user?.id
-          },
-          reset_data: {
-            reset_url: resetUrl
-          }
-        }
-      });
-
-      if (error) throw error;
-      
-      console.log('✅ EMAIL-SYSTEM: Email de reset enviado:', data);
-      return { success: true, data };
-    } catch (error: any) {
-      console.error('❌ EMAIL-SYSTEM: Erro ao enviar email de reset:', error);
-      return { success: false, error: error.message };
-    }
-  };
+  // REMOVIDO: sendPasswordResetEmail
+  // Reset de senha agora usa sistema nativo do Supabase via resetPasswordForEmail()
+  // Ver ForgotPasswordModal.tsx para implementação correta
 
   const sendProjectMilestoneEmail = async (userEmail: string, projectCount: number, userName?: string) => {
     try {
@@ -166,7 +142,7 @@ export function useEmailSystem() {
   return {
     sendWelcomeEmail,
     sendOnboardingEmail,
-    sendPasswordResetEmail,
+    // sendPasswordResetEmail: REMOVIDO - usar supabase.auth.resetPasswordForEmail() diretamente
     sendProjectMilestoneEmail,
     sendAccountCancelledEmail,
     sendUsageLimitEmail
