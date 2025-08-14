@@ -228,9 +228,24 @@ function Signup() {
 
           if (verificationResponse.error) {
             console.warn('Erro ao enviar email de verificação:', verificationResponse.error);
+            toast({
+              title: "⚠️ Aviso",
+              description: "Conta criada mas houve problema no envio do email. Tente reenviar na tela de login.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "✅ Email enviado!",
+              description: "Verifique sua caixa de entrada para confirmar seu email.",
+            });
           }
         } catch (emailError) {
           console.warn('Falha ao disparar email de verificação:', emailError);
+          toast({
+            title: "⚠️ Aviso",
+            description: "Conta criada mas houve problema no envio do email. Tente reenviar na tela de login.",
+            variant: "destructive"
+          });
         }
 
         setSuccess(true);
