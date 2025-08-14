@@ -28,10 +28,14 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateEmail(email)) {
+    const trimmedEmail = email.trim().toLowerCase();
+    console.log('🔍 Reset password attempt for:', { originalEmail: email, trimmedEmail });
+    
+    if (!validateEmail(trimmedEmail)) {
+      console.log('❌ Email validation failed for reset password');
       toast({
         title: "❌ Email inválido",
-        description: "Por favor, insira um email válido.",
+        description: "Por favor, insira um email válido (exemplo: usuario@dominio.com).",
         variant: "destructive"
       });
       return;
@@ -40,24 +44,31 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      console.log('🚀 Sending reset password email to:', trimmedEmail);
+      
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase reset password error:', error);
+        throw error;
+      }
 
+      console.log('✅ Reset password email sent successfully');
+      
       toast({
         title: "✅ Email enviado!",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        description: `Instruções enviadas para ${trimmedEmail}. Verifique sua caixa de entrada e spam.`,
       });
 
       setOpen(false);
       setEmail('');
     } catch (error: any) {
-      console.error('Erro ao solicitar reset de senha:', error);
+      console.error('❌ Erro ao solicitar reset de senha:', error);
       toast({
         title: "❌ Erro ao enviar email",
-        description: error.message || "Não foi possível enviar o email de recuperação.",
+        description: error.message || "Não foi possível enviar o email de recuperação. Tente novamente em alguns minutos.",
         variant: "destructive"
       });
     } finally {
@@ -87,7 +98,7 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
                 type="text"
                 placeholder="seu@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value.trim())}
                 className="pl-10"
                 disabled={loading}
               />

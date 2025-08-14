@@ -1,8 +1,20 @@
 import { supabase } from '@/integrations/supabase/client';
 
 export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
+  if (!email || typeof email !== 'string') {
+    console.log('❌ Email validation failed: empty or invalid type', { email });
+    return false;
+  }
+
+  const trimmedEmail = email.trim().toLowerCase();
+  console.log('🔍 Validating email:', { original: email, trimmed: trimmedEmail });
+
+  // More robust email regex
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const isValid = emailRegex.test(trimmedEmail) && trimmedEmail.length <= 254;
+  
+  console.log('✅ Email validation result:', { email: trimmedEmail, isValid });
+  return isValid;
 };
 
 export const validatePassword = (password: string): {
