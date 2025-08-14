@@ -84,12 +84,11 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
                 id="reset-email"
-                type="email"
+                type="text"
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
-                required
                 disabled={loading}
               />
             </div>
