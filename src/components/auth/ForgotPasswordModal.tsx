@@ -44,28 +44,19 @@ export function ForgotPasswordModal({ children }: ForgotPasswordModalProps) {
     setLoading(true);
 
     try {
-      console.log('🚀 Sending reset password email to:', trimmedEmail);
+      console.log('🚀 Sending reset password email via Supabase to:', trimmedEmail);
       
-      // Usar sistema de email personalizado
-      const { error } = await supabase.functions.invoke('send-custom-emails', {
-        body: {
-          email_type: 'password_reset',
-          recipient_email: trimmedEmail,
-          user_data: {
-            full_name: 'Usuário'
-          },
-          reset_data: {
-            reset_url: `${window.location.origin}/reset-password?email=${encodeURIComponent(trimmedEmail)}`
-          }
-        }
+      // Usar sistema nativo do Supabase para reset de senha
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+        redirectTo: `${window.location.origin}/reset-password`
       });
 
       if (error) {
-        console.error('❌ Custom email system error:', error);
+        console.error('❌ Supabase reset password error:', error);
         throw error;
       }
 
-      console.log('✅ Reset password email sent via custom system');
+      console.log('✅ Reset password email sent via Supabase');
       
       toast({
         title: "Email enviado!",
