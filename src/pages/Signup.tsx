@@ -201,25 +201,54 @@ function Signup() {
         userData.ref_code = referralCode;
       }
 
-      // Signup simplificado sem confirmação de email
+      // Signup com confirmação de email
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          data: userData
-          // Removido emailRedirectTo para evitar trigger de confirmação
+          data: userData,
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro no cadastro:', error);
+        
+        if (error.message?.includes('already registered')) {
+          toast({
+            title: "❌ Email já cadastrado",
+            description: "Este email já possui uma conta. Faça login ou use outro email.",
+            variant: "destructive"
+          });
+        } else if (error.message?.includes('Password should be')) {
+          toast({
+            title: "❌ Senha muito fraca",
+            description: "A senha deve ter pelo menos 8 caracteres.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "❌ Erro no cadastro",
+            description: error.message || "Não foi possível criar sua conta. Tente novamente.",
+            variant: "destructive"
+          });
+        }
+        return;
+      }
 
+      // Cadastro realizado com sucesso - aguardando confirmação
+      setSuccess(true);
+      
       toast({
-        title: "✅ Conta criada com sucesso!",
-        description: "Bem-vindo ao MadeAI! Redirecionando para o painel..."
+        title: "📧 Confirme seu email",
+        description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta.",
+        duration: 6000
       });
 
-      // Redirecionar direto para o painel
-      navigate('/painel');
+      // Redirecionar para login após delay para dar tempo de ler
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({

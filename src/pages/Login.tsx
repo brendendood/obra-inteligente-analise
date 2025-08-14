@@ -76,11 +76,27 @@ export default function Login() {
 
     } catch (error: any) {
       console.error('Erro no login:', error);
-      toast({
-        title: "❌ Erro no login",
-        description: formatAuthError(error),
-        variant: "destructive"
-      });
+      
+      if (error.message?.includes('Email not confirmed')) {
+        toast({
+          title: "📧 Email não confirmado",
+          description: "Verifique seu email e clique no link de confirmação antes de fazer login.",
+          variant: "destructive",
+          duration: 6000
+        });
+      } else if (error.message?.includes('Invalid login credentials')) {
+        toast({
+          title: "❌ Credenciais inválidas",
+          description: "Email ou senha incorretos. Verifique e tente novamente.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "❌ Erro no login",
+          description: formatAuthError(error),
+          variant: "destructive"
+        });
+      }
       setLoading(false);
     }
   };
