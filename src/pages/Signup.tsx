@@ -201,13 +201,13 @@ function Signup() {
         userData.ref_code = referralCode;
       }
 
-      // Signup sem confirmação de email automática
+      // Signup simplificado sem confirmação de email
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          data: userData,
-          emailRedirectTo: `${window.location.origin}/painel`
+          data: userData
+          // Removido emailRedirectTo para evitar trigger de confirmação
         }
       });
 
