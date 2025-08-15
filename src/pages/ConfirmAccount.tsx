@@ -1,73 +1,158 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 
-export default function ConfirmAccount() {
-  const [searchParams] = useSearchParams();
+function ResendConfirmation() {
+  const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const onResend = async () => {
+    if (!email.trim()) return;
+    
+    setError('');
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resend({ 
+        type: 'signup', 
+        email: email.trim(),
+        options: { 
+          emailRedirectTo: 'https://madeai.com.br/v' 
+        } 
+      });
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        setSent(true);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Erro ao reenviar confirmação.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 mt-6 p-4 bg-muted/50 rounded-lg">
+      <h3 className="font-medium">Reenviar confirmação</h3>
+      <div className="space-y-2">
+        <Input 
+          placeholder="Seu e-mail" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          type="email"
+        />
+        <Button 
+          onClick={onResend} 
+          disabled={loading || !email.trim()}
+          className="w-full"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            'Reenviar confirmação'
+          )}
+        </Button>
+      </div>
+      {sent && (
+        <p className="text-sm text-success">
+          Enviado! Verifique sua caixa de entrada.
+        </p>
+      )}
+      {error && (
+        <p className="text-sm text-destructive">{error}</p>
+      )}
+    </div>
+  );
+}
+
+export default function AuthCallback() {
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
-  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
-    const confirmEmail = async () => {
+    const processAuth = async () => {
       try {
-        // Extrair token e type da URL
-        const token = searchParams.get('token');
-        const type = searchParams.get('type');
-        
-        if (!token || type !== 'email_confirm') {
+        // Ler parâmetros de query (erros)
+        const qs = new URLSearchParams(window.location.search);
+        const qError = qs.get('error');
+        const qErrorCode = qs.get('error_code');
+        const qErrorDesc = qs.get('error_description');
+
+        if (qError || qErrorCode) {
           setStatus('error');
-          setMessage('Link de confirmação inválido.');
+          if (qErrorCode === 'otp_expired') {
+            setMessage('Link de confirmação expirado. Solicite um novo email de confirmação.');
+          } else {
+            setMessage(qErrorDesc || qErrorCode || qError || 'Link inválido ou expirado.');
+          }
           return;
         }
 
-        // Verificar o token de confirmação
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: 'email'
-        });
+        // Ler parâmetros de hash (tokens)
+        const hs = new URLSearchParams(window.location.hash.slice(1));
+        const access_token = hs.get('access_token');
+        const refresh_token = hs.get('refresh_token');
+        const code = qs.get('code');
 
-        if (error) {
-          console.error('Erro na confirmação:', error);
-          setStatus('error');
+        // Processar access_token/refresh_token
+        if (access_token && refresh_token) {
+          const { error } = await supabase.auth.setSession({ 
+            access_token, 
+            refresh_token 
+          });
           
-          if (error.message.includes('expired')) {
-            setMessage('Link de confirmação expirado. Solicite um novo email de confirmação.');
-          } else if (error.message.includes('invalid')) {
-            setMessage('Link de confirmação inválido.');
-          } else {
-            setMessage('Erro ao confirmar email. Tente novamente.');
-          }
-        } else {
+          if (error) throw error;
+          
           setStatus('success');
-          setMessage('Email confirmado com sucesso! Sua conta está ativa.');
+          setMessage('Email confirmado com sucesso! Redirecionando...');
           
-          // Iniciar countdown para redirecionamento
-          const timer = setInterval(() => {
-            setCountdown((prev) => {
-              if (prev <= 1) {
-                clearInterval(timer);
-                navigate('/login');
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 1500);
+          return;
         }
-      } catch (error) {
-        console.error('Erro inesperado:', error);
+
+        // Processar code parameter
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+          
+          if (error) throw error;
+          
+          setStatus('success');
+          setMessage('Email confirmado com sucesso! Redirecionando...');
+          
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 1500);
+          return;
+        }
+
+        // Se chegou até aqui, não há token válido
         setStatus('error');
-        setMessage('Erro inesperado. Tente novamente.');
+        setMessage('Token não encontrado na URL. Gere um novo link de confirmação.');
+        
+      } catch (error: any) {
+        console.error('Erro no processamento de auth:', error);
+        setStatus('error');
+        setMessage(error.message || 'Não foi possível validar o link.');
       }
     };
 
-    confirmEmail();
-  }, [searchParams, navigate]);
+    processAuth();
+  }, [navigate]);
 
   const handleGoToLogin = () => {
     navigate('/login');
@@ -89,7 +174,7 @@ export default function ConfirmAccount() {
               <>
                 <Loader2 className="h-12 w-12 text-primary animate-spin" />
                 <p className="text-center text-muted-foreground">
-                  Verificando confirmação...
+                  Validando seu acesso...
                 </p>
               </>
             )}
@@ -99,13 +184,7 @@ export default function ConfirmAccount() {
                 <CheckCircle className="h-12 w-12 text-success" />
                 <div className="text-center space-y-2">
                   <p className="text-success font-medium">{message}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Redirecionando para login em {countdown} segundos...
-                  </p>
                 </div>
-                <Button onClick={handleGoToLogin} className="w-full">
-                  Ir para Login
-                </Button>
               </>
             )}
             
@@ -113,14 +192,15 @@ export default function ConfirmAccount() {
               <>
                 <XCircle className="h-12 w-12 text-destructive" />
                 <div className="text-center space-y-2">
-                  <p className="text-destructive font-medium">{message}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Entre em contato com o suporte se o problema persistir.
+                  <p className="text-destructive font-medium">Link inválido ou expirado</p>
+                  <p className="text-sm text-muted-foreground opacity-80">
+                    {message}
                   </p>
                 </div>
                 <Button onClick={handleGoToLogin} variant="outline" className="w-full">
                   Voltar para Login
                 </Button>
+                <ResendConfirmation />
               </>
             )}
           </div>
