@@ -83,9 +83,9 @@ export default function AuthCallback() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    let timeout: any;
+    let redirectTimeout: any;
 
-    const processAuth = async () => {
+    const processEmailVerification = async () => {
       try {
         const qs = new URLSearchParams(window.location.search);
         const hs = new URLSearchParams(window.location.hash.slice(1));
@@ -104,7 +104,12 @@ export default function AuthCallback() {
         const refresh_token = hs.get('refresh_token');
         const code = qs.get('code');
 
+        // Limpar qualquer sessão existente primeiro
+        await supabase.auth.signOut();
+
+        // Verificar o token apenas para confirmar o email (sem fazer login)
         if (access_token && refresh_token) {
+          // Apenas verificar se o token é válido para confirmar o email
           const { error } = await supabase.auth.setSession({ 
             access_token, 
             refresh_token 
@@ -112,35 +117,58 @@ export default function AuthCallback() {
           
           if (error) throw error;
           
-          navigate('/app', { replace: true });
+          // Imediatamente fazer logout após confirmar
+          await supabase.auth.signOut();
+          
+          setStatus('success');
+          setMessage('E-mail verificado com sucesso! Redirecionando para login...');
+          
+          // Redirecionar para login após 3 segundos
+          redirectTimeout = setTimeout(() => {
+            navigate('/login', { replace: true });
+          }, 3000);
           return;
         }
 
         if (code) {
+          // Apenas verificar se o código é válido para confirmar o email
           const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
           
           if (error) throw error;
           
-          navigate('/app', { replace: true });
+          // Imediatamente fazer logout após confirmar
+          await supabase.auth.signOut();
+          
+          setStatus('success');
+          setMessage('E-mail verificado com sucesso! Redirecionando para login...');
+          
+          // Redirecionar para login após 3 segundos
+          redirectTimeout = setTimeout(() => {
+            navigate('/login', { replace: true });
+          }, 3000);
           return;
         }
 
-        // Fallback: sem erro e sem tokens -> considerar verificado e mostrar CTA de login
-        timeout = setTimeout(() => {
-          setStatus('success');
-        }, 2500);
+        // Se não há tokens, considerar que o email já foi verificado
+        setStatus('success');
+        setMessage('E-mail já verificado! Redirecionando para login...');
+        
+        // Redirecionar para login após 3 segundos
+        redirectTimeout = setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 3000);
         
       } catch (error: any) {
-        console.error('Erro no processamento de auth:', error);
+        console.error('Erro no processamento de verificação:', error);
         setStatus('error');
         setMessage(error.message || 'Não foi possível validar o link.');
       }
     };
 
-    processAuth();
+    processEmailVerification();
 
     return () => {
-      if (timeout) clearTimeout(timeout);
+      if (redirectTimeout) clearTimeout(redirectTimeout);
     };
   }, [navigate]);
 
@@ -177,11 +205,11 @@ export default function AuthCallback() {
                 <div className="text-center space-y-2">
                   <h2 className="text-xl font-semibold text-success">E-mail verificado com sucesso</h2>
                   <p className="text-sm text-muted-foreground">
-                    Sua conta já está ativada. Você pode entrar agora.
+                    {message}
                   </p>
                 </div>
                 <Button onClick={handleGoToLogin} className="w-full">
-                  Ir para login
+                  Ir para login agora
                 </Button>
               </>
             )}
