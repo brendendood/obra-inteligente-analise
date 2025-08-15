@@ -83,30 +83,27 @@ export default function AuthCallback() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    let timeout: any;
+
     const processAuth = async () => {
       try {
-        // 1. Ler parâmetros de query (erros)
         const qs = new URLSearchParams(window.location.search);
+        const hs = new URLSearchParams(window.location.hash.slice(1));
+
         const qError = qs.get('error');
         const qErrorCode = qs.get('error_code');
         const qErrorDesc = qs.get('error_description');
 
         if (qError || qErrorCode) {
           setStatus('error');
-          if (qErrorCode === 'otp_expired') {
-            setMessage('Link de confirmação expirado. Solicite um novo email de confirmação.');
-          } else {
-            setMessage(qErrorDesc || qErrorCode || qError || 'Link inválido ou expirado.');
-          }
+          setMessage(qErrorDesc || qErrorCode || qError || 'Link inválido ou expirado.');
           return;
         }
 
-        // 2. Tentar autenticar de duas formas
-        // (a) Se vierem access_token e refresh_token no hash
-        const hs = new URLSearchParams(window.location.hash.slice(1));
         const access_token = hs.get('access_token');
         const refresh_token = hs.get('refresh_token');
-        
+        const code = qs.get('code');
+
         if (access_token && refresh_token) {
           const { error } = await supabase.auth.setSession({ 
             access_token, 
@@ -115,34 +112,23 @@ export default function AuthCallback() {
           
           if (error) throw error;
           
-          setStatus('success');
-          setMessage('Email confirmado com sucesso! Redirecionando...');
-          
-          setTimeout(() => {
-            navigate('/painel');
-          }, 1500);
+          navigate('/app', { replace: true });
           return;
         }
 
-        // (b) Se vier code (PKCE)
-        const code = qs.get('code');
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
           
           if (error) throw error;
           
-          setStatus('success');
-          setMessage('Email confirmado com sucesso! Redirecionando...');
-          
-          setTimeout(() => {
-            navigate('/painel');
-          }, 1500);
+          navigate('/app', { replace: true });
           return;
         }
 
-        // 3. Se chegou até aqui, não há token válido
-        setStatus('error');
-        setMessage('Token não encontrado na URL. Gere um novo link de confirmação.');
+        // Fallback: sem erro e sem tokens -> considerar verificado e mostrar CTA de login
+        timeout = setTimeout(() => {
+          setStatus('success');
+        }, 2500);
         
       } catch (error: any) {
         console.error('Erro no processamento de auth:', error);
@@ -152,6 +138,10 @@ export default function AuthCallback() {
     };
 
     processAuth();
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [navigate]);
 
   const handleGoToLogin = () => {
@@ -164,7 +154,9 @@ export default function AuthCallback() {
         <CardHeader className="text-center space-y-4">
           <UnifiedLogo />
           <CardTitle className="text-2xl font-bold">
-            Confirmação de Email
+            {status === 'loading' && 'Confirmação de Email'}
+            {status === 'success' && 'E-mail Verificado'}
+            {status === 'error' && 'Link Inválido'}
           </CardTitle>
         </CardHeader>
         
@@ -183,8 +175,14 @@ export default function AuthCallback() {
               <>
                 <CheckCircle className="h-12 w-12 text-success" />
                 <div className="text-center space-y-2">
-                  <p className="text-success font-medium">{message}</p>
+                  <h2 className="text-xl font-semibold text-success">E-mail verificado com sucesso</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Sua conta já está ativada. Você pode entrar agora.
+                  </p>
                 </div>
+                <Button onClick={handleGoToLogin} className="w-full">
+                  Ir para login
+                </Button>
               </>
             )}
             

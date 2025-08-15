@@ -2,10 +2,7 @@ import { useEffect } from 'react';
 
 export default function VRedirect() {
   useEffect(() => {
-    const dest = new URL('/auth/callback', window.location.origin);
-    dest.search = window.location.search;
-    dest.hash = window.location.hash;
-    window.location.replace(dest.toString());
+    window.location.replace('/auth/callback' + window.location.search + window.location.hash);
   }, []);
   
   return null;
