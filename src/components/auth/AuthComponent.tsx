@@ -97,7 +97,7 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: 'https://madeai.com.br/v',
           data: {
             full_name: sanitizedFullName
           }

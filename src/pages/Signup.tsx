@@ -207,7 +207,7 @@ function Signup() {
         password: formData.password,
         options: {
           data: userData,
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: 'https://madeai.com.br/v'
         }
       });
 
