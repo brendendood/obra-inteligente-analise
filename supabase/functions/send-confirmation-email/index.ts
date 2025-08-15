@@ -36,7 +36,7 @@ interface AuthEvent {
 // Buscar template de confirmação e substituir variáveis
 const getConfirmationEmailTemplate = async (supabaseClient: any, userData: any, emailData: any) => {
   const userName = userData?.raw_user_meta_data?.full_name || userData?.email?.split('@')[0] || 'Usuário';
-  const confirmationUrl = `${emailData.site_url}/auth/confirm?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&redirect_to=${encodeURIComponent(emailData.redirect_to || '/dashboard')}`;
+  const confirmationUrl = `${emailData.site_url}/v?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&redirect_to=${encodeURIComponent(emailData.redirect_to || 'https://madeai.com.br/dashboard')}`;
   
   try {
     // Buscar template por template_key na tabela email_templates
