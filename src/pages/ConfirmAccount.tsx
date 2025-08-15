@@ -85,7 +85,7 @@ export default function AuthCallback() {
   useEffect(() => {
     const processAuth = async () => {
       try {
-        // Ler parâmetros de query (erros)
+        // 1. Ler parâmetros de query (erros)
         const qs = new URLSearchParams(window.location.search);
         const qError = qs.get('error');
         const qErrorCode = qs.get('error_code');
@@ -101,13 +101,12 @@ export default function AuthCallback() {
           return;
         }
 
-        // Ler parâmetros de hash (tokens)
+        // 2. Tentar autenticar de duas formas
+        // (a) Se vierem access_token e refresh_token no hash
         const hs = new URLSearchParams(window.location.hash.slice(1));
         const access_token = hs.get('access_token');
         const refresh_token = hs.get('refresh_token');
-        const code = qs.get('code');
-
-        // Processar access_token/refresh_token
+        
         if (access_token && refresh_token) {
           const { error } = await supabase.auth.setSession({ 
             access_token, 
@@ -120,12 +119,13 @@ export default function AuthCallback() {
           setMessage('Email confirmado com sucesso! Redirecionando...');
           
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/painel');
           }, 1500);
           return;
         }
 
-        // Processar code parameter
+        // (b) Se vier code (PKCE)
+        const code = qs.get('code');
         if (code) {
           const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
           
@@ -135,12 +135,12 @@ export default function AuthCallback() {
           setMessage('Email confirmado com sucesso! Redirecionando...');
           
           setTimeout(() => {
-            navigate('/dashboard');
+            navigate('/painel');
           }, 1500);
           return;
         }
 
-        // Se chegou até aqui, não há token válido
+        // 3. Se chegou até aqui, não há token válido
         setStatus('error');
         setMessage('Token não encontrado na URL. Gere um novo link de confirmação.');
         

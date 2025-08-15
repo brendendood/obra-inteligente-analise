@@ -200,6 +200,9 @@ const App = () => {
                 } />
                 
                 {/* Protected routes */}
+                <Route path="/app" element={<Navigate to="/painel" replace />} />
+                <Route path="/dashboard" element={<Navigate to="/painel" replace />} />
+                
                 <Route path="/painel" element={
                   <ProtectedRoute>
                     <Dashboard />
