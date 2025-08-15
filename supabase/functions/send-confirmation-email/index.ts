@@ -249,6 +249,51 @@ const handler = async (req: Request): Promise<Response> => {
       console.warn('⚠️ CONFIRMATION-EMAIL: Falha ao registrar log (não crítico):', logError);
     }
 
+    // 🚀 DISPARAR EMAIL DE WELCOME APÓS 10 SEGUNDOS (Background Processing)
+    const userName = user?.raw_user_meta_data?.full_name || user?.email?.split('@')[0] || 'Usuário';
+    
+    EdgeRuntime.waitUntil(
+      new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          try {
+            console.log('🎉 WELCOME-EMAIL: Iniciando envio de welcome após 10s para:', user.email);
+            
+            // Fazer chamada HTTP para send-custom-emails
+            const welcomeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-custom-emails`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+                'Content-Type': 'application/json',
+                'apikey': Deno.env.get('SUPABASE_ANON_KEY') || ''
+              },
+              body: JSON.stringify({
+                email_type: 'welcome_user',
+                recipient_email: user.email,
+                user_data: {
+                  name: userName,
+                  email: user.email,
+                  user_id: user.id
+                }
+              })
+            });
+
+            if (welcomeResponse.ok) {
+              const welcomeResult = await welcomeResponse.json();
+              console.log('✅ WELCOME-EMAIL: Enviado com sucesso:', welcomeResult);
+            } else {
+              const errorText = await welcomeResponse.text();
+              console.error('❌ WELCOME-EMAIL: Falha no envio:', errorText);
+            }
+            
+          } catch (welcomeError) {
+            console.error('❌ WELCOME-EMAIL: Erro no processamento:', welcomeError);
+          } finally {
+            resolve();
+          }
+        }, 10000); // 10 segundos de delay
+      })
+    );
+
     return new Response(
       JSON.stringify({ 
         success: true, 
