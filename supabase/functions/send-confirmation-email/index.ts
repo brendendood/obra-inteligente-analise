@@ -33,7 +33,7 @@ interface AuthEvent {
   };
 }
 
-// Buscar template de confirmação e substituir variáveis
+// Template de confirmação anti-spam otimizado
 const getConfirmationEmailTemplate = async (supabaseClient: any, userData: any, emailData: any) => {
   const userName = userData?.raw_user_meta_data?.full_name || userData?.email?.split('@')[0] || 'Usuário';
   const confirmationUrl = `${emailData.site_url}/v?token_hash=${emailData.token_hash}&type=${emailData.email_action_type}&redirect_to=${encodeURIComponent(emailData.redirect_to || 'https://madeai.com.br/dashboard')}`;
@@ -48,29 +48,30 @@ const getConfirmationEmailTemplate = async (supabaseClient: any, userData: any, 
       .single();
 
     if (error || !template) {
-      console.warn(`⚠️ Template 'signup_confirmation' não encontrado, usando fallback`);
-      return generateFallbackConfirmationEmail(userName, confirmationUrl, emailData.token);
+      console.warn(`⚠️ Template 'signup_confirmation' não encontrado, usando template padrão`);
+      return generateDefaultConfirmationEmail(userName, confirmationUrl);
     }
 
     // Substituir variáveis no subject e HTML
-    let processedSubject = template.subject || 'Confirme sua conta na MadenAI';
-    let processedHtml = template.html || '<p>Conteúdo não disponível</p>';
+    let processedSubject = template.subject || 'Verifique sua conta MadeAI';
+    let processedHtml = template.html || '';
 
     // Variáveis do email de confirmação
     const variables = {
+      '{{ .ConfirmationURL }}': confirmationUrl,
       '{{user_name}}': userName,
       '{{full_name}}': userName,
       '{{confirmation_url}}': confirmationUrl,
       '{{confirmation_token}}': emailData.token,
       '{{site_url}}': emailData.site_url,
       '{{dashboard_url}}': `${emailData.site_url}/dashboard`,
-      '{{support_email}}': 'suporte@madeai.com.br'
+      '{{support_email}}': 'contato@madeai.com.br'
     };
 
     // Aplicar substituições
     Object.entries(variables).forEach(([key, value]) => {
-      processedSubject = processedSubject.replace(new RegExp(key, 'g'), value);
-      processedHtml = processedHtml.replace(new RegExp(key, 'g'), value);
+      processedSubject = processedSubject.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
+      processedHtml = processedHtml.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value);
     });
 
     return {
@@ -80,219 +81,192 @@ const getConfirmationEmailTemplate = async (supabaseClient: any, userData: any, 
 
   } catch (error) {
     console.error('❌ Erro ao buscar template:', error);
-    return generateFallbackConfirmationEmail(userName, confirmationUrl, emailData.token);
+    return generateDefaultConfirmationEmail(userName, confirmationUrl);
   }
 };
 
-// Fallback para email de confirmação
-const generateFallbackConfirmationEmail = (userName: string, confirmationUrl: string, token: string) => {
+// Template padrão anti-spam com HTML especificado
+const generateDefaultConfirmationEmail = (userName: string, confirmationUrl: string) => {
   return {
-    subject: `✅ Confirme sua conta na MadenAI`,
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Confirme sua conta - MadenAI</title>
-      </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f8fafc;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
-            
-            <!-- Header -->
-            <div style="text-align: center; margin-bottom: 40px;">
-              <div style="background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; width: 80px; height: 80px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin-bottom: 20px;">
-                M
-              </div>
-              <h1 style="color: #1e293b; margin: 0; font-size: 28px; font-weight: 700;">MadenAI</h1>
-            </div>
-            
-            <!-- Conteúdo -->
-            <div style="text-align: center;">
-              <h2 style="color: #334155; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">
-                Bem-vindo, ${userName}! 🎉
-              </h2>
-              
-              <p style="color: #64748b; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
-                Sua conta foi criada com sucesso! Para começar a usar a plataforma MadenAI, 
-                você precisa confirmar seu endereço de email clicando no botão abaixo.
-              </p>
-              
-              <!-- Botão de Confirmação -->
-              <div style="margin: 40px 0;">
-                <a href="${confirmationUrl}" 
-                   style="background: linear-gradient(135deg, #2563eb, #3b82f6); 
-                          color: white; 
-                          padding: 16px 32px; 
-                          text-decoration: none; 
-                          border-radius: 8px; 
-                          font-weight: 600; 
-                          font-size: 16px;
-                          display: inline-block;
-                          transition: all 0.2s;">
-                  ✅ Confirmar Email
-                </a>
-              </div>
-              
-              <!-- Token alternativo -->
-              <div style="background: #f1f5f9; border-radius: 8px; padding: 20px; margin: 30px 0;">
-                <p style="color: #475569; font-size: 14px; margin-bottom: 10px;">
-                  <strong>Ou use este código de confirmação:</strong>
-                </p>
-                <code style="font-family: 'Courier New', monospace; 
-                           background: white; 
-                           border: 1px solid #e2e8f0; 
-                           border-radius: 4px; 
-                           padding: 8px 12px; 
-                           font-size: 16px; 
-                           color: #1e293b; 
-                           display: inline-block;">
-                  ${token}
-                </code>
-              </div>
-              
-              <!-- Informações adicionais -->
-              <div style="border-top: 1px solid #e2e8f0; padding-top: 30px; margin-top: 40px;">
-                <p style="color: #64748b; font-size: 14px; line-height: 1.5;">
-                  Este link de confirmação expira em 24 horas. Se você não criou esta conta, 
-                  pode ignorar este email com segurança.
-                </p>
-                
-                <p style="color: #64748b; font-size: 14px; margin-top: 20px;">
-                  Precisa de ajuda? Entre em contato conosco em 
-                  <a href="mailto:suporte@madeai.com.br" style="color: #2563eb; text-decoration: none;">
-                    suporte@madeai.com.br
-                  </a>
-                </p>
-              </div>
-            </div>
+    subject: 'Verifique sua conta MadeAI',
+    html: `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="telephone=no" name="format-detection">
+  <title>Verifique sua conta MadeAI</title>
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #018CFF;
+      font-family: Arial, sans-serif;
+    }
+    .email-container {
+      background-color: #ffffff;
+      border-radius: 30px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    .es-button {
+      background: #31CB4B;
+      color: #ffffff;
+      font-weight: bold;
+      border-radius: 15px;
+      padding: 15px 30px;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+    }
+    .es-button:hover {
+      background: #28a73e;
+    }
+    .link-fallback {
+      word-break: break-all;
+      color: #1376C8;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td align="center" style="padding-bottom: 20px;">
+          <img src="https://fvlfgss.stripocdn.email/content/guids/CABINET_370106225da0f9388993368c1eb7e1b1d2aa0ebf1eed50a23d34716d8e4cad58/images/1.png" alt="Logo MadeAI" width="200" style="display:block; border:0; outline:none; text-decoration:none;">
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <h1 style="color:#333333; font-family: Arial, sans-serif; font-size: 24px; margin-bottom: 10px;">Verifique sua conta MadeAI.</h1>
+          <hr style="border:none; border-top:1px solid #cccccc; margin: 20px 0;">
+          <p style="font-size:18px; color:#333333; font-family: Arial, sans-serif; line-height: 1.5;">
+            Bem vindo(a) à MadeAI, clique no botão abaixo para <strong>verificar seu e-mail</strong> e começar a explorar a Made.
+          </p>
+          <div style="text-align:center; margin: 30px 0;">
+            <a href="${confirmationUrl}" target="_blank" class="es-button">Verificar endereço de e-mail</a>
           </div>
-          
-          <!-- Footer -->
-          <div style="text-align: center; margin-top: 30px;">
-            <p style="color: #94a3b8; font-size: 12px;">
-              © 2024 MadenAI. Todos os direitos reservados.
+          <p style="font-size:14px; color:#666666; font-family: Arial, sans-serif; line-height: 1.5;">
+            Se o botão não funcionar, clique no link abaixo:<br>
+            <a href="${confirmationUrl}" class="link-fallback">${confirmationUrl}</a>
+          </p>
+          <p style="font-size:16px; color:#333333; font-family: Arial, sans-serif; line-height: 1.5; margin-top: 30px;">
+            Se você acha que recebeu esse e-mail por engano, não hesite em enviar uma mensagem para 
+            <a href="mailto:contato@madeai.com.br" style="color:#1376C8; text-decoration: none;">contato@madeai.com.br</a>. 
+            <strong>Nosso time de suporte 💬 irá te responder e te ajudar com isso.</strong>
+          </p>
+          <p style="font-size:16px; color:#333333; font-family: Arial, sans-serif; line-height: 1.5;">
+            <strong>Obrigado.<br>Equipe MadeAI.</strong>
+          </p>
+          <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eeeeee; text-align: center;">
+            <p style="font-size:12px; color:#999999; font-family: Arial, sans-serif;">
+              © 2024 MadeAI. Todos os direitos reservados.<br>
+              Este é um e-mail automático, não responda a esta mensagem.
             </p>
           </div>
-        </div>
-      </body>
-      </html>
-    `
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>`
   };
 };
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('📧 CONFIRMATION-EMAIL: Recebido webhook de confirmação');
-    
-    const authEvent: AuthEvent = await req.json();
-    console.log('📧 CONFIRMATION-EMAIL: Event type:', authEvent);
+    const payload = await req.json();
+    console.log('🔍 CONFIRMATION-EMAIL: Payload recebido:', JSON.stringify(payload, null, 2));
 
-    // Validar se é um evento de confirmação de usuário
-    if (!authEvent.user || !authEvent.user.email || !authEvent.email_data) {
-      console.log('❌ CONFIRMATION-EMAIL: Dados inválidos no webhook');
+    const { user, email_data }: AuthEvent = payload;
+
+    if (!user?.email || !email_data?.token_hash) {
+      console.error('❌ CONFIRMATION-EMAIL: Dados obrigatórios ausentes');
       return new Response(
-        JSON.stringify({ error: 'Invalid webhook data' }),
+        JSON.stringify({ success: false, error: 'Missing required data' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const { user, email_data } = authEvent;
-    
-    // Criar cliente Supabase para buscar templates
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
     );
 
-    // Buscar conteúdo do email usando templates do admin
-    const emailContent = await getConfirmationEmailTemplate(
-      supabaseClient,
-      user,
-      email_data
-    );
+    // Buscar template e montar email
+    const emailTemplate = await getConfirmationEmailTemplate(supabaseClient, user, email_data);
 
-    console.log('📧 CONFIRMATION-EMAIL: Enviando email via Resend para:', user.email);
-
-    // Enviar email via Resend
+    // Configuração anti-spam para Resend
     const emailResponse = await resend.emails.send({
-      from: "MadenAI <suporte@madeai.com.br>",
+      from: 'MadeAI <noreply@madeai.com.br>',
       to: [user.email],
-      subject: emailContent.subject,
-      html: emailContent.html,
+      subject: emailTemplate.subject,
+      html: emailTemplate.html,
+      // Headers anti-spam
+      headers: {
+        'X-Priority': '3',
+        'X-MSMail-Priority': 'Normal',
+        'List-Unsubscribe': '<mailto:contato@madeai.com.br?subject=Unsubscribe>',
+        'X-Mailer': 'MadeAI Email System',
+      },
+      // Tags para tracking
+      tags: [
+        { name: 'category', value: 'confirmation' },
+        { name: 'environment', value: 'production' }
+      ]
+    });
+    
+    console.log(`✅ CONFIRMATION-EMAIL: Email enviado com sucesso para ${user.email}:`, emailResponse);
+
+    // ========== AGENDAR EMAIL DE BOAS-VINDAS (10 segundos) ==========
+    const welcomeEmailPromise = new Promise<void>((resolve) => {
+      setTimeout(async () => {
+        try {
+          console.log('🎉 WELCOME-EMAIL: Iniciando envio do email de boas-vindas...');
+          
+          const welcomeResponse = await fetch(`https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/send-custom-emails`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+            },
+            body: JSON.stringify({
+              email_type: 'welcome_user',
+              recipient_email: user.email,
+              user_data: {
+                name: user?.raw_user_meta_data?.full_name || user?.email?.split('@')[0] || 'Usuário',
+                email: user.email,
+                user_id: user.id
+              }
+            })
+          });
+
+          if (welcomeResponse.ok) {
+            const welcomeResult = await welcomeResponse.json();
+            console.log('✅ WELCOME-EMAIL: Enviado com sucesso:', welcomeResult);
+          } else {
+            const errorText = await welcomeResponse.text();
+            console.error('❌ WELCOME-EMAIL: Falha no envio:', errorText);
+          }
+          
+        } catch (welcomeError) {
+          console.error('❌ WELCOME-EMAIL: Erro no processamento:', welcomeError);
+        } finally {
+          resolve();
+        }
+      }, 10000); // 10 segundos de delay
     });
 
-    if (emailResponse.error) {
-      console.error('❌ CONFIRMATION-EMAIL: Erro no Resend:', emailResponse.error);
-      throw new Error(`Resend error: ${emailResponse.error.message}`);
-    }
-
-    console.log('✅ CONFIRMATION-EMAIL: Email enviado com sucesso:', emailResponse.data);
-
-    // Log do envio na base de dados
-    try {
-      await supabaseClient.from('email_logs').insert({
-        user_id: user.id,
-        email_type: 'signup_confirmation',
-        recipient_email: user.email,
-        resend_id: emailResponse.data?.id,
-        status: 'sent',
-        sent_at: new Date().toISOString()
-      });
-    } catch (logError) {
-      console.warn('⚠️ CONFIRMATION-EMAIL: Falha ao registrar log (não crítico):', logError);
-    }
-
-    // 🚀 DISPARAR EMAIL DE WELCOME APÓS 10 SEGUNDOS (Background Processing)
-    const userName = user?.raw_user_meta_data?.full_name || user?.email?.split('@')[0] || 'Usuário';
-    
-    EdgeRuntime.waitUntil(
-      new Promise<void>((resolve) => {
-        setTimeout(async () => {
-          try {
-            console.log('🎉 WELCOME-EMAIL: Iniciando envio de welcome após 10s para:', user.email);
-            
-            // Fazer chamada HTTP para send-custom-emails
-            const welcomeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-custom-emails`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-                'Content-Type': 'application/json',
-                'apikey': Deno.env.get('SUPABASE_ANON_KEY') || ''
-              },
-              body: JSON.stringify({
-                email_type: 'welcome_user',
-                recipient_email: user.email,
-                user_data: {
-                  name: userName,
-                  email: user.email,
-                  user_id: user.id
-                }
-              })
-            });
-
-            if (welcomeResponse.ok) {
-              const welcomeResult = await welcomeResponse.json();
-              console.log('✅ WELCOME-EMAIL: Enviado com sucesso:', welcomeResult);
-            } else {
-              const errorText = await welcomeResponse.text();
-              console.error('❌ WELCOME-EMAIL: Falha no envio:', errorText);
-            }
-            
-          } catch (welcomeError) {
-            console.error('❌ WELCOME-EMAIL: Erro no processamento:', welcomeError);
-          } finally {
-            resolve();
-          }
-        }, 10000); // 10 segundos de delay
-      })
-    );
+    // Aguardar o email de boas-vindas em background
+    EdgeRuntime.waitUntil(welcomeEmailPromise);
 
     return new Response(
       JSON.stringify({ 
