@@ -86,15 +86,20 @@ export default function AuthCallback() {
     let redirectTimeout: any;
 
     const processEmailVerification = async () => {
+      console.log('🔍 CONFIRM-ACCOUNT: Iniciando processamento de verificação de email');
       try {
         const qs = new URLSearchParams(window.location.search);
         const hs = new URLSearchParams(window.location.hash.slice(1));
+        
+        console.log('🔍 CONFIRM-ACCOUNT: Query params:', Object.fromEntries(qs));
+        console.log('🔍 CONFIRM-ACCOUNT: Hash params:', Object.fromEntries(hs));
 
         const qError = qs.get('error');
         const qErrorCode = qs.get('error_code');
         const qErrorDesc = qs.get('error_description');
 
         if (qError || qErrorCode) {
+          console.log('❌ CONFIRM-ACCOUNT: Erro detectado nos parâmetros:', { qError, qErrorCode, qErrorDesc });
           setStatus('error');
           setMessage(qErrorDesc || qErrorCode || qError || 'Link inválido ou expirado.');
           return;
@@ -105,19 +110,25 @@ export default function AuthCallback() {
         const code = qs.get('code');
 
         // Limpar qualquer sessão existente primeiro
+        console.log('🔄 CONFIRM-ACCOUNT: Limpando sessão existente...');
         await supabase.auth.signOut();
 
         // Verificar o token apenas para confirmar o email (sem fazer login)
         if (access_token && refresh_token) {
+          console.log('🔑 CONFIRM-ACCOUNT: Verificando tokens de acesso...');
           // Apenas verificar se o token é válido para confirmar o email
           const { error } = await supabase.auth.setSession({ 
             access_token, 
             refresh_token 
           });
           
-          if (error) throw error;
+          if (error) {
+            console.error('❌ CONFIRM-ACCOUNT: Erro ao definir sessão:', error);
+            throw error;
+          }
           
           // Imediatamente fazer logout após confirmar
+          console.log('✅ CONFIRM-ACCOUNT: Email verificado com sucesso via token, fazendo logout...');
           await supabase.auth.signOut();
           
           setStatus('success');
@@ -125,6 +136,7 @@ export default function AuthCallback() {
           
           // Redirecionar para login após 3 segundos
           redirectTimeout = setTimeout(() => {
+            console.log('🔄 CONFIRM-ACCOUNT: Redirecionando para login...');
             navigate('/login', { replace: true });
           }, 3000);
           return;
