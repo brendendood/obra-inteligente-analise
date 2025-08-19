@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AlternatingText } from '@/components/ui/AlternatingText';
+import { MediaPlaceholder } from '@/components/ui/MediaPlaceholder';
 import { 
   ArrowRight, 
   Upload, 
@@ -20,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { GlobalMediaReplacer } from '@/components/ui/GlobalMediaReplacer';
 
 // Hook para animação de contadores
 const useCountAnimation = (target: number, duration: number = 2000) => {
@@ -116,6 +119,7 @@ const BustemLandingPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <GlobalMediaReplacer />
       {/* Hero Section - Bustem Style */}
       <section className="relative pt-20 pb-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
@@ -128,7 +132,13 @@ const BustemLandingPage = () => {
                 </Badge>
                 
                 <h1 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
-                  Receba orçamentos técnicos precisos em{' '}
+                  Receba seus{' '}
+                  <AlternatingText 
+                    words={['Orçamentos', 'Cronogramas', 'Documentos']}
+                    className="text-primary"
+                    interval={2500}
+                  />{' '}
+                  técnicos precisos em{' '}
                   <span className="text-primary">segundos</span>
                 </h1>
                 
@@ -160,24 +170,15 @@ const BustemLandingPage = () => {
               </div>
             </div>
 
-            {/* Right Content - PLACEHOLDER 1 - VÍDEO PRINCIPAL */}
+            {/* Hero Media Placeholder */}
             <div className="lg:order-last">
-              <div className="relative bg-muted/50 rounded-2xl border-2 border-dashed border-border p-12 text-center">
-                <div className="space-y-4">
-                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                    <Play className="h-8 w-8 text-primary" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold text-foreground">
-                      PLACEHOLDER 1 - Vídeo Principal
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Área reservada para vídeo/GIF demonstrativo<br />
-                      Formatos: MP4, WebM, GIF (600x400px)
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <MediaPlaceholder
+                slotId="media-hero-1"
+                title="Demonstração Principal"
+                description="Vídeo/GIF mostrando 'Analisar Projeto Grátis' em ação"
+                dimensions="600x400px desktop, responsivo"
+                className="h-80 lg:h-96"
+              />
             </div>
           </div>
         </div>
@@ -217,23 +218,14 @@ const BustemLandingPage = () => {
               </div>
             </div>
 
-            {/* Right - PLACEHOLDER 2 - IMAGEM DE APOIO */}
-            <div className="relative bg-muted/50 rounded-2xl border-2 border-dashed border-border p-12 text-center">
-              <div className="space-y-4">
-                <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto">
-                  <ImageIcon className="h-8 w-8 text-primary" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-foreground">
-                    PLACEHOLDER 2 - Imagem de Apoio
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Visual complementar dos resultados/dados<br />
-                    Formatos: JPG, PNG, WebP (500x300px)
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* Stats Media Placeholder */}
+            <MediaPlaceholder
+              slotId="media-results-1"
+              title="Resultados em Ação"
+              description="Demonstração de eficiência, transformação de dados em relatórios"
+              dimensions="500x300px desktop, responsivo"
+              className="h-64 lg:h-80"
+            />
           </div>
         </div>
       </section>
@@ -313,23 +305,26 @@ const BustemLandingPage = () => {
                 step: "01",
                 icon: <Upload className="h-8 w-8" />,
                 title: "Faça Upload",
-                description: "Envie plantas, PDFs ou dados do seu projeto de forma segura"
+                description: "Envie plantas, PDFs ou dados do seu projeto de forma segura",
+                slotId: "media-how-1"
               },
               {
                 step: "02",
                 icon: <Brain className="h-8 w-8" />,
                 title: "IA Analisa",
-                description: "Nossa IA especializada processa e entende todos os detalhes técnicos"
+                description: "Nossa IA especializada processa e entende todos os detalhes técnicos",
+                slotId: "media-how-2"
               },
               {
                 step: "03",
                 icon: <FileText className="h-8 w-8" />,
                 title: "Receba Resultados",
-                description: "Orçamentos, cronogramas e relatórios técnicos prontos em segundos"
+                description: "Orçamentos, cronogramas e relatórios técnicos prontos em segundos",
+                slotId: "media-how-3"
               }
             ].map((step, index) => (
-              <div key={index} className="text-center relative">
-                <div className="bg-primary rounded-full w-16 h-16 flex items-center justify-content mx-auto mb-6 text-white font-bold text-lg">
+              <div key={index} className="text-center relative space-y-6">
+                <div className="bg-primary rounded-full w-16 h-16 flex items-center justify-center mx-auto text-white font-bold text-lg">
                   {step.step}
                 </div>
                 
@@ -341,6 +336,15 @@ const BustemLandingPage = () => {
                   <h3 className="text-2xl font-semibold text-foreground">{step.title}</h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">{step.description}</p>
                 </div>
+
+                {/* Media Placeholder for each step */}
+                <MediaPlaceholder
+                  slotId={step.slotId}
+                  title={`${step.title} em Ação`}
+                  description={`Animação demonstrando: ${step.description}`}
+                  dimensions="300x200px"
+                  className="h-40"
+                />
 
                 {index < 2 && (
                   <div className="hidden md:block absolute top-8 left-full w-full">
@@ -361,30 +365,42 @@ const BustemLandingPage = () => {
             <p className="text-xl text-muted-foreground">Evolua suas habilidades e desbloqueie novos recursos</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {userJourney.map((level, index) => (
-              <Card key={index} className={`border-border transition-all duration-300 ${index <= currentStep ? 'bg-primary/5 border-primary' : ''}`}>
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <CardTitle className="text-lg font-semibold">{level.level}</CardTitle>
-                    <Badge variant={index <= currentStep ? "default" : "outline"}>
-                      {level.xp}/{level.maxXp} XP
-                    </Badge>
-                  </div>
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            {/* Journey Progress Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {userJourney.map((level, index) => (
+                <Card key={index} className={`border-border transition-all duration-300 ${index <= currentStep ? 'bg-primary/5 border-primary' : ''}`}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <CardTitle className="text-lg font-semibold">{level.level}</CardTitle>
+                      <Badge variant={index <= currentStep ? "default" : "outline"}>
+                        {level.xp}/{level.maxXp} XP
+                      </Badge>
+                    </div>
+                    
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${(level.xp / level.maxXp) * 100}%` }}
+                      />
+                    </div>
+                  </CardHeader>
                   
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${(level.xp / level.maxXp) * 100}%` }}
-                    />
-                  </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{level.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{level.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Journey Media Placeholder */}
+            <MediaPlaceholder
+              slotId="media-journey-1"
+              title="Jornada de Progressão"
+              description="Vídeo mostrando evolução do usuário na plataforma MadeAI"
+              dimensions="400x250px"
+              className="h-64"
+            />
           </div>
         </div>
       </section>
