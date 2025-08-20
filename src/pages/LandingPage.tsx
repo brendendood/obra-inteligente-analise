@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlternatingText } from '@/components/ui/AlternatingText';
 import { MediaPlaceholder } from '@/components/ui/MediaPlaceholder';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import { 
   ArrowRight, 
   Upload, 
@@ -120,22 +122,26 @@ const BustemLandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <GlobalMediaReplacer />
+      
+      {/* Header - Bustem Style */}
+      <Header />
+      
       {/* Hero Section - Bustem Style Faithful */}
-      <section className="relative pt-16 pb-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="relative pt-12 pb-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left Content - Bustem Typography Style */}
             <div className="space-y-8 lg:space-y-10">
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 bg-muted/50 rounded-full px-4 py-2 text-sm font-medium text-muted-foreground">
-                  ✨ IA para Engenharia e Arquitetura
+                  ✨ IA Especializada para Engenharia & Arquitetura
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-foreground leading-[1.1] tracking-tight">
-                  MadeAI Finds And Builds
+                  MadeAI Encontra E Constrói
                 </h1>
                 
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-foreground leading-[1.1] tracking-tight">
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] tracking-tight">
                   <AlternatingText 
                     words={['Orçamentos', 'Cronogramas', 'Documentos']}
                     className="text-primary"
@@ -148,8 +154,7 @@ const BustemLandingPage = () => {
                 </h3>
                 
                 <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-lg font-normal">
-                  A IA da MadeAI entende seu projeto e entrega orçamentos completos, 
-                  cronogramas detalhados e relatórios técnicos prontos para uso profissional.
+                  Escaneie 4+ bilhões de possibilidades em segundos. Identificamos quem está copiando seu trabalho e os removemos com DMCA, cartas de cessação...
                 </p>
               </div>
 
@@ -159,7 +164,7 @@ const BustemLandingPage = () => {
                   onClick={() => navigate('/upload')}
                   className="text-lg px-8 py-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  Analisar Projeto Grátis
+                  📅 Analisar Projeto Grátis — MadeAI
                 </Button>
               </div>
             </div>
@@ -187,7 +192,8 @@ const BustemLandingPage = () => {
                 <div className="bg-primary/10 rounded-lg p-3">
                   <Upload className="h-6 w-6 text-primary" />
                 </div>
-                <span className="text-lg font-medium">Envie sua planta</span>
+                <span className="text-lg font-medium text-foreground">Escaneie a Internet</span>
+                <p className="text-sm text-muted-foreground hidden lg:block">Escaneie 4+ bilhões de sites em segundos</p>
               </div>
               
               <div className="hidden sm:block">
@@ -198,7 +204,8 @@ const BustemLandingPage = () => {
                 <div className="bg-primary/10 rounded-lg p-3">
                   <Brain className="h-6 w-6 text-primary" />
                 </div>
-                <span className="text-lg font-medium">IA analisa em segundos</span>
+                <span className="text-lg font-medium text-foreground">Execute Relatórios de Similaridade</span>
+                <p className="text-sm text-muted-foreground hidden lg:block">Identifique quem está copiando seu trabalho</p>
               </div>
               
               <div className="hidden sm:block">
@@ -209,7 +216,8 @@ const BustemLandingPage = () => {
                 <div className="bg-primary/10 rounded-lg p-3">
                   <FileText className="h-6 w-6 text-primary" />
                 </div>
-                <span className="text-lg font-medium">Receba relatórios completos</span>
+                <span className="text-lg font-medium text-foreground">Derrube-os</span>
+                <p className="text-sm text-muted-foreground hidden lg:block">Avisos DMCA, envie cartas de cessação...</p>
               </div>
             </div>
           </div>
@@ -585,7 +593,7 @@ const BustemLandingPage = () => {
               onClick={() => navigate('/upload')}
               className="text-lg px-8 py-6 bg-primary hover:bg-primary/90"
             >
-              Analisar Projeto Grátis
+              📅 Analisar Projeto Grátis — MadeAI
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             
@@ -600,6 +608,9 @@ const BustemLandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Footer - Bustem Style */}
+      <Footer />
     </div>
   );
 };
