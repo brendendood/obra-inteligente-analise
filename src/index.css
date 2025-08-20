@@ -13,9 +13,14 @@
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 11%;
   
-  /* Bustem-inspired Primary Color */
-  --primary: 267 84% 57%;
+  /* MadeAI Primary Blue #0281FE */
+  --primary: 210 100% 50%;
   --primary-foreground: 0 0% 100%;
+  --primary-hover: 210 100% 45%;
+  
+  /* Navy blue for headers - Bustem style */
+  --navy: 223 47% 23%;
+  --navy-foreground: 0 0% 100%;
   
   /* Apple Gray System Colors */
   --secondary: 0 0% 95%;
