@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import VideoPlaceholder from '@/components/ui/VideoPlaceholder';
+import ToolsIntegrationSection from '@/components/ui/ToolsIntegrationSection';
 import { 
   Upload, 
   Bot, 
@@ -380,31 +381,6 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white">
       {/* Apple-style backdrop gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 -z-10" />
-      {/* Apple-style fixed header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrollY > 50 
-          ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-sm' 
-          : 'bg-white/80 backdrop-blur-md border-b border-transparent'
-      } px-6 md:px-8 py-4`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <UnifiedLogo size="lg" theme="auto" />
-          <div className="flex items-center gap-3 md:gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/login')}
-              className="rounded-xl hover:bg-slate-100 text-base px-4 py-2 font-medium transition-all duration-200"
-            >
-              Entrar
-            </Button>
-            <Button 
-              onClick={() => navigate('/cadastro')}
-              className="rounded-xl bg-primary hover:bg-primary/90 text-base px-6 py-2 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              Começar Grátis
-            </Button>
-          </div>
-        </div>
-      </header>
       
       {/* Apple-style Hero Section */}
       <section className="pt-32 md:pt-40 pb-32 px-6 md:px-8">
@@ -920,6 +896,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Tools Integration Section */}
+      <ToolsIntegrationSection />
 
       {/* Testimonials OTIMIZADA */}
       <section className="py-20 px-4 bg-white">
