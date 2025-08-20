@@ -19,7 +19,6 @@ import { SafeHooksProvider } from "@/components/providers/SafeHooksProvider";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
-import { GlobalMediaReplacer } from "./components/ui/GlobalMediaReplacer";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ConfirmAccount from "./pages/ConfirmAccount";
@@ -179,7 +178,7 @@ const App = () => {
     <CriticalErrorBoundary>
       <ReactHealthCheck>
         <AppProviders>
-          <GlobalMediaReplacer />
+          
             <Suspense fallback={<UnifiedLoading />}>
               <Routes>
                 {/* Public routes */}

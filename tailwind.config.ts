@@ -59,12 +59,6 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           accent: "hsl(var(--sidebar-accent))",
         },
-        // Bustem-inspired Design System Colors
-        "bustem-primary": "hsl(267 84% 57%)", // Purple/blue from bustem
-        "bustem-accent": "hsl(267 84% 57%)",
-        "bustem-neutral": "hsl(217 9% 45%)",
-        "bustem-light": "hsl(0 0% 98%)",
-        "bustem-gray": "hsl(217 9% 61%)",
         // Apple Design System Colors
         "apple-blue": "hsl(var(--apple-blue))",
         "apple-gray-50": "hsl(var(--apple-gray-50))",
@@ -82,10 +76,9 @@ const config: Config = {
         apple: "0.75rem",
       },
       fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
-        display: ["Inter", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        sans: ["-apple-system", "BlinkMacSystemFont", "SF Pro Text", "Inter", "system-ui", "sans-serif"],
+        display: ["-apple-system", "BlinkMacSystemFont", "SF Pro Display", "Inter", "system-ui", "sans-serif"],
         mono: ["SF Mono", "Monaco", "Fira Code", "monospace"],
-        inter: ["Inter", "system-ui", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
