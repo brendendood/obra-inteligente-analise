@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import VideoPlaceholder from '@/components/ui/VideoPlaceholder';
 import { 
   Upload, 
   Bot, 
@@ -376,26 +377,28 @@ const LandingPage = () => {
   console.log('Landing Page renderizada com sucesso');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Header flutuante OTIMIZADO */}
-      <header className={`fixed top-3 md:top-6 left-1/2 transform -translate-x-1/2 z-50 transition-smooth ${
+    <div className="min-h-screen bg-white">
+      {/* Apple-style backdrop gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 -z-10" />
+      {/* Apple-style fixed header */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrollY > 50 
-          ? 'bg-white/95 backdrop-blur-xl border border-slate-200 shadow-lg shadow-slate-900/5' 
-          : 'bg-white/80 backdrop-blur-md border border-slate-200/50'
-      } rounded-xl md:rounded-2xl px-4 md:px-8 py-3 md:py-4 max-w-sm sm:max-w-lg md:max-w-2xl w-[95%] md:w-full mx-2 md:mx-4`}>
-        <div className="flex items-center justify-between">
+          ? 'bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-sm' 
+          : 'bg-white/80 backdrop-blur-md border-b border-transparent'
+      } px-6 md:px-8 py-4`}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <UnifiedLogo size="lg" theme="auto" />
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/login')}
-              className="rounded-lg md:rounded-xl hover:bg-slate-100 text-sm md:text-base px-3 md:px-4 py-2 transition-fast"
+              className="rounded-xl hover:bg-slate-100 text-base px-4 py-2 font-medium transition-all duration-200"
             >
               Entrar
             </Button>
             <Button 
               onClick={() => navigate('/cadastro')}
-              className="rounded-lg md:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-sm md:text-base px-3 md:px-4 py-2 transition-fast"
+              className="rounded-xl bg-primary hover:bg-primary/90 text-base px-6 py-2 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
             >
               Começar Grátis
             </Button>
@@ -403,31 +406,46 @@ const LandingPage = () => {
         </div>
       </header>
       
-      {/* Hero Section OTIMIZADA */}
-      <section className="pt-24 md:pt-32 pb-20 px-4 animate-fade-in">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto space-y-8">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-full px-4 py-2 text-red-700 text-sm font-medium animate-scale-in">
+      {/* Apple-style Hero Section */}
+      <section className="pt-32 md:pt-40 pb-32 px-6 md:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center space-y-12">
+            {/* Elegant notification badge */}
+            <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-700 rounded-full px-5 py-2 text-sm font-medium">
               <Zap className="h-4 w-4" />
-              Chega de perder tempo com planilhas!
+              Chega de perder tempo com planilhas
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-slate-900 leading-tight animate-slide-in-right">
-              Receba orçamentos técnicos precisos em{' '}
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                segundos
-              </span>
-            </h1>
+            {/* Hero title with Apple typography */}
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-slate-900 leading-tight tracking-tight">
+                Receba orçamentos técnicos precisos em{' '}
+                <span className="text-primary">
+                  segundos
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed font-normal tracking-wide">
+                Nossa IA entende seu projeto arquitetônico, interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos.
+              </p>
+            </div>
+
+            {/* Video placeholder - Hero */}
+            <div className="max-w-4xl mx-auto">
+              <VideoPlaceholder
+                title="Veja a velocidade do MadeAI em ação"
+                description="De upload a resultado em menos de 60 segundos"
+                size="xl"
+                className="shadow-2xl shadow-slate-200"
+              />
+            </div>
             
-            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
-              <strong className="text-slate-900">Nossa IA entende seu projeto arquitetônico,</strong> interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos — tudo pronto para uso profissional em tempo recorde.
-            </p>
-            
+            {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
               <Button 
                 size="lg" 
                 onClick={() => navigate('/cadastro')}
-                className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 transition-smooth hover-lift"
+                className="w-full sm:w-auto h-14 px-12 text-lg font-medium bg-primary hover:bg-primary/90 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
               >
                 Analisar Projeto Grátis
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -435,7 +453,7 @@ const LandingPage = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-200 hover:bg-slate-50 hover-scale transition-fast"
+                className="w-full sm:w-auto h-14 px-12 text-lg font-medium rounded-xl border-slate-300 hover:bg-slate-50 transition-all duration-200"
                 onClick={() => {
                   const userJourneySection = document.getElementById('user-journey');
                   if (userJourneySection) {
@@ -447,34 +465,45 @@ const LandingPage = () => {
               </Button>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-sm text-slate-600 pt-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg backdrop-blur-sm border border-slate-200">
-                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="whitespace-nowrap font-medium">Resultados em 60 segundos</span>
+            {/* Trust badges */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-600 pt-8">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Resultados em 60 segundos</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg backdrop-blur-sm border border-slate-200">
-                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="whitespace-nowrap font-medium">Baseado em dados SINAPI</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Baseado em dados SINAPI</span>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 rounded-lg backdrop-blur-sm border border-slate-200">
-                <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                <span className="whitespace-nowrap font-medium">Grátis para começar</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Grátis para começar</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section OTIMIZADA */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+      {/* Apple-style Features Section */}
+      <section className="py-32 px-6 md:px-8 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
               Por que engenheiros e arquitetos escolhem o MadeAI?
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
               Deixe a IA fazer o trabalho pesado enquanto você foca no que realmente importa: criar projetos excepcionais
             </p>
+          </div>
+
+          {/* Video placeholder - Features intro */}
+          <div className="max-w-3xl mx-auto mb-20">
+            <VideoPlaceholder
+              title="Facilidade de uso que impressiona"
+              description="Interface intuitiva e resultados profissionais para engenheiros e arquitetos"
+              size="lg"
+              className="shadow-xl shadow-slate-200"
+            />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -491,70 +520,90 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section OTIMIZADA - Movida para cima */}
-      <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-indigo-600">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-white mb-4">
+      {/* Apple-style Stats Section */}
+      <section className="py-32 px-6 md:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
               Resultados que impressionam
             </h2>
-            <p className="text-xl text-blue-100">
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal mb-12">
               Números que comprovam a eficiência da nossa plataforma
             </p>
+            
+            {/* Video placeholder - Stats */}
+            <div className="max-w-3xl mx-auto mb-16">
+              <VideoPlaceholder
+                title="Veja nossa eficiência em números"
+                description="Transformação de dados em relatórios precisos e economia de tempo real"
+                size="lg"
+                className="shadow-xl shadow-slate-200"
+              />
+            </div>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center animate-fade-in">
-              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter1.count.toLocaleString()}+
               </div>
-              <div className="text-blue-100">Projetos Analisados</div>
+              <div className="text-slate-600 font-medium">Projetos Analisados</div>
             </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter2.count}%
               </div>
-              <div className="text-blue-100">Precisão</div>
+              <div className="text-slate-600 font-medium">Precisão</div>
             </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter3.count}%
               </div>
-              <div className="text-blue-100">Economia de Tempo</div>
+              <div className="text-slate-600 font-medium">Economia de Tempo</div>
             </div>
-            <div className="text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-bold text-white mb-2 stats-counter">
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter4.count.toLocaleString()}+
               </div>
-              <div className="text-blue-100">Usuários Ativos</div>
+              <div className="text-slate-600 font-medium">Usuários Ativos</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* How it Works OTIMIZADA */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+      {/* Apple-style How it Works */}
+      <section className="py-32 px-6 md:px-8 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
               Como funciona
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
               Processo simples e automatizado para análise completa de projetos
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {steps.map((step, index) => (
-              <div key={index} className="text-center relative animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white font-bold text-xl shadow-lg shadow-blue-500/25 hover-scale transition-fast">
-                  {step.number}
+              <div key={index} className="text-center space-y-8">
+                {/* Video placeholder para cada etapa */}
+                <VideoPlaceholder
+                  title={`${step.title} em ação`}
+                  description={step.description}
+                  size="md"
+                  className="shadow-lg shadow-slate-200"
+                />
+                
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto text-white font-semibold text-lg shadow-sm">
+                    {step.number}
+                  </div>
+                  <h3 className="text-2xl font-semibold text-slate-900 font-display">{step.title}</h3>
+                  <p className="text-slate-600 leading-relaxed max-w-sm mx-auto">{step.description}</p>
                 </div>
-                <h3 className="text-2xl font-semibold text-slate-900 mb-4">{step.title}</h3>
-                <p className="text-slate-600 leading-relaxed max-w-sm mx-auto">{step.description}</p>
                 
                 {index < steps.length - 1 && (
-                  <ArrowRight className="hidden md:block absolute top-10 -right-4 h-8 w-8 text-slate-300 animate-bounce-gentle" />
+                  <ArrowRight className="hidden md:block absolute top-32 -right-6 h-6 w-6 text-slate-300" />
                 )}
               </div>
             ))}
@@ -562,16 +611,26 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* User Journey - Seção Interativa */}
-      <section id="user-journey" className="py-20 px-4 bg-gradient-to-br from-slate-50 to-blue-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+      {/* Apple-style User Journey */}
+      <section id="user-journey" className="py-32 px-6 md:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
               Sua Jornada de Sucesso
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal mb-12">
               Acompanhe seu progresso e desbloqueie novas funcionalidades conforme você domina a plataforma
             </p>
+            
+            {/* Video placeholder - Journey */}
+            <div className="max-w-3xl mx-auto mb-16">
+              <VideoPlaceholder
+                title="Progressão do usuário na plataforma"
+                description="Desbloqueie funcionalidades e alcance novos níveis de produtividade"
+                size="lg"
+                className="shadow-xl shadow-slate-200"
+              />
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
