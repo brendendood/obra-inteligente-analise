@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import VideoPlaceholder from '@/components/ui/VideoPlaceholder';
 import ToolsIntegrationSection from '@/components/ui/ToolsIntegrationSection';
+import Header from '@/components/layout/Header';
 import { 
   Upload, 
   Bot, 
@@ -379,6 +380,9 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Header fixo e flutuante */}
+      <Header />
+      
       {/* Apple-style backdrop gradient */}
       <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 -z-10" />
       
@@ -617,7 +621,7 @@ const LandingPage = () => {
               return (
                 <div 
                   key={index} 
-                  className={`group relative p-6 bg-white rounded-2xl border-2 transition-all duration-300 animate-fade-in ${
+                  className={`group relative p-6 bg-white rounded-2xl border-2 transition-all duration-300 ${
                     status === 'completed' 
                       ? 'border-green-200 shadow-lg shadow-green-500/10' 
                       : status === 'available'
@@ -636,7 +640,7 @@ const LandingPage = () => {
                   
                   {/* Chamada para clicar (disponível) */}
                   {status === 'available' && (
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-3 py-1 rounded-full shadow-lg animate-bounce">
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-primary text-white text-xs px-4 py-2 rounded-full shadow-lg animate-pulse border-2 border-white font-semibold">
                       Clique aqui
                     </div>
                   )}

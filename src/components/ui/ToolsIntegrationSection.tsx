@@ -21,44 +21,32 @@ const ToolsIntegrationSection = () => {
     { name: 'TypeScript', logo: '📘', position: 'bottom-center' },
     { name: 'Tailwind CSS', logo: '🎨', position: 'bottom-left' },
     { name: 'PostgreSQL', logo: '🐘', position: 'left' },
-    { name: 'AWS', logo: '☁️', position: 'left-top' },
-    { name: 'Google Cloud', logo: '🌤️', position: 'right-top' },
-    { name: 'Azure', logo: '🔵', position: 'left-bottom' },
-    { name: 'Figma', logo: '🎨', position: 'right-bottom' },
   ];
 
   const getToolPosition = (position: string) => {
     const positions = {
-      'top-left': 'absolute top-4 left-4 md:top-8 md:left-8',
-      'top-center': 'absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4',
-      'top-right': 'absolute top-4 right-4 md:top-8 md:right-8',
-      'right': 'absolute right-0 top-1/2 transform translate-x-4 -translate-y-1/2',
-      'bottom-right': 'absolute bottom-4 right-4 md:bottom-8 md:right-8',
-      'bottom-center': 'absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-4',
-      'bottom-left': 'absolute bottom-4 left-4 md:bottom-8 md:left-8',
-      'left': 'absolute left-0 top-1/2 transform -translate-x-4 -translate-y-1/2',
-      'left-top': 'absolute top-1/4 left-0 transform -translate-x-6 -translate-y-2',
-      'right-top': 'absolute top-1/4 right-0 transform translate-x-6 -translate-y-2',
-      'left-bottom': 'absolute bottom-1/4 left-0 transform -translate-x-6 translate-y-2',
-      'right-bottom': 'absolute bottom-1/4 right-0 transform translate-x-6 translate-y-2',
+      'top-left': 'absolute top-8 left-8 md:top-12 md:left-16',
+      'top-center': 'absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8',
+      'top-right': 'absolute top-8 right-8 md:top-12 md:right-16',
+      'right': 'absolute right-0 top-1/2 transform translate-x-8 -translate-y-1/2',
+      'bottom-right': 'absolute bottom-8 right-8 md:bottom-12 md:right-16',
+      'bottom-center': 'absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-8',
+      'bottom-left': 'absolute bottom-8 left-8 md:bottom-12 md:left-16',
+      'left': 'absolute left-0 top-1/2 transform -translate-x-8 -translate-y-1/2',
     };
     return positions[position as keyof typeof positions] || '';
   };
 
   const getConnectionPath = (position: string) => {
     const paths = {
-      'top-left': 'M80,80 Q120,120 200,200',
-      'top-center': 'M200,40 Q200,120 200,200',
-      'top-right': 'M320,80 Q280,120 200,200',
-      'right': 'M360,200 Q280,200 200,200',
-      'bottom-right': 'M320,320 Q280,280 200,200',
-      'bottom-center': 'M200,360 Q200,280 200,200',
-      'bottom-left': 'M80,320 Q120,280 200,200',
-      'left': 'M40,200 Q120,200 200,200',
-      'left-top': 'M20,120 Q110,160 200,200',
-      'right-top': 'M380,120 Q290,160 200,200',
-      'left-bottom': 'M20,280 Q110,240 200,200',
-      'right-bottom': 'M380,280 Q290,240 200,200',
+      'top-left': 'M60,60 Q130,130 200,200',
+      'top-center': 'M200,30 Q200,115 200,200',
+      'top-right': 'M340,60 Q270,130 200,200',
+      'right': 'M370,200 Q285,200 200,200',
+      'bottom-right': 'M340,340 Q270,270 200,200',
+      'bottom-center': 'M200,370 Q200,285 200,200',
+      'bottom-left': 'M60,340 Q130,270 200,200',
+      'left': 'M30,200 Q115,200 200,200',
     };
     return paths[position as keyof typeof paths] || '';
   };
