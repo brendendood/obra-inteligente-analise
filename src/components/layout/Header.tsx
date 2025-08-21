@@ -28,22 +28,6 @@ const Header = () => {
             <UnifiedLogo size="md" theme="auto" priority className="transition-all duration-300 hover:scale-105" />
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              Brand & Content Protection
-            </Link>
-            <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              Monitoring
-            </Link>
-            <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              Anti-Theft Tools
-            </Link>
-            <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-              DMCA Services
-            </Link>
-          </nav>
-
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <Button 
@@ -56,11 +40,11 @@ const Header = () => {
             </Button>
             <Button 
               size="sm" 
-              className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 text-sm font-medium rounded-lg"
+              className="bg-[#0281FE] hover:bg-[#0270E5] text-white px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200"
               asChild
             >
-              <Link to="/cadastro">
-                📊 Analisar Projeto Grátis
+              <Link to="/signup">
+                Começar Agora
               </Link>
             </Button>
           </div>
@@ -81,39 +65,25 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100 mt-4">
-            <nav className="flex flex-col space-y-4">
-              <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                Brand & Content Protection
-              </Link>
-              <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                Monitoring
-              </Link>
-              <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                Anti-Theft Tools
-              </Link>
-              <Link to="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                DMCA Services
-              </Link>
-              <div className="flex flex-col space-y-2 pt-4 border-t border-gray-100">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="justify-start text-sm font-medium text-gray-600 hover:text-gray-900"
-                  asChild
-                >
-                  <Link to="/login">Login</Link>
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="bg-slate-900 hover:bg-slate-800 text-white justify-start"
-                  asChild
-                >
-                  <Link to="/cadastro">
-                    📊 Analisar Projeto Grátis
-                  </Link>
-                </Button>
-              </div>
-            </nav>
+            <div className="flex flex-col space-y-3">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="justify-start text-sm font-medium text-gray-600 hover:text-gray-900"
+                asChild
+              >
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button 
+                size="sm" 
+                className="bg-[#0281FE] hover:bg-[#0270E5] text-white justify-start transition-all duration-200"
+                asChild
+              >
+                <Link to="/signup">
+                  Começar Agora
+                </Link>
+              </Button>
+            </div>
           </div>
         )}
       </div>
