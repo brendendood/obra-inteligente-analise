@@ -1,220 +1,256 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { UnifiedLogo } from "@/components/ui/UnifiedLogo";
-import VideoPlaceholder from "@/components/ui/VideoPlaceholder";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import ToolsIntegrationSection from "@/components/ui/ToolsIntegrationSection";
-import { useAuth } from "@/hooks/useAuth";
+
+import { useEffect, useState, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import VideoPlaceholder from '@/components/ui/VideoPlaceholder';
+import ToolsIntegrationSection from '@/components/ui/ToolsIntegrationSection';
+import Header from '@/components/layout/Header';
 import { 
-  BarChart3, 
-  Clock, 
-  FileText, 
   Upload, 
-  Brain, 
-  Download,
-  CheckCircle,
-  Star,
+  Bot, 
+  Calculator, 
+  Calendar, 
+  FileText, 
   ArrowRight,
-  Sun,
-  Moon,
-  Zap,
+  BarChart3,
+  Users,
+  Clock,
   Target,
-  Shield,
-  Rocket,
-  Calculator,
-  Calendar,
-  Bot,
-  Database,
-  Code,
-  ServerCog,
-  FileArchive,
-  Lock,
+  Star,
+  CheckCircle,
+  Zap,
   Award,
+  Building,
+  CheckSquare,
+  Code,
+  Database,
+  ExternalLink,
+  FileArchive,
+  FileCog,
+  Gauge,
+  HardHat,
+  Layers,
+  Lock,
+  Ruler,
+  ServerCog,
+  Shield,
+  Wrench,
+  Instagram,
+  Linkedin,
+  Youtube,
   Mail,
-  Phone,
-  Linkedin
-} from "lucide-react";
+  Phone
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
-interface CountAnimationProps {
-  end: number;
-  suffix?: string;
-  duration?: number;
-}
-
-const useCountAnimation = ({ end, suffix = "", duration = 2000 }: CountAnimationProps) => {
+// Hook para contador animado OTIMIZADO
+const useCountAnimation = (target: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const countRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (hasAnimated) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
           setHasAnimated(true);
-          const startTime = Date.now();
+          
+          console.log(`Iniciando animação do contador para ${target}`);
+          
+          // Animação otimizada
+          let start = 0;
+          const increment = target / (duration / 16);
+          
           const animate = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-            setCount(Math.floor(easeOutQuart * end));
-            
-            if (progress < 1) {
+            start += increment;
+            if (start < target) {
+              setCount(Math.floor(start));
               requestAnimationFrame(animate);
+            } else {
+              setCount(target);
+              console.log(`Contador finalizado em ${target}`);
             }
           };
+          
           requestAnimationFrame(animate);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.3, rootMargin: '50px' }
     );
 
     if (countRef.current) {
       observer.observe(countRef.current);
     }
 
-    return () => observer.disconnect();
-  }, [end, duration, hasAnimated]);
+    return () => {
+      observer.disconnect();
+    };
+  }, [target, duration, isVisible, hasAnimated]);
 
   return { count, countRef };
 };
 
-const DarkModeToggle = () => {
-  const [isDark, setIsDark] = useState(false);
-  const [isAuto, setIsAuto] = useState(true);
-
-  useEffect(() => {
-    // Check localStorage for saved preference
-    const savedTheme = localStorage.getItem('theme-preference');
-    const savedIsAuto = localStorage.getItem('theme-auto') === 'true';
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [scrollY, setScrollY] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [totalXP, setTotalXP] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState<boolean[]>([false, false, false, false]);
+  const [showParticles, setShowParticles] = useState<number | null>(null);
+  
+  // Cálculo de contadores em tempo real baseado na data atual
+  const calculateRealTimeStats = () => {
+    const baseDate = new Date('2025-07-25'); // Data base: hoje
+    const currentDate = new Date();
+    const daysDifference = Math.floor((currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (savedTheme) {
-      setIsDark(savedTheme === 'dark');
-      setIsAuto(savedIsAuto);
-      document.documentElement.classList.toggle('dark-mode', savedTheme === 'dark');
-    } else {
-      // Auto mode based on time (6h-18h = light, 18h-6h = dark)
-      const hour = new Date().getHours();
-      const shouldBeDark = hour < 6 || hour >= 18;
-      setIsDark(shouldBeDark);
-      setIsAuto(true);
-      document.documentElement.classList.toggle('dark-mode', shouldBeDark);
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-    setIsAuto(false);
-    
-    localStorage.setItem('theme-preference', newIsDark ? 'dark' : 'light');
-    localStorage.setItem('theme-auto', 'false');
-    
-    document.documentElement.classList.toggle('dark-mode', newIsDark);
+    return {
+      activeUsers: 8 + (daysDifference * 5), // Começar com 8, +5 por dia
+      analyzedProjects: 80 + (daysDifference * 12), // Começar com 80, +12 por dia
+      precision: 95, // Valor fixo
+      timeSaved: 80 // Valor fixo
+    };
   };
 
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={toggleTheme}
-      className="p-2 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-      aria-label={`Alternar para ${isDark ? 'modo claro' : 'modo escuro'}`}
-    >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-    </Button>
-  );
-};
+  const realTimeStats = calculateRealTimeStats();
+  
+  const counter1 = useCountAnimation(realTimeStats.analyzedProjects);
+  const counter2 = useCountAnimation(realTimeStats.precision);
+  const counter3 = useCountAnimation(realTimeStats.timeSaved);
+  const counter4 = useCountAnimation(realTimeStats.activeUsers);
 
-const RotatingText = () => {
-  const words = ["Orçamento", "Cronograma", "Documentos"];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
+  // Redirecionamento automático para usuários autenticados
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/painel', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsVisible(false);
-      
-      setTimeout(() => {
-        setCurrentWordIndex((prev) => (prev + 1) % words.length);
-        setIsVisible(true);
-      }, 300);
-    }, 2500);
-
-    return () => clearInterval(interval);
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <span 
-      className={`inline-block transition-all duration-300 text-[#0281FE] font-bold ${
-        isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2'
-      }`}
-    >
-      {words[currentWordIndex]}
-    </span>
-  );
-};
-
-const LandingPage = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user) {
-      navigate("/painel");
-    }
-  }, [user, navigate]);
-
-  // Counter animations
-  const projectsCount = useCountAnimation({ end: 2547 });
-  const accuracyCount = useCountAnimation({ end: 98 });
-  const timeCount = useCountAnimation({ end: 80 });
-  const satisfactionCount = useCountAnimation({ end: 97 });
-
-  const features = [
+  const missionSteps = [
     {
-      icon: <Upload className="w-6 h-6" />,
-      title: "Faça Upload",
-      description: "Envie suas plantas, documentos ou dados do projeto"
+      title: "Selecione seu projeto",
+      description: "Escolha um projeto para começar sua jornada",
+      xp: 50,
+      icon: Target,
+      color: "from-green-500 to-emerald-500"
     },
     {
-      icon: <Brain className="w-6 h-6" />,
-      title: "IA Analisa",
-      description: "Nossa IA processa e analisa todos os dados instantaneamente"
+      title: "Faça o upload",
+      description: "Carregue seus arquivos e documentos",
+      xp: 100,
+      icon: Upload,
+      color: "from-blue-500 to-indigo-500"
     },
     {
-      icon: <Download className="w-6 h-6" />,
-      title: "Receba Resultados",
-      description: "Obtenha orçamentos e cronogramas precisos em segundos"
+      title: "Faça sua análise",
+      description: "Deixe a IA processar seus dados",
+      xp: 200,
+      icon: Bot,
+      color: "from-purple-500 to-pink-500"
+    },
+    {
+      title: "Economize tempo",
+      description: "Receba resultados profissionais instantaneamente",
+      xp: 300,
+      icon: Clock,
+      color: "from-orange-500 to-red-500"
     }
   ];
 
-  const journeySteps = [
+  const handleMissionClick = (index: number) => {
+    if (index === currentStep && !completedSteps[index]) {
+      const newCompletedSteps = [...completedSteps];
+      newCompletedSteps[index] = true;
+      setCompletedSteps(newCompletedSteps);
+      
+      const newTotalXP = totalXP + missionSteps[index].xp;
+      setTotalXP(newTotalXP);
+      
+      if (index < missionSteps.length - 1) {
+        setCurrentStep(index + 1);
+        setShowParticles(index + 1);
+        
+        setTimeout(() => {
+          setShowParticles(null);
+        }, 600);
+      }
+    }
+  };
+
+  const getMissionStatus = (index: number) => {
+    if (completedSteps[index]) return 'completed';
+    if (index === currentStep) return 'available';
+    return 'locked';
+  };
+
+  const currentLevel = Math.floor(totalXP / 200) + 1;
+  const xpForNextLevel = (currentLevel * 200);
+  const progressPercent = totalXP > 0 ? (totalXP % 200) / 200 * 100 : 0;
+
+  const features = [
     {
-      title: "Iniciante",
-      description: "Comece sua jornada subindo seu primeiro projeto",
-      icon: <Rocket className="w-8 h-8" />,
-      color: "bg-green-500"
+      icon: Upload,
+      title: "Upload e Análise Instantânea",
+      description: "Arraste sua planta baixa ou memorial descritivo e receba análise completa em menos de 60 segundos"
     },
     {
-      title: "Explorador",
-      description: "Descubra funcionalidades avançadas da plataforma",
-      icon: <Target className="w-8 h-8" />,
-      color: "bg-blue-500"
+      icon: Bot,
+      title: "IA Treinada para Construção Civil",
+      description: "Algoritmos especializados que reconhecem elementos construtivos e aplicam normas técnicas automaticamente"
     },
     {
-      title: "Especialista",
-      description: "Domine todas as ferramentas de análise",
-      icon: <Star className="w-8 h-8" />,
-      color: "bg-purple-500"
+      icon: Calculator,
+      title: "Orçamentos 90% Mais Rápidos",
+      description: "Elimine planilhas manuais e receba orçamentos detalhados com composições SINAPI atualizadas"
     },
     {
-      title: "Mestre",
-      description: "Torne-se referência em gestão de projetos",
-      icon: <Shield className="w-8 h-8" />,
-      color: "bg-orange-500"
+      icon: Calendar,
+      title: "Cronogramas Físico-Financeiros",
+      description: "Cronogramas inteligentes que consideram interdependências e otimizam recursos automaticamente"
+    },
+    {
+      icon: FileText,
+      title: "Relatórios Técnicos Prontos",
+      description: "Documentação profissional em conformidade com NBR 12721 - pronta para apresentação"
+    },
+    {
+      icon: BarChart3,
+      title: "Insights que Economizam Milhares",
+      description: "Identifique oportunidades de economia e otimizações que podem reduzir custos em até 15%"
+    }
+  ];
+
+  const steps = [
+    {
+      number: "01",
+      title: "Faça Upload",
+      description: "Envie plantas baixas, memoriais descritivos ou especificações técnicas em PDF"
+    },
+    {
+      number: "02", 
+      title: "IA Analisa",
+      description: "Nossa IA processa dados técnicos seguindo normas ABNT NBR 12721 e SINAPI"
+    },
+    {
+      number: "03",
+      title: "Receba Resultados",
+      description: "Orçamentos detalhados, cronogramas físico-financeiros e relatórios executivos"
     }
   ];
 
@@ -223,367 +259,642 @@ const LandingPage = () => {
       name: "Gratuito",
       price: "R$ 0",
       period: "/mês",
-      description: "Perfeito para começar",
+      description: "Ideal para profissionais iniciantes",
       features: [
-        "3 projetos por mês",
-        "Análise básica de IA", 
-        "Orçamentos simplificados",
+        "1 projeto por mês",
+        "Análise básica de PDF",
+        "Orçamento técnico simples",
         "Suporte por email"
       ],
-      buttonText: "Começar Grátis",
       popular: false
     },
     {
       name: "Pro",
-      price: "R$ 97",
+      price: "R$ 79",
       period: "/mês",
-      description: "Para profissionais",
+      description: "Para profissionais ativos",
       features: [
         "Projetos ilimitados",
-        "IA avançada",
-        "Cronogramas detalhados",
-        "Suporte prioritário",
-        "Exportação PDF",
-        "Integrações"
+        "Cronogramas automáticos",
+        "Dados oficiais SINAPI",
+        "Dashboards avançados",
+        "Exportações em PDF/Excel",
+        "Suporte prioritário"
       ],
-      buttonText: "Começar Teste",
       popular: true
     },
     {
       name: "Enterprise",
       price: "Sob consulta",
       period: "",
-      description: "Para empresas",
+      description: "Para construtoras e escritórios",
       features: [
-        "Tudo do Pro",
-        "API personalizada",
-        "Suporte dedicado",
-        "Treinamento incluso",
+        "Acesso multiusuário",
+        "Integração com ERPs",
+        "Automações N8N",
+        "Onboarding personalizado",
+        "Suporte técnico dedicado",
         "SLA garantido"
       ],
-      buttonText: "Falar com Vendas",
       popular: false
     }
   ];
 
   const testimonials = [
     {
-      name: "Carlos Mendes",
+      name: "Carlos Eduardo Santos",
       role: "Engenheiro Civil",
-      avatar: "👨‍💼",
-      content: "O MadeAI revolucionou minha forma de trabalhar. O que antes levava dias, agora faço em minutos!",
-      rating: 5
+      company: "Santos Engenharia",
+      content: "Reduzi 40% do tempo de orçamentação em obras residenciais. A precisão técnica seguindo a NBR 12721 é impressionante.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=carlos&backgroundColor=b6e3f4&eyes=happy&mouth=smile"
     },
     {
-      name: "Ana Souza", 
+      name: "Ana Paula Oliveira",
       role: "Arquiteta",
-      avatar: "👩‍💼",
-      content: "Precisão incrível nos orçamentos. Meus clientes ficam impressionados com a agilidade.",
-      rating: 5
+      company: "Oliveira Arquitetura",
+      content: "A análise automática de plantas baixas economizou semanas de trabalho. Interface intuitiva e resultados profissionais.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ana&backgroundColor=ffd93d&eyes=happy&mouth=smile"
     },
     {
-      name: "Roberto Silva",
-      role: "Gestor de Projetos", 
-      avatar: "👨‍💻",
-      content: "Ferramenta indispensável para qualquer profissional da construção civil.",
-      rating: 5
+      name: "Roberto Mendes",
+      role: "Gestor de Obras",
+      company: "Construtora Mendes",
+      content: "Os cronogramas físico-financeiros são precisos e seguem as melhores práticas. Essencial para gestão de projetos.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=roberto&backgroundColor=c0aede&eyes=happy&mouth=smile"
+    },
+    {
+      name: "Marina Costa",
+      role: "Engenheira Estrutural",
+      company: "Costa & Associados",
+      content: "A integração com dados do SINAPI garante orçamentos atualizados. Ferramenta indispensável para engenheiros.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=marina&backgroundColor=ffdfbf&eyes=happy&mouth=smile"
+    },
+    {
+      name: "José Silva",
+      role: "Coordenador de Projetos",
+      company: "Silva Construções",
+      content: "Automatizou nosso processo de análise técnica. ROI positivo desde o primeiro mês de uso.",
+      rating: 5,
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=jose&backgroundColor=d1d4f9&eyes=happy&mouth=smile"
     }
   ];
 
+  const techSpecs = [
+    {
+      icon: Database,
+      title: "Dados Oficiais SINAPI",
+      description: "Composições unitárias atualizadas mensalmente seguindo diretrizes do IBGE"
+    },
+    {
+      icon: Shield,
+      title: "Conformidade NBR 12721",
+      description: "Orçamentos técnicos em conformidade com normas ABNT para avaliação de custos"
+    },
+    {
+      icon: Code,
+      title: "IA Proprietária Local",
+      description: "Algoritmos treinados especificamente para análise de documentos técnicos da construção civil"
+    },
+    {
+      icon: ServerCog,
+      title: "Integração N8N",
+      description: "Automações personalizadas conectando ERP, planilhas e sistemas de gestão"
+    },
+    {
+      icon: FileArchive,
+      title: "Processamento PDF Avançado",
+      description: "OCR especializado em plantas baixas, memoriais descritivos e especificações técnicas"
+    },
+    {
+      icon: Lock,
+      title: "Segurança Supabase",
+      description: "Armazenamento seguro com criptografia e backup automático de dados sensíveis"
+    }
+  ];
+
+  console.log('Landing Page renderizada com sucesso');
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0f1419] transition-colors duration-300">
-      {/* Dark Mode CSS Variables */}
-      <style>{`
-        .dark-mode {
-          --background: #0f1419;
-          --foreground: #ffffff;
-          --card: #252a33;
-          --card-foreground: #ffffff;
-          --primary: #0281FE;
-          --primary-foreground: #ffffff;
-          --secondary: #b8bcc5;
-          --muted: #252a33;
-          --muted-foreground: #b8bcc5;
-          --border: #374151;
-        }
-        
-        .dark-mode body {
-          background: linear-gradient(135deg, #0f1419 0%, #1a1d23 100%);
-          color: #ffffff;
-        }
-        
-        .dark-mode .bg-gray-50 {
-          background: #0f1419;
-        }
-        
-        .dark-mode .bg-white {
-          background: #252a33;
-          color: #ffffff;
-        }
-        
-        .dark-mode .text-gray-600 {
-          color: #b8bcc5;
-        }
-        
-        .dark-mode .text-gray-900 {
-          color: #ffffff;
-        }
-        
-        .dark-mode .border-gray-200 {
-          border-color: #374151;
-        }
-        
-        .dark-mode .shadow-lg {
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-        }
-      `}</style>
-
-      {/* Enhanced Header with Dark Mode Toggle */}
-      <header className="fixed top-4 left-4 right-4 z-50 transition-all duration-300 bg-white/95 dark:bg-[#252a33]/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700 shadow-lg rounded-2xl">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <UnifiedLogo size="md" theme="auto" priority className="transition-all duration-300 hover:scale-105" />
+    <div className="min-h-screen bg-white">
+      {/* Header fixo e flutuante */}
+      <Header />
+      
+      {/* Apple-style backdrop gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 -z-10" />
+      
+      {/* Apple-style Hero Section */}
+      <section className="pt-32 md:pt-40 pb-32 px-6 md:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center space-y-12">
+            {/* Elegant notification badge */}
+            <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-700 rounded-full px-5 py-2 text-sm font-medium">
+              <Zap className="h-4 w-4" />
+              Chega de perder tempo com planilhas
+            </div>
+            
+            {/* Hero title with Apple typography */}
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-slate-900 leading-tight tracking-tight">
+                Receba orçamentos técnicos precisos em{' '}
+                <span className="text-primary">
+                  segundos
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed font-normal tracking-wide">
+                Nossa IA entende seu projeto arquitetônico, interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos.
+              </p>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#funcionalidades" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                Funcionalidades
-              </a>
-              <a href="#como-funciona" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                Como Funciona
-              </a>
-              <a href="#precos" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                Preços
-              </a>
-              <a href="#depoimentos" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                Depoimentos
-              </a>
-            </nav>
-
-            {/* Desktop Actions */}
-            <div className="hidden md:flex items-center space-x-4">
-              <DarkModeToggle />
+            {/* Video placeholder - Hero */}
+            <div className="max-w-4xl mx-auto">
+              <VideoPlaceholder
+                title="Veja a velocidade do MadeAI em ação"
+                description="De upload a resultado em menos de 60 segundos"
+                size="xl"
+                className="shadow-2xl shadow-slate-200"
+              />
+            </div>
+            
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
               <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                asChild
+                size="lg" 
+                onClick={() => navigate('/cadastro')}
+                className="w-full sm:w-auto h-14 px-12 text-lg font-medium bg-primary hover:bg-primary/90 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
               >
-                <Link to="/login">Login</Link>
+                Analisar Projeto Grátis
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
-                size="sm" 
-                className="bg-[#0281FE] hover:bg-[#0270E5] text-white px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-                asChild
+                variant="outline" 
+                size="lg" 
+                className="w-full sm:w-auto h-14 px-12 text-lg font-medium rounded-xl border-slate-300 hover:bg-slate-50 transition-all duration-200"
+                onClick={() => {
+                  const userJourneySection = document.getElementById('user-journey');
+                  if (userJourneySection) {
+                    userJourneySection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
-                <Link to="/signup">Começar Agora</Link>
+                Ver Demonstração
               </Button>
             </div>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center space-x-2">
-              <DarkModeToggle />
-              <Button variant="ghost" size="sm" className="p-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </Button>
+            
+            {/* Trust badges */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-600 pt-8">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Resultados em 60 segundos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Baseado em dados SINAPI</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Grátis para começar</span>
+              </div>
             </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="mb-8">
-            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-[#0281FE]/10 text-[#0281FE] dark:bg-[#0281FE]/20 mb-8">
-              ✨ Análise instantânea, orçamentos e cronogramas precisos
-            </span>
-          </div>
-
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8 leading-tight">
-            MadeAI Encontra e Entrega Seus{" "}
-            <div className="inline-block">
-              <RotatingText />
-            </div>
-            <br />
-            Com Um Clique
-          </h1>
-
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Receba seus <RotatingText /> técnicos precisos em segundos
-          </p>
-
-          <div className="mb-16">
-            <Button 
-              size="lg"
-              className="bg-[#0281FE] hover:bg-[#0270E5] text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
-              asChild
-            >
-              <Link to="/signup">Analisar Projeto Grátis — MadeAI</Link>
-            </Button>
-          </div>
-
-          {/* Hero Video */}
-          <div className="max-w-4xl mx-auto">
-            <VideoPlaceholder 
-              title="Veja o MadeAI em Ação"
-              description="Demonstração completa da plataforma"
-              size="xl"
-              showControls={true}
-              className="rounded-2xl shadow-2xl"
-            />
-          </div>
-
-          {/* Feature Cards */}
-          <div className="grid md:grid-cols-3 gap-8 mt-20">
-            {[
-              {
-                icon: <Zap className="w-8 h-8" />,
-                title: "Analisar a Internet",
-                description: "Analise 4+ bilhões de projetos em segundos"
-              },
-              {
-                icon: <BarChart3 className="w-8 h-8" />,
-                title: "Execute Relatórios de Similaridade", 
-                description: "Identifique padrões e otimizações"
-              },
-              {
-                icon: <Target className="w-8 h-8" />,
-                title: "Entregue Resultados",
-                description: "Orçamentos precisos, cronogramas detalhados..."
-              }
-            ].map((feature, index) => (
-              <Card key={index} className="p-6 bg-white dark:bg-[#252a33] border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200">
-                <div className="text-[#0281FE] mb-4">{feature.icon}</div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">{feature.description}</p>
-              </Card>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Social Proof - Testimonials Section */}
-      <section className="py-20 bg-white dark:bg-[#252a33] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {/* Testimonial cards mimicking the Twitter-style layout from Bustem */}
-            {[
-              {
-                name: "Carlos Mendes",
-                handle: "@carlosmendes_eng",
-                content: "1 ano atrás encontrei um site que copiou meu projeto 1 para 1. Esquema de cores, layout, tema, tudo idêntico exceto minha marca.",
-                verified: true
-              },
-              {
-                name: "Ana Souza", 
-                handle: "@ana_arquiteta",
-                content: "Como pode [@Bustem] facilitar um 'negócio' para copiar ilegalmente e infringir a marca registrada de uma marca? Esquerda é real, direita é falsa.",
-                verified: true
-              }
-            ].map((testimonial, index) => (
-              <Card key={index} className="p-6 bg-gray-50 dark:bg-[#1a1d23] border-gray-200 dark:border-gray-700 col-span-2">
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-[#0281FE] rounded-full flex items-center justify-center text-white font-bold">
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-1">
-                      <h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                      {testimonial.verified && <CheckCircle className="w-4 h-4 text-blue-500" />}
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">{testimonial.handle}</p>
-                    <p className="text-gray-800 dark:text-gray-200 mt-3 text-sm leading-relaxed">{testimonial.content}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-16">
-            Resultados que Impressionam
-          </h2>
-          
-          <div className="grid md:grid-cols-4 gap-8 mb-16">
-            <div ref={projectsCount.countRef} className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#0281FE] mb-2">
-                {projectsCount.count.toLocaleString()}+
-              </div>
-              <div className="text-gray-600 dark:text-gray-300">Projetos Analisados</div>
-            </div>
-            
-            <div ref={accuracyCount.countRef} className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#0281FE] mb-2">
-                {accuracyCount.count}%
-              </div>
-              <div className="text-gray-600 dark:text-gray-300">Precisão</div>
-            </div>
-            
-            <div ref={timeCount.countRef} className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#0281FE] mb-2">
-                {timeCount.count}%
-              </div>
-              <div className="text-gray-600 dark:text-gray-300">Redução de Tempo</div>
-            </div>
-            
-            <div ref={satisfactionCount.countRef} className="text-center">
-              <div className="text-4xl md:text-5xl font-bold text-[#0281FE] mb-2">
-                {satisfactionCount.count}%
-              </div>
-              <div className="text-gray-600 dark:text-gray-300">Satisfação</div>
-            </div>
-          </div>
-
-          <VideoPlaceholder 
-            title="Visualize a Eficiência do MadeAI"
-            description="Veja como transformamos dados em relatórios precisos"
-            className="max-w-4xl mx-auto rounded-2xl"
-          />
-        </div>
-      </section>
-
-      {/* How it Works Section */}
-      <section id="como-funciona" className="py-20 bg-white dark:bg-[#252a33] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Como Funciona
+      {/* Apple-style Features Section */}
+      <section className="py-32 px-6 md:px-8 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+              Por que engenheiros e arquitetos escolhem o MadeAI?
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Três passos simples para transformar seus projetos
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
+              Deixe a IA fazer o trabalho pesado enquanto você foca no que realmente importa: criar projetos excepcionais
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-12">
+          {/* Video placeholder - Features intro */}
+          <div className="max-w-3xl mx-auto mb-20">
+            <VideoPlaceholder
+              title="Facilidade de uso que impressiona"
+              description="Interface intuitiva e resultados profissionais para engenheiros e arquitetos"
+              size="lg"
+              className="shadow-xl shadow-slate-200"
+            />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="text-center">
-                <VideoPlaceholder 
-                  title={`Demonstração: ${feature.title}`}
-                  description={feature.description}
-                  className="mb-6 rounded-xl"
+              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-smooth hover-lift animate-fade-in stagger-animation" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-smooth group-hover:scale-110">
+                  <feature.icon className="h-7 w-7 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Apple-style Stats Section */}
+      <section className="py-32 px-6 md:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+              Resultados que impressionam
+            </h2>
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal mb-12">
+              Números que comprovam a eficiência da nossa plataforma
+            </p>
+            
+            {/* Video placeholder - Stats */}
+            <div className="max-w-3xl mx-auto mb-16">
+              <VideoPlaceholder
+                title="Veja nossa eficiência em números"
+                description="Transformação de dados em relatórios precisos e economia de tempo real"
+                size="lg"
+                className="shadow-xl shadow-slate-200"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
+                {counter1.count.toLocaleString()}+
+              </div>
+              <div className="text-slate-600 font-medium">Projetos Analisados</div>
+            </div>
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
+                {counter2.count}%
+              </div>
+              <div className="text-slate-600 font-medium">Precisão</div>
+            </div>
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
+                {counter3.count}%
+              </div>
+              <div className="text-slate-600 font-medium">Economia de Tempo</div>
+            </div>
+            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
+                {counter4.count.toLocaleString()}+
+              </div>
+              <div className="text-slate-600 font-medium">Usuários Ativos</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Apple-style How it Works */}
+      <section className="py-32 px-6 md:px-8 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+              Como funciona
+            </h2>
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
+              Processo simples e automatizado para análise completa de projetos
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            {steps.map((step, index) => (
+              <div key={index} className="text-center space-y-8">
+                {/* Video placeholder para cada etapa */}
+                <VideoPlaceholder
+                  title={`${step.title} em ação`}
+                  description={step.description}
+                  size="md"
+                  className="shadow-lg shadow-slate-200"
                 />
                 
-                <div className="bg-[#0281FE] text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6">
-                  {feature.icon}
+                <div className="space-y-4">
+                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto text-white font-semibold text-lg shadow-sm">
+                    {step.number}
+                  </div>
+                  <h3 className="text-2xl font-semibold text-slate-900 font-display">{step.title}</h3>
+                  <p className="text-slate-600 leading-relaxed max-w-sm mx-auto">{step.description}</p>
                 </div>
                 
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-                  {feature.title}
-                </h3>
+                {index < steps.length - 1 && (
+                  <ArrowRight className="hidden md:block absolute top-32 -right-6 h-6 w-6 text-slate-300" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Apple-style User Journey */}
+      <section id="user-journey" className="py-32 px-6 md:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+              Sua Jornada de Sucesso
+            </h2>
+            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal mb-12">
+              Acompanhe seu progresso e desbloqueie novas funcionalidades conforme você domina a plataforma
+            </p>
+            
+            {/* Video placeholder - Journey */}
+            <div className="max-w-3xl mx-auto mb-16">
+              <VideoPlaceholder
+                title="Progressão do usuário na plataforma"
+                description="Desbloqueie funcionalidades e alcance novos níveis de produtividade"
+                size="lg"
+                className="shadow-xl shadow-slate-200"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {missionSteps.map((mission, index) => {
+              const status = getMissionStatus(index);
+              const isClickable = status === 'available';
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`group relative p-6 bg-white rounded-2xl border-2 transition-all duration-300 ${
+                    status === 'completed' 
+                      ? 'border-green-200 shadow-lg shadow-green-500/10' 
+                      : status === 'available'
+                      ? 'border-blue-200 shadow-lg shadow-blue-500/10 cursor-pointer hover:shadow-xl hover:scale-105'
+                      : 'border-slate-200'
+                  } ${showParticles === index ? 'mission-unlock' : ''}`}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  onClick={() => handleMissionClick(index)}
+                >
+                  {/* Indicador de missão completada */}
+                  {status === 'completed' && (
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center shadow-lg animate-scale-in">
+                      <CheckCircle className="h-5 w-5 text-white" />
+                    </div>
+                  )}
+                  
+                  {/* Chamada para clicar (disponível) */}
+                  {status === 'available' && (
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-primary text-white text-xs px-4 py-2 rounded-full shadow-lg animate-pulse border-2 border-white font-semibold">
+                      Clique aqui
+                    </div>
+                  )}
+                  
+                  {/* Ícone da missão */}
+                  <div className={`w-16 h-16 bg-gradient-to-br ${mission.color} rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+                    status === 'locked' ? 'opacity-50 grayscale' : 'group-hover:scale-110'
+                  } transition-all duration-300`}>
+                    <mission.icon className="h-8 w-8 text-white" />
+                  </div>
+                  
+                  {/* Conteúdo da missão */}
+                  <div className="text-center">
+                    <h3 className={`text-lg font-semibold mb-2 ${
+                      status === 'locked' ? 'text-slate-400' : 'text-slate-900'
+                    }`}>
+                      {mission.title}
+                    </h3>
+                    <p className={`text-sm mb-4 ${
+                      status === 'locked' ? 'text-slate-400' : 'text-slate-600'
+                    }`}>
+                      {mission.description}
+                    </p>
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                      status === 'completed' 
+                        ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200' 
+                        : status === 'available'
+                        ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200'
+                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    }`}>
+                      <Award className="h-4 w-4" />
+                      {mission.xp} XP
+                    </div>
+                  </div>
+                  
+                  {/* Overlay para missões bloqueadas */}
+                  {status === 'locked' && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      <Lock className="h-8 w-8 text-slate-400" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Barra de progresso XP atualizada */}
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center gap-4 px-6 py-3 bg-white rounded-2xl border border-slate-200 shadow-lg">
+              <div className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-yellow-500" />
+                <span className="font-semibold text-slate-900">Nível {currentLevel}</span>
+              </div>
+              <div className="w-32 h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+              </div>
+              <span className="text-sm text-slate-600">{totalXP}/{xpForNextLevel} XP</span>
+            </div>
+            
+            {/* Botão CTA quando jornada completa */}
+            {completedSteps.every(step => step) && (
+              <div className="mt-8 animate-scale-in">
+                <Button 
+                  size="lg" 
+                  className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-xl shadow-lg shadow-green-500/25 transition-smooth hover-lift"
+                  onClick={() => {
+                    const plansSection = document.querySelector('#planos');
+                    if (plansSection) {
+                      plansSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  🎉 Parabéns! Assine um Plano Agora
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Tecnologias OTIMIZADA */}
+      <section className="py-12 md:py-20 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 md:mb-16 animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4 md:mb-6">
+              Tecnologias que Usamos
+            </h2>
+            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+              Nossa plataforma é construída com as melhores tecnologias do mercado para garantir performance, segurança e escalabilidade.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+            {/* Frontend */}
+            <div className="space-y-6 animate-slide-in-right">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Frontend</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {[
+                  { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+                  { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
+                  { name: "Tailwind CSS", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" },
+                  { name: "Radix UI", logo: "https://avatars.githubusercontent.com/u/75042455?s=200&v=4" },
+                  { name: "Recharts", logo: "https://recharts.org/images/recharts-logo.png" },
+                  { name: "Lucide React", logo: "https://lucide.dev/logo.light.svg" },
+                ].map((tech, index) => (
+                  <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
+                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center transition-fast hover:scale-110">
+                        <img 
+                          src={tech.logo} 
+                          alt={`${tech.name} logo`}
+                          className="max-w-full max-h-full object-contain"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Backend */}
+            <div className="space-y-6 animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Backend</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                {[
+                  { name: "Supabase", logo: "https://supabase.com/brand-assets/supabase-logo-icon.png" },
+                  { name: "IA Proprietária", logo: "https://cdn-icons-png.flaticon.com/512/8637/8637099.png" },
+                  { name: "N8N", logo: "https://docs.n8n.io/favicon.svg" },
+                  { name: "SINAPI", logo: "https://cdn-icons-png.flaticon.com/512/3159/3159310.png" },
+                  { name: "Edge Functions", logo: "https://cdn-icons-png.flaticon.com/512/2721/2721291.png" },
+                  { name: "PostgreSQL", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" },
+                ].map((tech, index) => (
+                  <div key={tech.name} className="tech-card animate-fade-in" style={{ animationDelay: `${(index + 6) * 0.1}s` }}>
+                    <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
+                      <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center transition-fast hover:scale-110">
+                        <img 
+                          src={tech.logo} 
+                          alt={`${tech.name} logo`}
+                          className="max-w-full max-h-full object-contain"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Specs OTIMIZADA */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Especificações Técnicas
+            </h2>
+            <p className="text-xl text-slate-600">
+              Tecnologias e conformidades que garantem a precisão dos seus projetos
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {techSpecs.map((spec, index) => (
+              <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-smooth hover-lift animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10 group-hover:scale-110 transition-fast">
+                  <spec.icon className="h-7 w-7 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">{spec.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{spec.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Plans OTIMIZADA */}
+      <section id="planos" className="py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Planos para cada necessidade
+            </h2>
+            <p className="text-xl text-slate-600">
+              Escolha o plano ideal para você ou sua empresa
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {plans.map((plan, index) => (
+              <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth ${
+                plan.popular 
+                  ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-transparent text-white' 
+                  : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-lg'
+              }`} style={{ animationDelay: `${index * 0.1}s` }}>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg animate-bounce-gentle">
+                    Mais Popular
+                  </div>
+                )}
                 
-                <p className="text-gray-600 dark:text-gray-300">
-                  {feature.description}
+                <div className="text-xl font-semibold mb-2">
+                  {plan.name}
+                </div>
+                
+                <div className="flex items-baseline mb-6">
+                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="ml-1 text-sm opacity-80">{plan.period}</span>
+                </div>
+                
+                <p className={`mb-8 ${plan.popular ? 'text-blue-100' : 'text-slate-600'}`}>
+                  {plan.description}
                 </p>
+                
+                <ul className="space-y-4 mb-8">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center gap-3">
+                      <CheckCircle className={`h-5 w-5 flex-shrink-0 ${
+                        plan.popular ? 'text-blue-200' : 'text-blue-500'
+                      }`} />
+                      <span className={plan.popular ? 'text-blue-100' : 'text-slate-600'}>
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Link to="/cadastro">
+                  <Button 
+                    className={`w-full h-12 text-base font-semibold rounded-xl transition-fast hover-scale ${
+                      plan.popular
+                        ? 'bg-white text-blue-600 hover:bg-blue-50'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                    }`}
+                  >
+                    Começar Agora
+                  </Button>
+                </Link>
               </div>
             ))}
           </div>
@@ -593,199 +904,236 @@ const LandingPage = () => {
       {/* Tools Integration Section */}
       <ToolsIntegrationSection />
 
-      {/* User Journey Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      {/* Testimonials OTIMIZADA */}
+      <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Sua Jornada de Sucesso
+          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              O que dizem nossos usuários
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Evolua suas habilidades e desbloqueie funcionalidades
+            <p className="text-xl text-slate-600">
+              Profissionais que já transformaram sua forma de trabalhar
             </p>
           </div>
-
-          <VideoPlaceholder 
-            title="Visualize sua Progressão na Plataforma"
-            description="Veja como evoluir do iniciante ao mestre"
-            className="max-w-4xl mx-auto mb-16 rounded-2xl"
-          />
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {journeySteps.map((step, index) => (
-              <Card 
-                key={index} 
-                className="p-6 bg-white dark:bg-[#252a33] border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 transform hover:scale-105 cursor-pointer group"
-              >
-                <div className={`${step.color} text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200`}>
-                  {step.icon}
-                </div>
-                
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">
-                  {step.title}
-                </h3>
-                
-                <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
-                  {step.description}
-                </p>
-
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full bg-[#0281FE] hover:bg-[#0270E5] text-white border-[#0281FE] font-semibold py-2 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg animate-pulse"
-                >
-                  Clique aqui
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="precos" className="py-20 bg-white dark:bg-[#252a33] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Planos para Todos os Perfis
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Escolha o plano ideal para suas necessidades
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => (
-              <Card 
-                key={index} 
-                className={`relative p-8 bg-white dark:bg-[#1a1d23] border-2 transition-all duration-200 hover:shadow-xl ${
-                  plan.popular 
-                    ? 'border-[#0281FE] shadow-lg scale-105' 
-                    : 'border-gray-200 dark:border-gray-700 hover:border-[#0281FE]/50'
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-[#0281FE] text-white px-4 py-2 rounded-full text-sm font-semibold">
-                      Mais Popular
-                    </span>
-                  </div>
-                )}
-
-                <div className="text-center">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    {plan.name}
-                  </h3>
-                  
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold text-[#0281FE]">{plan.price}</span>
-                    <span className="text-gray-600 dark:text-gray-300">{plan.period}</span>
-                  </div>
-                  
-                  <p className="text-gray-600 dark:text-gray-300 mb-8">
-                    {plan.description}
-                  </p>
-
-                  <ul className="space-y-4 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <Button 
-                    className={`w-full py-3 font-semibold rounded-lg transition-all duration-200 ${
-                      plan.popular
-                        ? 'bg-[#0281FE] hover:bg-[#0270E5] text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white'
-                    }`}
-                    asChild
-                  >
-                    <Link to="/signup">{plan.buttonText}</Link>
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="depoimentos" className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              O Que Nossos Clientes Dizem
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Histórias reais de profissionais que transformaram seus projetos
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="p-6 bg-white dark:bg-[#252a33] border-gray-200 dark:border-gray-700">
-                <div className="flex items-center mb-4">
-                  <div className="text-3xl mr-4">{testimonial.avatar}</div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.slice(0, 3).map((testimonial, index) => (
+              <div key={index} className="testimonial-card bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="flex items-start gap-4 mb-6">
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.name}
+                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200 hover-scale transition-fast"
+                    loading="lazy"
+                  />
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white">{testimonial.name}</h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">{testimonial.role}</p>
+                    <div className="font-semibold text-slate-900">{testimonial.name}</div>
+                    <div className="text-sm text-slate-600">{testimonial.role}</div>
+                    <div className="text-sm text-slate-500">{testimonial.company}</div>
                   </div>
                 </div>
                 
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                <p className="text-slate-600 leading-relaxed mb-4">
+                  {testimonial.content}
+                </p>
+                
+                <div className="flex gap-1">
+                  {Array.from({ length: testimonial.rating }).map((_, i) => (
+                    <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                
-                <p className="text-gray-700 dark:text-gray-300 italic">
-                  "{testimonial.content}"
-                </p>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA Section */}
-      <section className="py-20 bg-[#0281FE] px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
-            Pronto para Revolucionar Seus Projetos?
-          </h2>
-          
-          <p className="text-xl text-blue-100 mb-12">
-            Junte-se a milhares de profissionais que já transformaram sua forma de trabalhar
-          </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg"
-              variant="secondary"
-              className="bg-white text-[#0281FE] hover:bg-gray-100 px-8 py-4 text-lg font-semibold rounded-xl"
-              asChild
-            >
-              <Link to="/signup">Começar Gratuitamente</Link>
-            </Button>
+      {/* Final CTA OTIMIZADA */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200 hover:border-blue-300 transition-smooth animate-fade-in hover-lift">
+            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+              Pronto para revolucionar seus projetos?
+            </h2>
+            <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+              Junte-se a milhares de profissionais que já economizam tempo e aumentam a precisão com nossa IA
+            </p>
             
-            <Button 
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-[#0281FE] px-8 py-4 text-lg font-semibold rounded-xl"
-              asChild
-            >
-              <Link to="/contato">Agendar Demonstração</Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/cadastro" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover-lift transition-smooth">
+                  Começar Gratuitamente
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale transition-fast"
+                onClick={() => {
+                  window.open('mailto:contato@maden.ai?subject=Falar com Especialista', '_blank');
+                }}
+              >
+                Falar com Especialista
+              </Button>
+            </div>
+            
+            <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
+              <div className="flex">
+                {[1,2,3,4,5].map((star) => (
+                  <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <span>4.9/5 baseado em 200+ avaliações</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer OTIMIZADO */}
+      <footer className="py-16 px-4 border-t border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+            <div className="col-span-2">
+              <div className="mb-4">
+                <img 
+                  src="/lovable-uploads/c77446ad-cd65-4beb-a2f8-86ad4e6eccd7.png" 
+                  alt="MadeAI" 
+                  className="h-16 w-auto" 
+                />
+              </div>
+              <p className="text-slate-600 mb-6 max-w-sm">
+                Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
+              </p>
+              <div className="flex gap-4">
+                <a href="mailto:contato@maden.ai" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
+                  <Mail className="h-5 w-5" />
+                </a>
+                <a href="tel:+5511999999999" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
+                  <Phone className="h-5 w-5" />
+                </a>
+                <a href="https://linkedin.com/company/maden-ai" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Produto</h3>
+              <ul className="space-y-2">
+                <li>
+                  <button 
+                    onClick={() => {
+                      const featuresSection = document.querySelector('section');
+                      if (featuresSection) {
+                        featuresSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
+                  >
+                    Recursos
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => {
+                      const plansSection = document.querySelector('#planos');
+                      if (plansSection) {
+                        plansSection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
+                  >
+                    Preços
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => {
+                      const userJourneySection = document.getElementById('user-journey');
+                      if (userJourneySection) {
+                        userJourneySection.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
+                  >
+                    Demonstração
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Para quem é</h3>
+              <ul className="space-y-2">
+                <li>
+                  <span className="text-slate-500">Engenheiros</span>
+                </li>
+                <li>
+                  <span className="text-slate-500">Arquitetos</span>
+                </li>
+                <li>
+                  <span className="text-slate-500">Construtoras</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Tecnologias</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a href="https://www.ibge.gov.br/sinapi" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
+                    SINAPI
+                  </a>
+                </li>
+                <li>
+                  <a href="https://supabase.com" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
+                    Supabase
+                  </a>
+                </li>
+                <li>
+                  <a href="https://n8n.io" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
+                    N8N
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-slate-900 mb-3">Legal</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link to="/privacy" className="text-slate-500 hover:text-slate-700 transition-fast">
+                    Privacidade
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="text-slate-500 hover:text-slate-700 transition-fast">
+                    Termos
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="pt-8 mt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/171e0d43-b586-47df-b8ac-01d0f9546728.png" 
+                alt="MadeAI" 
+                className="h-12 w-auto opacity-75 hover:opacity-100 transition-opacity duration-200" 
+              />
+            </div>
+            <div className="flex gap-8">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+            </div>
+          </div>
+        </div>
+      </footer>
+
     </div>
   );
 };
