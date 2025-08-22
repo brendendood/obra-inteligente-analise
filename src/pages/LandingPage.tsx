@@ -285,7 +285,7 @@ const LandingPage = () => {
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-muted/20 -z-10 theme-transition" />
       
       {/* Apple-style Hero Section */}
-      <section className="pt-32 md:pt-40 pb-20 px-6 md:px-8">
+      <section className="pt-32 md:pt-40 pb-20 px-6 md:px-8 py-[130px]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center space-y-12">
             {/* Elegant notification badge */}
@@ -348,7 +348,7 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style Features Section */}
-      <section className="px-6 md:px-8 bg-muted/20 theme-transition py-[54px]">
+      <section className="px-6 md:px-8 bg-muted/20 theme-transition py-[22px]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
@@ -421,7 +421,7 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style How it Works */}
-      <section className="px-6 md:px-8 theme-transition py-[14px] bg-slate-950">
+      <section className="px-6 md:px-8 theme-transition py-[14px] bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
@@ -449,7 +449,7 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style User Journey */}
-      <section id="user-journey" className="py-32 px-6 md:px-8 bg-background theme-transition">
+      <section id="user-journey" className="md:px-8 bg-background theme-transition py-[46px] px-[46px]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
@@ -542,7 +542,7 @@ const LandingPage = () => {
       
 
       {/* Tech Specs OTIMIZADA */}
-      <section className="theme-transition px-[15px] py-[62px] bg-slate-950">
+      <section className="theme-transition px-[15px] py-[62px] bg-zinc-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
@@ -623,7 +623,7 @@ const LandingPage = () => {
       <ToolsIntegrationSection />
 
       {/* Testimonials OTIMIZADA */}
-      <section className="py-20 px-4 bg-muted/20 theme-transition">
+      <section className="px-4 bg-muted/20 theme-transition py-[51px]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
@@ -663,7 +663,7 @@ const LandingPage = () => {
 
 
       {/* Final CTA OTIMIZADA */}
-      <section className="py-20 px-4">
+      <section className="px-4 py-[37px]">
         <div className="max-w-4xl mx-auto text-center">
           <div className="bg-card rounded-3xl p-12 border border-border hover:border-primary/30 transition-smooth animate-fade-in hover-lift theme-transition">
             <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
