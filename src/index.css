@@ -60,15 +60,16 @@
 
 /* Dark Mode - AppConty Style */
 .dark-mode {
-  --background: 229 84% 5%; /* #0f1419 */
+  /* Background com gradientes coloridos animados */
+  --background: 0 0% 0%; /* #000000 */
   --foreground: 0 0% 100%;
-  --card: 218 23% 16%; /* #252a33 */
+  --card: 217 22% 15%; /* #1a1d23 */
   --card-foreground: 0 0% 100%;
-  --popover: 218 23% 16%;
+  --popover: 217 22% 15%;
   --popover-foreground: 0 0% 100%;
   --primary: 211 100% 50%; /* Manter #0281FE */
   --primary-foreground: 0 0% 100%;
-  --secondary: 218 23% 16%;
+  --secondary: 218 23% 16%; /* #252a33 */
   --secondary-foreground: 219 14% 71%; /* #b8bcc5 */
   --muted: 218 23% 16%;
   --muted-foreground: 219 14% 71%;
@@ -90,6 +91,35 @@
   --sidebar-foreground: 0 0% 100%;
   --sidebar-border: 217 19% 22%;
   --sidebar-accent: 218 23% 20%;
+}
+
+/* AppConty-style animated background for dark mode */
+.dark-mode::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(2, 129, 254, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+  animation: backgroundMove 20s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes backgroundMove {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
 }
 
 /* System Mode Detection */

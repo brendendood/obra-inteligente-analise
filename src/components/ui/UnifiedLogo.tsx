@@ -68,8 +68,14 @@ export const UnifiedLogo = ({
     setImageError(false);
   }, []);
 
-  // Logo da MadeAI - usando a nova imagem enviada pelo usuário
-  const logoSrc = `/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png`;
+  // Logo da MadeAI - conditional para light/dark mode
+  const isDarkMode = document.documentElement.classList.contains('dark-mode') || 
+                     (document.documentElement.classList.contains('system-mode') && 
+                      window.matchMedia('(prefers-color-scheme: dark)').matches);
+  
+  const logoSrc = isDarkMode ? 
+    `/public/assets/madeai-logo-dark.png` : 
+    `/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png`;
 
   // Loading state
   if (loading) {

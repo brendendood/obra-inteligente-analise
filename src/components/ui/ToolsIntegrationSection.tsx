@@ -13,18 +13,67 @@ const ToolsIntegrationSection = () => {
   }, []);
 
   const mainTools = [
-    { name: 'n8n', position: 'top-left' },
-    { name: 'SINAPI', position: 'top-center' },
-    { name: 'Supabase', position: 'top-right' },
-    { name: 'OpenAI', position: 'right' },
-    { name: 'React', position: 'bottom-right' },
-    { name: 'TypeScript', position: 'bottom-center' },
-    { name: 'Tailwind CSS', position: 'bottom-left' },
-    { name: 'PostgreSQL', position: 'left' },
+    { 
+      name: 'n8n', 
+      position: 'top-left',
+      url: 'https://n8n.io/favicon.ico',
+      alt: 'n8n logo'
+    },
+    { 
+      name: 'SINAPI', 
+      position: 'top-center',
+      url: 'https://sinapi.io/wp-content/uploads/2023/07/sinapi-logo.png',
+      alt: 'SINAPI logo'
+    },
+    { 
+      name: 'Supabase', 
+      position: 'top-right',
+      url: 'https://supabase.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fsupabase-logo-icon.6c339e31.png&w=64&q=75',
+      alt: 'Supabase logo'
+    },
+    { 
+      name: 'OpenAI', 
+      position: 'right',
+      url: 'https://openai.com/favicon.ico',
+      alt: 'OpenAI logo'
+    },
+    { 
+      name: 'React', 
+      position: 'bottom-right',
+      url: 'https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg',
+      alt: 'React logo'
+    },
+    { 
+      name: 'TypeScript', 
+      position: 'bottom-center',
+      url: 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg',
+      alt: 'TypeScript logo'
+    },
+    { 
+      name: 'Tailwind CSS', 
+      position: 'bottom-left',
+      url: 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg',
+      alt: 'Tailwind CSS logo'
+    },
+    { 
+      name: 'PostgreSQL', 
+      position: 'left',
+      url: 'https://upload.wikimedia.org/wikipedia/commons/2/29/Postgresql_elephant.svg',
+      alt: 'PostgreSQL logo'
+    },
   ];
 
   const secondaryTools = [
-    'AWS', 'Google Cloud', 'Azure', 'Figma', 'Webflow', 'Notion', 'Slack', 'Zapier', 'GitHub', 'Docker'
+    { name: 'AWS', url: 'https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg' },
+    { name: 'Google Cloud', url: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg' },
+    { name: 'Azure', url: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg' },
+    { name: 'Figma', url: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg' },
+    { name: 'Webflow', url: 'https://assets-global.website-files.com/5d3e265ac89f6a3e64292efc/5d3e265ac89f6aa529292f34_webflow-black.svg' },
+    { name: 'Notion', url: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
+    { name: 'Slack', url: 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg' },
+    { name: 'Zapier', url: 'https://zapier.com/favicon.ico' },
+    { name: 'GitHub', url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg' },
+    { name: 'Docker', url: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg' }
   ];
 
   const getToolPosition = (position: string) => {
@@ -94,9 +143,16 @@ const ToolsIntegrationSection = () => {
               ))}
             </svg>
 
-            {/* Central MadeAI logo with gradient background */}
-            <div className="relative z-10 w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary via-blue-500 to-purple-500 p-1 shadow-2xl shadow-primary/20">
-              <div className="w-full h-full bg-card rounded-full flex items-center justify-center theme-transition">
+            {/* Central MadeAI logo with 3-layer Siri-style gradient */}
+            <div className="relative z-10 w-24 h-24 md:w-28 md:h-28 rounded-full p-1 shadow-2xl shadow-primary/20">
+              {/* Camada 1 - Externa */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 via-cyan-400 to-blue-600 animate-pulse"></div>
+              {/* Camada 2 - Média */}
+              <div className="absolute inset-1 rounded-full bg-gradient-to-br from-purple-500 via-pink-400 to-purple-600 opacity-80"></div>
+              {/* Camada 3 - Interna */}
+              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-400 via-indigo-400 to-blue-500 opacity-60"></div>
+              {/* Logo Container */}
+              <div className="relative w-full h-full bg-card rounded-full flex items-center justify-center theme-transition">
                 <UnifiedLogo size="lg" theme="auto" />
               </div>
             </div>
@@ -110,8 +166,14 @@ const ToolsIntegrationSection = () => {
                 }`}
               >
                 <div className="bg-card rounded-xl p-3 md:p-4 shadow-lg border border-border hover:shadow-xl hover:border-primary/20 transition-all duration-300 group theme-transition">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-muted rounded-lg flex items-center justify-center mb-2 group-hover:bg-primary/10 transition-all duration-300">
-                    <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-400 rounded-sm"></div>
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-muted rounded-lg flex items-center justify-center mb-2 group-hover:bg-primary/10 transition-all duration-300 overflow-hidden">
+                    <img 
+                      src={tool.url} 
+                      alt={tool.alt}
+                      className="w-4 h-4 md:w-5 md:h-5 object-contain filter grayscale opacity-60 group-hover:opacity-80 transition-all duration-300"
+                      style={{ filter: 'grayscale(100%) brightness(0.6)' }}
+                      loading="lazy"
+                    />
                   </div>
                   <div className="text-xs md:text-sm font-medium text-muted-foreground text-center whitespace-nowrap theme-transition">
                     {tool.name}
@@ -126,13 +188,21 @@ const ToolsIntegrationSection = () => {
         <div className="mt-16 grid grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4 max-w-4xl mx-auto">
           {secondaryTools.map((tool, index) => (
             <div
-              key={tool}
+              key={tool.name}
               className={`bg-muted/50 rounded-xl p-4 text-center transition-all duration-500 delay-${index * 100 + 1200} theme-transition ${
                 isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
             >
-              <div className="w-6 h-6 bg-gray-400 rounded mx-auto mb-2"></div>
-              <div className="text-xs font-medium text-muted-foreground theme-transition">{tool}</div>
+              <div className="w-6 h-6 rounded mx-auto mb-2 flex items-center justify-center overflow-hidden">
+                <img 
+                  src={tool.url} 
+                  alt={`${tool.name} logo`}
+                  className="w-4 h-4 object-contain filter grayscale opacity-50"
+                  style={{ filter: 'grayscale(100%) brightness(0.5)' }}
+                  loading="lazy"
+                />
+              </div>
+              <div className="text-xs font-medium text-muted-foreground theme-transition">{tool.name}</div>
             </div>
           ))}
         </div>
