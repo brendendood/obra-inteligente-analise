@@ -539,7 +539,7 @@ const LandingPage = () => {
       </section>
 
       {/* Tecnologias OTIMIZADA */}
-      <section className="py-20 bg-muted/20 theme-transition">
+      <section className="bg-muted/20 theme-transition py-[12px] px-[15px]">
         <div className="container mx-auto px-4 py-[25px]">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-6 theme-transition">
@@ -633,7 +633,7 @@ const LandingPage = () => {
       </section>
 
       {/* Tech Specs OTIMIZADA */}
-      <section className="py-20 px-4 bg-muted/50 theme-transition">
+      <section className="bg-muted/50 theme-transition px-[15px] py-[62px]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
