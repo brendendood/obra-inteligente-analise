@@ -389,7 +389,7 @@ const LandingPage = () => {
       <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-muted/20 -z-10 theme-transition" />
       
       {/* Apple-style Hero Section */}
-      <section className="pt-32 md:pt-40 pb-32 px-6 md:px-8">
+      <section className="pt-32 md:pt-40 pb-20 px-6 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center space-y-12">
             {/* Elegant notification badge */}
@@ -400,7 +400,7 @@ const LandingPage = () => {
             
             {/* Hero title with Apple typography */}
             <div className="space-y-6">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-foreground leading-tight tracking-tight theme-transition">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-foreground leading-tight tracking-tight theme-transition">
                 Receba seus{' '}
                 <RotatingText 
                   words={['Orçamentos', 'Cronogramas', 'Documentos']}
@@ -412,19 +412,9 @@ const LandingPage = () => {
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-normal tracking-wide theme-transition">
+              <p className="text-lg md:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-normal tracking-wide theme-transition">
                 Nossa IA entende seu projeto arquitetônico, interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos.
               </p>
-            </div>
-
-            {/* Video placeholder - Hero */}
-            <div className="max-w-4xl mx-auto">
-              <VideoPlaceholder
-                title="Veja a velocidade do MadeAI em ação"
-                description="De upload a resultado em menos de 60 segundos"
-                size="xl"
-                className="shadow-2xl shadow-slate-200"
-              />
             </div>
             
             {/* CTA buttons */}
@@ -483,15 +473,6 @@ const LandingPage = () => {
             </p>
           </div>
 
-          {/* Video placeholder - Features intro */}
-          <div className="max-w-3xl mx-auto mb-20">
-            <VideoPlaceholder
-              title="Facilidade de uso que impressiona"
-              description="Interface intuitiva e resultados profissionais para engenheiros e arquitetos"
-              size="lg"
-              className="shadow-xl shadow-slate-200"
-            />
-          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
@@ -518,15 +499,6 @@ const LandingPage = () => {
               Números que comprovam a eficiência da nossa plataforma
             </p>
             
-            {/* Video placeholder - Stats */}
-            <div className="max-w-3xl mx-auto mb-16">
-              <VideoPlaceholder
-                title="Veja nossa eficiência em números"
-                description="Transformação de dados em relatórios precisos e economia de tempo real"
-                size="lg"
-                className="shadow-xl shadow-slate-200"
-              />
-            </div>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -572,17 +544,9 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {steps.map((step, index) => (
-              <div key={index} className="text-center space-y-8">
-                {/* Video placeholder para cada etapa */}
-                <VideoPlaceholder
-                  title={`${step.title} em ação`}
-                  description={step.description}
-                  size="md"
-                  className="shadow-lg shadow-slate-200 dark:shadow-primary/10"
-                />
-                
+              <div key={index} className="text-center space-y-8">                
                 <div className="space-y-4">
-                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto text-white font-semibold text-lg shadow-sm">
+                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto text-primary-foreground font-semibold text-lg shadow-sm">
                     {step.number}
                   </div>
                   <h3 className="text-2xl font-semibold text-foreground font-display theme-transition">{step.title}</h3>
@@ -609,15 +573,6 @@ const LandingPage = () => {
               Acompanhe seu progresso e desbloqueie novas funcionalidades conforme você domina a plataforma
             </p>
             
-            {/* Video placeholder - Journey */}
-            <div className="max-w-3xl mx-auto mb-16">
-              <VideoPlaceholder
-                title="Progressão do usuário na plataforma"
-                description="Desbloqueie funcionalidades e alcance novos níveis de produtividade"
-                size="lg"
-                className="shadow-xl shadow-slate-200"
-              />
-            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -628,12 +583,12 @@ const LandingPage = () => {
               return (
                 <div 
                   key={index} 
-                  className={`group relative p-6 bg-white rounded-2xl border-2 transition-all duration-300 ${
+                  className={`group relative p-6 bg-card rounded-2xl border-2 transition-all duration-300 theme-transition ${
                     status === 'completed' 
                       ? 'border-green-200 shadow-lg shadow-green-500/10' 
                       : status === 'available'
-                      ? 'border-blue-200 shadow-lg shadow-blue-500/10 cursor-pointer hover:shadow-xl hover:scale-105'
-                      : 'border-slate-200'
+                      ? 'border-primary/30 shadow-lg shadow-primary/10 cursor-pointer hover:shadow-xl hover:scale-105'
+                      : 'border-border'
                   } ${showParticles === index ? 'mission-unlock' : ''}`}
                   style={{ animationDelay: `${index * 0.1}s` }}
                   onClick={() => handleMissionClick(index)}
@@ -647,7 +602,7 @@ const LandingPage = () => {
                   
                   {/* Chamada para clicar (disponível) */}
                   {status === 'available' && (
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 to-primary text-white text-xs px-4 py-2 rounded-full shadow-lg animate-pulse border-2 border-white font-semibold">
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs px-4 py-2 rounded-full shadow-lg animate-pulse border-2 border-background font-semibold">
                       Clique aqui
                     </div>
                   )}
@@ -661,22 +616,22 @@ const LandingPage = () => {
                   
                   {/* Conteúdo da missão */}
                   <div className="text-center">
-                    <h3 className={`text-lg font-semibold mb-2 ${
-                      status === 'locked' ? 'text-slate-400' : 'text-slate-900'
+                    <h3 className={`text-lg font-semibold mb-2 theme-transition ${
+                      status === 'locked' ? 'text-muted-foreground/50' : 'text-foreground'
                     }`}>
                       {mission.title}
                     </h3>
-                    <p className={`text-sm mb-4 ${
-                      status === 'locked' ? 'text-slate-400' : 'text-slate-600'
+                    <p className={`text-sm mb-4 theme-transition ${
+                      status === 'locked' ? 'text-muted-foreground/50' : 'text-muted-foreground'
                     }`}>
                       {mission.description}
                     </p>
-                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium theme-transition ${
                       status === 'completed' 
                         ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200' 
                         : status === 'available'
-                        ? 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200'
-                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                        ? 'bg-gradient-to-r from-primary/10 to-primary/20 text-primary border border-primary/30'
+                        : 'bg-muted text-muted-foreground border border-border'
                     }`}>
                       <Award className="h-4 w-4" />
                       {mission.xp} XP
@@ -685,8 +640,8 @@ const LandingPage = () => {
                   
                   {/* Overlay para missões bloqueadas */}
                   {status === 'locked' && (
-                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                      <Lock className="h-8 w-8 text-slate-400" />
+                    <div className="absolute inset-0 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                      <Lock className="h-8 w-8 text-muted-foreground/50" />
                     </div>
                   )}
                 </div>
@@ -696,18 +651,18 @@ const LandingPage = () => {
           
           {/* Barra de progresso XP atualizada */}
           <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-4 px-6 py-3 bg-white rounded-2xl border border-slate-200 shadow-lg">
+            <div className="inline-flex items-center gap-4 px-6 py-3 bg-card rounded-2xl border border-border shadow-lg theme-transition">
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold text-slate-900">Nível {currentLevel}</span>
+                <span className="font-semibold text-foreground">Nível {currentLevel}</span>
               </div>
-              <div className="w-32 h-3 bg-slate-200 rounded-full overflow-hidden">
+              <div className="w-32 h-3 bg-muted rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500"
                   style={{ width: `${progressPercent}%` }}
                 ></div>
               </div>
-              <span className="text-sm text-slate-600">{totalXP}/{xpForNextLevel} XP</span>
+              <span className="text-sm text-muted-foreground">{totalXP}/{xpForNextLevel} XP</span>
             </div>
             
             {/* Botão CTA quando jornada completa */}
@@ -733,13 +688,13 @@ const LandingPage = () => {
       </section>
 
       {/* Tecnologias OTIMIZADA */}
-      <section className="py-12 md:py-20 bg-muted/20">
+      <section className="py-20 bg-muted/20 theme-transition">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 md:mb-16 animate-fade-in">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-slate-900 mb-4 md:mb-6">
+          <div className="text-center mb-16 animate-fade-in">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-6 theme-transition">
               Tecnologias que Usamos
             </h2>
-            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto theme-transition">
               Nossa plataforma é construída com as melhores tecnologias do mercado para garantir performance, segurança e escalabilidade.
             </p>
           </div>
@@ -747,7 +702,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             {/* Frontend */}
             <div className="space-y-6 animate-slide-in-right">
-              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Frontend</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center lg:text-left theme-transition">Frontend</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {[
                   { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
@@ -771,7 +726,7 @@ const LandingPage = () => {
                           }}
                         />
                       </div>
-                      <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
+                      <span className="text-xs md:text-sm font-semibold text-foreground leading-tight theme-transition">{tech.name}</span>
                     </div>
                   </div>
                 ))}
@@ -780,7 +735,7 @@ const LandingPage = () => {
 
             {/* Backend */}
             <div className="space-y-6 animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
-              <h3 className="text-2xl md:text-3xl font-bold text-slate-900 text-center lg:text-left">Backend</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center lg:text-left theme-transition">Backend</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {[
                   { name: "Supabase", logo: "https://supabase.com/brand-assets/supabase-logo-icon.png" },
@@ -804,7 +759,7 @@ const LandingPage = () => {
                           }}
                         />
                       </div>
-                      <span className="text-xs md:text-sm font-semibold text-slate-700 leading-tight">{tech.name}</span>
+                      <span className="text-xs md:text-sm font-semibold text-foreground leading-tight theme-transition">{tech.name}</span>
                     </div>
                   </div>
                 ))}
@@ -854,10 +809,10 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan, index) => (
-              <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth ${
+              <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth theme-transition ${
                 plan.popular 
-                  ? 'bg-gradient-to-br from-blue-600 to-indigo-600 border-transparent text-white' 
-                  : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-lg'
+                  ? 'bg-gradient-to-br from-primary to-primary/80 border-transparent text-primary-foreground' 
+                  : 'bg-card border-border hover:border-primary/30 hover:shadow-lg'
               }`} style={{ animationDelay: `${index * 0.1}s` }}>
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg animate-bounce-gentle">
@@ -874,7 +829,7 @@ const LandingPage = () => {
                   <span className="ml-1 text-sm opacity-80">{plan.period}</span>
                 </div>
                 
-                <p className={`mb-8 theme-transition ${plan.popular ? 'text-blue-100' : 'text-muted-foreground'}`}>
+                <p className={`mb-8 theme-transition ${plan.popular ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
                   {plan.description}
                 </p>
                 
@@ -882,9 +837,9 @@ const LandingPage = () => {
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-3">
                       <CheckCircle className={`h-5 w-5 flex-shrink-0 ${
-                        plan.popular ? 'text-blue-200' : 'text-blue-500'
+                        plan.popular ? 'text-primary-foreground/80' : 'text-primary'
                       }`} />
-                      <span className={`theme-transition ${plan.popular ? 'text-blue-100' : 'text-foreground'}`}>
+                      <span className={`theme-transition ${plan.popular ? 'text-primary-foreground/90' : 'text-foreground'}`}>
                         {feature}
                       </span>
                     </li>
@@ -895,8 +850,8 @@ const LandingPage = () => {
                   <Button 
                     className={`w-full h-12 text-base font-semibold rounded-xl transition-fast hover-scale ${
                       plan.popular
-                        ? 'bg-white text-blue-600 hover:bg-blue-50'
-                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700'
+                        ? 'bg-background text-foreground hover:bg-muted'
+                        : 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70'
                     }`}
                   >
                     Começar Agora
@@ -912,35 +867,35 @@ const LandingPage = () => {
       <ToolsIntegrationSection />
 
       {/* Testimonials OTIMIZADA */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-20 px-4 bg-muted/20 theme-transition">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
               O que dizem nossos usuários
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-xl text-muted-foreground theme-transition">
               Profissionais que já transformaram sua forma de trabalhar
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.slice(0, 3).map((testimonial, index) => (
-              <div key={index} className="testimonial-card bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div key={index} className="testimonial-card bg-card rounded-2xl p-8 border border-border hover:border-primary/30 hover:shadow-lg animate-fade-in theme-transition" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="flex items-start gap-4 mb-6">
                   <img 
                     src={testimonial.avatar} 
                     alt={testimonial.name}
-                    className="w-16 h-16 rounded-xl bg-white p-1 border border-slate-200 hover-scale transition-fast"
+                    className="w-16 h-16 rounded-xl bg-muted p-1 border border-border hover-scale transition-fast"
                     loading="lazy"
                   />
                   <div>
-                    <div className="font-semibold text-slate-900">{testimonial.name}</div>
-                    <div className="text-sm text-slate-600">{testimonial.role}</div>
-                    <div className="text-sm text-slate-500">{testimonial.company}</div>
+                    <div className="font-semibold text-foreground theme-transition">{testimonial.name}</div>
+                    <div className="text-sm text-muted-foreground theme-transition">{testimonial.role}</div>
+                    <div className="text-sm text-muted-foreground/80 theme-transition">{testimonial.company}</div>
                   </div>
                 </div>
                 
-                <p className="text-slate-600 leading-relaxed mb-4">
+                <p className="text-muted-foreground leading-relaxed mb-4 theme-transition">
                   {testimonial.content}
                 </p>
                 
@@ -959,17 +914,17 @@ const LandingPage = () => {
       {/* Final CTA OTIMIZADA */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl p-12 border border-slate-200 hover:border-blue-300 transition-smooth animate-fade-in hover-lift">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+          <div className="bg-card rounded-3xl p-12 border border-border hover:border-primary/30 transition-smooth animate-fade-in hover-lift theme-transition">
+            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
               Pronto para revolucionar seus projetos?
             </h2>
-            <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto theme-transition">
               Junte-se a milhares de profissionais que já economizam tempo e aumentam a precisão com nossa IA
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/cadastro" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg shadow-blue-500/25 hover-lift transition-smooth">
+                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 rounded-xl shadow-lg shadow-primary/25 hover-lift transition-smooth">
                   Começar Gratuitamente
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -977,7 +932,7 @@ const LandingPage = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-slate-300 hover:bg-slate-50 hover-scale transition-fast"
+                className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-border hover:bg-muted hover-scale transition-fast"
                 onClick={() => {
                   window.open('mailto:contato@maden.ai?subject=Falar com Especialista', '_blank');
                 }}
@@ -986,7 +941,7 @@ const LandingPage = () => {
               </Button>
             </div>
             
-            <div className="flex items-center justify-center gap-2 mt-6 text-sm text-slate-500">
+            <div className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground theme-transition">
               <div className="flex">
                 {[1,2,3,4,5].map((star) => (
                   <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
