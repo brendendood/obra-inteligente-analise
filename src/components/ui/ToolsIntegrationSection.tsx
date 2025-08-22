@@ -1,16 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 
 const ToolsIntegrationSection = () => {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsAnimating(true);
-    }, 500);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+          setTimeout(() => setIsAnimating(true), 300);
+        }
+      },
+      { threshold: 0.2, rootMargin: '50px' }
+    );
 
-    return () => clearTimeout(timer);
-  }, []);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isVisible]);
 
   const mainTools = [
     { 
@@ -105,7 +117,7 @@ const ToolsIntegrationSection = () => {
   };
 
   return (
-    <section className="py-32 px-6 md:px-8 bg-background theme-transition">
+    <section ref={sectionRef} className="py-32 px-6 md:px-8 bg-background theme-transition">
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-4xl mx-auto mb-20">
           <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
@@ -119,30 +131,6 @@ const ToolsIntegrationSection = () => {
         <div className="relative max-w-5xl mx-auto">
           {/* Central container with MadeAI logo */}
           <div className="relative w-full h-80 md:h-96 flex items-center justify-center">
-            {/* Animated connection lines */}
-            <svg 
-              className="absolute inset-0 w-full h-full" 
-              viewBox="0 0 400 400"
-              style={{ zIndex: 1 }}
-            >
-              {mainTools.map((tool, index) => (
-                <path
-                  key={tool.name}
-                  d={getConnectionPath(tool.position)}
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeDasharray="4,4"
-                  className={`transition-all duration-1000 delay-${index * 100} theme-transition ${
-                    isAnimating ? 'opacity-20' : 'opacity-0'
-                  }`}
-                  style={{
-                    animation: isAnimating ? `dashArray 4s ease-in-out infinite ${index * 0.3}s` : undefined
-                  }}
-                />
-              ))}
-            </svg>
-
             {/* Central MadeAI logo with 3-layer Siri-style gradient */}
             <div className="relative z-10 w-24 h-24 md:w-28 md:h-28 rounded-full p-1 shadow-2xl shadow-primary/20">
               {/* Camada 1 - Externa */}
@@ -161,16 +149,21 @@ const ToolsIntegrationSection = () => {
             {mainTools.map((tool, index) => (
               <div
                 key={tool.name}
-                className={`${getToolPosition(tool.position)} z-10 transition-all duration-700 delay-${index * 150} ${
-                  isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                className={`${getToolPosition(tool.position)} z-10 transition-all duration-1000 ${
+                  isAnimating ? `opacity-100 scale-100 animate-logo-emerge` : 'opacity-0 scale-0'
                 }`}
+                style={{
+                  animationDelay: `${index * 200}ms`,
+                  animationDuration: '800ms',
+                  animationFillMode: 'forwards'
+                }}
               >
-                <div className="bg-card rounded-xl p-3 md:p-4 shadow-lg border border-border hover:shadow-xl hover:border-primary/20 transition-all duration-300 group theme-transition">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-muted rounded-lg flex items-center justify-center mb-2 group-hover:bg-primary/10 transition-all duration-300 overflow-hidden">
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center overflow-hidden">
                     <img 
                       src={tool.url} 
                       alt={tool.alt}
-                      className="w-4 h-4 md:w-5 md:h-5 object-contain filter grayscale opacity-60 group-hover:opacity-80 transition-all duration-300"
+                      className="w-8 h-8 md:w-10 md:h-10 object-contain filter grayscale opacity-60 hover:opacity-80 transition-all duration-300"
                       style={{ filter: 'grayscale(100%) brightness(0.6)' }}
                       loading="lazy"
                     />
@@ -211,16 +204,26 @@ const ToolsIntegrationSection = () => {
       
       <style dangerouslySetInnerHTML={{
         __html: `
-          @keyframes dashArray {
+          @keyframes logo-emerge {
             0% {
-              stroke-dashoffset: 0;
+              opacity: 0;
+              transform: scale(0) translate(-50%, -50%);
+              filter: blur(10px);
             }
             50% {
-              stroke-dashoffset: 16;
+              opacity: 0.5;
+              transform: scale(0.5) translate(-50%, -50%);
+              filter: blur(5px);
             }
             100% {
-              stroke-dashoffset: 32;
+              opacity: 1;
+              transform: scale(1) translate(0, 0);
+              filter: blur(0px);
             }
+          }
+          
+          .animate-logo-emerge {
+            animation: logo-emerge 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
           }
         `
       }} />

@@ -559,13 +559,13 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style How it Works */}
-      <section className="py-32 px-6 md:px-8 bg-slate-50">
+      <section className="py-32 px-6 md:px-8 bg-muted/50 theme-transition">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
               Como funciona
             </h2>
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal theme-transition">
               Processo simples e automatizado para análise completa de projetos
             </p>
           </div>
@@ -578,19 +578,19 @@ const LandingPage = () => {
                   title={`${step.title} em ação`}
                   description={step.description}
                   size="md"
-                  className="shadow-lg shadow-slate-200"
+                  className="shadow-lg shadow-slate-200 dark:shadow-primary/10"
                 />
                 
                 <div className="space-y-4">
                   <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto text-white font-semibold text-lg shadow-sm">
                     {step.number}
                   </div>
-                  <h3 className="text-2xl font-semibold text-slate-900 font-display">{step.title}</h3>
-                  <p className="text-slate-600 leading-relaxed max-w-sm mx-auto">{step.description}</p>
+                  <h3 className="text-2xl font-semibold text-foreground font-display theme-transition">{step.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto theme-transition">{step.description}</p>
                 </div>
                 
                 {index < steps.length - 1 && (
-                  <ArrowRight className="hidden md:block absolute top-32 -right-6 h-6 w-6 text-slate-300" />
+                  <ArrowRight className="hidden md:block absolute top-32 -right-6 h-6 w-6 text-muted-foreground/50" />
                 )}
               </div>
             ))}
@@ -599,13 +599,13 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style User Journey */}
-      <section id="user-journey" className="py-32 px-6 md:px-8 bg-white">
+      <section id="user-journey" className="py-32 px-6 md:px-8 bg-background theme-transition">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
               Sua Jornada de Sucesso
             </h2>
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal mb-12">
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal mb-12 theme-transition">
               Acompanhe seu progresso e desbloqueie novas funcionalidades conforme você domina a plataforma
             </p>
             
@@ -815,13 +815,13 @@ const LandingPage = () => {
       </section>
 
       {/* Tech Specs OTIMIZADA */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-20 px-4 bg-muted/50 theme-transition">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
               Especificações Técnicas
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-xl text-muted-foreground theme-transition">
               Tecnologias e conformidades que garantem a precisão dos seus projetos
             </p>
           </div>
@@ -841,13 +841,13 @@ const LandingPage = () => {
       </section>
 
       {/* Plans OTIMIZADA */}
-      <section id="planos" className="py-20 px-4">
+      <section id="planos" className="py-20 px-4 bg-background theme-transition">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-slate-900 mb-6">
+            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
               Planos para cada necessidade
             </h2>
-            <p className="text-xl text-slate-600">
+            <p className="text-xl text-muted-foreground theme-transition">
               Escolha o plano ideal para você ou sua empresa
             </p>
           </div>
@@ -874,7 +874,7 @@ const LandingPage = () => {
                   <span className="ml-1 text-sm opacity-80">{plan.period}</span>
                 </div>
                 
-                <p className={`mb-8 ${plan.popular ? 'text-blue-100' : 'text-slate-600'}`}>
+                <p className={`mb-8 theme-transition ${plan.popular ? 'text-blue-100' : 'text-muted-foreground'}`}>
                   {plan.description}
                 </p>
                 
@@ -884,7 +884,7 @@ const LandingPage = () => {
                       <CheckCircle className={`h-5 w-5 flex-shrink-0 ${
                         plan.popular ? 'text-blue-200' : 'text-blue-500'
                       }`} />
-                      <span className={plan.popular ? 'text-blue-100' : 'text-slate-600'}>
+                      <span className={`theme-transition ${plan.popular ? 'text-blue-100' : 'text-foreground'}`}>
                         {feature}
                       </span>
                     </li>

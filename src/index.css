@@ -841,6 +841,58 @@ body, #root {
   max-width: 100%;
 }
 
+/* Animated Border Glow Effect */
+.animated-border-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.animated-border-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(45deg, 
+    transparent, 
+    hsl(var(--primary) / 0.3), 
+    hsl(var(--primary) / 0.8),
+    hsl(var(--primary) / 0.3),
+    transparent
+  );
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  animation: borderGlow 3s ease-in-out infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.animated-border-glow:hover::before {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    background: linear-gradient(45deg, 
+      transparent, 
+      hsl(var(--primary) / 0.2), 
+      hsl(var(--primary) / 0.5),
+      hsl(var(--primary) / 0.2),
+      transparent
+    );
+  }
+  50% {
+    background: linear-gradient(45deg, 
+      hsl(var(--primary) / 0.1), 
+      hsl(var(--primary) / 0.6), 
+      hsl(var(--primary) / 1),
+      hsl(var(--primary) / 0.6),
+      hsl(var(--primary) / 0.1)
+    );
+  }
+}
+
 img {
   max-width: 100%;
   height: auto;
