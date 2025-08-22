@@ -489,7 +489,7 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style Stats Section */}
-      <section className="py-32 px-6 md:px-8 bg-background theme-transition">
+      <section className="py-20 px-6 md:px-8 bg-background theme-transition">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
@@ -499,6 +499,15 @@ const LandingPage = () => {
               Números que comprovam a eficiência da nossa plataforma
             </p>
             
+            {/* Video placeholder com lembrete */}
+            <div className="max-w-3xl mx-auto mb-16">
+              <VideoPlaceholder
+                title="Depoimento de usuário"
+                description="Veja como nossos clientes transformaram seus projetos com a MadenAI"
+                size="lg"
+                className="shadow-xl shadow-primary/10"
+              />
+            </div>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
