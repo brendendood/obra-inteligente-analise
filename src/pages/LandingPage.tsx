@@ -421,7 +421,7 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style How it Works */}
-      <section className="px-6 md:px-8 bg-muted/50 theme-transition py-[14px]">
+      <section className="px-6 md:px-8 theme-transition py-[14px] bg-slate-950">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
