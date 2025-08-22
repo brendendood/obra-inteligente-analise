@@ -573,9 +573,9 @@ const LandingPage = () => {
               }, {
                 name: "Lucide React",
                 logo: "https://lucide.dev/logo.light.svg"
-              }].map((tech, index) => <div key={tech.name} style={{
+                  }].map((tech, index) => <div key={tech.name} style={{
                 animationDelay: `${index * 0.1}s`
-              }} className="tech-card animate-fade-in bg-gray-950">
+              }} className="tech-card animate-fade-in bg-black rounded-full border border-muted-foreground/20 p-4 hover:border-primary/50 transition-all duration-300">
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
                       <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center transition-fast hover:scale-110">
                         <img src={tech.logo} alt={`${tech.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" onError={e => {
@@ -613,7 +613,7 @@ const LandingPage = () => {
               }, {
                 name: "PostgreSQL",
                 logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg"
-              }].map((tech, index) => <div key={tech.name} className="tech-card animate-fade-in" style={{
+                  }].map((tech, index) => <div key={tech.name} className="tech-card animate-fade-in bg-black rounded-full border border-muted-foreground/20 p-4 hover:border-primary/50 transition-all duration-300" style={{
                 animationDelay: `${(index + 6) * 0.1}s`
               }}>
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
