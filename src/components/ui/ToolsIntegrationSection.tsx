@@ -140,7 +140,7 @@ const ToolsIntegrationSection = () => {
               {/* Camada 3 - Interna */}
               <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-400 via-indigo-400 to-blue-500 opacity-60"></div>
               {/* Logo Container */}
-              <div className="relative w-full h-full bg-card rounded-full flex items-center justify-center theme-transition">
+              <div className="relative w-full h-full rounded-full flex items-center justify-center theme-transition bg-gray-50">
                 <UnifiedLogo size="lg" theme="auto" />
               </div>
             </div>
