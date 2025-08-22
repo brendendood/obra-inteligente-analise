@@ -573,9 +573,9 @@ const LandingPage = () => {
               }, {
                 name: "Lucide React",
                 logo: "https://lucide.dev/logo.light.svg"
-              }].map((tech, index) => <div key={tech.name} className="tech-card animate-fade-in" style={{
+              }].map((tech, index) => <div key={tech.name} style={{
                 animationDelay: `${index * 0.1}s`
-              }}>
+              }} className="tech-card animate-fade-in bg-gray-950">
                     <div className="flex flex-col items-center text-center space-y-2 md:space-y-3">
                       <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center transition-fast hover:scale-110">
                         <img src={tech.logo} alt={`${tech.name} logo`} className="max-w-full max-h-full object-contain" loading="lazy" onError={e => {
@@ -671,7 +671,7 @@ const LandingPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth theme-transition ${plan.popular ? 'bg-gradient-to-br from-primary to-primary/80 border-transparent text-primary-foreground before:absolute before:inset-0 before:p-[2px] before:bg-gradient-to-r before:from-yellow-400 before:via-pink-500 before:to-purple-600 before:rounded-2xl before:-z-10 before:content-[""]' : 'bg-card border-transparent hover:shadow-lg before:absolute before:inset-0 before:p-[1px] before:bg-gradient-to-r before:from-blue-500 before:via-purple-500 before:to-pink-500 before:rounded-2xl before:-z-10 before:content-[""] hover:before:from-primary hover:before:via-primary/80 hover:before:to-primary/60'}`} style={{
+            {plans.map((plan, index) => <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth theme-transition ${plan.popular ? 'bg-gradient-to-br from-primary to-primary/80 border-transparent text-primary-foreground' : 'bg-card border-border hover:border-primary/30 hover:shadow-lg'}`} style={{
             animationDelay: `${index * 0.1}s`
           }}>
                 {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg animate-bounce-gentle">
