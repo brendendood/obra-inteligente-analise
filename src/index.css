@@ -5,7 +5,7 @@
 
 /* Variáveis CSS Apple-Style */
 :root {
-/* Apple System Colors */
+/* Apple System Colors - Light Mode */
   --background: 0 0% 99%;
   --foreground: 0 0% 9%;
   --card: 0 0% 100%;
@@ -58,31 +58,67 @@
   --sidebar-accent: 0 0% 95%;
 }
 
-.dark {
-  --background: 224 71.4% 4.1%;
-  --foreground: 210 20% 98%;
-  --card: 224 71.4% 4.1%;
-  --card-foreground: 210 20% 98%;
-  --popover: 224 71.4% 4.1%;
-  --popover-foreground: 210 20% 98%;
-  --primary: 210 20% 98%;
-  --primary-foreground: 220.9 39.3% 11%;
-  --secondary: 215 27.9% 16.9%;
-  --secondary-foreground: 210 20% 98%;
-  --muted: 215 27.9% 16.9%;
-  --muted-foreground: 217.9 10.6% 64.9%;
-  --accent: 215 27.9% 16.9%;
-  --accent-foreground: 210 20% 98%;
+/* Dark Mode - AppConty Style */
+.dark-mode {
+  --background: 229 84% 5%; /* #0f1419 */
+  --foreground: 0 0% 100%;
+  --card: 218 23% 16%; /* #252a33 */
+  --card-foreground: 0 0% 100%;
+  --popover: 218 23% 16%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 211 100% 50%; /* Manter #0281FE */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 218 23% 16%;
+  --secondary-foreground: 219 14% 71%; /* #b8bcc5 */
+  --muted: 218 23% 16%;
+  --muted-foreground: 219 14% 71%;
+  --accent: 218 23% 16%;
+  --accent-foreground: 0 0% 100%;
   --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 20% 98%;
-  --border: 215 27.9% 16.9%;
-  --input: 215 27.9% 16.9%;
-  --ring: 216 12.2% 83.9%;
-  --chart-1: 220 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 217 19% 22%; /* #3a3f47 */
+  --input: 218 23% 16%;
+  --ring: 211 100% 50%;
+  --chart-1: 211 100% 50%;
   --chart-2: 160 60% 45%;
   --chart-3: 30 80% 55%;
   --chart-4: 280 65% 60%;
   --chart-5: 340 75% 55%;
+  
+  /* Sidebar Dark Mode */
+  --sidebar: 218 23% 16%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-border: 217 19% 22%;
+  --sidebar-accent: 218 23% 20%;
+}
+
+/* System Mode Detection */
+@media (prefers-color-scheme: dark) {
+  .system-mode {
+    --background: 229 84% 5%;
+    --foreground: 0 0% 100%;
+    --card: 218 23% 16%;
+    --card-foreground: 0 0% 100%;
+    --popover: 218 23% 16%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 218 23% 16%;
+    --secondary-foreground: 219 14% 71%;
+    --muted: 218 23% 16%;
+    --muted-foreground: 219 14% 71%;
+    --accent: 218 23% 16%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 19% 22%;
+    --input: 218 23% 16%;
+    --ring: 211 100% 50%;
+    --sidebar: 218 23% 16%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-border: 217 19% 22%;
+    --sidebar-accent: 218 23% 20%;
+  }
 }
 
 /* Base styles */
@@ -405,6 +441,31 @@ body, #root {
 .transition-smooth {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, opacity;
+}
+
+/* Dark Mode Transitions */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: hsl(var(--muted));
+  transform: scale(1.05);
 }
 
 .transition-fast {

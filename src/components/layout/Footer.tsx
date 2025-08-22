@@ -1,100 +1,113 @@
-
+import { Mail, Phone, Linkedin } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
-import { Twitter, Github, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Logo and Description */}
-          <div className="col-span-1 md:col-span-1">
-            <div className="mb-6">
-              <UnifiedLogo size="md" clickable={false} theme="light" />
+    <footer className="py-16 px-4 border-t border-border bg-background theme-transition">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
+          <div className="col-span-2">
+            <div className="mb-4">
+              <img 
+                src="/lovable-uploads/c77446ad-cd65-4beb-a2f8-86ad4e6eccd7.png" 
+                alt="MadeAI" 
+                className="h-16 w-auto" 
+              />
             </div>
-            <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Análise instantânea, orçamentos e cronogramas precisos para engenheiros e arquitetos.
+            <p className="text-muted-foreground mb-6 max-w-sm theme-transition">
+              Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Twitter className="w-5 h-5" />
+            <div className="flex gap-4">
+              <a href="mailto:contato@maden.ai" className="text-muted-foreground hover:text-foreground transition-fast hover-scale theme-transition" target="_blank" rel="noopener">
+                <Mail className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Github className="w-5 h-5" />
+              <a href="tel:+5511999999999" className="text-muted-foreground hover:text-foreground transition-fast hover-scale theme-transition" target="_blank" rel="noopener">
+                <Phone className="h-5 w-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <Linkedin className="w-5 h-5" />
+              <a href="https://linkedin.com/company/maden-ai" className="text-muted-foreground hover:text-foreground transition-fast hover-scale theme-transition" target="_blank" rel="noopener">
+                <Linkedin className="h-5 w-5" />
               </a>
             </div>
           </div>
 
-          {/* Product */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Product</h3>
-            <div className="space-y-3">
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Features
-              </Link>
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Pricing
-              </Link>
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                API
-              </Link>
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Integrations
-              </Link>
-            </div>
+            <h3 className="font-semibold text-foreground mb-3 theme-transition">Produto</h3>
+            <ul className="space-y-2">
+              <li>
+                <span className="text-muted-foreground theme-transition cursor-pointer">Recursos</span>
+              </li>
+              <li>
+                <span className="text-muted-foreground theme-transition cursor-pointer">Preços</span>
+              </li>
+              <li>
+                <span className="text-muted-foreground theme-transition cursor-pointer">Demonstração</span>
+              </li>
+            </ul>
           </div>
 
-          {/* Company */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Company</h3>
-            <div className="space-y-3">
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                About
-              </Link>
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Blog
-              </Link>
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Careers
-              </Link>
-              <Link to="/contato" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Contact Us
-              </Link>
-            </div>
+            <h3 className="font-semibold text-foreground mb-3 theme-transition">Empresa</h3>
+            <ul className="space-y-2">
+              <li>
+                <span className="text-muted-foreground theme-transition">Sobre nós</span>
+              </li>
+              <li>
+                <span className="text-muted-foreground theme-transition">Blog</span>
+              </li>
+              <li>
+                <a href="mailto:contato@maden.ai" className="text-muted-foreground hover:text-foreground transition-fast theme-transition">
+                  Contato
+                </a>
+              </li>
+            </ul>
           </div>
 
-          {/* Help */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Help</h3>
-            <div className="space-y-3">
-              <Link to="/politica" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Privacy Policy
-              </Link>
-              <Link to="/termos" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Terms & Conditions
-              </Link>
-              <Link to="#" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                FAQ's
-              </Link>
-              <a href="mailto:suporte@maden.ai" className="block text-gray-400 hover:text-white transition-colors text-sm">
-                Support
-              </a>
-            </div>
+            <h3 className="font-semibold text-foreground mb-3 theme-transition">Ajuda</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-fast theme-transition">
+                  Política de Privacidade
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-fast theme-transition">
+                  Termos & Condições
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:contato@maden.ai?subject=FAQ" className="text-muted-foreground hover:text-foreground transition-fast theme-transition">
+                  FAQ's
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-3 theme-transition">Legal</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-fast theme-transition">
+                  Privacidade
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-fast theme-transition">
+                  Termos
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-400 mb-4 md:mb-0">
-              © 2025 MadeAI. Todos os direitos reservados.
-            </div>
-            <div className="text-sm text-gray-400">
-              <p>suporte@maden.ai</p>
-            </div>
+        <div className="pt-8 mt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 theme-transition">
+          <div className="text-sm text-muted-foreground theme-transition">
+            © 2025 MadeAI. Todos os direitos reservados.
+          </div>
+          <div className="flex gap-8">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+            <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
+            <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
           </div>
         </div>
       </div>

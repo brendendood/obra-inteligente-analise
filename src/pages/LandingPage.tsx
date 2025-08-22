@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import VideoPlaceholder from '@/components/ui/VideoPlaceholder';
 import ToolsIntegrationSection from '@/components/ui/ToolsIntegrationSection';
+import RotatingText from '@/components/ui/RotatingText';
 import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import { 
   Upload, 
   Bot, 
@@ -379,33 +381,38 @@ const LandingPage = () => {
   console.log('Landing Page renderizada com sucesso');
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background theme-transition">
       {/* Header fixo e flutuante */}
       <Header />
       
       {/* Apple-style backdrop gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 -z-10" />
+      <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-muted/20 -z-10 theme-transition" />
       
       {/* Apple-style Hero Section */}
       <section className="pt-32 md:pt-40 pb-32 px-6 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="text-center space-y-12">
             {/* Elegant notification badge */}
-            <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-700 rounded-full px-5 py-2 text-sm font-medium">
+            <div className="inline-flex items-center gap-2 bg-muted text-muted-foreground rounded-full px-5 py-2 text-sm font-medium theme-transition">
               <Zap className="h-4 w-4" />
               Chega de perder tempo com planilhas
             </div>
             
             {/* Hero title with Apple typography */}
             <div className="space-y-6">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-slate-900 leading-tight tracking-tight">
-                Receba orçamentos técnicos precisos em{' '}
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-semibold text-foreground leading-tight tracking-tight theme-transition">
+                Receba seus{' '}
+                <RotatingText 
+                  words={['Orçamentos', 'Cronogramas', 'Documentos']}
+                  className="text-primary"
+                />
+                {' '}técnicos precisos em{' '}
                 <span className="text-primary">
                   segundos
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed font-normal tracking-wide">
+              <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-normal tracking-wide theme-transition">
                 Nossa IA entende seu projeto arquitetônico, interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos.
               </p>
             </div>
@@ -446,7 +453,7 @@ const LandingPage = () => {
             </div>
             
             {/* Trust badges */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-slate-600 pt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground pt-8 theme-transition">
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <span className="font-medium">Resultados em 60 segundos</span>
@@ -465,13 +472,13 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style Features Section */}
-      <section className="py-32 px-6 md:px-8 bg-slate-50">
+      <section className="py-32 px-6 md:px-8 bg-muted/20 theme-transition">
         <div className="max-w-6xl mx-auto">
           <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
               Por que engenheiros e arquitetos escolhem o MadeAI?
             </h2>
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal theme-transition">
               Deixe a IA fazer o trabalho pesado enquanto você foca no que realmente importa: criar projetos excepcionais
             </p>
           </div>
@@ -488,12 +495,12 @@ const LandingPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="group p-8 bg-white rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-smooth hover-lift animate-fade-in stagger-animation" style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center mb-6 group-hover:from-blue-100 group-hover:to-indigo-100 transition-smooth group-hover:scale-110">
-                  <feature.icon className="h-7 w-7 text-blue-600" />
+              <div key={index} className="group p-8 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-smooth hover-lift animate-fade-in stagger-animation theme-transition" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl flex items-center justify-center mb-6 group-hover:from-primary/20 group-hover:to-primary/30 transition-smooth group-hover:scale-110">
+                  <feature.icon className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-semibold text-foreground mb-3 theme-transition">{feature.title}</h3>
+                <p className="text-muted-foreground leading-relaxed theme-transition">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -501,13 +508,13 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style Stats Section */}
-      <section className="py-32 px-6 md:px-8 bg-white">
+      <section className="py-32 px-6 md:px-8 bg-background theme-transition">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
               Resultados que impressionam
             </h2>
-            <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal mb-12">
+            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal mb-12 theme-transition">
               Números que comprovam a eficiência da nossa plataforma
             </p>
             
@@ -523,29 +530,29 @@ const LandingPage = () => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
               <div ref={counter1.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter1.count.toLocaleString()}+
               </div>
-              <div className="text-slate-600 font-medium">Projetos Analisados</div>
+              <div className="text-muted-foreground font-medium theme-transition">Projetos Analisados</div>
             </div>
-            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
               <div ref={counter2.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter2.count}%
               </div>
-              <div className="text-slate-600 font-medium">Precisão</div>
+              <div className="text-muted-foreground font-medium theme-transition">Precisão</div>
             </div>
-            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
               <div ref={counter3.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter3.count}%
               </div>
-              <div className="text-slate-600 font-medium">Economia de Tempo</div>
+              <div className="text-muted-foreground font-medium theme-transition">Economia de Tempo</div>
             </div>
-            <div className="text-center bg-slate-50 rounded-2xl p-8 hover:bg-slate-100 transition-all duration-200">
+            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
               <div ref={counter4.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
                 {counter4.count.toLocaleString()}+
               </div>
-              <div className="text-slate-600 font-medium">Usuários Ativos</div>
+              <div className="text-muted-foreground font-medium theme-transition">Usuários Ativos</div>
             </div>
           </div>
         </div>
@@ -991,148 +998,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer OTIMIZADO */}
-      <footer className="py-16 px-4 border-t border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-12">
-            <div className="col-span-2">
-              <div className="mb-4">
-                <img 
-                  src="/lovable-uploads/c77446ad-cd65-4beb-a2f8-86ad4e6eccd7.png" 
-                  alt="MadeAI" 
-                  className="h-16 w-auto" 
-                />
-              </div>
-              <p className="text-slate-600 mb-6 max-w-sm">
-                Transforme seus projetos arquitetônicos em orçamentos precisos com nossa IA especializada.
-              </p>
-              <div className="flex gap-4">
-                <a href="mailto:contato@maden.ai" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
-                  <Mail className="h-5 w-5" />
-                </a>
-                <a href="tel:+5511999999999" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
-                  <Phone className="h-5 w-5" />
-                </a>
-                <a href="https://linkedin.com/company/maden-ai" className="text-slate-400 hover:text-slate-600 transition-fast hover-scale" target="_blank" rel="noopener">
-                  <Linkedin className="h-5 w-5" />
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-3">Produto</h3>
-              <ul className="space-y-2">
-                <li>
-                  <button 
-                    onClick={() => {
-                      const featuresSection = document.querySelector('section');
-                      if (featuresSection) {
-                        featuresSection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
-                  >
-                    Recursos
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => {
-                      const plansSection = document.querySelector('#planos');
-                      if (plansSection) {
-                        plansSection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
-                  >
-                    Preços
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => {
-                      const userJourneySection = document.getElementById('user-journey');
-                      if (userJourneySection) {
-                        userJourneySection.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="text-slate-500 hover:text-slate-700 transition-fast text-left"
-                  >
-                    Demonstração
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-3">Para quem é</h3>
-              <ul className="space-y-2">
-                <li>
-                  <span className="text-slate-500">Engenheiros</span>
-                </li>
-                <li>
-                  <span className="text-slate-500">Arquitetos</span>
-                </li>
-                <li>
-                  <span className="text-slate-500">Construtoras</span>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-3">Tecnologias</h3>
-              <ul className="space-y-2">
-                <li>
-                  <a href="https://www.ibge.gov.br/sinapi" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
-                    SINAPI
-                  </a>
-                </li>
-                <li>
-                  <a href="https://supabase.com" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
-                    Supabase
-                  </a>
-                </li>
-                <li>
-                  <a href="https://n8n.io" className="text-slate-500 hover:text-slate-700 transition-fast" target="_blank" rel="noopener">
-                    N8N
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-3">Legal</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/privacy" className="text-slate-500 hover:text-slate-700 transition-fast">
-                    Privacidade
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="text-slate-500 hover:text-slate-700 transition-fast">
-                    Termos
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 mt-8 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/171e0d43-b586-47df-b8ac-01d0f9546728.png" 
-                alt="MadeAI" 
-                className="h-12 w-auto opacity-75 hover:opacity-100 transition-opacity duration-200" 
-              />
-            </div>
-            <div className="flex gap-8">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
-              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
-              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-8 opacity-75 hover:opacity-100 transition-fast hover-scale" loading="lazy" />
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Footer usando componente separado */}
+      <Footer />
 
     </div>
   );

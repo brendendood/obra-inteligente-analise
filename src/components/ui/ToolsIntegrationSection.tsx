@@ -12,102 +12,108 @@ const ToolsIntegrationSection = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const tools = [
-    { name: 'n8n', logo: '🔗', position: 'top-left' },
-    { name: 'SINAPI', logo: '📊', position: 'top-center' },
-    { name: 'Supabase', logo: '⚡', position: 'top-right' },
-    { name: 'OpenAI', logo: '🧠', position: 'right' },
-    { name: 'React', logo: '⚛️', position: 'bottom-right' },
-    { name: 'TypeScript', logo: '📘', position: 'bottom-center' },
-    { name: 'Tailwind CSS', logo: '🎨', position: 'bottom-left' },
-    { name: 'PostgreSQL', logo: '🐘', position: 'left' },
+  const mainTools = [
+    { name: 'n8n', position: 'top-left' },
+    { name: 'SINAPI', position: 'top-center' },
+    { name: 'Supabase', position: 'top-right' },
+    { name: 'OpenAI', position: 'right' },
+    { name: 'React', position: 'bottom-right' },
+    { name: 'TypeScript', position: 'bottom-center' },
+    { name: 'Tailwind CSS', position: 'bottom-left' },
+    { name: 'PostgreSQL', position: 'left' },
+  ];
+
+  const secondaryTools = [
+    'AWS', 'Google Cloud', 'Azure', 'Figma', 'Webflow', 'Notion', 'Slack', 'Zapier', 'GitHub', 'Docker'
   ];
 
   const getToolPosition = (position: string) => {
     const positions = {
-      'top-left': 'absolute top-8 left-8 md:top-12 md:left-16',
-      'top-center': 'absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8',
-      'top-right': 'absolute top-8 right-8 md:top-12 md:right-16',
-      'right': 'absolute right-0 top-1/2 transform translate-x-8 -translate-y-1/2',
-      'bottom-right': 'absolute bottom-8 right-8 md:bottom-12 md:right-16',
-      'bottom-center': 'absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-8',
-      'bottom-left': 'absolute bottom-8 left-8 md:bottom-12 md:left-16',
-      'left': 'absolute left-0 top-1/2 transform -translate-x-8 -translate-y-1/2',
+      'top-left': 'absolute top-4 left-4 md:top-8 md:left-12',
+      'top-center': 'absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-6',
+      'top-right': 'absolute top-4 right-4 md:top-8 md:right-12',
+      'right': 'absolute right-0 top-1/2 transform translate-x-6 -translate-y-1/2',
+      'bottom-right': 'absolute bottom-4 right-4 md:bottom-8 md:right-12',
+      'bottom-center': 'absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-6',
+      'bottom-left': 'absolute bottom-4 left-4 md:bottom-8 md:left-12',
+      'left': 'absolute left-0 top-1/2 transform -translate-x-6 -translate-y-1/2',
     };
     return positions[position as keyof typeof positions] || '';
   };
 
   const getConnectionPath = (position: string) => {
     const paths = {
-      'top-left': 'M60,60 Q130,130 200,200',
-      'top-center': 'M200,30 Q200,115 200,200',
-      'top-right': 'M340,60 Q270,130 200,200',
-      'right': 'M370,200 Q285,200 200,200',
-      'bottom-right': 'M340,340 Q270,270 200,200',
-      'bottom-center': 'M200,370 Q200,285 200,200',
-      'bottom-left': 'M60,340 Q130,270 200,200',
-      'left': 'M30,200 Q115,200 200,200',
+      'top-left': 'M80,80 Q140,140 200,200',
+      'top-center': 'M200,50 Q200,125 200,200',
+      'top-right': 'M320,80 Q260,140 200,200',
+      'right': 'M350,200 Q275,200 200,200',
+      'bottom-right': 'M320,320 Q260,260 200,200',
+      'bottom-center': 'M200,350 Q200,275 200,200',
+      'bottom-left': 'M80,320 Q140,260 200,200',
+      'left': 'M50,200 Q125,200 200,200',
     };
     return paths[position as keyof typeof paths] || '';
   };
 
   return (
-    <section className="py-32 px-6 md:px-8 bg-white">
+    <section className="py-32 px-6 md:px-8 bg-background theme-transition">
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-4xl mx-auto mb-20">
-          <h2 className="text-4xl md:text-5xl font-display font-semibold text-slate-900 mb-8 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
             Tecnologias e Integrações
           </h2>
-          <p className="text-xl md:text-2xl text-slate-600 leading-relaxed font-normal">
+          <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal theme-transition">
             Conectamos as melhores ferramentas do mercado para entregar resultados excepcionais
           </p>
         </div>
 
-        <div className="relative max-w-4xl mx-auto">
+        <div className="relative max-w-5xl mx-auto">
           {/* Central container with MadeAI logo */}
-          <div className="relative w-full h-96 md:h-[500px] flex items-center justify-center">
+          <div className="relative w-full h-80 md:h-96 flex items-center justify-center">
             {/* Animated connection lines */}
             <svg 
               className="absolute inset-0 w-full h-full" 
               viewBox="0 0 400 400"
               style={{ zIndex: 1 }}
             >
-              {tools.map((tool, index) => (
+              {mainTools.map((tool, index) => (
                 <path
                   key={tool.name}
                   d={getConnectionPath(tool.position)}
                   stroke="hsl(var(--primary))"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   fill="none"
-                  strokeDasharray="5,5"
-                  className={`transition-all duration-1000 delay-${index * 100} ${
-                    isAnimating ? 'opacity-30' : 'opacity-0'
+                  strokeDasharray="4,4"
+                  className={`transition-all duration-1000 delay-${index * 100} theme-transition ${
+                    isAnimating ? 'opacity-20' : 'opacity-0'
                   }`}
                   style={{
-                    animation: isAnimating ? `dashArray 3s ease-in-out infinite ${index * 0.2}s` : undefined
+                    animation: isAnimating ? `dashArray 4s ease-in-out infinite ${index * 0.3}s` : undefined
                   }}
                 />
               ))}
             </svg>
 
-            {/* Central MadeAI logo */}
-            <div className="relative z-10 bg-white rounded-3xl p-8 shadow-2xl border border-slate-200">
-              <UnifiedLogo size="2xl" theme="auto" />
+            {/* Central MadeAI logo with gradient background */}
+            <div className="relative z-10 w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary via-blue-500 to-purple-500 p-1 shadow-2xl shadow-primary/20">
+              <div className="w-full h-full bg-card rounded-full flex items-center justify-center theme-transition">
+                <UnifiedLogo size="lg" theme="auto" />
+              </div>
             </div>
 
-            {/* Tool logos positioned around the center */}
-            {tools.map((tool, index) => (
+            {/* Main tool logos positioned around the center */}
+            {mainTools.map((tool, index) => (
               <div
                 key={tool.name}
                 className={`${getToolPosition(tool.position)} z-10 transition-all duration-700 delay-${index * 150} ${
                   isAnimating ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
                 }`}
               >
-                <div className="bg-white rounded-2xl p-4 md:p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group">
-                  <div className="text-2xl md:text-3xl mb-2 text-center filter grayscale group-hover:grayscale-0 transition-all duration-300">
-                    {tool.logo}
+                <div className="bg-card rounded-xl p-3 md:p-4 shadow-lg border border-border hover:shadow-xl hover:border-primary/20 transition-all duration-300 group theme-transition">
+                  <div className="w-8 h-8 md:w-10 md:h-10 bg-muted rounded-lg flex items-center justify-center mb-2 group-hover:bg-primary/10 transition-all duration-300">
+                    <div className="w-4 h-4 md:w-5 md:h-5 bg-gray-400 rounded-sm"></div>
                   </div>
-                  <div className="text-xs md:text-sm font-medium text-slate-600 text-center whitespace-nowrap">
+                  <div className="text-xs md:text-sm font-medium text-muted-foreground text-center whitespace-nowrap theme-transition">
                     {tool.name}
                   </div>
                 </div>
@@ -116,17 +122,17 @@ const ToolsIntegrationSection = () => {
           </div>
         </div>
 
-        {/* Additional tools grid */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {['Webflow', 'Notion', 'Slack', 'Zapier', 'GitHub', 'Docker'].map((tool, index) => (
+        {/* Secondary tools grid */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-5 lg:grid-cols-5 gap-4 max-w-4xl mx-auto">
+          {secondaryTools.map((tool, index) => (
             <div
               key={tool}
-              className={`bg-slate-50 rounded-xl p-4 text-center transition-all duration-500 delay-${index * 100 + 1000} ${
+              className={`bg-muted/50 rounded-xl p-4 text-center transition-all duration-500 delay-${index * 100 + 1200} theme-transition ${
                 isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
             >
-              <div className="text-xl mb-2 filter grayscale">🔧</div>
-              <div className="text-sm font-medium text-slate-600">{tool}</div>
+              <div className="w-6 h-6 bg-gray-400 rounded mx-auto mb-2"></div>
+              <div className="text-xs font-medium text-muted-foreground theme-transition">{tool}</div>
             </div>
           ))}
         </div>
@@ -140,10 +146,10 @@ const ToolsIntegrationSection = () => {
               stroke-dashoffset: 0;
             }
             50% {
-              stroke-dashoffset: 20;
+              stroke-dashoffset: 16;
             }
             100% {
-              stroke-dashoffset: 40;
+              stroke-dashoffset: 32;
             }
           }
         `
