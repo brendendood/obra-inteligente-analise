@@ -671,7 +671,7 @@ const LandingPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth theme-transition ${plan.popular ? 'bg-gradient-to-br from-primary to-primary/80 border-transparent text-primary-foreground' : 'bg-card border-border hover:border-primary/30 hover:shadow-lg'}`} style={{
+            {plans.map((plan, index) => <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth theme-transition ${plan.popular ? 'bg-gradient-to-br from-primary to-primary/80 border-transparent text-primary-foreground before:absolute before:inset-0 before:p-[2px] before:bg-gradient-to-r before:from-yellow-400 before:via-pink-500 before:to-purple-600 before:rounded-2xl before:-z-10 before:content-[""]' : 'bg-card border-transparent hover:shadow-lg before:absolute before:inset-0 before:p-[1px] before:bg-gradient-to-r before:from-blue-500 before:via-purple-500 before:to-pink-500 before:rounded-2xl before:-z-10 before:content-[""] hover:before:from-primary hover:before:via-primary/80 hover:before:to-primary/60'}`} style={{
             animationDelay: `${index * 0.1}s`
           }}>
                 {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg animate-bounce-gentle">
