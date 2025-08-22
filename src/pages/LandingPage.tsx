@@ -489,7 +489,7 @@ const LandingPage = () => {
       </section>
 
       {/* Apple-style Stats Section */}
-      <section className="py-20 px-6 md:px-8 bg-background theme-transition">
+      <section className="pt-16 pb-20 px-6 md:px-8 bg-background theme-transition">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
