@@ -633,7 +633,7 @@ const LandingPage = () => {
       </section>
 
       {/* Tech Specs OTIMIZADA */}
-      <section className="bg-muted/50 theme-transition px-[15px] py-[62px]">
+      <section className="theme-transition px-[15px] py-[62px] bg-slate-950">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
             <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
