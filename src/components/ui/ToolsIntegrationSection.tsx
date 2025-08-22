@@ -93,14 +93,14 @@ const ToolsIntegrationSection = () => {
   }];
   const getToolPosition = (position: string) => {
     const positions = {
-      'top-left': 'absolute top-4 left-4 md:top-8 md:left-12',
-      'top-center': 'absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-6',
-      'top-right': 'absolute top-4 right-4 md:top-8 md:right-12',
-      'right': 'absolute right-0 top-1/2 transform translate-x-6 -translate-y-1/2',
-      'bottom-right': 'absolute bottom-4 right-4 md:bottom-8 md:right-12',
-      'bottom-center': 'absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-6',
-      'bottom-left': 'absolute bottom-4 left-4 md:bottom-8 md:left-12',
-      'left': 'absolute left-0 top-1/2 transform -translate-x-6 -translate-y-1/2'
+      'top-left': 'absolute top-8 left-8 md:top-12 md:left-16',
+      'top-center': 'absolute top-4 left-1/2 transform -translate-x-1/2',
+      'top-right': 'absolute top-8 right-8 md:top-12 md:right-16',
+      'right': 'absolute right-4 top-1/2 transform -translate-y-1/2',
+      'bottom-right': 'absolute bottom-8 right-8 md:bottom-12 md:right-16',
+      'bottom-center': 'absolute bottom-4 left-1/2 transform -translate-x-1/2',
+      'bottom-left': 'absolute bottom-8 left-8 md:bottom-12 md:left-16',
+      'left': 'absolute left-4 top-1/2 transform -translate-y-1/2'
     };
     return positions[position as keyof typeof positions] || '';
   };
