@@ -540,7 +540,7 @@ const LandingPage = () => {
 
       {/* Tecnologias OTIMIZADA */}
       <section className="py-20 bg-muted/20 theme-transition">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 py-[25px]">
           <div className="text-center mb-16 animate-fade-in">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-6 theme-transition">
               Tecnologias que Usamos
