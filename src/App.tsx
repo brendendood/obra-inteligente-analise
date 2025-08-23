@@ -4,7 +4,7 @@ import { ThemeProvider } from "next-themes";
 import SafeToasters from "@/components/ui/SafeToasters";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
 import { AuthProvider } from "@/contexts/SimpleAuthProvider";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
@@ -178,7 +178,7 @@ const App = () => {
     <CriticalErrorBoundary>
       <ReactHealthCheck>
         <AppProviders>
-          
+          <BrowserRouter>
             <Suspense fallback={<UnifiedLoading />}>
               <Routes>
                 {/* Public routes */}
@@ -275,7 +275,7 @@ const App = () => {
             </Suspense>
             {/* Monta toasts após o Router para evitar qualquer problema de contexto/hook */}
             <SafeToasters />
-          
+          </BrowserRouter>
         </AppProviders>
       </ReactHealthCheck>
     </CriticalErrorBoundary>

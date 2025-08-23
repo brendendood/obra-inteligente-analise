@@ -1,705 +1,740 @@
-import { useEffect, useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
-import VideoPlaceholder from '@/components/ui/VideoPlaceholder';
-import ToolsIntegrationSection from '@/components/ui/ToolsIntegrationSection';
-import RotatingText from '@/components/ui/RotatingText';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { Upload, Bot, Calculator, Calendar, FileText, ArrowRight, BarChart3, Users, Clock, Target, Star, CheckCircle, Zap, Award, Building, CheckSquare, Code, Database, ExternalLink, FileArchive, FileCog, Gauge, HardHat, Layers, Lock, Ruler, ServerCog, Shield, Wrench, Instagram, Linkedin, Youtube, Mail, Phone } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Zap, 
+  Shield, 
+  TrendingUp, 
+  Users, 
+  Bot,
+  Calculator,
+  Calendar,
+  FileText,
+  ChevronRight,
+  Star,
+  Play,
+  Menu,
+  X,
+  CheckCircle,
+  ArrowRight,
+  Building2,
+  BarChart3,
+  Clock,
+  Target,
+  Lightbulb,
+  Trophy,
+  Gift,
+  MapPin
+} from "lucide-react";
 
-// Hook para contador animado OTIMIZADO
+// Hook para animação de contadores
 const useCountAnimation = (target: number, duration: number = 2000) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const countRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (hasAnimated) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !isVisible) {
-        setIsVisible(true);
-        setHasAnimated(true);
-        console.log(`Iniciando animação do contador para ${target}`);
+  const elementRef = useRef<HTMLDivElement>(null);
 
-        // Animação otimizada
-        let start = 0;
-        const increment = target / (duration / 16);
-        const animate = () => {
-          start += increment;
-          if (start < target) {
-            setCount(Math.floor(start));
-            requestAnimationFrame(animate);
-          } else {
-            setCount(target);
-            console.log(`Contador finalizado em ${target}`);
-          }
-        };
-        requestAnimationFrame(animate);
-      }
-    }, {
-      threshold: 0.3,
-      rootMargin: '50px'
-    });
-    if (countRef.current) {
-      observer.observe(countRef.current);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
     }
-    return () => {
-      observer.disconnect();
-    };
-  }, [target, duration, isVisible, hasAnimated]);
-  return {
-    count,
-    countRef
-  };
+
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const increment = target / (duration / 16);
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [isVisible, target, duration]);
+
+  return { count, elementRef };
 };
+
 const LandingPage = () => {
-  const navigate = useNavigate();
-  const {
-    isAuthenticated,
-    loading: authLoading
-  } = useAuth();
-  const [scrollY, setScrollY] = useState(0);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [totalXP, setTotalXP] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState<boolean[]>([false, false, false, false]);
-  const [showParticles, setShowParticles] = useState<number | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Cálculo de contadores em tempo real baseado na data atual
-  const calculateRealTimeStats = () => {
-    const baseDate = new Date('2025-07-25'); // Data base: hoje
-    const currentDate = new Date();
-    const daysDifference = Math.floor((currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
-    return {
-      activeUsers: 8 + daysDifference * 5,
-      // Começar com 8, +5 por dia
-      analyzedProjects: 80 + daysDifference * 12,
-      // Começar com 80, +12 por dia
-      precision: 95,
-      // Valor fixo
-      timeSaved: 80 // Valor fixo
-    };
-  };
-  const realTimeStats = calculateRealTimeStats();
-  const counter1 = useCountAnimation(realTimeStats.analyzedProjects);
-  const counter2 = useCountAnimation(realTimeStats.precision);
-  const counter3 = useCountAnimation(realTimeStats.timeSaved);
-  const counter4 = useCountAnimation(realTimeStats.activeUsers);
+  // Animações de contadores
+  const projectsCount = useCountAnimation(15000);
+  const economyCount = useCountAnimation(30);
+  const timeCount = useCountAnimation(75);
+  const satisfactionCount = useCountAnimation(98);
 
-  // Redirecionamento automático para usuários autenticados
-  useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      navigate('/painel', {
-        replace: true
-      });
-    }
-  }, [isAuthenticated, authLoading, navigate]);
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll, {
-      passive: true
-    });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  const missionSteps = [{
-    title: "Selecione seu projeto",
-    description: "Escolha um projeto para começar sua jornada",
-    xp: 50,
-    icon: Target,
-    color: "from-green-500 to-emerald-500"
-  }, {
-    title: "Faça o upload",
-    description: "Carregue seus arquivos e documentos",
-    xp: 100,
-    icon: Upload,
-    color: "from-blue-500 to-indigo-500"
-  }, {
-    title: "Faça sua análise",
-    description: "Deixe a IA processar seus dados",
-    xp: 200,
-    icon: Bot,
-    color: "from-purple-500 to-pink-500"
-  }, {
-    title: "Economize tempo",
-    description: "Receba resultados profissionais instantaneamente",
-    xp: 300,
-    icon: Clock,
-    color: "from-orange-500 to-red-500"
-  }];
-  const handleMissionClick = (index: number) => {
-    if (index === currentStep && !completedSteps[index]) {
-      const newCompletedSteps = [...completedSteps];
-      newCompletedSteps[index] = true;
-      setCompletedSteps(newCompletedSteps);
-      const newTotalXP = totalXP + missionSteps[index].xp;
-      setTotalXP(newTotalXP);
-      if (index < missionSteps.length - 1) {
-        setCurrentStep(index + 1);
-        setShowParticles(index + 1);
-        setTimeout(() => {
-          setShowParticles(null);
-        }, 600);
-      }
-    }
-  };
-  const getMissionStatus = (index: number) => {
-    if (completedSteps[index]) return 'completed';
-    if (index === currentStep) return 'available';
-    return 'locked';
-  };
-  const currentLevel = Math.floor(totalXP / 200) + 1;
-  const xpForNextLevel = currentLevel * 200;
-  const progressPercent = totalXP > 0 ? totalXP % 200 / 200 * 100 : 0;
-  const features = [{
-    icon: Upload,
-    title: "Upload e Análise Instantânea",
-    description: "Arraste sua planta baixa ou memorial descritivo e receba análise completa em menos de 60 segundos"
-  }, {
-    icon: Bot,
-    title: "IA Treinada para Construção Civil",
-    description: "Algoritmos especializados que reconhecem elementos construtivos e aplicam normas técnicas automaticamente"
-  }, {
-    icon: Calculator,
-    title: "Orçamentos 90% Mais Rápidos",
-    description: "Elimine planilhas manuais e receba orçamentos detalhados com composições SINAPI atualizadas"
-  }, {
-    icon: Calendar,
-    title: "Cronogramas Físico-Financeiros",
-    description: "Cronogramas inteligentes que consideram interdependências e otimizam recursos automaticamente"
-  }, {
-    icon: FileText,
-    title: "Relatórios Técnicos Prontos",
-    description: "Documentação profissional em conformidade com NBR 12721 - pronta para apresentação"
-  }, {
-    icon: BarChart3,
-    title: "Insights que Economizam Milhares",
-    description: "Identifique oportunidades de economia e otimizações que podem reduzir custos em até 15%"
-  }];
-  const steps = [{
-    number: "01",
-    title: "Faça Upload",
-    description: "Envie plantas baixas, memoriais descritivos ou especificações técnicas em PDF"
-  }, {
-    number: "02",
-    title: "IA Analisa",
-    description: "Nossa IA processa dados técnicos seguindo normas ABNT NBR 12721 e SINAPI"
-  }, {
-    number: "03",
-    title: "Receba Resultados",
-    description: "Orçamentos detalhados, cronogramas físico-financeiros e relatórios executivos"
-  }];
-  const plans = [{
-    name: "Gratuito",
-    price: "R$ 0",
-    period: "/mês",
-    description: "Ideal para profissionais iniciantes",
-    features: ["1 projeto por mês", "Análise básica de PDF", "Orçamento técnico simples", "Suporte por email"],
-    popular: false
-  }, {
-    name: "Pro",
-    price: "R$ 79",
-    period: "/mês",
-    description: "Para profissionais ativos",
-    features: ["Projetos ilimitados", "Cronogramas automáticos", "Dados oficiais SINAPI", "Dashboards avançados", "Exportações em PDF/Excel", "Suporte prioritário"],
-    popular: true
-  }, {
-    name: "Enterprise",
-    price: "Sob consulta",
-    period: "",
-    description: "Para construtoras e escritórios",
-    features: ["Acesso multiusuário", "Integração com ERPs", "Automações N8N", "Onboarding personalizado", "Suporte técnico dedicado", "SLA garantido"],
-    popular: false
-  }];
-  const testimonials = [{
-    name: "Carlos Eduardo Santos",
-    role: "Engenheiro Civil",
-    company: "Santos Engenharia",
-    content: "Reduzi 40% do tempo de orçamentação em obras residenciais. A precisão técnica seguindo a NBR 12721 é impressionante.",
-    rating: 5,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=carlos&backgroundColor=b6e3f4&eyes=happy&mouth=smile"
-  }, {
-    name: "Ana Paula Oliveira",
-    role: "Arquiteta",
-    company: "Oliveira Arquitetura",
-    content: "A análise automática de plantas baixas economizou semanas de trabalho. Interface intuitiva e resultados profissionais.",
-    rating: 5,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ana&backgroundColor=ffd93d&eyes=happy&mouth=smile"
-  }, {
-    name: "Roberto Mendes",
-    role: "Gestor de Obras",
-    company: "Construtora Mendes",
-    content: "Os cronogramas físico-financeiros são precisos e seguem as melhores práticas. Essencial para gestão de projetos.",
-    rating: 5,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=roberto&backgroundColor=c0aede&eyes=happy&mouth=smile"
-  }, {
-    name: "Marina Costa",
-    role: "Engenheira Estrutural",
-    company: "Costa & Associados",
-    content: "A integração com dados do SINAPI garante orçamentos atualizados. Ferramenta indispensável para engenheiros.",
-    rating: 5,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=marina&backgroundColor=ffdfbf&eyes=happy&mouth=smile"
-  }, {
-    name: "José Silva",
-    role: "Coordenador de Projetos",
-    company: "Silva Construções",
-    content: "Automatizou nosso processo de análise técnica. ROI positivo desde o primeiro mês de uso.",
-    rating: 5,
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=jose&backgroundColor=d1d4f9&eyes=happy&mouth=smile"
-  }];
-  const techSpecs = [{
-    icon: Database,
-    title: "Dados Oficiais SINAPI",
-    description: "Composições unitárias atualizadas mensalmente seguindo diretrizes do IBGE"
-  }, {
-    icon: Shield,
-    title: "Conformidade NBR 12721",
-    description: "Orçamentos técnicos em conformidade com normas ABNT para avaliação de custos"
-  }, {
-    icon: Code,
-    title: "IA Proprietária Local",
-    description: "Algoritmos treinados especificamente para análise de documentos técnicos da construção civil"
-  }, {
-    icon: ServerCog,
-    title: "Integração N8N",
-    description: "Automações personalizadas conectando ERP, planilhas e sistemas de gestão"
-  }, {
-    icon: FileArchive,
-    title: "Processamento PDF Avançado",
-    description: "OCR especializado em plantas baixas, memoriais descritivos e especificações técnicas"
-  }, {
-    icon: Lock,
-    title: "Segurança Supabase",
-    description: "Armazenamento seguro com criptografia e backup automático de dados sensíveis"
-  }];
-  console.log('Landing Page renderizada com sucesso');
-  return <div className="min-h-screen bg-background theme-transition">
-      {/* Header fixo e flutuante */}
-      <Header />
-      
-      {/* Apple-style backdrop gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-background via-background to-muted/20 -z-10 theme-transition" />
-      
-      {/* Apple-style Hero Section */}
-      <section className="pt-32 md:pt-40 pb-20 px-6 md:px-8 py-[130px]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center space-y-12">
-            {/* Elegant notification badge */}
-            <div className="inline-flex items-center gap-2 bg-muted text-muted-foreground rounded-full px-5 py-2 text-sm font-medium theme-transition">
-              <Zap className="h-4 w-4" />
-              Chega de perder tempo com planilhas
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Building2 className="h-8 w-8 text-primary" />
+            <span className="text-2xl font-bold text-foreground">MadeAI</span>
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <a href="#features" className="text-muted-foreground hover:text-primary transition-colors">
+              Recursos
+            </a>
+            <a href="#how-it-works" className="text-muted-foreground hover:text-primary transition-colors">
+              Como Funciona
+            </a>
+            <a href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
+              Preços
+            </a>
+            <a href="#testimonials" className="text-muted-foreground hover:text-primary transition-colors">
+              Depoimentos
+            </a>
+          </nav>
+
+          <div className="hidden md:flex items-center space-x-4">
+            <Link to="/login">
+              <Button variant="ghost">Entrar</Button>
+            </Link>
+            <Link to="/cadastro">
+              <Button>Começar Grátis</Button>
+            </Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t bg-background">
+            <nav className="container mx-auto px-4 py-4 space-y-4">
+              <a href="#features" className="block text-muted-foreground hover:text-primary">
+                Recursos
+              </a>
+              <a href="#how-it-works" className="block text-muted-foreground hover:text-primary">
+                Como Funciona
+              </a>
+              <a href="#pricing" className="block text-muted-foreground hover:text-primary">
+                Preços
+              </a>
+              <a href="#testimonials" className="block text-muted-foreground hover:text-primary">
+                Depoimentos
+              </a>
+              <div className="pt-4 space-y-2">
+                <Link to="/login" className="block">
+                  <Button variant="ghost" className="w-full">Entrar</Button>
+                </Link>
+                <Link to="/cadastro" className="block">
+                  <Button className="w-full">Começar Grátis</Button>
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
+      </header>
+
+      {/* Hero Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center max-w-4xl">
+          <Badge variant="secondary" className="mb-6">
+            🚀 Nova Era da Construção Civil
+          </Badge>
+          
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Gerencie Obras com
+            <br />
+            Inteligência Artificial
+          </h1>
+          
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Transforme sua gestão de obras com IA avançada. Orçamentos precisos, cronogramas otimizados 
+            e análises inteligentes em uma única plataforma.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Link to="/cadastro">
+              <Button size="lg" className="text-lg px-8">
+                Começar Grátis <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" className="text-lg px-8">
+              <Play className="mr-2 h-5 w-5" />
+              Ver Demo
+            </Button>
+          </div>
+
+          {/* Hero Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
+            <div ref={projectsCount.elementRef} className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {projectsCount.count.toLocaleString()}+
+              </div>
+              <div className="text-sm text-muted-foreground">Projetos Criados</div>
             </div>
-            
-            {/* Hero title with Apple typography */}
-            <div className="space-y-6">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-semibold text-foreground leading-tight tracking-tight theme-transition">
-                Receba seus{' '}
-                <RotatingText words={['Orçamentos', 'Cronogramas', 'Documentos']} className="text-primary" />
-                {' '}técnicos precisos em{' '}
-                <span className="text-primary">
-                  segundos
-                </span>
-              </h1>
-              
-              <p className="text-lg md:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-normal tracking-wide theme-transition">
-                Nossa IA entende seu projeto arquitetônico, interpreta os dados automaticamente e entrega orçamentos completos, cronogramas otimizados e relatórios técnicos.
+            <div ref={economyCount.elementRef} className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {economyCount.count}%
+              </div>
+              <div className="text-sm text-muted-foreground">Economia em Custos</div>
+            </div>
+            <div ref={timeCount.elementRef} className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {timeCount.count}%
+              </div>
+              <div className="text-sm text-muted-foreground">Redução no Tempo</div>
+            </div>
+            <div ref={satisfactionCount.elementRef} className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {satisfactionCount.count}%
+              </div>
+              <div className="text-sm text-muted-foreground">Satisfação</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-20 px-4 bg-muted/50">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Recursos Revolucionários
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Descubra como a IA está transformando a gestão de obras
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="p-0">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Calculator className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Orçamentos Inteligentes</h3>
+                <p className="text-muted-foreground mb-4">
+                  IA analisa suas plantas e gera orçamentos detalhados automaticamente, 
+                  com precisão de 95% e economia de até 8 horas por projeto.
+                </p>
+                <div className="flex items-center text-primary">
+                  <span className="text-sm font-medium">Saiba mais</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="p-0">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Cronogramas Otimizados</h3>
+                <p className="text-muted-foreground mb-4">
+                  Cronogramas que se adaptam automaticamente a mudanças, 
+                  otimizando recursos e reduzindo prazos em até 30%.
+                </p>
+                <div className="flex items-center text-primary">
+                  <span className="text-sm font-medium">Saiba mais</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="p-0">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Bot className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Assistente IA 24/7</h3>
+                <p className="text-muted-foreground mb-4">
+                  Tire dúvidas, receba sugestões e otimize sua obra com 
+                  nosso assistente especializado em construção civil.
+                </p>
+                <div className="flex items-center text-primary">
+                  <span className="text-sm font-medium">Saiba mais</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="p-0">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Análises Preditivas</h3>
+                <p className="text-muted-foreground mb-4">
+                  Identifique riscos antes que aconteçam e tome decisões 
+                  baseadas em dados históricos e tendências do mercado.
+                </p>
+                <div className="flex items-center text-primary">
+                  <span className="text-sm font-medium">Saiba mais</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="p-0">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Gestão de Documentos</h3>
+                <p className="text-muted-foreground mb-4">
+                  Centralize plantas, contratos e documentos com OCR inteligente 
+                  e busca por conteúdo em segundos.
+                </p>
+                <div className="flex items-center text-primary">
+                  <span className="text-sm font-medium">Saiba mais</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="p-0">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Segurança Total</h3>
+                <p className="text-muted-foreground mb-4">
+                  Dados criptografados, backups automáticos e conformidade 
+                  com LGPD para máxima proteção dos seus projetos.
+                </p>
+                <div className="flex items-center text-primary">
+                  <span className="text-sm font-medium">Saiba mais</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Como Funciona
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Em apenas 3 passos simples, transforme sua gestão de obras
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">1</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Upload Inteligente</h3>
+              <p className="text-muted-foreground">
+                Envie plantas, documentos ou descrições do projeto. 
+                Nossa IA processa automaticamente todas as informações.
               </p>
             </div>
-            
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Button size="lg" onClick={() => navigate('/cadastro')} className="w-full sm:w-auto h-14 px-12 text-lg font-medium bg-primary hover:bg-primary/90 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-                Analisar Projeto Grátis
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-12 text-lg font-medium rounded-xl border-slate-300 hover:bg-slate-50 transition-all duration-200" onClick={() => {
-              const userJourneySection = document.getElementById('user-journey');
-              if (userJourneySection) {
-                userJourneySection.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }
-            }}>
-                Ver Demonstração
-              </Button>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Análise Automática</h3>
+              <p className="text-muted-foreground">
+                A IA gera orçamentos, cronogramas e análises detalhadas 
+                em minutos, não horas.
+              </p>
             </div>
-            
-            {/* Trust badges */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground pt-8 theme-transition">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <span className="font-medium">Resultados em 60 segundos</span>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">3</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <span className="font-medium">Baseado em dados SINAPI</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <span className="font-medium">Grátis para começar</span>
-              </div>
+              <h3 className="text-xl font-semibold mb-2">Gestão Completa</h3>
+              <p className="text-muted-foreground">
+                Acompanhe o progresso, ajuste recursos e tome decisões 
+                inteligentes com dados em tempo real.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Apple-style Features Section */}
-      <section className="px-6 md:px-8 bg-muted/20 theme-transition py-[22px]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
-              Por que engenheiros e arquitetos escolhem o MadeAI?
-            </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal theme-transition">
-              Deixe a IA fazer o trabalho pesado enquanto você foca no que realmente importa: criar projetos excepcionais
-            </p>
-          </div>
-
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => <div key={index} className="group p-8 bg-card rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-smooth hover-lift animate-fade-in stagger-animation theme-transition" style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
-                <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl flex items-center justify-center mb-6 group-hover:from-primary/20 group-hover:to-primary/30 transition-smooth group-hover:scale-110">
-                  <feature.icon className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3 theme-transition">{feature.title}</h3>
-                <p className="text-muted-foreground leading-relaxed theme-transition">{feature.description}</p>
-              </div>)}
-          </div>
-        </div>
-      </section>
-
-      {/* Apple-style Stats Section */}
-      <section className="pt-16 pb-20 px-6 md:px-8 bg-background theme-transition">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
-              Resultados que impressionam
-            </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal mb-12 theme-transition">
-              Números que comprovam a eficiência da nossa plataforma
-            </p>
-            
-            {/* Video placeholder com lembrete */}
-            <div className="max-w-3xl mx-auto mb-16">
-              <VideoPlaceholder title="Depoimento de usuário" description="Veja como nossos clientes transformaram seus projetos com a MadenAI" size="lg" className="shadow-xl shadow-primary/10" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
-              <div ref={counter1.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
-                {counter1.count.toLocaleString()}+
-              </div>
-              <div className="text-muted-foreground font-medium theme-transition">Projetos Analisados</div>
-            </div>
-            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
-              <div ref={counter2.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
-                {counter2.count}%
-              </div>
-              <div className="text-muted-foreground font-medium theme-transition">Precisão</div>
-            </div>
-            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
-              <div ref={counter3.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
-                {counter3.count}%
-              </div>
-              <div className="text-muted-foreground font-medium theme-transition">Economia de Tempo</div>
-            </div>
-            <div className="text-center bg-muted/50 rounded-2xl p-8 hover:bg-muted transition-all duration-200 theme-transition">
-              <div ref={counter4.countRef} className="text-4xl md:text-5xl font-semibold text-primary mb-2 font-display">
-                {counter4.count.toLocaleString()}+
-              </div>
-              <div className="text-muted-foreground font-medium theme-transition">Usuários Ativos</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Apple-style How it Works */}
-      <section className="px-6 md:px-8 theme-transition py-[14px] bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
-              Como funciona
-            </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal theme-transition">
-              Processo simples e automatizado para análise completa de projetos
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-            {steps.map((step, index) => <div key={index} className="text-center space-y-8">                
-                <div className="space-y-4">
-                  <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto text-primary-foreground font-semibold text-lg shadow-sm">
-                    {step.number}
-                  </div>
-                  <h3 className="text-2xl font-semibold text-foreground font-display theme-transition">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto theme-transition">{step.description}</p>
-                </div>
-                
-                {index < steps.length - 1 && <ArrowRight className="hidden md:block absolute top-32 -right-6 h-6 w-6 text-muted-foreground/50" />}
-              </div>)}
-          </div>
-        </div>
-      </section>
-
-      {/* Apple-style User Journey */}
-      <section id="user-journey" className="md:px-8 bg-background theme-transition py-[46px] px-[46px]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-4xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-display font-semibold text-foreground mb-8 tracking-tight theme-transition">
+      {/* Gamified Journey Section */}
+      <section className="py-20 px-4 bg-muted/50">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Sua Jornada de Sucesso
             </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-normal mb-12 theme-transition">
-              Acompanhe seu progresso e desbloqueie novas funcionalidades conforme você domina a plataforma
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Desbloqueie conquistas e evolua com a plataforma
             </p>
-            
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {missionSteps.map((mission, index) => {
-            const status = getMissionStatus(index);
-            const isClickable = status === 'available';
-            return <div key={index} className={`group relative p-6 bg-card rounded-2xl border-2 transition-all duration-300 theme-transition ${status === 'completed' ? 'border-green-200 shadow-lg shadow-green-500/10' : status === 'available' ? 'border-primary/30 shadow-lg shadow-primary/10 cursor-pointer hover:shadow-xl hover:scale-105' : 'border-border'} ${showParticles === index ? 'mission-unlock' : ''}`} style={{
-              animationDelay: `${index * 0.1}s`
-            }} onClick={() => handleMissionClick(index)}>
-                  {/* Indicador de missão completada */}
-                  {status === 'completed' && <div className="absolute -top-3 -right-3 w-8 h-8 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center shadow-lg animate-scale-in">
-                      <CheckCircle className="h-5 w-5 text-white" />
-                    </div>}
-                  
-                  {/* Chamada para clicar (disponível) */}
-                  {status === 'available' && <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-xs px-4 py-2 rounded-full shadow-lg animate-pulse border-2 border-background font-semibold">
-                      Clique aqui
-                    </div>}
-                  
-                  {/* Ícone da missão */}
-                  <div className={`w-16 h-16 bg-gradient-to-br ${mission.color} rounded-2xl flex items-center justify-center mx-auto mb-4 ${status === 'locked' ? 'opacity-50 grayscale' : 'group-hover:scale-110'} transition-all duration-300`}>
-                    <mission.icon className="h-8 w-8 text-white" />
-                  </div>
-                  
-                  {/* Conteúdo da missão */}
-                  <div className="text-center">
-                    <h3 className={`text-lg font-semibold mb-2 theme-transition ${status === 'locked' ? 'text-muted-foreground/50' : 'text-foreground'}`}>
-                      {mission.title}
-                    </h3>
-                    <p className={`text-sm mb-4 theme-transition ${status === 'locked' ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>
-                      {mission.description}
-                    </p>
-                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium theme-transition ${status === 'completed' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-200' : status === 'available' ? 'bg-gradient-to-r from-primary/10 to-primary/20 text-primary border border-primary/30' : 'bg-muted text-muted-foreground border border-border'}`}>
-                      <Award className="h-4 w-4" />
-                      {mission.xp} XP
-                    </div>
-                  </div>
-                  
-                  {/* Overlay para missões bloqueadas */}
-                  {status === 'locked' && <div className="absolute inset-0 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                      <Lock className="h-8 w-8 text-muted-foreground/50" />
-                    </div>}
-                </div>;
-          })}
+
+          <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Trophy className="h-6 w-6 text-yellow-500" />
+              </div>
+              <h3 className="font-semibold mb-2">Primeiro Projeto</h3>
+              <p className="text-sm text-muted-foreground">
+                Complete sua primeira análise
+              </p>
+              <Badge variant="secondary" className="mt-2">+100 XP</Badge>
+            </Card>
+
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Target className="h-6 w-6 text-blue-500" />
+              </div>
+              <h3 className="font-semibold mb-2">Especialista</h3>
+              <p className="text-sm text-muted-foreground">
+                Complete 10 projetos
+              </p>
+              <Badge variant="secondary" className="mt-2">+500 XP</Badge>
+            </Card>
+
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Lightbulb className="h-6 w-6 text-purple-500" />
+              </div>
+              <h3 className="font-semibold mb-2">Inovador</h3>
+              <p className="text-sm text-muted-foreground">
+                Use todos os recursos IA
+              </p>
+              <Badge variant="secondary" className="mt-2">+1000 XP</Badge>
+            </Card>
+
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Gift className="h-6 w-6 text-green-500" />
+              </div>
+              <h3 className="font-semibold mb-2">Mestre</h3>
+              <p className="text-sm text-muted-foreground">
+                50+ projetos concluídos
+              </p>
+              <Badge variant="secondary" className="mt-2">+2500 XP</Badge>
+            </Card>
           </div>
-          
-          {/* Barra de progresso XP atualizada */}
-          <div className="mt-12 text-center">
-            <div className="inline-flex items-center gap-4 px-6 py-3 bg-card rounded-2xl border border-border shadow-lg theme-transition">
-              <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold text-foreground">Nível {currentLevel}</span>
-              </div>
-              <div className="w-32 h-3 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500" style={{
-                width: `${progressPercent}%`
-              }}></div>
-              </div>
-              <span className="text-sm text-muted-foreground">{totalXP}/{xpForNextLevel} XP</span>
-            </div>
-            
-            {/* Botão CTA quando jornada completa */}
-            {completedSteps.every(step => step) && <div className="mt-8 animate-scale-in">
-                <Button size="lg" className="h-14 px-8 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-xl shadow-lg shadow-green-500/25 transition-smooth hover-lift" onClick={() => {
-              const plansSection = document.querySelector('#planos');
-              if (plansSection) {
-                plansSection.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }
-            }}>
-                  🎉 Parabéns! Assine um Plano Agora
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </div>}
+
+          <div className="text-center mt-12">
+            <Button size="lg" className="text-lg px-8">
+              Começar Jornada <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Tecnologias OTIMIZADA */}
-      
-
-      {/* Tech Specs OTIMIZADA */}
-      <section className="theme-transition px-[15px] py-[62px] bg-zinc-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
-              Especificações Técnicas
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Planos Flexíveis
             </h2>
-            <p className="text-xl text-muted-foreground theme-transition">
-              Tecnologias e conformidades que garantem a precisão dos seus projetos
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Escolha o plano ideal para sua necessidade
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {techSpecs.map((spec, index) => <div key={index} className="group p-8 bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl border border-slate-200 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-smooth hover-lift animate-fade-in" style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
-                <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center mb-6 shadow-md shadow-blue-500/10 group-hover:scale-110 transition-fast">
-                  <spec.icon className="h-7 w-7 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">{spec.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{spec.description}</p>
-              </div>)}
-          </div>
-        </div>
-      </section>
 
-      {/* Plans OTIMIZADA */}
-      <section id="planos" className="py-20 px-4 bg-background theme-transition">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
-              Planos para cada necessidade
-            </h2>
-            <p className="text-xl text-muted-foreground theme-transition">
-              Escolha o plano ideal para você ou sua empresa
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => <div key={index} className={`p-8 rounded-2xl border relative hover-lift animate-fade-in transition-smooth theme-transition ${plan.popular ? 'bg-gradient-to-br from-primary to-primary/80 border-transparent text-primary-foreground' : 'bg-card border-border hover:border-primary/30 hover:shadow-lg'}`} style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
-                {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-sm font-semibold px-4 py-1 rounded-full shadow-lg animate-bounce-gentle">
-                    Mais Popular
-                  </div>}
-                
-                <div className="text-xl font-semibold mb-2">
-                  {plan.name}
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="p-8 hover:shadow-xl transition-shadow">
+              <CardContent className="p-0">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Gratuito</h3>
+                  <div className="text-4xl font-bold mb-2">R$ 0</div>
+                  <p className="text-muted-foreground">Para começar</p>
                 </div>
-                
-                <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="ml-1 text-sm opacity-80">{plan.period}</span>
-                </div>
-                
-                <p className={`mb-8 theme-transition ${plan.popular ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                  {plan.description}
-                </p>
-                
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center gap-3">
-                      <CheckCircle className={`h-5 w-5 flex-shrink-0 ${plan.popular ? 'text-primary-foreground/80' : 'text-primary'}`} />
-                      <span className={`theme-transition ${plan.popular ? 'text-primary-foreground/90' : 'text-foreground'}`}>
-                        {feature}
-                      </span>
-                    </li>)}
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    3 projetos por mês
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Orçamentos básicos
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Suporte por email
+                  </li>
                 </ul>
-                
-                <Link to="/cadastro">
-                  <Button className={`w-full h-12 text-base font-semibold rounded-xl transition-fast hover-scale ${plan.popular ? 'bg-background text-foreground hover:bg-muted' : 'bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70'}`}>
-                    Começar Agora
-                  </Button>
-                </Link>
-              </div>)}
+                <Button className="w-full" variant="outline">
+                  Começar Grátis
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="p-8 border-primary hover:shadow-xl transition-shadow relative">
+              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                Mais Popular
+              </Badge>
+              <CardContent className="p-0">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Profissional</h3>
+                  <div className="text-4xl font-bold mb-2">R$ 97</div>
+                  <p className="text-muted-foreground">por mês</p>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Projetos ilimitados
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    IA avançada
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Cronogramas otimizados
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Assistente IA 24/7
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Suporte prioritário
+                  </li>
+                </ul>
+                <Button className="w-full">
+                  Começar Teste Grátis
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="p-8 hover:shadow-xl transition-shadow">
+              <CardContent className="p-0">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold mb-2">Enterprise</h3>
+                  <div className="text-4xl font-bold mb-2">Customizado</div>
+                  <p className="text-muted-foreground">Para grandes empresas</p>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Todos os recursos
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Integrações customizadas
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Suporte dedicado
+                  </li>
+                  <li className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    Treinamento da equipe
+                  </li>
+                </ul>
+                <Button className="w-full" variant="outline">
+                  Falar com Vendas
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
-      {/* Tools Integration Section */}
-      <ToolsIntegrationSection />
-
-      {/* Testimonials OTIMIZADA */}
-      <section className="px-4 bg-muted/20 theme-transition py-[51px]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
-              O que dizem nossos usuários
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-20 px-4 bg-muted/50">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              O que nossos clientes dizem
             </h2>
-            <p className="text-xl text-muted-foreground theme-transition">
-              Profissionais que já transformaram sua forma de trabalhar
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Resultados reais de quem já transformou sua gestão de obras
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.slice(0, 3).map((testimonial, index) => <div key={index} className="testimonial-card bg-card rounded-2xl p-8 border border-border hover:border-primary/30 hover:shadow-lg animate-fade-in theme-transition" style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
-                <div className="flex items-start gap-4 mb-6">
-                  <img src={testimonial.avatar} alt={testimonial.name} className="w-16 h-16 rounded-xl bg-muted p-1 border border-border hover-scale transition-fast" loading="lazy" />
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <Card className="p-6">
+              <CardContent className="p-0">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-4">
+                  "Reduziu em 40% o tempo de orçamentação. A IA é impressionantemente precisa 
+                  e agora consigo focar no que realmente importa: entregar qualidade."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-sm font-medium">JM</span>
+                  </div>
                   <div>
-                    <div className="font-semibold text-foreground theme-transition">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground theme-transition">{testimonial.role}</div>
-                    <div className="text-sm text-muted-foreground/80 theme-transition">{testimonial.company}</div>
+                    <div className="font-semibold">João Martins</div>
+                    <div className="text-sm text-muted-foreground">Engenheiro Civil</div>
                   </div>
                 </div>
-                
-                <p className="text-muted-foreground leading-relaxed mb-4 theme-transition">
-                  {testimonial.content}
-                </p>
-                
-                <div className="flex gap-1">
-                  {Array.from({
-                length: testimonial.rating
-              }).map((_, i) => <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="p-0">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
                 </div>
-              </div>)}
+                <p className="text-muted-foreground mb-4">
+                  "Nossa construtora economizou R$ 2.3 milhões em 6 meses usando a plataforma. 
+                  Os cronogramas otimizados são um divisor de águas."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-sm font-medium">AS</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold">Ana Silva</div>
+                    <div className="text-sm text-muted-foreground">Diretora de Obras</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="p-0">
+                <div className="flex items-center mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-4">
+                  "O assistente IA é como ter um especialista 24/7. Já evitou vários problemas 
+                  e otimizou nossos recursos de forma impressionante."
+                </p>
+                <div className="flex items-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                    <span className="text-sm font-medium">RL</span>
+                  </div>
+                  <div>
+                    <div className="font-semibold">Roberto Lima</div>
+                    <div className="text-sm text-muted-foreground">Arquiteto</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
+      {/* Final CTA Section */}
+      <section className="py-20 px-4 bg-primary text-white">
+        <div className="container mx-auto text-center max-w-4xl">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            Pronto para Revolucionar
+            <br />
+            sua Gestão de Obras?
+          </h2>
+          
+          <p className="text-xl mb-8 opacity-90">
+            Junte-se a milhares de profissionais que já transformaram 
+            seus projetos com inteligência artificial.
+          </p>
 
-      {/* Final CTA OTIMIZADA */}
-      <section className="px-4 py-[37px]">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-card rounded-3xl p-12 border border-border hover:border-primary/30 transition-smooth animate-fade-in hover-lift theme-transition">
-            <h2 className="text-4xl font-display font-bold text-foreground mb-6 theme-transition">
-              Pronto para revolucionar seus projetos?
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto theme-transition">
-              Junte-se a milhares de profissionais que já economizam tempo e aumentam a precisão com nossa IA
-            </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/cadastro" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 rounded-xl shadow-lg shadow-primary/25 hover-lift transition-smooth">
-                  Começar Gratuitamente
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 text-lg rounded-xl border-border hover:bg-muted hover-scale transition-fast" onClick={() => {
-              window.open('mailto:contato@maden.ai?subject=Falar com Especialista', '_blank');
-            }}>
-                Falar com Especialista
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <Link to="/cadastro">
+              <Button size="lg" variant="secondary" className="text-lg px-8">
+                Começar Grátis Agora <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </div>
-            
-            <div className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground theme-transition">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map(star => <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />)}
-              </div>
-              <span>4.9/5 baseado em 200+ avaliações</span>
-            </div>
+            </Link>
+            <Button size="lg" variant="outline" className="text-lg px-8 border-white text-white hover:bg-white hover:text-primary">
+              Agendar Demonstração
+            </Button>
           </div>
+
+          <p className="text-sm opacity-75">
+            ✓ Teste grátis por 14 dias  ✓ Sem cartão de crédito  ✓ Suporte em português
+          </p>
         </div>
       </section>
 
-      {/* Footer usando componente separado */}
-      <Footer />
+      {/* Footer */}
+      <footer className="py-12 px-4 bg-background border-t">
+        <div className="container mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Building2 className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold">MadeAI</span>
+              </div>
+              <p className="text-muted-foreground">
+                Transformando a construção civil com inteligência artificial.
+              </p>
+            </div>
 
-    </div>;
+            <div>
+              <h4 className="font-semibold mb-4">Produto</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><a href="#features" className="hover:text-primary">Recursos</a></li>
+                <li><a href="#pricing" className="hover:text-primary">Preços</a></li>
+                <li><a href="/ia" className="hover:text-primary">Assistente IA</a></li>
+                <li><a href="/upload" className="hover:text-primary">Upload</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Empresa</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><a href="/about" className="hover:text-primary">Sobre</a></li>
+                <li><a href="/contato" className="hover:text-primary">Contato</a></li>
+                <li><a href="/ajuda" className="hover:text-primary">Ajuda</a></li>
+                <li><a href="/blog" className="hover:text-primary">Blog</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><Link to="/termos" className="hover:text-primary">Termos de Uso</Link></li>
+                <li><Link to="/politica" className="hover:text-primary">Política de Privacidade</Link></li>
+                <li><a href="/cookies" className="hover:text-primary">Cookies</a></li>
+                <li><a href="/lgpd" className="hover:text-primary">LGPD</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-muted-foreground">
+              © 2024 MadeAI. Todos os direitos reservados.
+            </p>
+            <div className="flex items-center space-x-4 mt-4 md:mt-0">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">São Paulo, Brasil</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
 };
+
 export default LandingPage;
