@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import { Logo } from '@/components/ui/logo';
 
 interface WelcomeSectionProps {
   userName: string;
@@ -24,7 +24,7 @@ export const WelcomeSection = ({ userName, onRefresh, isLoading }: WelcomeSectio
       <div className="flex items-center space-x-4">
         {/* Logo da MadeAI */}
         <div className="flex items-center">
-          <UnifiedLogo size="lg" clickable={false} theme="auto" />
+          <Logo width={64} height={24} />
         </div>
 
         {/* Botão de Refresh */}

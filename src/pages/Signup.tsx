@@ -12,7 +12,7 @@ import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { validateEmail, validatePassword, formatAuthError } from '@/utils/authValidation';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import { Logo } from '@/components/ui/logo';
 
 type SignupStep = 1 | 2 | 3;
 
@@ -269,7 +269,7 @@ function Signup() {
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
           <div className="text-center">
-            <UnifiedLogo size="xl" clickable={false} theme="auto" className="mx-auto" />
+            <Logo width={80} height={30} className="mx-auto" />
           </div>
 
           {/* Progress Steps */}

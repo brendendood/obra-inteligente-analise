@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import { Logo } from '@/components/ui/logo';
 
 function ResendConfirmation() {
   const [email, setEmail] = useState('');
@@ -180,7 +180,7 @@ export default function AuthCallback() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <UnifiedLogo />
+          <Logo width={64} height={24} />
           <CardTitle className="text-2xl font-bold">
             {status === 'loading' && 'Confirmação de Email'}
             {status === 'success' && 'E-mail Verificado'}

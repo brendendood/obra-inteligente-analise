@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Send } from 'lucide-react';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import { Logo } from '@/components/ui/logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -107,7 +107,7 @@ export default function Login() {
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <UnifiedLogo size="xl" clickable={false} theme="auto" className="mx-auto" />
+          <Logo width={80} height={30} className="mx-auto" />
         </div>
 
         {/* Welcome Message */}

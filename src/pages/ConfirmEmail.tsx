@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import { Logo } from '@/components/ui/logo';
 
 export default function ConfirmEmail() {
   const navigate = useNavigate();
@@ -89,7 +89,7 @@ export default function ConfirmEmail() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <UnifiedLogo />
+          <Logo width={64} height={24} />
           <CardTitle className="text-2xl font-bold">
             Confirmação de Email
           </CardTitle>
