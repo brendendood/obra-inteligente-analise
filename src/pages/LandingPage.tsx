@@ -122,6 +122,14 @@ const LandingPage = () => {
             className="text-center"
           >
             <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
+            <div className="flex justify-center items-center mb-8">
+              <iframe 
+                src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" 
+                style={{width:'100%',maxWidth:'600px',height:'400px',margin:'0 auto',display:'block',background:'transparent'}} 
+                frameBorder="0" 
+                allowFullScreen
+              />
+            </div>
             <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
               <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
