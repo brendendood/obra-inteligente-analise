@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme: 'light' | 'dark';
   sidebarCollapsed: boolean;
   projectViewMode: 'grid' | 'list';
   projectSortBy: 'name' | 'date' | 'area';
