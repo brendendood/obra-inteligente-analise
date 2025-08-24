@@ -1,21 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Send } from 'lucide-react';
-import { Logo } from '@/components/ui/logo';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { detectUserByIP, getWelcomeMessage } from '@/utils/ipDetection';
 import { validateEmail, formatAuthError } from '@/utils/authValidation';
 import { ForgotPasswordModal } from '@/components/auth/ForgotPasswordModal';
+import { SignInPage } from '@/components/ui/sign-in';
+import { useSocialAuth } from '@/hooks/useSocialAuth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState('Faça login para continuar');
@@ -23,6 +18,7 @@ export default function Login() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { signInWithGoogle } = useSocialAuth();
 
   useEffect(() => {
     const setupWelcomeMessage = async () => {
@@ -102,115 +98,34 @@ export default function Login() {
   };
 
 
+  const handleResetPassword = () => {
+    // Implementar modal de reset de senha
+    console.log('Reset password clicked');
+  };
+
+  const handleCreateAccount = () => {
+    navigate('/cadastro');
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex items-center justify-center p-8">
-      <div className="w-full max-w-md space-y-8">
-        {/* Logo */}
-        <div className="text-center">
-          <Logo width={80} height={30} className="mx-auto" />
-        </div>
-
-        {/* Welcome Message */}
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-semibold text-foreground">
-            {welcomeMessage}
-          </h2>
-          <p className="text-muted-foreground">
-            Acesse sua conta para continuar
-          </p>
-        </div>
-
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Sua senha"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label htmlFor="remember" className="text-sm">
-                Manter conectado
-              </Label>
-            </div>
-            <ForgotPasswordModal>
-              <button
-                type="button"
-                className="text-sm text-primary hover:underline"
-              >
-                Esqueceu a senha?
-              </button>
-            </ForgotPasswordModal>
-          </div>
-
-          {/* Login Button */}
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? 'Entrando...' : 'Entrar'}
-          </Button>
-
-
-          {/* Sign Up Link */}
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Não tem uma conta?{' '}
-              <Link
-                to="/cadastro"
-                className="text-primary hover:underline font-medium"
-              >
-                Cadastre-se gratuitamente
-              </Link>
-            </p>
-          </div>
-        </form>
-      </div>
-    </div>
+    <SignInPage
+      title={
+        <span className="font-light text-foreground tracking-tighter">
+          {welcomeMessage} <strong className="font-semibold">MadeAI</strong>
+        </span>
+      }
+      description="Acesse sua conta para continuar sua jornada com a MadeAI."
+      onSignIn={handleSubmit}
+      onGoogleSignIn={signInWithGoogle}
+      onResetPassword={handleResetPassword}
+      onCreateAccount={handleCreateAccount}
+      loading={loading}
+      email={email}
+      password={password}
+      onEmailChange={setEmail}
+      onPasswordChange={setPassword}
+      rememberMe={rememberMe}
+      onRememberMeChange={setRememberMe}
+    />
   );
 }
