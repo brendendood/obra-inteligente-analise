@@ -109,6 +109,10 @@ export function GlowingShadow({ children }: GlowingShadowButtonProps) {
           box-shadow: 0 0 calc(var(--white-shadow) * 1vw) calc(var(--white-shadow) * 0.15vw) rgb(255 255 255 / 20%);
           animation: shadow-pulse calc(var(--animation-speed) * 2) linear infinite;
         }
+
+        .dark .glow-container:hover .glow-content {
+          box-shadow: none;
+        }
         .glow-container:hover .glow-content:before { --bg-size: 15; animation-play-state: paused; }
         .glow-container:hover .glow { --glow-blur: 1.5; --glow-opacity: 0.6; --glow-scale: 2.5;
           --glow-radius: 0; --rotate: 900; --glow-rotate-unit: 0; --scale-factor: 1.25; animation-play-state: paused; }
