@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { WavyBackground } from '@/components/ui/wavy-background';
 import { HeroPill } from '@/components/ui/hero-pill';
@@ -105,25 +106,16 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                asChild
-              >
-                <Link to="/signup">
-                  Começar Gratuitamente
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-2 border-border hover:bg-muted px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
-                asChild
-              >
-                <Link to="/demo">
-                  Ver Demonstração
-                </Link>
-              </Button>
+              <CtaGlow 
+                label="Começar Gratuitamente"
+                href="/signup"
+                ariaLabel="Começar gratuitamente - Cadastre-se agora"
+              />
+              <CtaGlow 
+                label="Ver Demonstração"
+                href="/demo"
+                ariaLabel="Ver demonstração da plataforma"
+              />
             </div>
 
             {/* Trust Indicators */}
@@ -457,16 +449,13 @@ const LandingPage = () => {
                   ))}
                 </ul>
 
-                <Button 
-                  className={`w-full ${
-                    plan.popular 
-                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
-                      : 'bg-background border border-border hover:bg-muted text-foreground'
-                  }`}
-                  asChild
-                >
-                  <Link to="/signup">{plan.cta}</Link>
-                </Button>
+                <div className="flex justify-center">
+                  <CtaGlow 
+                    label={plan.cta}
+                    href="/signup"
+                    ariaLabel={`${plan.cta} - Plano ${plan.name}`}
+                  />
+                </div>
               </motion.div>
             ))}
           </div>
@@ -614,25 +603,16 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                asChild
-              >
-                <Link to="/signup">
-                  Começar Gratuitamente
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-2 border-border hover:bg-muted px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
-                asChild
-              >
-                <Link to="/contact">
-                  Falar com Especialista
-                </Link>
-              </Button>
+              <CtaGlow 
+                label="Começar Gratuitamente"
+                href="/signup"
+                ariaLabel="Começar gratuitamente - Teste agora"
+              />
+              <CtaGlow 
+                label="Falar com Especialista"
+                href="/contact"
+                ariaLabel="Falar com especialista em vendas"
+              />
             </div>
 
             <p className="text-sm text-muted-foreground mt-4">
