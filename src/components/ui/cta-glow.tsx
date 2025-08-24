@@ -10,35 +10,40 @@ type CtaGlowProps = {
   onClick?: () => void
   className?: string
   ariaLabel?: string
+  size?: "sm" | "md" | "lg"
 }
 
-export function CtaGlow({ label, href, onClick, className, ariaLabel }: CtaGlowProps) {
+const sizeClasses = {
+  sm: "px-3 py-2 text-sm",
+  md: "px-4 py-2.5 text-sm",
+  lg: "px-5 py-3 text-base",
+}
+
+export function CtaGlow({
+  label,
+  href,
+  onClick,
+  className,
+  ariaLabel,
+  size = "md",
+}: CtaGlowProps) {
+  const contentClasses = cn(
+    "inline-flex items-center justify-center rounded-full",
+    "bg-background text-foreground",
+    "transition-colors",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60",
+    sizeClasses[size],
+    className
+  )
+
   const content = (
-    <span
-      className={cn(
-        "select-none text-sm font-semibold tracking-tight",
-        "text-foreground",
-      )}
-    >
-      {label}
-    </span>
+    <span className="select-none font-semibold tracking-tight">{label}</span>
   )
 
   return (
     <GlowingShadow>
       {href ? (
-        <Link
-          to={href}
-          aria-label={ariaLabel ?? label}
-          className={cn(
-            "inline-flex items-center justify-center rounded-full",
-            "bg-background text-foreground",
-            "px-5 py-3",
-            "ring-1 ring-border hover:ring-primary/60",
-            "transition-colors",
-            className
-          )}
-        >
+        <Link to={href} aria-label={ariaLabel ?? label} className={contentClasses}>
           {content}
         </Link>
       ) : (
@@ -46,14 +51,7 @@ export function CtaGlow({ label, href, onClick, className, ariaLabel }: CtaGlowP
           type="button"
           aria-label={ariaLabel ?? label}
           onClick={onClick}
-          className={cn(
-            "inline-flex items-center justify-center rounded-full",
-            "bg-background text-foreground",
-            "px-5 py-3",
-            "ring-1 ring-border hover:ring-primary/60",
-            "transition-colors",
-            className
-          )}
+          className={contentClasses}
         >
           {content}
         </button>
