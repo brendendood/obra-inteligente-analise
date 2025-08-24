@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { WavyBackground } from '@/components/ui/wavy-background';
 import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
+import { Footerdemo } from '@/components/ui/footer-section';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { 
   Brain, 
   Calculator, 
@@ -620,7 +620,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <Footer />
+      <Footerdemo />
     </div>
   );
 };
