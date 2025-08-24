@@ -27,8 +27,8 @@ interface GridItemProps {
 
 const GridItem = ({ area, icon, title, description }: GridItemProps) => {
   return (
-    <li className={cn("min-h-[12rem] sm:min-h-[14rem] list-none", area)}>
-      <div className="relative h-full rounded-xl sm:rounded-[1.25rem] border border-border p-2 md:rounded-[1.5rem] md:p-3">
+    <li className={cn("min-h-[14rem] list-none", area)}>
+      <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
         <GlowingEffect
           spread={40}
           glow={true}
@@ -37,18 +37,18 @@ const GridItem = ({ area, icon, title, description }: GridItemProps) => {
           inactiveZone={0.01}
           borderWidth={3}
         />
-        <div className="relative flex h-full flex-col justify-between gap-4 sm:gap-6 overflow-hidden rounded-lg sm:rounded-xl bg-background p-4 sm:p-6">
+        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)] md:p-6">
           <div className="relative flex flex-1 flex-col justify-between gap-3">
             <div className="w-fit rounded-lg border-[0.75px] border-border bg-muted p-2">
               {icon}
             </div>
-            <div className="space-y-2 sm:space-y-3">
-              <h3 className="pt-0.5 text-lg sm:text-xl leading-tight font-semibold font-sans tracking-[-0.04em] md:text-2xl text-balance text-foreground">
+            <div className="space-y-3">
+              <h3 className="pt-0.5 text-xl leading-[1.375rem] font-semibold font-sans tracking-[-0.04em] md:text-2xl md:leading-[1.875rem] text-balance text-foreground">
                 {title}
               </h3>
-              <p className="font-sans text-sm leading-relaxed sm:text-sm md:text-base text-muted-foreground">
+              <h2 className="[&_b]:md:font-semibold [&_strong]:md:font-semibold font-sans text-sm leading-[1.125rem] md:text-base md:leading-[1.375rem] text-muted-foreground">
                 {description}
-              </p>
+              </h2>
             </div>
           </div>
         </div>
@@ -234,44 +234,44 @@ const LandingPage = () => {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-12 xl:grid-rows-2 lg:gap-6">
+          <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
             <GridItem
-              area="xl:[grid-area:1/1/2/5]"
+              area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
               icon={<Brain className="h-4 w-4" />}
               title="IA Especializada"
               description="Algoritmos treinados especificamente para análise de projetos arquitetônicos e construção civil"
             />
             <GridItem
-              area="xl:[grid-area:2/1/3/5]"
+              area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
               icon={<Calculator className="h-4 w-4" />}
               title="Orçamento Inteligente"
               description="Geração automática de orçamentos detalhados com base em dados SINAPI e mercado local"
             />
             <GridItem
-              area="xl:[grid-area:1/5/3/8]"
+              area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
               icon={<Calendar className="h-4 w-4" />}
               title="Cronograma Otimizado"
               description="Planejamento de obras com sequenciamento lógico e otimização de recursos"
             />
             <GridItem
-              area="xl:[grid-area:1/8/2/13]"
+              area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
               icon={<FileText className="h-4 w-4" />}
               title="Documentação Completa"
               description="Relatórios profissionais, memoriais descritivos e documentos técnicos automáticos"
             />
             <GridItem
-              area="xl:[grid-area:2/8/3/11]"
+              area="md:[grid-area:3/1/4/7] xl:[grid-area:2/8/3/11]"
               icon={<TrendingUp className="h-4 w-4" />}
               title="Analytics Avançado"
               description="Métricas e insights sobre seus projetos para tomada de decisões estratégicas"
             />
             <GridItem
-              area="xl:[grid-area:2/11/3/13]"
+              area="md:[grid-area:3/7/4/13] xl:[grid-area:2/11/3/13]"
               icon={<Shield className="h-4 w-4" />}
               title="Segurança Total"
               description="Seus dados protegidos com criptografia de nível empresarial e backups automáticos"
             />
-          </div>
+          </ul>
         </div>
       </section>
 
