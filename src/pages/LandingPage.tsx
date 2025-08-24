@@ -319,23 +319,6 @@ const LandingPage = () => {
         <Pricing
           plans={[
             {
-              name: "FREE",
-              price: "0",
-              yearlyPrice: "0",
-              period: "mês",
-              features: [
-                "Até 2 projetos",
-                "50 mensagens de IA/mês",
-                "Análise básica de plantas",
-                "Visualização simples",
-                "Suporte por email (até 72h)",
-              ],
-              description: "Experimente a MadeAI gratuitamente e descubra como a IA pode transformar seus projetos.",
-              buttonText: "Começar grátis",
-              href: "/cadastro",
-              isPopular: false,
-            },
-            {
               name: "BASIC",
               price: "29,90",
               yearlyPrice: "23,92",
