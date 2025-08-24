@@ -320,8 +320,8 @@ const LandingPage = () => {
           plans={[
             {
               name: "BASIC",
-              price: "29,90",
-              yearlyPrice: "23,92",
+              price: "29.90",
+              yearlyPrice: "23.92",
               period: "mês",
               features: [
                 "Agente Geral (normas brasileiras – ABNT)",
@@ -336,12 +336,12 @@ const LandingPage = () => {
               description: "Perfeito para profissionais autônomos que precisam organizar seus projetos com agilidade.",
               buttonText: "Começar agora",
               href: "/cadastro",
-              isPopular: true,
+              isPopular: false,
             },
             {
               name: "PRO",
-              price: "79,90",
-              yearlyPrice: "63,92",
+              price: "79.90",
+              yearlyPrice: "63.92",
               period: "mês",
               features: [
                 "Agente Geral (normas brasileiras – ABNT)",
@@ -357,12 +357,12 @@ const LandingPage = () => {
               description: "Ideal para pequenos escritórios de engenharia e arquitetura que buscam produtividade em equipe.",
               buttonText: "Escolher Pro",
               href: "/cadastro",
-              isPopular: false,
+              isPopular: true,
             },
             {
               name: "ENTERPRISE",
-              price: "199,90",
-              yearlyPrice: "159,92",
+              price: "199.90",
+              yearlyPrice: "159.92",
               period: "mês",
               features: [
                 "Agente Geral (normas brasileiras – ABNT)",
