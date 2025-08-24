@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { MessageFormatter } from '@/components/ai/MessageFormatter';
+import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
 
 interface ChatMessage {
   id: string;
@@ -511,51 +512,15 @@ const { user } = useAuth();
 
       {/* Input Fixo na Base */}
       <div ref={inputContainerRef} className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 py-3">
-        <div className="flex items-center space-x-3 mb-3">
-          {/* Botão de Microfone */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleRecording}
+        <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }}>
+          <PromptBox 
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Digite sua mensagem..."
             disabled={isSending}
-            className={cn(
-              "h-10 w-10 p-0 rounded-full",
-              isRecording 
-                ? "bg-red-500 hover:bg-red-600 text-white" 
-                : "bg-muted hover:bg-muted/80"
-            )}
-          >
-            {isRecording ? (
-              <MicOff className="w-5 h-5" />
-            ) : (
-              <Mic className="w-5 h-5" />
-            )}
-          </Button>
-
-          {/* Input de Mensagem */}
-          <div className="flex-1 relative">
-            <Textarea
-              ref={textareaRef}
-              value={inputMessage}
-              onChange={(e) => { setInputMessage(e.target.value); adjustTextareaSize(); }}
-              onKeyDown={handleKeyPress}
-              placeholder="Digite sua mensagem..."
-              disabled={isSending || isRecording}
-              className="min-h-[56px] resize-none pr-12 text-sm border-input rounded-3xl bg-muted/30 placeholder:text-muted-foreground overflow-y-auto"
-            />
-            
-            {/* Botão de Envio */}
-            <Button
-              onClick={sendMessage}
-              disabled={!inputMessage.trim() || isSending || isRecording}
-              size="sm"
-              className="absolute right-2 bottom-2 h-8 w-8 p-0 rounded-full bg-primary hover:bg-primary/90"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-        
+            className="w-full"
+          />
+        </form>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { VoiceRecorder } from '@/components/ai/VoiceRecorder';
 import { FileUploader } from '@/components/ai/FileUploader';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { PromptBox } from '@/components/ui/chatgpt-prompt-input';
 
 interface ChatMessage {
   id: string;
@@ -766,42 +767,15 @@ useEffect(() => {
       {/* Input Area */}
       <div className="sticky bottom-0 z-10 border-t border-border bg-background px-6 py-4" ref={inputContainerRef}>
         <div className="max-w-4xl mx-auto">
-          <div className="relative">
-            <div className="flex items-end space-x-3">
-              {/* File Uploader */}
-              <FileUploader 
-                onFileSelected={setSelectedFile}
-                disabled={isSending}
-              />
-
-              {/* Voice Recorder */}
-              <VoiceRecorder 
-                onAudioRecorded={handleAudioRecorded}
-                disabled={isSending}
-              />
-
-              {/* Text Input */}
-              <div className="flex-1 relative">
-                <Textarea
-                  ref={textareaRef}
-                  value={inputMessage}
-                  onChange={(e) => { setInputMessage(e.target.value); adjustTextareaSize(); }}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Digite sua mensagem..."
-                  disabled={isSending}
-                  className="min-h-[56px] resize-none pr-12 py-3 overflow-y-auto"
-                />
-                <Button
-                  onClick={sendMessage}
-                  disabled={(!inputMessage.trim() && !selectedFile) || isSending}
-                  size="default"
-                  className="absolute right-2 bottom-2 h-12 w-12 p-0 hover:scale-105 transition-transform aspect-square rounded-lg"
-                >
-                  <Send className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
-          </div>
+          <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }}>
+            <PromptBox 
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Digite sua mensagem..."
+              disabled={isSending}
+              className="w-full"
+            />
+          </form>
         </div>
       </div>
     </div>
