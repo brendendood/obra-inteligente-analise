@@ -503,6 +503,33 @@ body, #root {
   will-change: transform, opacity;
 }
 
+/* Marquee animations for testimonials */
+@keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes marquee-vertical-reverse {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-marquee-vertical {
+  animation: marquee-vertical 20s linear infinite;
+}
+
+.animate-marquee-vertical-reverse {
+  animation: marquee-vertical-reverse 20s linear infinite;
+}
+
 /* Hover effects OTIMIZADOS */
 .hover-lift:hover {
   transform: translateY(-4px);

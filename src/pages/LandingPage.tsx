@@ -8,6 +8,7 @@ import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { TestimonialsColumns } from '@/components/ui/testimonials-columns-1';
+import { MarqueeDemo } from '@/components/ui/3d-testimonials';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
 import Header from '@/components/layout/Header';
@@ -141,8 +142,8 @@ const LandingPage = () => {
       </section>
 
       
-      {/* Testimonials Section */}
-      <TestimonialsColumns />
+      {/* 3D Testimonials Section */}
+      <MarqueeDemo />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
