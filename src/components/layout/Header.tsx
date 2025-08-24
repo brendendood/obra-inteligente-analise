@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { StarBorder } from '@/components/ui/star-border';
 import { X, Menu } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -29,31 +30,12 @@ const Header = () => {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground theme-transition"
-              asChild
-            >
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button 
-              size="sm" 
-              className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200"
-              asChild
-            >
-              <Link to="/cadastro">
-                <GlowingEffect
-                  spread={40}
-                  glow={true}
-                  disabled={false}
-                  proximity={64}
-                  inactiveZone={0.01}
-                  borderWidth={2}
-                />
-                Começar Agora
-              </Link>
-            </Button>
+            <StarBorder as={Link} to="/login" className="px-4 py-2 rounded-[16px] text-sm">
+              Login
+            </StarBorder>
+            <StarBorder as={Link} to="/cadastro" className="px-4 py-2 rounded-[16px] text-sm">
+              Começar Agora
+            </StarBorder>
           </div>
 
           {/* Mobile Menu Button */}
@@ -74,31 +56,12 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-border mt-4 theme-transition">
             <div className="flex flex-col space-y-3">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="justify-start text-sm font-medium text-muted-foreground hover:text-foreground theme-transition"
-                asChild
-              >
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button 
-                size="sm" 
-                className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground justify-start transition-all duration-200"
-                asChild
-              >
-                <Link to="/cadastro">
-                  <GlowingEffect
-                    spread={40}
-                    glow={true}
-                    disabled={false}
-                    proximity={64}
-                    inactiveZone={0.01}
-                    borderWidth={2}
-                  />
-                  Começar Agora
-                </Link>
-              </Button>
+              <StarBorder as={Link} to="/login" className="px-4 py-2 rounded-[16px] text-sm justify-start">
+                Login
+              </StarBorder>
+              <StarBorder as={Link} to="/cadastro" className="px-4 py-2 rounded-[16px] text-sm justify-start">
+                Começar Agora
+              </StarBorder>
             </div>
           </div>
         )}

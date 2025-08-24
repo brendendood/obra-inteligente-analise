@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
+import { StarBorder } from '@/components/ui/star-border';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { HeroPill } from '@/components/ui/hero-pill';
 import { Typewriter } from '@/components/ui/typewriter';
@@ -100,8 +101,12 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
-              <CtaGlow label="Começar Gratuitamente" href="/cadastro" ariaLabel="Começar gratuitamente - Cadastre-se agora" className="w-full sm:w-auto" />
-              <CtaGlow label="Ver Demonstração" href="/demo" ariaLabel="Ver demonstração da plataforma" className="w-full sm:w-auto" />
+              <StarBorder as={Link} to="/cadastro" className="px-6 py-2 rounded-[20px] text-sm sm:text-base">
+                Começar Gratuitamente
+              </StarBorder>
+              <StarBorder as={Link} to="/demo" className="px-6 py-2 rounded-[20px] text-sm sm:text-base">
+                Ver Demonstração
+              </StarBorder>
             </div>
 
             {/* Trust Indicators */}

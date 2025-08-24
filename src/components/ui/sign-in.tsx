@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { StarBorder } from '@/components/ui/star-border';
 
 // --- ÍCONE DO GOOGLE ---
 const GoogleIcon = () => (
@@ -159,13 +160,13 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 </a>
               </div>
 
-              <button
+              <StarBorder
                 type="submit"
                 disabled={loading}
-                className="animate-element animate-delay-600 w-full rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-3 rounded-[16px]"
               >
                 {loading ? 'Entrando...' : 'Entrar'}
-              </button>
+              </StarBorder>
             </form>
 
             <div className="animate-element animate-delay-700 relative flex items-center justify-center">
@@ -173,14 +174,14 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <span className="px-4 text-sm text-muted-foreground bg-background absolute">ou continuar com</span>
             </div>
 
-            <button
+            <StarBorder
               onClick={onGoogleSignIn}
               disabled={loading}
-              className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 rounded-[16px] flex items-center justify-center gap-3"
             >
               <GoogleIcon />
               Continuar com Google
-            </button>
+            </StarBorder>
 
             <p className="animate-element animate-delay-900 text-center text-sm text-muted-foreground">
               Novo na plataforma?{' '}

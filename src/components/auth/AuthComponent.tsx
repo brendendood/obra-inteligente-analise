@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { StarBorder } from '@/components/ui/star-border';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -260,10 +261,10 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
                   />
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <StarBorder type="submit" className="w-full px-6 py-3 rounded-[16px]" disabled={loading}>
                 <LogIn className="h-4 w-4 mr-2" />
                 {loading ? 'Entrando...' : 'Entrar'}
-              </Button>
+              </StarBorder>
             </form>
           </TabsContent>
           
@@ -355,14 +356,14 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
                 </Label>
               </div>
               
-              <Button 
+              <StarBorder 
                 type="submit" 
-                className="w-full" 
+                className="w-full px-6 py-3 rounded-[16px]" 
                 disabled={loading || !acceptedTerms}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 {loading ? 'Cadastrando...' : 'Cadastrar'}
-              </Button>
+              </StarBorder>
             </form>
           </TabsContent>
         </Tabs>

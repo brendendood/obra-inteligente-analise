@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { StarBorder } from "@/components/ui/star-border";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -26,10 +27,10 @@ function Footerdemo() {
             </p>
             <form className="relative">
               <Input type="email" placeholder="Digite seu e-mail" className="pr-12 backdrop-blur-sm text-sm" aria-label="Seu e-mail" />
-              <Button type="submit" size="icon" className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105">
+              <StarBorder type="submit" className="absolute right-1 top-1 h-8 w-8 rounded-full px-2 py-2">
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Inscrever-se</span>
-              </Button>
+              </StarBorder>
             </form>
             <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
           </div>
