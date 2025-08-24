@@ -7,7 +7,7 @@ import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Sh
 import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
-import { ResponsiveTestimonials } from '@/components/ui/3d-testimonails';
+import { TestimonialsSection } from '@/components/ui/testimonials-columns-1';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
 import Header from '@/components/layout/Header';
@@ -148,14 +148,7 @@ const LandingPage = () => {
 
       
       {/* Testimonials Section */}
-      <section className="w-full bg-background text-foreground py-12 md:py-20">
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-center text-2xl md:text-4xl font-semibold tracking-tight mb-8 md:mb-12">
-            O que nossos clientes dizem
-          </h2>
-          <ResponsiveTestimonials />
-        </div>
-      </section>
+      <TestimonialsSection />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
