@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
-import { WavyBackground } from '@/components/ui/wavy-background';
+import { BackgroundPaths } from '@/components/ui/background-paths';
 import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
@@ -60,24 +60,10 @@ const LandingPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section with WavyBackground */}
-      <WavyBackground
-        className="relative"
-        containerClassName="relative"
-        colors={[
-          "#3b82f6",
-          "#8b5cf6", 
-          "#06b6d4",
-          "#10b981",
-          "#f59e0b"
-        ]}
-        waveWidth={50}
-        waveOpacity={0.1}
-        blur={8}
-        speed="fast"
-        backgroundFill="transparent"
-      >
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+      {/* Hero Section with BackgroundPaths */}
+      <section className="relative isolate">
+        <BackgroundPaths />
+        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -124,7 +110,7 @@ const LandingPage = () => {
             </div>
           </motion.div>
         </div>
-      </WavyBackground>
+      </section>
 
       {/* Social Proof Section */}
       <section className="py-16 bg-muted/30">
