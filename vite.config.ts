@@ -14,8 +14,11 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: {
-      overlay: false,
+      overlay: true,
       clientPort: 8080
+    },
+    fs: {
+      strict: false
     }
   },
   plugins: [
@@ -50,7 +53,7 @@ export default defineConfig(({ mode }) => ({
       'zustand'
     ],
     exclude: [],
-    force: true,
+    force: false,
     entries: ['src/main.tsx']
   },
   resolve: {
