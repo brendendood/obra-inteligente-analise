@@ -59,7 +59,7 @@
 }
 
 /* Dark Mode - AppConty Style */
-.dark-mode {
+.dark {
   /* Background com gradientes coloridos animados */
   --background: 0 0% 0%; /* #000000 */
   --foreground: 0 0% 100%;
@@ -94,7 +94,7 @@
 }
 
 /* AppConty-style animated background for dark mode */
-.dark-mode::before {
+.dark::before {
   content: '';
   position: fixed;
   top: 0;

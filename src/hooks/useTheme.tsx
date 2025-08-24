@@ -15,15 +15,12 @@ export const useTheme = () => {
 
   useEffect(() => {
     const root = document.documentElement;
-    const body = document.body;
     
     // Remover classes anteriores
-    root.classList.remove('dark-mode');
-    body.classList.remove('dark-mode');
+    root.classList.remove('dark');
 
     if (theme === 'dark') {
-      root.classList.add('dark-mode');
-      body.classList.add('dark-mode');
+      root.classList.add('dark');
     }
     
     // Salvar tema no localStorage
