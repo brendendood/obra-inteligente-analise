@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { HeroPill } from '@/components/ui/hero-pill';
+import { Typewriter } from '@/components/ui/typewriter';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { TestimonialsSection } from '@/components/ui/testimonials-columns-1';
@@ -71,9 +72,19 @@ const LandingPage = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
-              Transforme plantas em
-              <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
+            <h1 className="mt-8 max-w-4xl mx-auto text-balance text-5xl md:text-6xl xl:text-[5rem] leading-tight tracking-tight">
+              <span className="text-foreground">Automatize seu{" "}</span>
+              <span className="inline-block">
+                <Typewriter
+                  text={["Orçamento", "Cronograma", "Análise Técnica"]}
+                  speed={70}
+                  waitTime={1400}
+                  deleteSpeed={40}
+                  className="text-primary"
+                  cursorChar={"_"}
+                />
+              </span>
+              <span className="text-foreground">{" "}com IA</span>
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
