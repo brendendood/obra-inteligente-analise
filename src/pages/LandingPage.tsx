@@ -57,13 +57,7 @@ const LandingPage = () => {
       
       {/* Hero Section with ArchitectureSaaSBackground */}
       <ArchitectureSaaSBackground>
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20 py-[44px] my-0 mx-0 relative">
-          {/* Decorative image in top left corner */}
-          <img 
-            src="/lovable-uploads/d2ba1403-730e-45eb-a6a5-fc16bcf368a0.png" 
-            alt="Decorative element" 
-            className="absolute top-0 left-0 w-32 h-32 md:w-40 md:h-40 object-cover"
-          />
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20 py-[44px] my-0 mx-0">
           <motion.div initial={{
           opacity: 0,
           y: 20

@@ -19,10 +19,16 @@ const Header = () => {
 
   return (
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
+        {/* Decorative image in left corner */}
+        <img 
+          src="/lovable-uploads/d2ba1403-730e-45eb-a6a5-fc16bcf368a0.png" 
+          alt="Decorative element" 
+          className="absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl"
+        />
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center ml-16">
             <Logo className="transition-all duration-300 hover:scale-105" />
           </div>
 
