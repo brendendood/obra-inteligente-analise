@@ -1,3 +1,4 @@
+// /components/ui/background-paths.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -30,7 +31,7 @@ function FloatingPaths({ position }: { position: number }) {
         focusable="false"
       >
         {/* LIGHT MODE — linhas pretas */}
-        <g className="dark:hidden" stroke="#000">
+        <g className="dark:hidden" stroke="#000" strokeLinecap="round">
           {paths.map((p) => (
             <motion.path
               key={`l-${p.id}`}
@@ -49,7 +50,7 @@ function FloatingPaths({ position }: { position: number }) {
         </g>
 
         {/* DARK MODE — linhas brancas */}
-        <g className="hidden dark:block" stroke="#fff">
+        <g className="hidden dark:block" stroke="#fff" strokeLinecap="round">
           {paths.map((p) => (
             <motion.path
               key={`d-${p.id}`}
@@ -71,7 +72,7 @@ function FloatingPaths({ position }: { position: number }) {
   );
 }
 
-/** Apenas o background (sem títulos ou botões). */
+/** Apenas o background (sem títulos/botões). */
 export function BackgroundPaths() {
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden bg-white dark:bg-neutral-950">
