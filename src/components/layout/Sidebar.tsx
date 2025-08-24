@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
 import { 
-  Users,
+  Bot,
+  Home, 
+  User,
+  CreditCard,
+  HelpCircle,
+  MessageCircle,
   LogOut,
+  Crown,
   Menu,
   X
 } from 'lucide-react';
@@ -13,7 +19,10 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
 import { useToast } from '@/hooks/use-toast';
+import { ProjectLimitBar } from './ProjectLimitBar';
+import { useUserData } from '@/hooks/useUserData';
 import { cn } from '@/lib/utils';
+import { getPlanDisplayName, getUpgradeMessage, canUpgrade } from '@/utils/planUtils';
 
 
 interface SidebarProps {
@@ -26,6 +35,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { getAvatarUrl, getAvatarFallback } = useDefaultAvatar();
+  const { userData } = useUserData();
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -66,10 +76,40 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   const navigationItems = [
     { 
-      icon: Users, 
-      label: 'CRM', 
-      path: '/crm',
-      isActive: location.pathname === '/crm'
+      icon: Bot, 
+      label: 'Assistente IA', 
+      path: '/ia',
+      isActive: location.pathname === '/ia'
+    },
+    { 
+      icon: Home, 
+      label: 'Dashboard', 
+      path: '/painel',
+      isActive: location.pathname === '/painel' || location.pathname === '/'
+    },
+    { 
+      icon: User, 
+      label: 'Conta & Preferências', 
+      path: '/conta',
+      isActive: location.pathname.startsWith('/conta')
+    },
+    { 
+      icon: CreditCard, 
+      label: 'Plano e Pagamentos', 
+      path: '/plano',
+      isActive: location.pathname.startsWith('/plano')
+    },
+    { 
+      icon: HelpCircle, 
+      label: 'Ajuda e FAQs', 
+      path: '/ajuda',
+      isActive: location.pathname.startsWith('/ajuda')
+    },
+    { 
+      icon: MessageCircle, 
+      label: 'Fale com a Gente', 
+      path: '/contato',
+      isActive: location.pathname.startsWith('/contato')
     }
   ];
 
@@ -150,6 +190,14 @@ export const Sidebar = ({ className }: SidebarProps) => {
         )}
       </div>
 
+      {/* Project Limit Bar */}
+      <div className="px-4 py-3 border-b border-sidebar-border">
+        <ProjectLimitBar 
+          currentProjects={userData.projectCount} 
+          plan={userData.plan}
+          extraCredits={userData.credits}
+        />
+      </div>
 
       {/* Navigation */}
       <div className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -182,9 +230,9 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
       {/* Footer */}
       <div className="border-t border-sidebar-border p-4 space-y-3">
-        {/* User Profile */}
+        {/* User Profile & Upgrade */}
         <div className="bg-sidebar-accent rounded-apple p-3">
-          <div className="flex items-center">
+          <div className="flex items-center mb-2">
             <Avatar className="h-8 w-8 mr-3">
               <AvatarImage src={avatarUrl} />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
@@ -196,10 +244,20 @@ export const Sidebar = ({ className }: SidebarProps) => {
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {user?.email}
+                Plano {getPlanDisplayName(userData.plan)}
               </p>
             </div>
           </div>
+          {canUpgrade(userData.plan) && (
+            <Button 
+              size="sm" 
+              className="w-full h-8 bg-primary hover:bg-primary/90 text-primary-foreground text-xs rounded-apple"
+              onClick={() => handleNavigation('/plano')}
+            >
+              <Crown className="h-3 w-3 mr-1" strokeWidth={1.5} />
+              {getUpgradeMessage(userData.plan)}
+            </Button>
+          )}
         </div>
 
         {/* Logout */}
