@@ -72,7 +72,8 @@ const LandingPage = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="mt-8 max-w-4xl mx-auto text-balance text-5xl md:text-6xl xl:text-[5rem] leading-tight tracking-tight">
+            {/* Desktop version with Typewriter animation */}
+            <h1 className="hidden md:block mt-8 max-w-4xl mx-auto text-balance text-5xl md:text-6xl xl:text-[5rem] leading-tight tracking-tight">
               <span className="text-foreground">Automatize seu{" "}</span>
               <span className="inline-block">
                 <Typewriter
@@ -85,6 +86,13 @@ const LandingPage = () => {
                 />
               </span>
               <span className="text-foreground">{" "}com IA</span>
+            </h1>
+
+            {/* Mobile version with fixed text */}
+            <h1 className="block md:hidden mt-8 max-w-4xl mx-auto text-balance text-4xl leading-tight tracking-tight text-center">
+              <div className="text-foreground">Automatize seu</div>
+              <div className="text-primary">(Orçamento, Cronograma e Projeto)</div>
+              <div className="text-foreground">com a MadeAI</div>
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
