@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { ThemeProvider } from "next-themes";
 import SafeToasters from "@/components/ui/SafeToasters";
 
@@ -47,27 +46,20 @@ const ProjectSpecificSchedule = lazy(() => import("./pages/project-specific/sche
 const ProjectSpecificAssistant = lazy(() => import("./pages/project-specific/assistant"));
 const ProjectSpecificDocumentsPage = lazy(() => import("./pages/project-specific/documents"));
 
-// Ultra-optimized Query Client
-const queryClient = new QueryClient({
+// Create QueryClient in a function to ensure React is ready
+const createQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
-      // Extended cache times for better performance
-      staleTime: 10 * 60 * 1000, // 10 minutes
-      gcTime: 30 * 60 * 1000, // 30 minutes
-      
-      // Smart retry strategy
+      staleTime: 10 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
       retry: (failureCount, error: any) => {
         if (error?.status === 404 || error?.status === 403) return false;
         return failureCount < 2;
       },
-      
-      // Performance optimizations
       networkMode: 'online',
       refetchOnWindowFocus: false,
       refetchOnReconnect: 'always',
       refetchOnMount: 'always',
-      
-      // Request deduplication
       refetchInterval: false,
     },
     mutations: {
@@ -156,22 +148,27 @@ class CriticalErrorBoundary extends React.Component<
   }
 }
 
-// Clean Providers Component - ThemeProvider temporarily removed due to React corruption
-const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <SafeHooksProvider>
-    <AuthProvider>
-      <ImpersonationProvider>
-        <QueryClientProvider client={queryClient}>
-          <ProjectProvider>
-            <TooltipProvider delayDuration={200}>
-              {children}
-            </TooltipProvider>
-          </ProjectProvider>
-        </QueryClientProvider>
-      </ImpersonationProvider>
-    </AuthProvider>
-  </SafeHooksProvider>
-);
+// Clean Providers Component - Create QueryClient safely inside component
+const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Create QueryClient after React is confirmed working
+  const queryClient = React.useMemo(() => createQueryClient(), []);
+  
+  return (
+    <SafeHooksProvider>
+      <AuthProvider>
+        <ImpersonationProvider>
+          <QueryClientProvider client={queryClient}>
+            <ProjectProvider>
+              <TooltipProvider delayDuration={200}>
+                {children}
+              </TooltipProvider>
+            </ProjectProvider>
+          </QueryClientProvider>
+        </ImpersonationProvider>
+      </AuthProvider>
+    </SafeHooksProvider>
+  );
+};
 
 const App = () => {
   return (
