@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Menu } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
 
