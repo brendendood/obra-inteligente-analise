@@ -76,9 +76,9 @@ const LandingPage = () => {
               <span className="text-foreground">Automatize seu{" "}</span>
               <span className="inline-block">
                 <Typewriter
-                  text={["Orçamento", "Cronograma", "Análise Técnica"]}
+                  text={["Orçamento", "Cronograma", "Relatórios"]}
                   speed={70}
-                  waitTime={1400}
+                  waitTime={3000}
                   deleteSpeed={40}
                   className="text-primary"
                   cursorChar={"_"}
