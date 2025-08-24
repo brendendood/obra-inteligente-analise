@@ -116,7 +116,7 @@ function ReviewCard({ img, name, username, body, country }: ReviewCardProps) {
 
 export function MarqueeDemo() {
   return (
-    <section className="py-20 bg-background">
+    <section className="py-20 bg-background dark:bg-black">
       <div className="max-w-7xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -133,7 +133,7 @@ export function MarqueeDemo() {
           </p>
         </motion.div>
 
-        <div className="relative flex h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
+        <div className="relative flex h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background dark:bg-black">
           <div className="flex flex-row gap-4 [perspective:300px]">
             {/* Primeira coluna */}
             <div className="flex h-full w-80 animate-marquee-vertical flex-col gap-4 [transform:rotateX(0deg)]">
@@ -167,8 +167,8 @@ export function MarqueeDemo() {
           </div>
 
           {/* Gradientes para fade effect */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-background"></div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background"></div>
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-background dark:from-black"></div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background dark:from-black"></div>
         </div>
       </div>
     </section>

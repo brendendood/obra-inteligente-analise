@@ -59,7 +59,7 @@ const GridItem = ({ area, icon, title, description }: GridItemProps) => {
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-black">
       <Header />
       
       {/* Hero Section with ArchitectureSaaSBackground */}
@@ -114,7 +114,7 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-muted/30 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -148,7 +148,7 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Problem & Solution Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -212,7 +212,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -273,7 +273,7 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Demo Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -346,7 +346,7 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -464,7 +464,7 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-black">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -527,7 +527,7 @@ const LandingPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-black">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -586,7 +586,7 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-black">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
