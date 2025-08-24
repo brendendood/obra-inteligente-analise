@@ -22,7 +22,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
         {/* Decorative image in left corner */}
         <img 
-          src="/lovable-uploads/d2ba1403-730e-45eb-a6a5-fc16bcf368a0.png" 
+          src="/lovable-uploads/header-right-image.png" 
           alt="Decorative element" 
           className="absolute left-6 top-0 w-16 h-16 object-cover rounded-tl-2xl"
         />
