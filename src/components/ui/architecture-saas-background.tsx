@@ -94,7 +94,7 @@ export const ArchitectureSaaSBackground: React.FC<ArchitectureSaaSBackgroundProp
   }, [])
 
   return (
-    <div className={`relative min-h-screen bg-background dark:bg-[#000000] overflow-hidden ${className}`}>
+    <div className={`relative min-h-screen bg-background overflow-hidden ${className}`}>
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-slate-50/20 dark:from-blue-950/20 dark:via-transparent dark:to-slate-950/30" />
       
