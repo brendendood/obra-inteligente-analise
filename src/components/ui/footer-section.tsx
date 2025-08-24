@@ -137,18 +137,6 @@ function Footerdemo() {
               </TooltipProvider>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Sun className="h-4 w-4" aria-hidden />
-              <Switch
-                id="dark-mode"
-                checked={theme === 'dark'}
-                onCheckedChange={toggleTheme}
-              />
-              <Moon className="h-4 w-4" aria-hidden />
-              <Label htmlFor="dark-mode" className="sr-only">
-                Alternar modo escuro
-              </Label>
-            </div>
           </div>
         </div>
 
