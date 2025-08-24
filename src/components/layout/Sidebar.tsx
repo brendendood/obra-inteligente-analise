@@ -5,6 +5,7 @@ import {
   Bot,
   Home, 
   User,
+  Users,
   CreditCard,
   HelpCircle,
   MessageCircle,
@@ -86,6 +87,12 @@ export const Sidebar = ({ className }: SidebarProps) => {
       label: 'Dashboard', 
       path: '/painel',
       isActive: location.pathname === '/painel' || location.pathname === '/'
+    },
+    { 
+      icon: Users, 
+      label: 'CRM', 
+      path: '/crm',
+      isActive: location.pathname.startsWith('/crm')
     },
     { 
       icon: User, 
