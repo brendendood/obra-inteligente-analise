@@ -72,27 +72,34 @@ const LandingPage = () => {
             </div>
 
             {/* Main Headline */}
-            {/* Desktop version with Typewriter animation */}
-            <h1 className="hidden md:block mt-8 max-w-4xl mx-auto text-balance text-5xl md:text-6xl xl:text-[5rem] leading-tight tracking-tight">
-              <span className="text-foreground">Automatize seu{" "}</span>
-              <span className="inline-block">
-                <Typewriter
-                  text={["Orçamento", "Cronograma", "Relatórios"]}
-                  speed={70}
-                  waitTime={3000}
-                  deleteSpeed={40}
-                  className="text-primary"
-                  cursorChar={"_"}
-                />
-              </span>
-              <span className="text-foreground">{" "}com IA</span>
-            </h1>
+            <h1 className="text-center text-4xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight text-foreground">
+              {/* Linha 1 (fixa para todos) */}
+              <span className="block">Automatize seu</span>
 
-            {/* Mobile version with fixed text */}
-            <h1 className="block md:hidden mt-8 max-w-4xl mx-auto text-balance text-4xl leading-tight tracking-tight text-center">
-              <div className="text-foreground">Automatize seu</div>
-              <div className="text-primary">(Orçamento, Cronograma e Projeto)</div>
-              <div className="text-foreground">com a MadeAI</div>
+              {/* Linha 2:
+                  - Desktop/tablet: animação Typewriter alternando as palavras
+                  - Mobile: texto fixo entre parênteses, sem animação */}
+              <span className="block">
+                {/* DESKTOP/TABLET (md+) COM ANIMAÇÃO */}
+                <span className="hidden md:inline">
+                  <Typewriter
+                    text={["Orçamento", "Cronograma", "Projeto"]}
+                    speed={70}
+                    deleteSpeed={40}
+                    waitTime={4000}
+                    className="text-primary"
+                    cursorChar={"_"}
+                  />
+                </span>
+
+                {/* MOBILE (sem animação, 3 linhas fixas) */}
+                <span className="md:hidden text-primary">
+                  (Orçamento, Cronograma e Projeto)
+                </span>
+              </span>
+
+              {/* Linha 3 (fixa para todos) */}
+              <span className="block">com a MadeAI</span>
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
