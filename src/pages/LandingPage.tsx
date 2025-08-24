@@ -15,6 +15,7 @@ import Header from '@/components/layout/Header';
 import { MadeAIFeaturesSection } from '@/components/sections/madeai-features';
 import { CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
+import { Pricing } from "@/components/ui/pricing";
 
 // GridItem component for Features section
 interface GridItemProps {
@@ -315,97 +316,75 @@ const LandingPage = () => {
 
       {/* Pricing Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} viewport={{
-          once: true
-        }} className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-              Planos que crescem com você
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-              Escolha o plano ideal para seu perfil profissional
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
-            {[{
-            name: "Freelancer",
-            price: "Gratuito",
-            period: "",
-            description: "Perfeito para arquitetos independentes",
-            features: ["5 projetos por mês", "Orçamentos básicos", "Suporte por email", "Documentação padrão"],
-            cta: "Começar Grátis",
-            popular: false
-          }, {
-            name: "Profissional",
-            price: "R$ 97",
-            period: "/mês",
-            description: "Ideal para escritórios pequenos e médios",
-            features: ["Projetos ilimitados", "Orçamentos avançados", "Cronogramas otimizados", "Suporte prioritário", "Relatórios personalizados", "Integrações API"],
-            cta: "Começar Teste",
-            popular: true
-          }, {
-            name: "Enterprise",
-            price: "Personalizado",
-            period: "",
-            description: "Para grandes construtoras e incorporadoras",
-            features: ["Tudo do Profissional", "Múltiplas equipes", "Dashboard executivo", "Suporte 24/7", "Implementação assistida", "SLA garantido"],
-            cta: "Falar com Vendas",
-            popular: false
-          }].map((plan, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }} className={`relative bg-background p-8 rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${plan.popular ? 'border-primary shadow-lg scale-105' : 'border-border hover:border-primary/20'}`}>
-                {plan.popular && <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                      Mais Popular
-                    </span>
-                  </div>}
-
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
-                  <div className="mb-2">
-                    <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground">{plan.period}</span>
-                  </div>
-                  <p className="text-muted-foreground text-sm">{plan.description}</p>
-                </div>
-
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center gap-3">
-                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="text-muted-foreground text-sm">{feature}</span>
-                    </li>)}
-                </ul>
-
-                <AppleButton 
-                  as={Link} 
-                  to="/cadastro" 
-                  variant="primary"
-                  size="md"
-                  className="w-full"
-                >
-                  {plan.cta}
-                </AppleButton>
-              </motion.div>)}
-          </div>
-        </div>
+        <Pricing
+          plans={[
+            {
+              name: "SOLO",
+              price: "29",
+              yearlyPrice: "23",
+              period: "mês",
+              features: [
+                "Agente Geral (normas brasileiras – ABNT)",
+                "Uso individual",
+                "Até 5 projetos",
+                "500 mensagens de IA/mês",
+                "Cronograma, orçamento e documentos básicos",
+                "Exportação simples",
+                "1 automação via webhook",
+                "Suporte em até 48h",
+              ],
+              description: "Perfeito para profissionais autônomos que precisam organizar seus projetos com agilidade.",
+              buttonText: "Começar agora",
+              href: "/cadastro",
+              isPopular: false,
+            },
+            {
+              name: "STUDIO",
+              price: "79",
+              yearlyPrice: "63",
+              period: "mês",
+              features: [
+                "Agente Geral (normas brasileiras – ABNT)",
+                "Colaboração com até 3 usuários inclusos",
+                "2.000 mensagens de IA/mês",
+                "Cronograma, orçamento e documentos avançados",
+                "Permissões por papel",
+                "Até 5 automações integradas",
+                "Exportações avançadas",
+                "Suporte prioritário (<24h)",
+              ],
+              description: "Ideal para pequenos escritórios de engenharia e arquitetura que buscam produtividade em equipe.",
+              buttonText: "Escolher Studio",
+              href: "/cadastro",
+              isPopular: true,
+            },
+            {
+              name: "ENTERPRISE",
+              price: "199",
+              yearlyPrice: "159",
+              period: "mês",
+              features: [
+                "Agente Geral (normas brasileiras – ABNT)",
+                "Até 10 usuários inclusos",
+                "Projetos ilimitados",
+                "50 GB de anexos",
+                "SSO (Single Sign-On)",
+                "Auditoria completa",
+                "Integrações avançadas",
+                "SLA 99,9%",
+                "Gerente de conta dedicado",
+                "Contrato customizado",
+                "Onboarding e treinamento",
+              ],
+              description: "Solução corporativa completa para empresas que precisam de segurança, escala e suporte avançado.",
+              buttonText: "Falar com vendas",
+              href: "/contact",
+              isPopular: false,
+            },
+          ]}
+          title="MadeAI — Planos simples e acessíveis"
+          description="Escolha o plano ideal para você ou seu escritório. Todos os planos incluem o Agente Geral (baseado nas normas brasileiras), dashboard moderno e suporte dedicado."
+        />
       </section>
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
