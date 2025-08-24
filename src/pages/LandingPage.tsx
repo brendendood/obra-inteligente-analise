@@ -3,16 +3,11 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
-import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
+import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, CheckCircle } from 'lucide-react';
 import { BackgroundPaths } from '@/components/ui/background-paths';
-import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
-import Header from '@/components/layout/Header';
-import { 
-  CheckCircle,
-} from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 // GridItem component for Features section
@@ -58,89 +53,81 @@ const GridItem = ({ area, icon, title, description }: GridItemProps) => {
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* Header integrado com CTAs sempre visíveis */}
+      <header className="sticky top-0 z-30 w-full border-b bg-background/80 backdrop-blur-md">
+        <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 md:px-6 lg:px-8">
+          {/* Brand simples */}
+          <Link to="/" className="font-semibold tracking-tight text-foreground">
+            MadeAI
+          </Link>
+
+          {/* Ações — SEMPRE visíveis em desktop e mobile */}
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="rounded-lg">
+              <Link to="/login">Login</Link>
+            </Button>
+            <Button asChild size="sm" className="rounded-lg">
+              <Link to="/signup">Começar agora</Link>
+            </Button>
+          </div>
+        </nav>
+      </header>
       
-      {/* Hero Section with BackgroundPaths */}
-      <section className="relative isolate border-b border-black/20 dark:border-white/20">
-        <BackgroundPaths />
-        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            {/* HeroPill */}
-            <div className="mb-8">
-              <HeroPill 
-                href="/signup"
-                label="Revolucione seus projetos com IA"
-                announcement="🚀 Novo"
-                className="mx-auto"
-              />
-            </div>
+      {/* Hero Section enxuta - apenas topo */}
+      <main className="bg-background text-foreground">
+        <section
+          aria-label="Hero"
+          className="relative isolate border-b border-black/20 dark:border-white/20 mx-auto w-full max-w-7xl px-6 pt-24 pb-16 md:pt-28 md:pb-24 lg:px-8"
+        >
+          <BackgroundPaths />
+          
+          <div className="relative z-10 mx-auto max-w-4xl text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="animate-fade-in"
+            >
+              {/* Badge */}
+              <div className="mx-auto w-fit rounded-full border bg-muted px-3 py-1 text-xs font-medium text-foreground/80 shadow-sm mb-6">
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-flex size-4 items-center justify-center rounded-full bg-foreground/10">
+                    <ArrowRight className="size-3" />
+                  </span>
+                  <span>🚀 Novo</span>
+                  <span className="opacity-70">IA para obras e orçamento</span>
+                </span>
+              </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-              Transforme plantas em
-              <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
-            </h1>
+              {/* Título */}
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+                Transforme plantas em
+                <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
+              </h1>
 
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
-            </p>
+              {/* Descrição */}
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+                Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
+              </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <CtaGlow 
-                label="Começar Gratuitamente"
-                href="/signup"
-                ariaLabel="Começar gratuitamente - Cadastre-se agora"
-              />
-              <CtaGlow 
-                label="Ver Demonstração"
-                href="/demo"
-                ariaLabel="Ver demonstração da plataforma"
-              />
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="text-sm text-muted-foreground">
-              Mais de 1.000+ arquitetos já confiam na nossa plataforma
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Social Proof Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
-            
-            <div className="mb-8">
-              <iframe 
-                src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" 
-                style={{width:'100%',maxWidth:'600px',height:'400px',margin:'0 auto',display:'block',background:'transparent'}}
-                frameBorder="0" 
-                allowFullScreen
-              />
-            </div>
-            
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
-            </div>
-          </motion.div>
-        </div>
-      </section>
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button asChild size="lg" className="rounded-xl px-6">
+                  <Link to="/signup">Começar Gratuitamente</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="rounded-xl px-6"
+                >
+                  <Link to="/demo">Ver Demonstração</Link>
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </main>
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
