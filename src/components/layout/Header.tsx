@@ -6,10 +6,12 @@ import { Logo } from '@/components/ui/logo';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -20,12 +22,25 @@ const Header = () => {
   return (
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
       <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
-        {/* Decorative image in left corner */}
-        <img 
-          src="/lovable-uploads/header-right-image.png" 
-          alt="Decorative element" 
-          className="absolute left-6 top-0 w-16 h-16 object-cover rounded-tl-2xl"
-        />
+        {/* Decorative image in left corner - responsive to theme */}
+        <div className="absolute left-6 top-0 w-16 h-16">
+          {/* Dark mode image */}
+          <img 
+            src="/lovable-uploads/header-right-image.png" 
+            alt="Decorative element dark" 
+            className={`absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
+              theme === 'dark' ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+          {/* Light mode image */}
+          <img 
+            src="/lovable-uploads/header-light-image.png" 
+            alt="Decorative element light" 
+            className={`absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
+              theme === 'light' ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        </div>
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center ml-16">
