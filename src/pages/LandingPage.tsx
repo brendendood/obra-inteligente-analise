@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
-import { WavyBackground } from '@/components/ui/wavy-background';
 import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
@@ -63,75 +62,58 @@ const LandingPage = () => {
       
       {/* Hero Section with ArchitectureSaaSBackground */}
       <ArchitectureSaaSBackground>
-        <WavyBackground
-          className="relative"
-          containerClassName="relative"
-          colors={[
-            "#3b82f6",
-            "#8b5cf6", 
-            "#06b6d4",
-            "#10b981",
-            "#f59e0b"
-          ]}
-          waveWidth={50}
-          waveOpacity={0.1}
-          blur={8}
-          speed="fast"
-          backgroundFill="transparent"
-        >
-          <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-center max-w-4xl mx-auto"
-            >
-              {/* HeroPill */}
-              <div className="mb-8">
-                <HeroPill 
-                  href="/signup"
-                  label="Revolucione seus projetos com IA"
-                  announcement="🚀 Novo"
-                  className="mx-auto"
-                />
-              </div>
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            {/* HeroPill */}
+            <div className="mb-8">
+              <HeroPill 
+                href="/signup"
+                label="Revolucione seus projetos com IA"
+                announcement="🚀 Novo"
+                className="mx-auto"
+              />
+            </div>
 
-              {/* Main Headline */}
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-                Transforme plantas em
-                <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
-              </h1>
+            {/* Main Headline */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+              Transforme plantas em
+              <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
+            </h1>
 
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-                Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
-              </p>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+              Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
+            </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                <CtaGlow 
-                  label="Começar Gratuitamente"
-                  href="/signup"
-                  ariaLabel="Começar gratuitamente - Cadastre-se agora"
-                />
-                <CtaGlow 
-                  label="Ver Demonstração"
-                  href="/demo"
-                  ariaLabel="Ver demonstração da plataforma"
-                />
-              </div>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <CtaGlow 
+                label="Começar Gratuitamente"
+                href="/signup"
+                ariaLabel="Começar gratuitamente - Cadastre-se agora"
+              />
+              <CtaGlow 
+                label="Ver Demonstração"
+                href="/demo"
+                ariaLabel="Ver demonstração da plataforma"
+              />
+            </div>
 
-              {/* Trust Indicators */}
-              <div className="text-sm text-muted-foreground">
-                Mais de 1.000+ arquitetos já confiam na nossa plataforma
-              </div>
-            </motion.div>
-          </div>
-        </WavyBackground>
+            {/* Trust Indicators */}
+            <div className="text-sm text-muted-foreground">
+              Mais de 1.000+ arquitetos já confiam na nossa plataforma
+            </div>
+          </motion.div>
+        </div>
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section */}
       <ArchitectureSaaSBackground>
-        <section className="py-16 bg-muted/30">
+        <section className="py-16">
           <div className="max-w-7xl mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
