@@ -26,7 +26,7 @@ const Header = () => {
         <div className="absolute left-6 top-0 w-16 h-16">
           {/* Dark mode image */}
           <img 
-            src="/lovable-uploads/header-right-image.png" 
+            src="/lovable-uploads/861121ff-4de3-44c8-bc82-c7907f04f005.png" 
             alt="Decorative element dark" 
             className={`absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
               theme === 'dark' ? 'opacity-100' : 'opacity-0'
@@ -34,7 +34,7 @@ const Header = () => {
           />
           {/* Light mode image */}
           <img 
-            src="/lovable-uploads/header-light-image.png" 
+            src="/lovable-uploads/90c9f0d1-2285-43e3-bff4-bda7de7c0a43.png" 
             alt="Decorative element light" 
             className={`absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
               theme === 'light' ? 'opacity-100' : 'opacity-0'
