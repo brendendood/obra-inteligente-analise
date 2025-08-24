@@ -61,7 +61,7 @@ const LandingPage = () => {
       <Header />
       
       {/* Hero Section with BackgroundPaths */}
-      <section className="relative isolate">
+      <section className="relative isolate border-b border-black/20 dark:border-white/20">
         <BackgroundPaths />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 pt-20">
           <motion.div
