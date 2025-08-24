@@ -156,6 +156,22 @@ const config: Config = {
           "25%": { transform: "translateX(-6px)" },
           "50%": { transform: "translateX(6px)" },
           "75%": { transform: "translateX(-3px)" }
+        },
+        "marquee-vertical": {
+          "0%": { transform: "translateY(0%)" },
+          "100%": { transform: "translateY(-100%)" }
+        },
+        "marquee-vertical-reverse": {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(0%)" }
+        },
+        "marquee-horizontal": {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" }
+        },
+        "marquee-horizontal-reverse": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(0%)" }
         }
       },
       animation: {
@@ -173,7 +189,11 @@ const config: Config = {
         "hammer": "hammer 1.5s ease-in-out infinite",
         "drill": "drill 1s linear infinite",
         "wrench": "wrench 2s ease-in-out infinite",
-        "ruler": "ruler 1.8s ease-in-out infinite"
+        "ruler": "ruler 1.8s ease-in-out infinite",
+        "marquee-vertical": "marquee-vertical 40s linear infinite",
+        "marquee-vertical-reverse": "marquee-vertical-reverse 40s linear infinite",
+        "marquee-horizontal": "marquee-horizontal 30s linear infinite",
+        "marquee-horizontal-reverse": "marquee-horizontal-reverse 30s linear infinite"
       },
     },
   },
