@@ -29,19 +29,19 @@ function Footerdemo() {
 
   return (
     <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
-      <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:px-6 lg:px-8">
+        <div className="grid gap-8 sm:gap-10 md:gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Newsletter */}
           <div className="relative">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight">Fique por dentro</h2>
-            <p className="mb-6 text-muted-foreground">
+            <h2 className="mb-3 sm:mb-4 text-2xl sm:text-3xl font-bold tracking-tight">Fique por dentro</h2>
+            <p className="mb-4 sm:mb-6 text-sm sm:text-base text-muted-foreground">
               Assine nossa newsletter para receber novidades e conteúdos exclusivos da MadeAI.
             </p>
             <form className="relative">
               <Input
                 type="email"
                 placeholder="Digite seu e-mail"
-                className="pr-12 backdrop-blur-sm"
+                className="pr-12 backdrop-blur-sm text-sm"
                 aria-label="Seu e-mail"
               />
               <Button
@@ -58,8 +58,8 @@ function Footerdemo() {
 
           {/* Links rápidos */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Links rápidos</h3>
-            <nav className="space-y-2 text-sm">
+            <h3 className="mb-3 sm:mb-4 text-base sm:text-lg font-semibold">Links rápidos</h3>
+            <nav className="space-y-2 text-xs sm:text-sm">
               <a href="/" className="block transition-colors hover:text-primary">Início</a>
               <a href="/sobre" className="block transition-colors hover:text-primary">Sobre</a>
               <a href="/servicos" className="block transition-colors hover:text-primary">Serviços</a>
@@ -70,8 +70,8 @@ function Footerdemo() {
 
           {/* Contato */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold">Contato</h3>
-            <address className="space-y-2 text-sm not-italic">
+            <h3 className="mb-3 sm:mb-4 text-base sm:text-lg font-semibold">Contato</h3>
+            <address className="space-y-2 text-xs sm:text-sm not-italic">
               <p>Rua 2480, 100 – Sala 06</p>
               <p>Balneário Camboriú – SC</p>
               <p>Telefone: +55 (11) 99999-9999</p>
@@ -81,12 +81,12 @@ function Footerdemo() {
 
           {/* Redes + toggle */}
           <div className="relative">
-            <h3 className="mb-4 text-lg font-semibold">Siga a MadeAI</h3>
-            <div className="mb-6 flex space-x-4">
+            <h3 className="mb-3 sm:mb-4 text-base sm:text-lg font-semibold">Siga a MadeAI</h3>
+            <div className="mb-4 sm:mb-6 flex space-x-3">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full" asChild>
+                    <Button variant="outline" size="icon" className="rounded-full h-11 w-11 p-3" asChild>
                       <a href="#" aria-label="Facebook da MadeAI">
                         <Facebook className="h-4 w-4" />
                       </a>

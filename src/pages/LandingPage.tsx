@@ -27,8 +27,8 @@ interface GridItemProps {
 
 const GridItem = ({ area, icon, title, description }: GridItemProps) => {
   return (
-    <li className={cn("min-h-[14rem] list-none", area)}>
-      <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
+    <li className={cn("min-h-[12rem] sm:min-h-[14rem] list-none", area)}>
+      <div className="relative h-full rounded-xl sm:rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
         <GlowingEffect
           spread={40}
           glow={true}
@@ -37,18 +37,18 @@ const GridItem = ({ area, icon, title, description }: GridItemProps) => {
           inactiveZone={0.01}
           borderWidth={3}
         />
-        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)] md:p-6">
+        <div className="relative flex h-full flex-col justify-between gap-4 sm:gap-6 overflow-hidden rounded-lg sm:rounded-xl border-[0.75px] bg-background p-4 sm:p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)]">
           <div className="relative flex flex-1 flex-col justify-between gap-3">
             <div className="w-fit rounded-lg border-[0.75px] border-border bg-muted p-2">
               {icon}
             </div>
-            <div className="space-y-3">
-              <h3 className="pt-0.5 text-xl leading-[1.375rem] font-semibold font-sans tracking-[-0.04em] md:text-2xl md:leading-[1.875rem] text-balance text-foreground">
+            <div className="space-y-2 sm:space-y-3">
+              <h3 className="pt-0.5 text-lg sm:text-xl leading-tight font-semibold font-sans tracking-[-0.04em] md:text-2xl text-balance text-foreground">
                 {title}
               </h3>
-              <h2 className="[&_b]:md:font-semibold [&_strong]:md:font-semibold font-sans text-sm leading-[1.125rem] md:text-base md:leading-[1.375rem] text-muted-foreground">
+              <p className="font-sans text-sm leading-relaxed sm:text-sm md:text-base text-muted-foreground">
                 {description}
-              </h2>
+              </p>
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@ const LandingPage = () => {
       
       {/* Hero Section with ArchitectureSaaSBackground */}
       <ArchitectureSaaSBackground>
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ const LandingPage = () => {
             className="text-center max-w-4xl mx-auto"
           >
             {/* HeroPill */}
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <HeroPill 
                 href="/signup"
                 label="Revolucione seus projetos com IA"
@@ -82,31 +82,33 @@ const LandingPage = () => {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
               Transforme plantas em
               <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
               Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
               <CtaGlow 
                 label="Começar Gratuitamente"
                 href="/signup"
                 ariaLabel="Começar gratuitamente - Cadastre-se agora"
+                className="w-full sm:w-auto"
               />
               <CtaGlow 
                 label="Ver Demonstração"
                 href="/demo"
                 ariaLabel="Ver demonstração da plataforma"
+                className="w-full sm:w-auto"
               />
             </div>
 
             {/* Trust Indicators */}
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm sm:text-base text-muted-foreground">
               Mais de 1.000+ arquitetos já confiam na nossa plataforma
             </div>
           </motion.div>
@@ -114,8 +116,8 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-12 sm:py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -123,19 +125,22 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="text-center"
           >
-            <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
-            <div className="flex justify-center items-center mb-8">
-              <iframe 
-                src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" 
-                style={{width:'100%',maxWidth:'600px',height:'400px',margin:'0 auto',display:'block',background:'transparent'}} 
-                frameBorder="0" 
-                allowFullScreen
-              />
+            <p className="text-muted-foreground mb-6 sm:mb-8 text-base sm:text-lg">Integrado com as principais bases de dados do mercado</p>
+            <div className="flex justify-center items-center mb-6 sm:mb-8">
+              <div className="relative w-full max-w-[600px] aspect-[3/2]">
+                <iframe 
+                  src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" 
+                  className="w-full h-full rounded-lg"
+                  style={{background:'transparent'}} 
+                  frameBorder="0" 
+                  allowFullScreen
+                />
+              </div>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
+            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-12 opacity-60">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 sm:h-10 md:h-12 hover:opacity-100 transition-all duration-300" />
+              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 sm:h-10 md:h-12 hover:opacity-100 transition-all duration-300" />
+              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-10 sm:h-12 md:h-16 hover:opacity-100 transition-all duration-300" />
             </div>
           </motion.div>
         </div>
@@ -148,34 +153,34 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Problem & Solution Section */}
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
                 Chega de orçamentos manuais que levam dias
               </h2>
-              <div className="space-y-4 text-muted-foreground">
+              <div className="space-y-3 sm:space-y-4 text-muted-foreground">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Planilhas complexas e propensas a erros humanos</p>
+                  <p className="text-sm sm:text-base">Planilhas complexas e propensas a erros humanos</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Consultas manuais a múltiplas tabelas de preços</p>
+                  <p className="text-sm sm:text-base">Consultas manuais a múltiplas tabelas de preços</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Cronogramas desatualizados e irreais</p>
+                  <p className="text-sm sm:text-base">Cronogramas desatualizados e irreais</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
-                  <p>Perda de competitividade por demora na entrega</p>
+                  <p className="text-sm sm:text-base">Perda de competitividade por demora na entrega</p>
                 </div>
               </div>
             </motion.div>
@@ -185,25 +190,25 @@ const LandingPage = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="bg-gradient-to-br from-primary/5 to-primary/10 p-8 rounded-2xl border border-primary/20"
+              className="bg-gradient-to-br from-primary/5 to-primary/10 p-4 sm:p-6 lg:p-8 rounded-2xl border border-primary/20"
             >
-              <h3 className="text-2xl font-bold text-foreground mb-6">Nossa IA resolve tudo isso</h3>
-              <div className="space-y-4">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">Nossa IA resolve tudo isso</h3>
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground">Análise automática de plantas e projetos</p>
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
+                  <p className="text-foreground text-sm sm:text-base">Análise automática de plantas e projetos</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground">Orçamentos precisos em minutos</p>
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
+                  <p className="text-foreground text-sm sm:text-base">Orçamentos precisos em minutos</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground">Cronogramas otimizados automaticamente</p>
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
+                  <p className="text-foreground text-sm sm:text-base">Cronogramas otimizados automaticamente</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground">Integração com bases de dados atualizadas</p>
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
+                  <p className="text-foreground text-sm sm:text-base">Integração com bases de dados atualizadas</p>
                 </div>
               </div>
             </motion.div>
@@ -212,56 +217,56 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               Recursos que transformam seu workflow
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Tudo que você precisa para modernizar seus processos e entregar projetos mais rapidamente
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-6 xl:max-h-[40rem] xl:grid-rows-2">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-12 xl:grid-rows-2 lg:gap-6">
             <GridItem
-              area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
+              area="xl:[grid-area:1/1/2/5]"
               icon={<Brain className="h-4 w-4" />}
               title="IA Especializada"
               description="Algoritmos treinados especificamente para análise de projetos arquitetônicos e construção civil"
             />
             <GridItem
-              area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
+              area="xl:[grid-area:2/1/3/5]"
               icon={<Calculator className="h-4 w-4" />}
               title="Orçamento Inteligente"
               description="Geração automática de orçamentos detalhados com base em dados SINAPI e mercado local"
             />
             <GridItem
-              area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
+              area="xl:[grid-area:1/5/3/8]"
               icon={<Calendar className="h-4 w-4" />}
               title="Cronograma Otimizado"
               description="Planejamento de obras com sequenciamento lógico e otimização de recursos"
             />
             <GridItem
-              area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
+              area="xl:[grid-area:1/8/2/13]"
               icon={<FileText className="h-4 w-4" />}
               title="Documentação Completa"
               description="Relatórios profissionais, memoriais descritivos e documentos técnicos automáticos"
             />
             <GridItem
-              area="md:[grid-area:3/1/4/7] xl:[grid-area:2/8/3/11]"
+              area="xl:[grid-area:2/8/3/11]"
               icon={<TrendingUp className="h-4 w-4" />}
               title="Analytics Avançado"
               description="Métricas e insights sobre seus projetos para tomada de decisões estratégicas"
             />
             <GridItem
-              area="md:[grid-area:3/7/4/13] xl:[grid-area:2/11/3/13]"
+              area="xl:[grid-area:2/11/3/13]"
               icon={<Shield className="h-4 w-4" />}
               title="Segurança Total"
               description="Seus dados protegidos com criptografia de nível empresarial e backups automáticos"
@@ -273,24 +278,24 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Demo Section */}
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               Veja a plataforma em ação
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Interface intuitiva que simplifica processos complexos
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -300,7 +305,8 @@ const LandingPage = () => {
               <img 
                 src="/src/assets/hero-dashboard-mockup.jpg" 
                 alt="Dashboard MadeAI" 
-                className="rounded-xl shadow-2xl border border-border"
+                className="w-full h-auto rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl border border-border object-contain"
+                loading="lazy"
               />
             </motion.div>
             
@@ -309,35 +315,35 @@ const LandingPage = () => {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-6"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">1</span>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary font-bold text-sm sm:text-base">1</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">Upload do Projeto</h3>
-                  <p className="text-muted-foreground">Faça upload de plantas, documentos ou dados do seu projeto</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">Upload do Projeto</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Faça upload de plantas, documentos ou dados do seu projeto</p>
                 </div>
               </div>
               
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">2</span>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary font-bold text-sm sm:text-base">2</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">Análise Inteligente</h3>
-                  <p className="text-muted-foreground">Nossa IA processa e analisa todos os elementos do projeto</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">Análise Inteligente</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Nossa IA processa e analisa todos os elementos do projeto</p>
                 </div>
               </div>
               
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary font-bold">3</span>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-primary font-bold text-sm sm:text-base">3</span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-1">Resultados Instantâneos</h3>
-                  <p className="text-muted-foreground">Receba orçamentos e cronogramas detalhados em minutos</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">Resultados Instantâneos</h3>
+                  <p className="text-sm sm:text-base text-muted-foreground">Receba orçamentos e cronogramas detalhados em minutos</p>
                 </div>
               </div>
             </motion.div>
@@ -346,24 +352,24 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               Planos que crescem com você
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Escolha o plano ideal para seu perfil profissional
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
             {[
               {
                 name: "Freelancer",
@@ -464,24 +470,24 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               O que nossos clientes dizem
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               Depoimentos reais de profissionais que transformaram seus processos
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {[
               {
                 name: "Ana Silva",
@@ -508,17 +514,17 @@ const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-muted/30 p-6 rounded-xl border border-border"
+                className="bg-muted/30 p-4 sm:p-6 rounded-xl border border-border"
               >
                 <div className="flex mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
                     <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
                   ))}
                 </div>
-                <p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
+                <p className="text-sm sm:text-base text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
                 <div>
-                  <p className="font-semibold text-foreground">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <p className="text-sm sm:text-base font-semibold text-foreground">{testimonial.name}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
               </motion.div>
             ))}
@@ -527,24 +533,24 @@ const LandingPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-4xl mx-auto px-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 lg:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               Perguntas Frequentes
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
               Tire suas dúvidas sobre a plataforma
             </p>
           </motion.div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {[
               {
                 question: "Como a IA analisa meus projetos?",
@@ -573,10 +579,10 @@ const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-background border border-border rounded-xl p-6"
+                className="bg-background border border-border rounded-lg sm:rounded-xl p-4 sm:p-6"
               >
-                <h3 className="text-lg font-semibold text-foreground mb-2">{faq.question}</h3>
-                <p className="text-muted-foreground">{faq.answer}</p>
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{faq.question}</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">{faq.answer}</p>
               </motion.div>
             ))}
           </div>
@@ -586,35 +592,37 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-background">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
               Pronto para revolucionar seus projetos?
             </h2>
-            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
               Junte-se a centenas de arquitetos e engenheiros que já transformaram seus processos com nossa IA
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <CtaGlow 
                 label="Começar Gratuitamente"
                 href="/signup"
                 ariaLabel="Começar gratuitamente - Teste agora"
+                className="w-full sm:w-auto"
               />
               <CtaGlow 
                 label="Falar com Especialista"
                 href="/contact"
                 ariaLabel="Falar com especialista em vendas"
+                className="w-full sm:w-auto"
               />
             </div>
 
-            <p className="text-sm text-muted-foreground mt-4">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
               Teste grátis • Sem cartão de crédito • Cancele quando quiser
             </p>
           </motion.div>

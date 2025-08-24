@@ -24,24 +24,24 @@ const FloatingElements: React.FC = () => {
       {elements.map((Element, i) => (
         <motion.div
           key={i}
-          className="absolute opacity-[0.03] dark:opacity-[0.08]"
+          className="absolute opacity-[0.02] sm:opacity-[0.03] dark:opacity-[0.06] dark:sm:opacity-[0.08]"
           style={{
             left: `${Element.x}%`,
             top: `${Element.y}%`,
           }}
           animate={{
-            y: [-10, 10, -10],
-            rotate: [0, 5, -5, 0],
-            scale: [1, 1.1, 1],
+            y: [-5, 5, -5],
+            rotate: [0, 3, -3, 0],
+            scale: [1, 1.05, 1],
           }}
           transition={{
-            duration: 6,
+            duration: 8,
             repeat: Infinity,
             delay: Element.delay,
             ease: "easeInOut",
           }}
         >
-          <Element.icon className="w-16 h-16 text-foreground" />
+          <Element.icon className="w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 text-foreground" />
         </motion.div>
       ))}
     </div>
@@ -51,19 +51,19 @@ const FloatingElements: React.FC = () => {
 const AnimatedGrid: React.FC = () => {
   return (
     <motion.div 
-      className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]"
+      className="absolute inset-0 opacity-[0.015] sm:opacity-[0.02] dark:opacity-[0.04] dark:sm:opacity-[0.05]"
       style={{
         backgroundImage: `
           linear-gradient(currentColor 1px, transparent 1px),
           linear-gradient(90deg, currentColor 1px, transparent 1px)
         `,
-        backgroundSize: '60px 60px',
+        backgroundSize: '40px 40px',
       }}
       animate={{
-        backgroundPosition: ['0px 0px', '60px 60px'],
+        backgroundPosition: ['0px 0px', '40px 40px'],
       }}
       transition={{
-        duration: 20,
+        duration: 25,
         repeat: Infinity,
         ease: "linear",
       }}

@@ -89,54 +89,54 @@ const testimonials: Testimonial[] = [
 function ReviewCard({ img, name, username, body, country }: ReviewCardProps) {
   return (
     <figure className={cn(
-      "relative w-80 cursor-pointer overflow-hidden rounded-xl border p-4",
+      "relative min-w-[220px] sm:min-w-[260px] md:w-80 cursor-pointer overflow-hidden rounded-xl border p-3 sm:p-4",
       "border-border bg-background hover:bg-muted/50",
       "shadow-sm hover:shadow-md transition-all duration-300"
     )}>
       <div className="flex flex-row items-center gap-2">
         <img
-          className="rounded-full"
+          className="rounded-full w-7 h-7 sm:w-8 sm:h-8"
           width="32"
           height="32"
           alt={name}
           src={img}
         />
         <div className="flex flex-col">
-          <figcaption className="text-sm font-medium text-foreground">
+          <figcaption className="text-xs sm:text-sm font-medium text-foreground">
             {name}
           </figcaption>
           <p className="text-xs font-medium text-muted-foreground">{username}</p>
           <p className="text-xs text-muted-foreground">{country}</p>
         </div>
       </div>
-      <blockquote className="mt-2 text-sm text-foreground">{body}</blockquote>
+      <blockquote className="mt-2 text-xs sm:text-sm text-foreground leading-relaxed">{body}</blockquote>
     </figure>
   );
 }
 
 export function MarqueeDemo() {
   return (
-    <section className="py-20 bg-background">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="py-12 sm:py-16 lg:py-20 bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             O que nossos clientes dizem
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
             Descubra como profissionais brasileiros estão transformando seus processos com a MadeAI
           </p>
         </motion.div>
 
-        <div className="relative flex h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
-          <div className="flex flex-row gap-4 [perspective:300px]">
+        <div className="relative flex h-[400px] sm:h-[500px] md:h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
+          <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 [perspective:300px]">
             {/* Primeira coluna */}
-            <div className="flex h-full w-80 animate-marquee-vertical flex-col gap-4 [transform:rotateX(0deg)]">
+            <div className="flex h-full w-60 sm:w-72 md:w-80 animate-marquee-vertical flex-col gap-3 sm:gap-4 [transform:rotateX(0deg)]">
               {testimonials.slice(0, 3).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
               ))}
@@ -145,8 +145,8 @@ export function MarqueeDemo() {
               ))}
             </div>
 
-            {/* Segunda coluna */}
-            <div className="flex h-full w-80 animate-marquee-vertical-reverse flex-col gap-4 [transform:rotateX(0deg)]">
+            {/* Segunda coluna - oculta no mobile */}
+            <div className="hidden sm:flex h-full w-72 md:w-80 animate-marquee-vertical-reverse flex-col gap-3 sm:gap-4 [transform:rotateX(0deg)]">
               {testimonials.slice(3, 6).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
               ))}
@@ -155,8 +155,8 @@ export function MarqueeDemo() {
               ))}
             </div>
 
-            {/* Terceira coluna */}
-            <div className="flex h-full w-80 animate-marquee-vertical flex-col gap-4 [transform:rotateX(0deg)]">
+            {/* Terceira coluna - oculta no mobile */}
+            <div className="hidden md:flex h-full w-80 animate-marquee-vertical flex-col gap-4 [transform:rotateX(0deg)]">
               {testimonials.slice(6, 9).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
               ))}
