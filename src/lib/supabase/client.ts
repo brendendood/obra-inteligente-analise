@@ -23,3 +23,40 @@ export interface UserPlanRow {
   updated_at?: string;
   created_at?: string;
 }
+
+export type CRMClientStatus = "prospect" | "active" | "inactive";
+export type CRMProjectStatus = "planning" | "in-progress" | "completed" | "on-hold";
+
+export interface CRMClient {
+  id: string;
+  owner_id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  company: string | null;
+  status: CRMClientStatus;
+  avatar: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CRMProject {
+  id: string;
+  owner_id: string;
+  client_id: string;
+  name: string;
+  value: number;
+  status: CRMProjectStatus;
+  start_date: string;
+  end_date: string | null;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CRMClientStatsView {
+  client_id: string;
+  owner_id: string;
+  projects_count: number;
+  total_value: number;
+}

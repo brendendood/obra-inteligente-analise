@@ -544,6 +544,102 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_clients: {
+        Row: {
+          avatar: string | null
+          company: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          owner_id: string
+          phone: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crm_projects: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          owner_id: string
+          start_date: string
+          status: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          start_date: string
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_crm_client_stats"
+            referencedColumns: ["client_id"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           created_at: string | null
@@ -1599,6 +1695,15 @@ export type Database = {
       }
     }
     Views: {
+      v_crm_client_stats: {
+        Row: {
+          client_id: string | null
+          owner_id: string | null
+          projects_count: number | null
+          total_value: number | null
+        }
+        Relationships: []
+      }
       v_project_summary: {
         Row: {
           overall_end: string | null

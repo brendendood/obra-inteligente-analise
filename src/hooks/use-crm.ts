@@ -1,0 +1,145 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase, type CRMClient, type CRMProject, type CRMClientStatsView } from "@/lib/supabase/client";
+
+export function useCRM() {
+  const [clients, setClients] = useState<CRMClient[]>([]);
+  const [projects, setProjects] = useState<CRMProject[]>([]);
+  const [stats, setStats] = useState<CRMClientStatsView[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
+
+  const fetchAll = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const { data: sessionData, error: sErr } = await supabase.auth.getSession();
+      if (sErr) throw sErr;
+      if (!sessionData.session?.user) {
+        setClients([]);
+        setProjects([]);
+        setStats([]);
+        return;
+      }
+
+      const [{ data: c, error: cErr }, { data: p, error: pErr }, { data: v, error: vErr }] =
+        await Promise.all([
+          supabase.from("crm_clients").select("*").order("created_at", { ascending: false }),
+          supabase.from("crm_projects").select("*").order("created_at", { ascending: false }),
+          supabase.from("v_crm_client_stats").select("*"),
+        ]);
+
+      if (cErr) throw cErr;
+      if (pErr) throw pErr;
+      if (vErr) throw vErr;
+
+      setClients((c ?? []) as CRMClient[]);
+      setProjects((p ?? []) as CRMProject[]);
+      setStats((v ?? []) as CRMClientStatsView[]);
+    } catch (e: any) {
+      setError(e?.message ?? "Erro ao carregar CRM");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  const clientById = useMemo(() => {
+    const map = new Map<string, CRMClient>();
+    for (const c of clients) map.set(c.id, c);
+    return map;
+  }, [clients]);
+
+  const mergedClients = useMemo(() => {
+    const enriched = clients.map((c) => {
+      const st = stats.find((s) => s.client_id === c.id);
+      return {
+        ...c,
+        projectsCount: st?.projects_count ?? 0,
+        totalValue: Number(st?.total_value ?? 0),
+      };
+    });
+    return enriched;
+  }, [clients, stats]);
+
+  // CRUD - Clients
+  const createClient = async (payload: Partial<CRMClient>) => {
+    const { data, error } = await supabase
+      .from("crm_clients")
+      .insert([{ name: payload.name, email: payload.email ?? null, phone: payload.phone ?? null, company: payload.company ?? null, status: payload.status ?? "prospect", avatar: payload.avatar ?? null }])
+      .select("*")
+      .single();
+    if (error) throw error;
+    await fetchAll();
+    return data as CRMClient;
+  };
+
+  const updateClient = async (id: string, payload: Partial<CRMClient>) => {
+    const { error } = await supabase
+      .from("crm_clients")
+      .update({ name: payload.name, email: payload.email ?? null, phone: payload.phone ?? null, company: payload.company ?? null, status: payload.status, avatar: payload.avatar ?? null })
+      .eq("id", id);
+    if (error) throw error;
+    await fetchAll();
+  };
+
+  const deleteClient = async (id: string) => {
+    const { error } = await supabase.from("crm_clients").delete().eq("id", id);
+    if (error) throw error;
+    await fetchAll();
+  };
+
+  // CRUD - Projects
+  const createProject = async (payload: Partial<CRMProject>) => {
+    const { data, error } = await supabase
+      .from("crm_projects")
+      .insert([{
+        name: payload.name,
+        client_id: payload.client_id,
+        value: payload.value ?? 0,
+        status: payload.status ?? "planning",
+        start_date: payload.start_date ?? new Date().toISOString().slice(0,10),
+        end_date: payload.end_date ?? null,
+        description: payload.description ?? null
+      }])
+      .select("*")
+      .single();
+    if (error) throw error;
+    await fetchAll();
+    return data as CRMProject;
+  };
+
+  const updateProject = async (id: string, payload: Partial<CRMProject>) => {
+    const { error } = await supabase
+      .from("crm_projects")
+      .update({
+        name: payload.name,
+        client_id: payload.client_id,
+        value: payload.value,
+        status: payload.status,
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+        description: payload.description
+      })
+      .eq("id", id);
+    if (error) throw error;
+    await fetchAll();
+  };
+
+  const deleteProject = async (id: string) => {
+    const { error } = await supabase.from("crm_projects").delete().eq("id", id);
+    if (error) throw error;
+    await fetchAll();
+  };
+
+  return {
+    loading, error,
+    clients: mergedClients, projects, stats, clientById,
+    createClient, updateClient, deleteClient,
+    createProject, updateProject, deleteProject,
+    refresh: fetchAll,
+  };
+}
