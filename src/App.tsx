@@ -35,6 +35,8 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const CRMPage = lazy(() => import("./pages/CRMPage"));
+const AdminCRMPage = lazy(() => import("./pages/AdminCRMPage"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -244,6 +246,18 @@ const App = () => {
                 <Route path="/contato" element={
                   <ProtectedRoute>
                     <LazyWrapper><Contact /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/crm" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><CRMPage /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/admin/crm" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><AdminCRMPage /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 

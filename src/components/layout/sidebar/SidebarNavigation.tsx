@@ -12,6 +12,7 @@ import {
   Settings,
   Shield,
   User,
+  Users,
   HelpCircle,
   MessageCircle
 } from 'lucide-react';
@@ -42,6 +43,11 @@ export const SidebarNavigation = () => {
       icon: MessageSquare, 
       label: 'Assistente IA', 
       path: '/ia'
+    },
+    { 
+      icon: Users, 
+      label: 'COM (CRM)', 
+      path: '/crm'
     },
     { 
       icon: FolderOpen, 
