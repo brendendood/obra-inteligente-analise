@@ -172,7 +172,15 @@ const config: Config = {
         "marquee-horizontal-reverse": {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(0%)" }
-        }
+        },
+        "star-movement-bottom": {
+          "0%": { transform: "translate(0%, 0%)", opacity: "1" },
+          "100%": { transform: "translate(-100%, 0%)", opacity: "0" },
+        },
+        "star-movement-top": {
+          "0%": { transform: "translate(0%, 0%)", opacity: "1" },
+          "100%": { transform: "translate(100%, 0%)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -193,7 +201,9 @@ const config: Config = {
         "marquee-vertical": "marquee-vertical 40s linear infinite",
         "marquee-vertical-reverse": "marquee-vertical-reverse 40s linear infinite",
         "marquee-horizontal": "marquee-horizontal 30s linear infinite",
-        "marquee-horizontal-reverse": "marquee-horizontal-reverse 30s linear infinite"
+        "marquee-horizontal-reverse": "marquee-horizontal-reverse 30s linear infinite",
+        "star-movement-bottom": "star-movement-bottom linear infinite alternate",
+        "star-movement-top": "star-movement-top linear infinite alternate",
       },
     },
   },

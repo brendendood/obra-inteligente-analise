@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { StarBorder } from '@/components/ui/star-border';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { HeroPill } from '@/components/ui/hero-pill';
@@ -100,8 +100,12 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
-              <CtaGlow label="Começar Gratuitamente" href="/cadastro" ariaLabel="Começar gratuitamente - Cadastre-se agora" className="w-full sm:w-auto" />
-              <CtaGlow label="Ver Demonstração" href="/demo" ariaLabel="Ver demonstração da plataforma" className="w-full sm:w-auto" />
+              <StarBorder as={Link} to="/cadastro" className="w-full sm:w-auto px-8 py-4">
+                Começar Gratuitamente
+              </StarBorder>
+              <StarBorder as={Link} to="/demo" className="w-full sm:w-auto px-8 py-4">
+                Ver Demonstração
+              </StarBorder>
             </div>
 
             {/* Trust Indicators */}
@@ -390,9 +394,13 @@ const LandingPage = () => {
                     </li>)}
                 </ul>
 
-                <div className="flex justify-center">
-                  <CtaGlow label={plan.cta} href="/cadastro" ariaLabel={`${plan.cta} - Plano ${plan.name}`} />
-                </div>
+                <StarBorder 
+                  as={Link} 
+                  to="/cadastro" 
+                  className="w-full px-6 py-3 text-center"
+                >
+                  {plan.cta}
+                </StarBorder>
               </motion.div>)}
           </div>
         </div>
@@ -544,8 +552,12 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-              <CtaGlow label="Começar Gratuitamente" href="/cadastro" ariaLabel="Começar gratuitamente - Teste agora" className="w-full sm:w-auto" />
-              <CtaGlow label="Falar com Especialista" href="/contact" ariaLabel="Falar com especialista em vendas" className="w-full sm:w-auto" />
+              <StarBorder as={Link} to="/cadastro" className="w-full sm:w-auto px-8 py-4">
+                Começar Gratuitamente
+              </StarBorder>
+              <StarBorder as={Link} to="/contato" className="w-full sm:w-auto px-8 py-4">
+                Falar com Especialista
+              </StarBorder>
             </div>
 
             <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
