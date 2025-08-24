@@ -31,27 +31,41 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { email }: CheckEmailRequest = await req.json();
 
-    if (!email) {
-      return new Response(JSON.stringify({ error: "Email is required" }), {
+    if (!email || !email.trim()) {
+      return new Response(JSON.stringify({ exists: false, error: "Email is required" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    // Validar formato do email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return new Response(JSON.stringify({ exists: false, error: "Invalid email format" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log(`Checking if email exists: ${normalizedEmail}`);
 
     // Check if email exists in auth.users
     const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
     
     if (authError) {
       console.error("Error checking auth users:", authError);
-      return new Response(JSON.stringify({ error: "Internal server error" }), {
+      return new Response(JSON.stringify({ exists: false, error: "Internal server error" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
     const emailExists = authUsers.users.some(user => 
-      user.email?.toLowerCase() === email.toLowerCase()
+      user.email?.toLowerCase() === normalizedEmail
     );
+
+    console.log(`Email ${normalizedEmail} exists: ${emailExists}`);
 
     return new Response(JSON.stringify({ exists: emailExists }), {
       status: 200,

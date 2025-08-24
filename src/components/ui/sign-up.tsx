@@ -140,14 +140,15 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
 
   // Email validation
   const checkEmailExists = async (email: string) => {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) return;
     
     setEmailChecking(true);
     try {
       const response = await fetch(`${window.location.origin}/functions/v1/check-email-exists`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email: normalizedEmail })
       });
       
       const result = await response.json();
@@ -156,7 +157,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
       if (result.exists) {
         setValidationErrors(prev => ({ 
           ...prev, 
-          email: "Este e-mail já está cadastrado." 
+          email: "Este e-mail já está em uso. Tente acessar com sua conta existente ou recupere sua senha." 
         }));
       } else {
         setValidationErrors(prev => {
@@ -218,7 +219,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(localFormData.email)) {
         errors.email = "Informe um e-mail válido.";
       } else if (emailExists) {
-        errors.email = "Este e-mail já está cadastrado.";
+        errors.email = "Este e-mail já está em uso. Tente acessar com sua conta existente ou recupere sua senha.";
       }
 
       if (!localFormData.password) {

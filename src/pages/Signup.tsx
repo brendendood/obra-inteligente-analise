@@ -213,8 +213,8 @@ function Signup() {
         
         if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
           toast({
-            title: "❌ Email já cadastrado",
-            description: "Este email já possui uma conta. Faça login ou use outro email.",
+            title: "❌ E-mail já em uso",
+            description: "Este e-mail já está em uso. Tente acessar com sua conta existente ou recupere sua senha.",
             variant: "destructive"
           });
         } else if (error.message?.includes('Password should be')) {
