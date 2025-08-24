@@ -2,6 +2,7 @@ import * as React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import "@fontsource/space-grotesk/400.css";
 import "@fontsource/space-grotesk/500.css";
 import "@fontsource/space-grotesk/600.css";
@@ -29,4 +30,8 @@ if (typeof window !== 'undefined' && (window as any).__madeai_sw_purged__ !== tr
 
 // REMOVENDO StrictMode que causa double rendering e corrompe React dispatcher
 console.info('[MadeAI] React version:', (React as any).version);
-root.render(<App />);
+root.render(
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <App />
+  </ThemeProvider>
+);

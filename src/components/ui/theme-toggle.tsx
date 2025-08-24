@@ -1,72 +1,53 @@
-"use client"
+"use client";
 
-import { Moon, Sun } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useTheme } from "@/hooks/useTheme"
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
-interface ThemeToggleProps {
-  className?: string
-}
-
-export function ThemeToggle({ className }: ThemeToggleProps) {
-  const { theme, toggleTheme } = useTheme()
-  const isDark = theme === 'dark'
+export function ThemeToggle() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const current = (resolvedTheme || theme || "system") as "light" | "dark" | "system";
+  const isDark = current === "dark";
 
   return (
     <div
       className={cn(
-        "flex w-16 h-8 p-1 rounded-full cursor-pointer transition-all duration-300",
-        isDark 
-          ? "bg-zinc-950 border border-zinc-800" 
-          : "bg-white border border-zinc-200",
-        className
+        "inline-flex items-center rounded-full p-1 transition-colors backdrop-blur-md border shadow-lg ring-1",
+        // glass integrado ao tema
+        "bg-white/60 border-black/10 ring-black/10",
+        "dark:bg-black/60 dark:border-white/10 dark:ring-white/10"
       )}
-      onClick={toggleTheme}
-      role="button"
-      tabIndex={0}
+      role="group"
+      aria-label="Alternar tema"
     >
-      <div className="flex justify-between items-center w-full">
-        <div
-          className={cn(
-            "flex justify-center items-center w-6 h-6 rounded-full transition-transform duration-300",
-            isDark 
-              ? "transform translate-x-0 bg-zinc-800" 
-              : "transform translate-x-8 bg-gray-200"
-          )}
-        >
-          {isDark ? (
-            <Moon 
-              className="w-4 h-4 text-white" 
-              strokeWidth={1.5}
-            />
-          ) : (
-            <Sun 
-              className="w-4 h-4 text-gray-700" 
-              strokeWidth={1.5}
-            />
-          )}
-        </div>
-        <div
-          className={cn(
-            "flex justify-center items-center w-6 h-6 rounded-full transition-transform duration-300",
-            isDark 
-              ? "bg-transparent" 
-              : "transform -translate-x-8"
-          )}
-        >
-          {isDark ? (
-            <Sun 
-              className="w-4 h-4 text-gray-500" 
-              strokeWidth={1.5}
-            />
-          ) : (
-            <Moon 
-              className="w-4 h-4 text-black" 
-              strokeWidth={1.5}
-            />
-          )}
-        </div>
-      </div>
+      <button
+        type="button"
+        onClick={() => setTheme("dark")}
+        className={cn(
+          "inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium transition-all",
+          isDark ? "bg-black text-white" : "text-neutral-700 hover:bg-black/5"
+        )}
+        aria-pressed={isDark}
+        aria-label="Ativar tema escuro"
+      >
+        <Moon className="h-4 w-4" />
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setTheme("light")}
+        className={cn(
+          "inline-flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium transition-all",
+          !isDark ? "bg-white text-black" : "text-neutral-200 hover:bg-white/5"
+        )}
+        aria-pressed={!isDark}
+        aria-label="Ativar tema claro"
+      >
+        <Sun className="h-4 w-4" />
+      </button>
     </div>
-  )
+  );
 }
