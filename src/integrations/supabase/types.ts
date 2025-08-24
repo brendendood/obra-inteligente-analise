@@ -1698,7 +1698,8 @@ export type Database = {
       v_crm_client_stats: {
         Row: {
           client_id: string | null
-          owner_id: string | null
+          client_name: string | null
+          last_project_date: string | null
           projects_count: number | null
           total_value: number | null
         }
@@ -1863,6 +1864,16 @@ export type Database = {
           email: string
           full_name: string
           user_id: string
+        }[]
+      }
+      get_client_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          client_id: string
+          client_name: string
+          last_project_date: string
+          projects_count: number
+          total_value: number
         }[]
       }
       get_geolocation_quality_report: {
