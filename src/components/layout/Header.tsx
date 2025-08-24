@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Menu } from 'lucide-react';
-import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
+import { Logo } from '@/components/ui/logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { Link } from 'react-router-dom';
 
@@ -26,7 +26,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <UnifiedLogo size="md" theme="auto" priority className="transition-all duration-300 hover:scale-105" />
+            <Logo className="transition-all duration-300 hover:scale-105" />
           </div>
 
           {/* Desktop Actions */}
