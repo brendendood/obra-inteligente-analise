@@ -7,11 +7,13 @@ export const senhaSchema = z.string()
   .regex(/[0-9]/, "A senha deve ter pelo menos 1 número.")
   .regex(/[^A-Za-z0-9]/, "A senha deve ter pelo menos 1 caractere especial.");
 
-export const passo1Schema = z.object({
+const passo1BaseSchema = z.object({
   email: z.string().email("Informe um e-mail válido."),
   password: senhaSchema,
   confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
+});
+
+export const passo1Schema = passo1BaseSchema.refine((data) => data.password === data.confirmPassword, {
   message: "As senhas não conferem.",
   path: ["confirmPassword"]
 });
@@ -22,10 +24,17 @@ export const passo2Schema = z.object({
   position: z.string().optional()
 });
 
-export const passo3Schema = z.object({
-  acceptTerms: z.boolean().refine(val => val === true, {
-    message: "Você deve aceitar os Termos de Uso e Política de Privacidade."
-  })
+const passo3BaseSchema = z.object({
+  acceptTerms: z.boolean()
 });
 
-export const cadastroCompleteSchema = passo1Schema.merge(passo2Schema).merge(passo3Schema);
+export const passo3Schema = passo3BaseSchema.refine((data) => data.acceptTerms === true, {
+  message: "Você deve aceitar os Termos de Uso e Política de Privacidade."
+});
+
+export const cadastroCompleteSchema = passo1BaseSchema.merge(passo2Schema).merge(passo3BaseSchema).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não conferem.",
+  path: ["confirmPassword"]
+}).refine((data) => data.acceptTerms === true, {
+  message: "Você deve aceitar os Termos de Uso e Política de Privacidade."
+});
