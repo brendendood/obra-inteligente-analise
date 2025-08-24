@@ -134,44 +134,50 @@ export function MarqueeDemo() {
         </motion.div>
 
         <div className="relative w-full max-w-[800px] overflow-hidden border border-border rounded-lg flex flex-col gap-3 h-auto md:[perspective:300px] md:h-96 md:flex-row md:items-center md:justify-center md:gap-1.5">
-          <div className="flex flex-col gap-4 md:flex-row md:gap-4">
-            {/* Primeira coluna */}
-            <div className="flex h-full w-full animate-marquee-vertical flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
-              {testimonials.slice(0, 3).map((review, idx) => (
-                <ReviewCard key={idx} {...review} />
+          <div className="flex flex-col gap-3 md:flex-row md:gap-4">
+            {/* COLUNA ESQUERDA — visível no mobile e desktop */}
+            <div className="flex h-full w-full animate-marquee-vertical flex-col gap-2 md:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
+              {testimonials.map((review, idx) => (
+                <ReviewCard key={`L-${idx}`} {...review} />
               ))}
-              {testimonials.slice(0, 3).map((review, idx) => (
-                <ReviewCard key={idx + 3} {...review} />
+              {testimonials.map((review, idx) => (
+                <ReviewCard key={`L-${idx + testimonials.length}`} {...review} />
               ))}
-            </div>
-
-            {/* Segunda coluna */}
-            <div className="flex h-full w-full animate-marquee-vertical-reverse flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
-              {testimonials.slice(3, 6).map((review, idx) => (
-                <ReviewCard key={idx} {...review} />
-              ))}
-              {testimonials.slice(3, 6).map((review, idx) => (
-                <ReviewCard key={idx + 3} {...review} />
+              {testimonials.map((review, idx) => (
+                <ReviewCard key={`L-${idx + testimonials.length * 2}`} {...review} />
               ))}
             </div>
 
-            {/* Terceira coluna */}
-            <div className="flex h-full w-full animate-marquee-vertical flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
+            {/* COLUNA "DO MEIO" — visível no mobile e desktop (direção invertida para variar) */}
+            <div className="flex h-full w-full animate-marquee-vertical-reverse flex-col gap-2 md:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
+              {testimonials.map((review, idx) => (
+                <ReviewCard key={`M-${idx}`} {...review} />
+              ))}
+              {testimonials.map((review, idx) => (
+                <ReviewCard key={`M-${idx + testimonials.length}`} {...review} />
+              ))}
+              {testimonials.map((review, idx) => (
+                <ReviewCard key={`M-${idx + testimonials.length * 2}`} {...review} />
+              ))}
+            </div>
+
+            {/* COLUNA EXTRA (antes terceira) — ocultar no mobile */}
+            <div className="hidden md:flex h-full w-full animate-marquee-vertical flex-col gap-4 md:w-80 md:[transform:rotateX(0deg)]">
               {testimonials.slice(6, 9).map((review, idx) => (
-                <ReviewCard key={idx} {...review} />
+                <ReviewCard key={`R1-${idx}`} {...review} />
               ))}
               {testimonials.slice(6, 9).map((review, idx) => (
-                <ReviewCard key={idx + 3} {...review} />
+                <ReviewCard key={`R1-${idx + 3}`} {...review} />
               ))}
             </div>
 
-            {/* Quarta coluna */}
-            <div className="flex h-full w-full animate-marquee-vertical-reverse flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
+            {/* COLUNA EXTRA (antes quarta) — ocultar no mobile, reverse para alternar */}
+            <div className="hidden md:flex h-full w-full animate-marquee-vertical-reverse flex-col gap-4 md:w-80 md:[transform:rotateX(0deg)]">
               {testimonials.slice(0, 3).map((review, idx) => (
-                <ReviewCard key={idx + 6} {...review} />
+                <ReviewCard key={`R2-${idx + 6}`} {...review} />
               ))}
               {testimonials.slice(3, 6).map((review, idx) => (
-                <ReviewCard key={idx + 9} {...review} />
+                <ReviewCard key={`R2-${idx + 9}`} {...review} />
               ))}
             </div>
           </div>
