@@ -1783,6 +1783,12 @@ export type Database = {
           user_id: string
         }[]
       }
+      increment_ai_usage: {
+        Args: { p_period: string; p_user: string }
+        Returns: {
+          count: number
+        }[]
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean

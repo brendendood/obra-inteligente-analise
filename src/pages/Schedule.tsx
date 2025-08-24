@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { FileText, ArrowLeft, Calendar, Download, CheckCircle, Clock, AlertCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/contexts/ProjectContext';
+import { ScheduleBlock } from '@/components/blocks/FeatureBlocks';
 
 interface ScheduleItem {
   id: string;
@@ -280,7 +281,8 @@ const Schedule = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <ScheduleBlock>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -486,8 +488,9 @@ const Schedule = () => {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </ScheduleBlock>
   );
 };
 

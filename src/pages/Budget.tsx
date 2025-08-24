@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { FileText, ArrowLeft, Calculator, Plus, Trash2, Download, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/contexts/ProjectContext';
+import { BudgetBlock } from '@/components/blocks/FeatureBlocks';
 
 interface BudgetItem {
   id: string;
@@ -246,8 +247,9 @@ const Budget = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
+    <BudgetBlock>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -463,8 +465,9 @@ const Budget = () => {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </BudgetBlock>
   );
 };
 
