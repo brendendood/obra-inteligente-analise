@@ -185,6 +185,7 @@ const App = () => {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
+                <Route path="/signup" element={<Navigate to="/cadastro" replace />} />
                 <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
                 <Route path="/v/*" element={<Redirect />} />
                 <Route path="/auth/callback" element={<ConfirmAccount />} />

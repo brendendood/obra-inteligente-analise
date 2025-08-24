@@ -75,7 +75,7 @@ const LandingPage = () => {
             {/* HeroPill */}
             <div className="mb-6 sm:mb-8">
               <HeroPill 
-                href="/signup"
+                href="/cadastro"
                 label="Revolucione seus projetos com IA"
                 announcement="🚀 Novo"
                 className="mx-auto"
@@ -96,7 +96,7 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
               <CtaGlow 
                 label="Começar Gratuitamente"
-                href="/signup"
+                href="/cadastro"
                 ariaLabel="Começar gratuitamente - Cadastre-se agora"
                 className="w-full sm:w-auto"
               />
@@ -402,7 +402,7 @@ const LandingPage = () => {
                 <div className="flex justify-center">
                   <CtaGlow 
                     label={plan.cta}
-                    href="/signup"
+                    href="/cadastro"
                     ariaLabel={`${plan.cta} - Plano ${plan.name}`}
                   />
                 </div>
@@ -555,7 +555,7 @@ const LandingPage = () => {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <CtaGlow 
                 label="Começar Gratuitamente"
-                href="/signup"
+                href="/cadastro"
                 ariaLabel="Começar gratuitamente - Teste agora"
                 className="w-full sm:w-auto"
               />

@@ -42,7 +42,7 @@ const Header = () => {
               className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200"
               asChild
             >
-              <Link to="/signup">
+              <Link to="/cadastro">
                 <GlowingEffect
                   spread={40}
                   glow={true}
@@ -87,7 +87,7 @@ const Header = () => {
                 className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground justify-start transition-all duration-200"
                 asChild
               >
-                <Link to="/signup">
+                <Link to="/cadastro">
                   <GlowingEffect
                     spread={40}
                     glow={true}
