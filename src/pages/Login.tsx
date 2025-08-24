@@ -7,7 +7,7 @@ import { validateEmail, formatAuthError } from '@/utils/authValidation';
 import { SignInPage, type Testimonial } from '@/components/ui/sign-in';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { ArrowLeft } from 'lucide-react';
-import { StarBorder } from '@/components/ui/star-border';
+import { Button } from '@/components/ui/button';
 
 const testimonials: Testimonial[] = [
   {
@@ -127,13 +127,16 @@ export default function Login() {
 
   return (
     <div className="bg-background text-foreground relative">
-      <StarBorder
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => navigate(-1)}
-        className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-2 rounded-[12px] text-sm"
+        className="absolute top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+        aria-label="Voltar à página anterior"
       >
         <ArrowLeft size={16} />
         Voltar
-      </StarBorder>
+      </Button>
       <SignInPage
         title={<span className="font-light tracking-tighter">Bem-vindo</span>}
         description="Acesse sua conta para continuar sua jornada com a MadeAI."
