@@ -9,6 +9,7 @@ import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
+import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
 import Header from '@/components/layout/Header';
 import { 
   CheckCircle,
@@ -60,91 +61,95 @@ const LandingPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Hero Section with WavyBackground */}
-      <WavyBackground
-        className="relative"
-        containerClassName="relative"
-        colors={[
-          "#3b82f6",
-          "#8b5cf6", 
-          "#06b6d4",
-          "#10b981",
-          "#f59e0b"
-        ]}
-        waveWidth={50}
-        waveOpacity={0.1}
-        blur={8}
-        speed="fast"
-        backgroundFill="transparent"
-      >
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
-          >
-            {/* HeroPill */}
-            <div className="mb-8">
-              <HeroPill 
-                href="/signup"
-                label="Revolucione seus projetos com IA"
-                announcement="🚀 Novo"
-                className="mx-auto"
-              />
-            </div>
+      {/* Hero Section with ArchitectureSaaSBackground */}
+      <ArchitectureSaaSBackground>
+        <WavyBackground
+          className="relative"
+          containerClassName="relative"
+          colors={[
+            "#3b82f6",
+            "#8b5cf6", 
+            "#06b6d4",
+            "#10b981",
+            "#f59e0b"
+          ]}
+          waveWidth={50}
+          waveOpacity={0.1}
+          blur={8}
+          speed="fast"
+          backgroundFill="transparent"
+        >
+          <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              {/* HeroPill */}
+              <div className="mb-8">
+                <HeroPill 
+                  href="/signup"
+                  label="Revolucione seus projetos com IA"
+                  announcement="🚀 Novo"
+                  className="mx-auto"
+                />
+              </div>
 
-            {/* Main Headline */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-              Transforme plantas em
-              <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
-            </h1>
+              {/* Main Headline */}
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+                Transforme plantas em
+                <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
+              </h1>
 
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-              Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
-            </p>
+              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+                Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
+              </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <CtaGlow 
-                label="Começar Gratuitamente"
-                href="/signup"
-                ariaLabel="Começar gratuitamente - Cadastre-se agora"
-              />
-              <CtaGlow 
-                label="Ver Demonstração"
-                href="/demo"
-                ariaLabel="Ver demonstração da plataforma"
-              />
-            </div>
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                <CtaGlow 
+                  label="Começar Gratuitamente"
+                  href="/signup"
+                  ariaLabel="Começar gratuitamente - Cadastre-se agora"
+                />
+                <CtaGlow 
+                  label="Ver Demonstração"
+                  href="/demo"
+                  ariaLabel="Ver demonstração da plataforma"
+                />
+              </div>
 
-            {/* Trust Indicators */}
-            <div className="text-sm text-muted-foreground">
-              Mais de 1.000+ arquitetos já confiam na nossa plataforma
-            </div>
-          </motion.div>
-        </div>
-      </WavyBackground>
+              {/* Trust Indicators */}
+              <div className="text-sm text-muted-foreground">
+                Mais de 1.000+ arquitetos já confiam na nossa plataforma
+              </div>
+            </motion.div>
+          </div>
+        </WavyBackground>
+      </ArchitectureSaaSBackground>
 
       {/* Social Proof Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <ArchitectureSaaSBackground>
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-7xl mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center"
+            >
+              <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
+                <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
+                <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      </ArchitectureSaaSBackground>
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
