@@ -17,5 +17,11 @@ export const SectionDivider = ({
 }: SectionDividerProps) => {
   // Use semantic color variants if no specific colors provided
   const gradientClass = variant === "light-to-dark" ? "bg-gradient-to-b from-background via-background/50 to-muted" : "bg-gradient-to-b from-muted via-background/50 to-background";
-  return;
+  
+  return (
+    <div 
+      className={cn(gradientClass, className)}
+      style={{ height: `${height}px`, filter: `blur(${blur}px)` }}
+    />
+  );
 };
