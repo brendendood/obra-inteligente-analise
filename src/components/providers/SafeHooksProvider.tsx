@@ -1,5 +1,4 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { checkReactHealthStatic } from '@/hooks/useReactHealthCheck';
 
 interface SafeHooksContextType {
   isReactHealthy: boolean;
@@ -11,6 +10,24 @@ const SafeHooksContext = createContext<SafeHooksContextType | null>(null);
 interface SafeHooksProviderProps {
   children: React.ReactNode;
 }
+
+// Simple static check without external dependencies
+const checkReactHealthStatic = () => {
+  try {
+    if (typeof React === 'undefined' || !React) {
+      return { isHealthy: false, error: 'React object not found' };
+    }
+    if (!React.useState || !React.useEffect || !React.createContext) {
+      return { isHealthy: false, error: 'React hooks/methods not available' };
+    }
+    return { isHealthy: true };
+  } catch (error) {
+    return { 
+      isHealthy: false, 
+      error: error instanceof Error ? error.message : 'Unknown React error' 
+    };
+  }
+};
 
 export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }) => {
   // Verificação de saúde ANTES de usar qualquer hook
@@ -95,16 +112,20 @@ export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }
   }
 
   useEffect(() => {
-    // Monitoramento contínuo da saúde do React
+    // Simplified monitoring without external dependencies
     const checkHealth = () => {
-      const health = checkReactHealthStatic();
-      if (!health.isHealthy) {
-        console.error('🔴 React health degraded:', health.error);
+      try {
+        if (!React || !React.useState) {
+          console.error('🔴 React health degraded');
+          setIsHealthy(false);
+        }
+      } catch (error) {
+        console.error('🔴 React health check failed:', error);
         setIsHealthy(false);
       }
     };
 
-    const interval = setInterval(checkHealth, 5000); // Verifica a cada 5 segundos
+    const interval = setInterval(checkHealth, 5000);
     return () => clearInterval(interval);
   }, []);
 
