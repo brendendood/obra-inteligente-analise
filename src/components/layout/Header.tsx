@@ -19,7 +19,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-black dark:shadow-none dark:border-white/10 rounded-2xl">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-black">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
