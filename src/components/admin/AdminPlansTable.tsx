@@ -2,17 +2,9 @@
 
 import { useMemo, useState } from "react";
 
-type PlanTier = "SOLO" | "STUDIO" | "ENTERPRISE";
-type BillingCycle = "mensal" | "anual";
+import { type UserPlanRow, type PlanTier, type BillingCycle } from "@/lib/supabase/client";
 
 type AdminUser = { id: string; email: string | null };
-type UserPlanRow = {
-  user_id: string;
-  plan_tier: PlanTier;
-  billing_cycle: BillingCycle;
-  seats: number;
-  messages_quota: number;
-};
 
 export function AdminPlansTable({
   users,
@@ -33,7 +25,7 @@ export function AdminPlansTable({
       return {
         userId: u.id,
         email: u.email ?? "",
-        planTier: (p?.plan_tier ?? "SOLO") as PlanTier,
+        planTier: (p?.plan_tier ?? "FREE") as PlanTier,
         billingCycle: (p?.billing_cycle ?? "mensal") as BillingCycle,
         seats: p?.seats ?? 1,
         messages_quota: p?.messages_quota ?? 500,
@@ -124,8 +116,9 @@ export function AdminPlansTable({
                   }
                   className="rounded-md border bg-background px-2 py-1"
                 >
-                  <option value="SOLO">SOLO</option>
-                  <option value="STUDIO">STUDIO</option>
+                  <option value="FREE">FREE</option>
+                  <option value="BASIC">BASIC</option>
+                  <option value="PRO">PRO</option>
                   <option value="ENTERPRISE">ENTERPRISE</option>
                 </select>
               </td>

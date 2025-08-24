@@ -3,15 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminPlansTable } from "@/components/admin/AdminPlansTable";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
+import { type UserPlanRow } from "@/lib/supabase/client";
 
 type AdminUser = { id: string; email: string | null };
-type UserPlanRow = {
-  user_id: string;
-  plan_tier: "SOLO" | "STUDIO" | "ENTERPRISE";
-  billing_cycle: "mensal" | "anual";
-  seats: number;
-  messages_quota: number;
-};
 
 export default function AdminPlansPage() {
   const { user } = useAuth();

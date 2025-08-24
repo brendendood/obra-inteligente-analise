@@ -257,6 +257,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_message_usage: {
+        Row: {
+          count: number
+          created_at: string
+          id: number
+          period_ym: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          id?: number
+          period_ym: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          id?: number
+          period_ym?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_messages: {
         Row: {
           content: string
@@ -1308,7 +1335,7 @@ export type Database = {
           billing_cycle: Database["public"]["Enums"]["billing_cycle"]
           created_at: string
           messages_quota: number
-          plan_tier: Database["public"]["Enums"]["plan_tier"]
+          plan_tier: Database["public"]["Enums"]["plan_tier_v2"]
           seats: number
           updated_at: string
           user_id: string
@@ -1317,7 +1344,7 @@ export type Database = {
           billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
           created_at?: string
           messages_quota?: number
-          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          plan_tier?: Database["public"]["Enums"]["plan_tier_v2"]
           seats?: number
           updated_at?: string
           user_id: string
@@ -1326,7 +1353,7 @@ export type Database = {
           billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
           created_at?: string
           messages_quota?: number
-          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          plan_tier?: Database["public"]["Enums"]["plan_tier_v2"]
           seats?: number
           updated_at?: string
           user_id?: string
@@ -1841,6 +1868,7 @@ export type Database = {
       admin_role: "super_admin" | "marketing" | "financial" | "support"
       billing_cycle: "mensal" | "anual"
       plan_tier: "SOLO" | "STUDIO" | "ENTERPRISE"
+      plan_tier_v2: "FREE" | "BASIC" | "PRO" | "ENTERPRISE"
       subscription_plan: "free" | "basic" | "pro" | "enterprise"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
       user_event_type:
@@ -1986,6 +2014,7 @@ export const Constants = {
       admin_role: ["super_admin", "marketing", "financial", "support"],
       billing_cycle: ["mensal", "anual"],
       plan_tier: ["SOLO", "STUDIO", "ENTERPRISE"],
+      plan_tier_v2: ["FREE", "BASIC", "PRO", "ENTERPRISE"],
       subscription_plan: ["free", "basic", "pro", "enterprise"],
       subscription_status: ["active", "canceled", "past_due", "trialing"],
       user_event_type: [
