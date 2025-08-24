@@ -17,7 +17,7 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="fixed top-4 left-4 right-4 z-50 transition-all duration-300 theme-transition backdrop-blur-md bg-gray-50/80 dark:bg-black/40 border border-white/20 dark:border-white/10 rounded-2xl shadow-sm">
+    <header className="fixed top-4 left-4 right-4 z-50 transition-all duration-300 theme-transition backdrop-blur-md bg-white/60 dark:bg-neutral-900/80 border border-white/20 dark:border-white/10 rounded-2xl">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
