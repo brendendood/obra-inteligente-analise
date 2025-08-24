@@ -1,28 +1,22 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Facebook, Instagram, Linkedin, Moon, Send, Sun, Twitter } from "lucide-react"
-import { useTheme } from "@/hooks/useTheme"
-
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Facebook, Instagram, Linkedin, Moon, Send, Sun, Twitter } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 function Footerdemo() {
-  const { theme, toggleTheme } = useTheme()
-
-  const currentYear = new Date().getFullYear()
-
-  return (
-    <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 md:px-6 lg:px-8">
+  const {
+    theme,
+    toggleTheme
+  } = useTheme();
+  const currentYear = new Date().getFullYear();
+  return <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
+      <div className="container mx-auto sm:px-6 py-8 sm:py-12 md:px-6 lg:px-8 px-[41px]">
         <div className="grid gap-8 sm:gap-10 md:gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Newsletter */}
           <div className="relative">
@@ -31,17 +25,8 @@ function Footerdemo() {
               Assine nossa newsletter para receber novidades e conteúdos exclusivos da MadeAI.
             </p>
             <form className="relative">
-              <Input
-                type="email"
-                placeholder="Digite seu e-mail"
-                className="pr-12 backdrop-blur-sm text-sm"
-                aria-label="Seu e-mail"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105"
-              >
+              <Input type="email" placeholder="Digite seu e-mail" className="pr-12 backdrop-blur-sm text-sm" aria-label="Seu e-mail" />
+              <Button type="submit" size="icon" className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105">
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Inscrever-se</span>
               </Button>
@@ -158,8 +143,6 @@ function Footerdemo() {
           </nav>
         </div>
       </div>
-    </footer>
-  )
+    </footer>;
 }
-
-export { Footerdemo }
+export { Footerdemo };
