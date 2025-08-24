@@ -12,6 +12,7 @@ import { MarqueeDemo } from '@/components/ui/3d-testimonials';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
 import Header from '@/components/layout/Header';
+import { MadeAIFeaturesSection } from '@/components/sections/madeai-features';
 import { 
   CheckCircle,
 } from 'lucide-react';
@@ -217,63 +218,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-12 lg:mb-16"
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-              Recursos que transformam seu workflow
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-              Tudo que você precisa para modernizar seus processos e entregar projetos mais rapidamente
-            </p>
-          </motion.div>
-
-          <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
-            <GridItem
-              area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-              icon={<Brain className="h-4 w-4" />}
-              title="IA Especializada"
-              description="Algoritmos treinados especificamente para análise de projetos arquitetônicos e construção civil"
-            />
-            <GridItem
-              area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-              icon={<Calculator className="h-4 w-4" />}
-              title="Orçamento Inteligente"
-              description="Geração automática de orçamentos detalhados com base em dados SINAPI e mercado local"
-            />
-            <GridItem
-              area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
-              icon={<Calendar className="h-4 w-4" />}
-              title="Cronograma Otimizado"
-              description="Planejamento de obras com sequenciamento lógico e otimização de recursos"
-            />
-            <GridItem
-              area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
-              icon={<FileText className="h-4 w-4" />}
-              title="Documentação Completa"
-              description="Relatórios profissionais, memoriais descritivos e documentos técnicos automáticos"
-            />
-            <GridItem
-              area="md:[grid-area:3/1/4/7] xl:[grid-area:2/8/3/11]"
-              icon={<TrendingUp className="h-4 w-4" />}
-              title="Analytics Avançado"
-              description="Métricas e insights sobre seus projetos para tomada de decisões estratégicas"
-            />
-            <GridItem
-              area="md:[grid-area:3/7/4/13] xl:[grid-area:2/11/3/13]"
-              icon={<Shield className="h-4 w-4" />}
-              title="Segurança Total"
-              description="Seus dados protegidos com criptografia de nível empresarial e backups automáticos"
-            />
-          </ul>
-        </div>
-      </section>
+      <MadeAIFeaturesSection />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
