@@ -24,7 +24,7 @@ const Header = () => {
         <img 
           src="/lovable-uploads/d2ba1403-730e-45eb-a6a5-fc16bcf368a0.png" 
           alt="Decorative element" 
-          className="absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl"
+          className="absolute left-6 top-0 w-16 h-16 object-cover rounded-tl-2xl"
         />
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
