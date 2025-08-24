@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // --- TYPE DEFINITIONS ---
-interface Testimonial {
+export interface Testimonial {
   avatarSrc: string;
   name: string;
   handle: string;
   text: string;
 }
 
-interface SignUpPageProps {
+export interface SignUpPageProps {
   title?: React.ReactNode;
   description?: React.ReactNode;
   heroImageSrc?: string;
@@ -29,15 +30,36 @@ interface SignUpPageProps {
 }
 
 // --- SUB-COMPONENTS ---
-const GlassInputWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="rounded-2xl border border-border bg-foreground/5 backdrop-blur-sm transition-colors focus-within:border-primary/70 focus-within:bg-primary/10">
+const GlassInputWrapper = ({ children, error }: { children: React.ReactNode; error?: boolean }) => (
+  <div className={`rounded-2xl border backdrop-blur-sm transition-colors focus-within:border-violet-400/70 focus-within:bg-violet-500/10 ${error ? 'border-red-400 bg-red-500/10' : 'border-border bg-foreground/5'}`}>
     {children}
   </div>
 );
 
+const ValidationMessage = ({ type, message }: { type: 'error' | 'success' | 'info'; message: string }) => {
+  const icons = {
+    error: <XCircle className="w-4 h-4 text-red-500" />,
+    success: <CheckCircle className="w-4 h-4 text-green-500" />,
+    info: <AlertCircle className="w-4 h-4 text-blue-500" />
+  };
+
+  const colors = {
+    error: 'text-red-600 dark:text-red-400',
+    success: 'text-green-600 dark:text-green-400',
+    info: 'text-blue-600 dark:text-blue-400'
+  };
+
+  return (
+    <div className={`flex items-center gap-2 text-xs mt-1 ${colors[type]}`}>
+      {icons[type]}
+      <span>{message}</span>
+    </div>
+  );
+};
+
 const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial; delay: string }) => (
   <div
-    className={`animate-fade-in ${delay} flex items-start gap-3 rounded-3xl bg-card/40 dark:bg-zinc-800/40 backdrop-blur-xl border border-white/10 p-5 w-64`}
+    className={`animate-testimonial ${delay} flex items-start gap-3 rounded-3xl bg-card/40 dark:bg-zinc-800/40 backdrop-blur-xl border border-white/10 p-5 w-64`}
   >
     <img src={testimonial.avatarSrc} className="h-10 w-10 object-cover rounded-2xl" alt="avatar" />
     <div className="text-sm leading-snug">
@@ -47,6 +69,30 @@ const TestimonialCard = ({ testimonial, delay }: { testimonial: Testimonial; del
     </div>
   </div>
 );
+
+const PasswordStrengthIndicator = ({ password }: { password: string }) => {
+  const requirements = [
+    { test: (p: string) => p.length >= 8, text: "Pelo menos 8 caracteres" },
+    { test: (p: string) => /[A-Z]/.test(p), text: "1 letra maiúscula" },
+    { test: (p: string) => /[a-z]/.test(p), text: "1 letra minúscula" },
+    { test: (p: string) => /[0-9]/.test(p), text: "1 número" },
+    { test: (p: string) => /[^A-Za-z0-9]/.test(p), text: "1 caractere especial" },
+  ];
+
+  return (
+    <div className="mt-2 space-y-1">
+      {requirements.map((req, index) => {
+        const isValid = req.test(password);
+        return (
+          <div key={index} className={`flex items-center gap-2 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+            {isValid ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+            <span>{req.text}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 // --- MAIN SIGN UP COMPONENT ---
 export const SignUpPage: React.FC<SignUpPageProps> = ({
@@ -63,56 +109,174 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   showPassword = false,
   onShowPasswordChange,
   loading = false,
-  onBack,
+  onBack
 }) => {
-  const [internalStep, setInternalStep] = useState(currentStep);
-  const [internalShowPassword, setInternalShowPassword] = useState(showPassword);
-  const [internalFormData, setInternalFormData] = useState<Record<string, any>>(formData);
+  const [localFormData, setLocalFormData] = useState(formData);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [emailChecking, setEmailChecking] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
 
-  const step = currentStep || internalStep;
-  const currentShowPassword = onShowPasswordChange ? showPassword : internalShowPassword;
-  const currentFormData = onFormDataChange ? formData : internalFormData;
+  // Step progress indicator
+  const StepIndicator = () => (
+    <div className="flex items-center justify-center gap-2 mb-6">
+      {[1, 2, 3].map((step) => (
+        <div key={step} className="flex items-center gap-2">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+            step <= currentStep 
+              ? 'bg-primary text-primary-foreground' 
+              : 'bg-muted text-muted-foreground'
+          }`}>
+            {step}
+          </div>
+          {step < 3 && (
+            <div className={`w-8 h-0.5 transition-colors ${
+              step < currentStep ? 'bg-primary' : 'bg-muted'
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
+  // Email validation
+  const checkEmailExists = async (email: string) => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    
+    setEmailChecking(true);
+    try {
+      const response = await fetch(`${window.location.origin}/functions/v1/check-email-exists`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const result = await response.json();
+      setEmailExists(result.exists);
+      
+      if (result.exists) {
+        setValidationErrors(prev => ({ 
+          ...prev, 
+          email: "Este e-mail já está cadastrado." 
+        }));
+      } else {
+        setValidationErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors.email;
+          return newErrors;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+    } finally {
+      setEmailChecking(false);
+    }
+  };
+
+  // Password validation
+  const validatePassword = (password: string) => {
+    const errors = [];
+    if (password.length < 8) errors.push("A senha deve ter pelo menos 8 caracteres.");
+    if (!/[A-Z]/.test(password)) errors.push("A senha deve ter pelo menos 1 letra maiúscula.");
+    if (!/[a-z]/.test(password)) errors.push("A senha deve ter pelo menos 1 letra minúscula.");
+    if (!/[0-9]/.test(password)) errors.push("A senha deve ter pelo menos 1 número.");
+    if (!/[^A-Za-z0-9]/.test(password)) errors.push("A senha deve ter pelo menos 1 caractere especial.");
+    
+    return errors;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const newValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    
+    const updatedData = { ...localFormData, [name]: newValue };
+    setLocalFormData(updatedData);
+    onFormDataChange?.(updatedData);
+
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleEmailBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    if (email) {
+      checkEmailExists(email);
+    }
+  };
+
+  const validateCurrentStep = () => {
+    const errors: Record<string, string> = {};
+
+    if (currentStep === 1) {
+      if (!localFormData.email) {
+        errors.email = "E-mail é obrigatório.";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(localFormData.email)) {
+        errors.email = "Informe um e-mail válido.";
+      } else if (emailExists) {
+        errors.email = "Este e-mail já está cadastrado.";
+      }
+
+      if (!localFormData.password) {
+        errors.password = "Senha é obrigatória.";
+      } else {
+        const passwordErrors = validatePassword(localFormData.password);
+        if (passwordErrors.length > 0) {
+          errors.password = passwordErrors[0];
+        }
+      }
+
+      if (!localFormData.confirmPassword) {
+        errors.confirmPassword = "Confirmação de senha é obrigatória.";
+      } else if (localFormData.password && localFormData.password !== localFormData.confirmPassword) {
+        errors.confirmPassword = "As senhas não conferem.";
+      }
+    }
+
+    if (currentStep === 2) {
+      if (!localFormData.name || localFormData.name.trim().length < 2) {
+        errors.name = "Nome deve ter pelo menos 2 caracteres.";
+      }
+    }
+
+    if (currentStep === 3) {
+      if (!localFormData.acceptTerms) {
+        errors.acceptTerms = "Você deve aceitar os Termos de Uso e Política de Privacidade.";
+      }
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmitStep?.(step, currentFormData);
-    if (step < 3) {
-      const nextStep = step + 1;
-      if (onStepChange) {
-        onStepChange(nextStep);
-      } else {
-        setInternalStep(nextStep);
-      }
+    
+    if (!validateCurrentStep()) {
+      return;
     }
+
+    if (emailChecking) {
+      return;
+    }
+
+    onSubmitStep?.(currentStep, localFormData);
   };
 
   const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else if (step > 1) {
-      const prevStep = step - 1;
-      if (onStepChange) {
-        onStepChange(prevStep);
-      } else {
-        setInternalStep(prevStep);
-      }
-    }
+    onBack?.();
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newFormData = { ...currentFormData, [e.target.name]: e.target.value };
-    if (onFormDataChange) {
-      onFormDataChange(newFormData);
-    } else {
-      setInternalFormData(newFormData);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    if (onShowPasswordChange) {
-      onShowPasswordChange(!currentShowPassword);
-    } else {
-      setInternalShowPassword(!currentShowPassword);
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1: return "Dados de Acesso";
+      case 2: return "Informações Pessoais";
+      case 3: return "Revisão e Confirmação";
+      default: return "";
     }
   };
 
@@ -122,84 +286,46 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
       <section className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <div className="flex flex-col gap-6">
-            <div className="animate-fade-in">
-              <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
-                {title}
-              </h1>
-              <p className="mt-2 text-muted-foreground">{description}</p>
-              
-              {/* Progress indicator */}
-              <div className="mt-6 flex items-center space-x-2">
-                {[1, 2, 3].map((stepNumber) => (
-                  <div key={stepNumber} className="flex items-center">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                        stepNumber === step
-                          ? 'bg-primary text-primary-foreground'
-                          : stepNumber < step
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      {stepNumber}
-                    </div>
-                    {stepNumber < 3 && (
-                      <div
-                        className={`w-8 h-0.5 mx-1 transition-colors ${
-                          stepNumber < step ? 'bg-primary' : 'bg-muted'
-                        }`}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
+            <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">
+              {title}
+            </h1>
+            <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
+
+            <StepIndicator />
+            
+            <div className="text-center">
+              <h2 className="text-xl font-medium text-foreground">{getStepTitle()}</h2>
             </div>
 
-            <form className="space-y-5 animate-fade-in" onSubmit={handleNext}>
-              {step === 1 && (
+            <form className="space-y-5" onSubmit={handleNext}>
+              {currentStep === 1 && (
                 <>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Nome Completo</label>
-                    <GlassInputWrapper>
-                      <input
-                        name="name"
-                        type="text"
-                        value={currentFormData.name || ''}
-                        onChange={handleChange}
-                        placeholder="Digite seu nome completo"
-                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
-                        required
-                      />
-                    </GlassInputWrapper>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">E-mail</label>
-                    <GlassInputWrapper>
+                  <div className="animate-element animate-delay-300">
+                    <label className="text-sm font-medium text-muted-foreground">E-mail *</label>
+                    <GlassInputWrapper error={!!validationErrors.email}>
                       <input
                         name="email"
                         type="email"
-                        value={currentFormData.email || ''}
+                        value={localFormData.email || ''}
                         onChange={handleChange}
+                        onBlur={handleEmailBlur}
                         placeholder="seu@email.com"
                         className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
                         required
                       />
                     </GlassInputWrapper>
+                    {emailChecking && <ValidationMessage type="info" message="Verificando e-mail..." />}
+                    {validationErrors.email && <ValidationMessage type="error" message={validationErrors.email} />}
                   </div>
-                </>
-              )}
 
-              {step === 2 && (
-                <>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Senha</label>
-                    <GlassInputWrapper>
+                  <div className="animate-element animate-delay-400">
+                    <label className="text-sm font-medium text-muted-foreground">Senha *</label>
+                    <GlassInputWrapper error={!!validationErrors.password}>
                       <div className="relative">
                         <input
                           name="password"
-                          type={currentShowPassword ? "text" : "password"}
-                          value={currentFormData.password || ''}
+                          type={showPassword ? "text" : "password"}
+                          value={localFormData.password || ''}
                           onChange={handleChange}
                           placeholder="Crie sua senha"
                           className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none"
@@ -207,10 +333,10 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         />
                         <button
                           type="button"
-                          onClick={togglePasswordVisibility}
+                          onClick={() => onShowPasswordChange?.(!showPassword)}
                           className="absolute inset-y-0 right-3 flex items-center"
                         >
-                          {currentShowPassword ? (
+                          {showPassword ? (
                             <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
                           ) : (
                             <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
@@ -218,92 +344,143 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         </button>
                       </div>
                     </GlassInputWrapper>
+                    {localFormData.password && (
+                      <PasswordStrengthIndicator password={localFormData.password} />
+                    )}
+                    {validationErrors.password && <ValidationMessage type="error" message={validationErrors.password} />}
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Confirmar Senha</label>
-                    <GlassInputWrapper>
+                  <div className="animate-element animate-delay-500">
+                    <label className="text-sm font-medium text-muted-foreground">Confirmar Senha *</label>
+                    <GlassInputWrapper error={!!validationErrors.confirmPassword}>
                       <input
                         name="confirmPassword"
                         type="password"
-                        value={currentFormData.confirmPassword || ''}
+                        value={localFormData.confirmPassword || ''}
                         onChange={handleChange}
                         placeholder="Repita sua senha"
                         className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
                         required
                       />
                     </GlassInputWrapper>
+                    {validationErrors.confirmPassword && <ValidationMessage type="error" message={validationErrors.confirmPassword} />}
                   </div>
                 </>
               )}
 
-              {step === 3 && (
+              {currentStep === 2 && (
                 <>
-                  <div>
+                  <div className="animate-element animate-delay-300">
+                    <label className="text-sm font-medium text-muted-foreground">Nome Completo *</label>
+                    <GlassInputWrapper error={!!validationErrors.name}>
+                      <input
+                        name="name"
+                        type="text"
+                        value={localFormData.name || ''}
+                        onChange={handleChange}
+                        placeholder="Digite seu nome completo"
+                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                        required
+                      />
+                    </GlassInputWrapper>
+                    {validationErrors.name && <ValidationMessage type="error" message={validationErrors.name} />}
+                  </div>
+
+                  <div className="animate-element animate-delay-400">
                     <label className="text-sm font-medium text-muted-foreground">Empresa</label>
                     <GlassInputWrapper>
                       <input
                         name="company"
                         type="text"
-                        value={currentFormData.company || ''}
+                        value={localFormData.company || ''}
                         onChange={handleChange}
-                        placeholder="Nome da sua empresa"
+                        placeholder="Nome da sua empresa (opcional)"
                         className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
                       />
                     </GlassInputWrapper>
                   </div>
 
-                  <div>
+                  <div className="animate-element animate-delay-500">
                     <label className="text-sm font-medium text-muted-foreground">Cargo</label>
                     <GlassInputWrapper>
                       <input
                         name="position"
                         type="text"
-                        value={currentFormData.position || ''}
+                        value={localFormData.position || ''}
                         onChange={handleChange}
-                        placeholder="Seu cargo/função"
+                        placeholder="Seu cargo/função (opcional)"
                         className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
                       />
                     </GlassInputWrapper>
                   </div>
+                </>
+              )}
 
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      name="acceptTerms"
-                      id="acceptTerms"
-                      checked={currentFormData.acceptTerms || false}
-                      onChange={(e) => {
-                        const newFormData = { ...currentFormData, acceptTerms: e.target.checked };
-                        if (onFormDataChange) {
-                          onFormDataChange(newFormData);
-                        } else {
-                          setInternalFormData(newFormData);
-                        }
-                      }}
-                      className="rounded border-border"
-                      required
-                    />
-                    <label htmlFor="acceptTerms" className="text-sm text-muted-foreground">
-                      Aceito os{' '}
-                      <a href="/terms" className="text-primary hover:underline">
-                        Termos de Uso
-                      </a>{' '}
-                      e{' '}
-                      <a href="/privacy" className="text-primary hover:underline">
-                        Política de Privacidade
-                      </a>
-                    </label>
+              {currentStep === 3 && (
+                <>
+                  <div className="animate-element animate-delay-300">
+                    <div className="bg-muted/30 rounded-2xl p-6 space-y-4">
+                      <h3 className="font-medium text-foreground mb-4">Revise seus dados:</h3>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">E-mail:</span>
+                          <span className="font-medium">{localFormData.email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Nome:</span>
+                          <span className="font-medium">{localFormData.name}</span>
+                        </div>
+                        {localFormData.company && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Empresa:</span>
+                            <span className="font-medium">{localFormData.company}</span>
+                          </div>
+                        )}
+                        {localFormData.position && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Cargo:</span>
+                            <span className="font-medium">{localFormData.position}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="animate-element animate-delay-400">
+                    <div className="flex items-start gap-3 p-4 border border-border rounded-2xl">
+                      <input
+                        type="checkbox"
+                        name="acceptTerms"
+                        id="acceptTerms"
+                        checked={localFormData.acceptTerms || false}
+                        onChange={handleChange}
+                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        required
+                      />
+                      <label htmlFor="acceptTerms" className="text-sm text-muted-foreground leading-relaxed">
+                        Li e aceito os{' '}
+                        <Link to="/termos" className="text-primary hover:underline" target="_blank">
+                          Termos de Uso
+                        </Link>
+                        {' '}e a{' '}
+                        <Link to="/politica" className="text-primary hover:underline" target="_blank">
+                          Política de Privacidade
+                        </Link>
+                        {' '}da MadeAI. *
+                      </label>
+                    </div>
+                    {validationErrors.acceptTerms && <ValidationMessage type="error" message={validationErrors.acceptTerms} />}
                   </div>
                 </>
               )}
 
               <div className="flex gap-3">
-                {step > 1 && (
+                {currentStep > 1 && (
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex-1 rounded-2xl border border-border py-4 font-medium text-foreground hover:bg-secondary transition-colors"
+                    className="animate-element animate-delay-600 flex-1 rounded-2xl border border-border py-4 font-medium text-foreground hover:bg-secondary transition-colors"
                     disabled={loading}
                   >
                     Voltar
@@ -311,24 +488,33 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                 )}
                 <button
                   type="submit"
-                  className="flex-1 rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
-                  disabled={loading}
+                  disabled={loading || emailChecking || (currentStep === 1 && emailExists)}
+                  className="animate-element animate-delay-600 flex-1 rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Processando...' : step < 3 ? "Próximo" : "Concluir Cadastro"}
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                      Processando...
+                    </div>
+                  ) : currentStep < 3 ? (
+                    "Próximo"
+                  ) : (
+                    "Finalizar Cadastro"
+                  )}
                 </button>
               </div>
             </form>
 
-            {step === 1 && (
+            {currentStep === 1 && (
               <>
-                <div className="animate-fade-in relative flex items-center justify-center">
+                <div className="animate-element animate-delay-700 relative flex items-center justify-center">
                   <span className="w-full border-t border-border"></span>
                   <span className="px-4 text-sm text-muted-foreground bg-background absolute">Ou continue com</span>
                 </div>
                 <button
                   onClick={onGoogleSignUp}
-                  className="animate-fade-in w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors"
                   disabled={loading}
+                  className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors disabled:opacity-50"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 48 48">
                     <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s12-5.373 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z" />
@@ -340,13 +526,6 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                 </button>
               </>
             )}
-
-            <div className="text-center text-sm text-muted-foreground animate-fade-in">
-              Já tem uma conta?{' '}
-              <a href="/login" className="text-primary hover:underline">
-                Fazer login
-              </a>
-            </div>
           </div>
         </div>
       </section>
@@ -355,20 +534,20 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
       {heroImageSrc && (
         <section className="hidden md:block flex-1 relative p-4">
           <div
-            className="animate-slide-in-right absolute inset-4 rounded-3xl bg-cover bg-center"
+            className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImageSrc})` }}
           ></div>
           {testimonials.length > 0 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
-              <TestimonialCard testimonial={testimonials[0]} delay="" />
+              <TestimonialCard testimonial={testimonials[0]} delay="animate-delay-1000" />
               {testimonials[1] && (
                 <div className="hidden xl:flex">
-                  <TestimonialCard testimonial={testimonials[1]} delay="" />
+                  <TestimonialCard testimonial={testimonials[1]} delay="animate-delay-1200" />
                 </div>
               )}
               {testimonials[2] && (
                 <div className="hidden 2xl:flex">
-                  <TestimonialCard testimonial={testimonials[2]} delay="" />
+                  <TestimonialCard testimonial={testimonials[2]} delay="animate-delay-1400" />
                 </div>
               )}
             </div>
@@ -378,5 +557,3 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
     </div>
   );
 };
-
-export type { Testimonial };

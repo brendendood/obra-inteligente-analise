@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
-import { validateEmail, validatePassword, formatAuthError } from '@/utils/authValidation';
 import { SignUpPage, type Testimonial } from '@/components/ui/sign-up';
+import { passo1Schema, passo2Schema, passo3Schema } from '@/schemas/cadastro';
 
 type SignupStep = 1 | 2 | 3;
 
@@ -53,8 +53,39 @@ function Signup() {
   const navigate = useNavigate();
   const { signInWithGoogle } = useSocialAuth();
 
-  // Check for referral code on component mount and validate it
+  // Check for success/error params
   useEffect(() => {
+    const error = searchParams.get('error');
+    const success = searchParams.get('success');
+
+    if (error) {
+      const errorMessages = {
+        'token-ausente': 'Link de verificação inválido.',
+        'token-invalido': 'Link de verificação expirado ou inválido.',
+        'erro-interno': 'Ocorreu um erro interno. Tente novamente.'
+      };
+      
+      toast({
+        title: "❌ Erro na verificação",
+        description: errorMessages[error as keyof typeof errorMessages] || 'Erro desconhecido.',
+        variant: "destructive",
+        duration: 8000
+      });
+    }
+
+    if (success === 'verificado') {
+      toast({
+        title: "✅ Email verificado!",
+        description: "Sua conta foi ativada com sucesso. Você pode fazer login agora.",
+        duration: 8000
+      });
+      
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+    }
+
+    // Check for referral code
     const refParam = searchParams.get('ref');
     if (refParam) {
       setReferralCode(refParam);
@@ -99,84 +130,43 @@ function Signup() {
     }
   };
 
-  const validateStep1 = () => {
-    if (!formData.name.trim()) {
-      toast({
-        title: "❌ Nome obrigatório",
-        description: "Por favor, informe seu nome completo.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    if (!validateEmail(formData.email)) {
-      toast({
-        title: "❌ Email inválido",
-        description: "Por favor, insira um email válido.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const validateStep2 = () => {
-    const passwordValidation = validatePassword(formData.password);
-    if (!passwordValidation.isValid) {
-      toast({
-        title: "❌ Senha inválida",
-        description: passwordValidation.errors[0],
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "❌ Senhas não coincidem",
-        description: "As senhas informadas não são iguais.",
-        variant: "destructive"
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const validateStep3 = () => {
-    if (!formData.acceptTerms) {
-      toast({
-        title: "❌ Aceite necessário",
-        description: "Você deve aceitar os Termos de Uso e Política de Privacidade.",
-        variant: "destructive"
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const handleStepSubmit = (step: number, data: Record<string, any>) => {
-    // Update form data with the data from the component
-    setFormData(prev => ({ ...prev, ...data }));
-    
-    if (step === 1) {
-      const updatedData = { ...formData, ...data };
-      if (!updatedData.name.trim() || !validateEmail(updatedData.email)) {
-        return;
+  const validateStep = (step: number, data: FormData) => {
+    try {
+      if (step === 1) {
+        passo1Schema.parse(data);
+        return true;
       }
-    }
-    
-    if (step === 2) {
-      const updatedData = { ...formData, ...data };
-      const passwordValidation = validatePassword(updatedData.password);
-      if (!passwordValidation.isValid || updatedData.password !== updatedData.confirmPassword) {
-        return;
+      if (step === 2) {
+        passo2Schema.parse(data);
+        return true;
       }
+      if (step === 3) {
+        passo3Schema.parse(data);
+        return true;
+      }
+      return false;
+    } catch (error: any) {
+      const errorMessage = error.errors?.[0]?.message || 'Dados inválidos';
+      toast({
+        title: "❌ Erro de validação",
+        description: errorMessage,
+        variant: "destructive"
+      });
+      return false;
     }
-    
+  };
+
+  const handleStepSubmit = async (step: number, data: Record<string, any>) => {
+    const updatedData = { ...formData, ...data } as FormData;
+    setFormData(updatedData);
+
+    // Validate current step
+    if (!validateStep(step, updatedData)) {
+      return;
+    }
+
     if (step === 3) {
-      handleSubmit();
+      await handleSubmit(updatedData);
       return;
     }
     
@@ -191,16 +181,14 @@ function Signup() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!validateStep3()) return;
-
+  const handleSubmit = async (finalData: FormData = formData) => {
     setLoading(true);
 
     try {
       const userData: any = {
-        full_name: formData.name,
-        company: formData.company,
-        cargo: formData.position,
+        full_name: finalData.name,
+        company: finalData.company,
+        cargo: finalData.position,
         avatar_type: 'initials',
         gender: 'male'
       };
@@ -210,20 +198,20 @@ function Signup() {
         userData.ref_code = referralCode;
       }
 
-      // Signup com confirmação de email
+      // Signup with email confirmation using custom redirect URL
       const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+        email: finalData.email,
+        password: finalData.password,
         options: {
           data: userData,
-          emailRedirectTo: 'https://madeai.com.br/v'
+          emailRedirectTo: `${window.location.origin}/functions/v1/verify-email`
         }
       });
 
       if (error) {
         console.error('Erro no cadastro:', error);
         
-        if (error.message?.includes('already registered')) {
+        if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
           toast({
             title: "❌ Email já cadastrado",
             description: "Este email já possui uma conta. Faça login ou use outro email.",
@@ -245,22 +233,32 @@ function Signup() {
         return;
       }
 
-      // Cadastro realizado com sucesso - aguardando confirmação
-      toast({
-        title: "📧 Confirme seu email",
-        description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta.",
-        duration: 6000
-      });
+      if (data.user && !data.user.email_confirmed_at) {
+        // Cadastro realizado com sucesso - aguardando confirmação
+        toast({
+          title: "📧 Confirme seu email",
+          description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta e receber o email de boas-vindas.",
+          duration: 8000
+        });
 
-      // Redirecionar para login após delay para dar tempo de ler
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
+        // Show success message and redirect to login
+        setTimeout(() => {
+          toast({
+            title: "✨ Cadastro concluído!",
+            description: "Verifique sua caixa de entrada e spam para confirmar seu email.",
+            duration: 6000
+          });
+          navigate('/login');
+        }, 4000);
+      } else {
+        // User is already confirmed (shouldn't happen in normal flow)
+        navigate('/painel');
+      }
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({
         title: "❌ Erro no cadastro",
-        description: formatAuthError(error),
+        description: error.message || "Não foi possível criar sua conta. Tente novamente.",
         variant: "destructive"
       });
     } finally {
