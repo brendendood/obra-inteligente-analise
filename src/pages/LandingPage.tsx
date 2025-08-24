@@ -3,11 +3,16 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
-import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, CheckCircle } from 'lucide-react';
-import { BackgroundPaths } from '@/components/ui/background-paths';
+import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
+import { WavyBackground } from '@/components/ui/wavy-background';
+import { HeroPill } from '@/components/ui/hero-pill';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
+import Header from '@/components/layout/Header';
+import { 
+  CheckCircle,
+} from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 // GridItem component for Features section
@@ -21,16 +26,16 @@ interface GridItemProps {
 const GridItem = ({ area, icon, title, description }: GridItemProps) => {
   return (
     <li className={cn("min-h-[14rem] list-none", area)}>
-      <div className="relative h-full rounded-[1.25rem] p-2 md:rounded-[1.5rem] md:p-3">
+      <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-border p-2 md:rounded-[1.5rem] md:p-3">
         <GlowingEffect
           spread={40}
           glow={true}
           disabled={false}
           proximity={64}
           inactiveZone={0.01}
-          borderWidth={2}
+          borderWidth={3}
         />
-        <div className="relative z-10 flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)] md:p-6">
+        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-[0.75px] bg-background p-6 shadow-sm dark:shadow-[0px_0px_27px_0px_rgba(45,45,45,0.3)] md:p-6">
           <div className="relative flex flex-1 flex-col justify-between gap-3">
             <div className="w-fit rounded-lg border-[0.75px] border-border bg-muted p-2">
               {icon}
@@ -53,81 +58,93 @@ const GridItem = ({ area, icon, title, description }: GridItemProps) => {
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header integrado com CTAs sempre visíveis */}
-      <header className="sticky top-0 z-30 w-full border-b bg-background/80 backdrop-blur-md">
-        <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:h-16 md:px-6 lg:px-8">
-          {/* Brand simples */}
-          <Link to="/" className="font-semibold tracking-tight text-foreground">
-            MadeAI
-          </Link>
-
-          {/* Ações — SEMPRE visíveis em desktop e mobile */}
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm" className="rounded-lg">
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button asChild size="sm" className="rounded-lg">
-              <Link to="/signup">Começar agora</Link>
-            </Button>
-          </div>
-        </nav>
-      </header>
+      <Header />
       
-      {/* Hero Section enxuta - apenas topo */}
-      <main className="bg-background text-foreground">
-        <section
-          aria-label="Hero"
-          className="relative isolate border-b border-black/20 dark:border-white/20 mx-auto w-full max-w-7xl px-6 pt-24 pb-16 md:pt-28 md:pb-24 lg:px-8"
-        >
-          <BackgroundPaths />
-          
-          <div className="relative z-10 mx-auto max-w-4xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="animate-fade-in"
-            >
-              {/* Badge */}
-              <div className="mx-auto w-fit rounded-full border bg-muted px-3 py-1 text-xs font-medium text-foreground/80 shadow-sm mb-6">
-                <span className="inline-flex items-center gap-2">
-                  <span className="inline-flex size-4 items-center justify-center rounded-full bg-foreground/10">
-                    <ArrowRight className="size-3" />
-                  </span>
-                  <span>🚀 Novo</span>
-                  <span className="opacity-70">IA para obras e orçamento</span>
-                </span>
-              </div>
+      {/* Hero Section with WavyBackground */}
+      <WavyBackground
+        className="relative"
+        containerClassName="relative"
+        colors={[
+          "#3b82f6",
+          "#8b5cf6", 
+          "#06b6d4",
+          "#10b981",
+          "#f59e0b"
+        ]}
+        waveWidth={50}
+        waveOpacity={0.1}
+        blur={8}
+        speed="fast"
+        backgroundFill="transparent"
+      >
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            {/* HeroPill */}
+            <div className="mb-8">
+              <HeroPill 
+                href="/signup"
+                label="Revolucione seus projetos com IA"
+                announcement="🚀 Novo"
+                className="mx-auto"
+              />
+            </div>
 
-              {/* Título */}
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
-                Transforme plantas em
-                <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
-              </h1>
+            {/* Main Headline */}
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight">
+              Transforme plantas em
+              <span className="text-primary bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent"> orçamentos precisos</span>
+            </h1>
 
-              {/* Descrição */}
-              <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-                Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
-              </p>
+            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+              Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
+            </p>
 
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button asChild size="lg" className="rounded-xl px-6">
-                  <Link to="/signup">Começar Gratuitamente</Link>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="rounded-xl px-6"
-                >
-                  <Link to="/demo">Ver Demonstração</Link>
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      </main>
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+              <CtaGlow 
+                label="Começar Gratuitamente"
+                href="/signup"
+                ariaLabel="Começar gratuitamente - Cadastre-se agora"
+              />
+              <CtaGlow 
+                label="Ver Demonstração"
+                href="/demo"
+                ariaLabel="Ver demonstração da plataforma"
+              />
+            </div>
+
+            {/* Trust Indicators */}
+            <div className="text-sm text-muted-foreground">
+              Mais de 1.000+ arquitetos já confiam na nossa plataforma
+            </div>
+          </motion.div>
+        </div>
+      </WavyBackground>
+
+      {/* Social Proof Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
+              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
+              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
@@ -402,50 +419,42 @@ const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="relative bg-background p-8 rounded-xl"
+                className={`relative bg-background p-8 rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
+                  plan.popular ? 'border-primary shadow-lg scale-105' : 'border-border hover:border-primary/20'
+                }`}
               >
-                <GlowingEffect
-                  spread={40}
-                  glow={true}
-                  disabled={false}
-                  proximity={64}
-                  inactiveZone={0.01}
-                  borderWidth={plan.popular ? 3 : 2}
-                />
-                <div className="relative z-10">
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                        Mais Popular
-                      </span>
-                    </div>
-                  )}
-
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
-                    <div className="mb-2">
-                      <span className="text-3xl font-bold text-foreground">{plan.price}</span>
-                      <span className="text-muted-foreground">{plan.period}</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm">{plan.description}</p>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                      Mais Popular
+                    </span>
                   </div>
+                )}
 
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center gap-3">
-                        <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                        <span className="text-muted-foreground text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="flex justify-center">
-                    <CtaGlow 
-                      label={plan.cta}
-                      href="/signup"
-                      ariaLabel={`${plan.cta} - Plano ${plan.name}`}
-                    />
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-foreground mb-2">{plan.name}</h3>
+                  <div className="mb-2">
+                    <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
                   </div>
+                  <p className="text-muted-foreground text-sm">{plan.description}</p>
+                </div>
+
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, featureIndex) => (
+                    <li key={featureIndex} className="flex items-center gap-3">
+                      <CheckCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="text-muted-foreground text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="flex justify-center">
+                  <CtaGlow 
+                    label={plan.cta}
+                    href="/signup"
+                    ariaLabel={`${plan.cta} - Plano ${plan.name}`}
+                  />
                 </div>
               </motion.div>
             ))}
@@ -500,27 +509,17 @@ const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="relative bg-muted/30 p-6 rounded-xl"
+                className="bg-muted/30 p-6 rounded-xl border border-border"
               >
-                <GlowingEffect
-                  spread={40}
-                  glow={true}
-                  disabled={false}
-                  proximity={64}
-                  inactiveZone={0.01}
-                  borderWidth={2}
-                />
-                <div className="relative z-10">
-                  <div className="flex mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
-                  <div>
-                    <p className="font-semibold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <p className="text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
+                <div>
+                  <p className="font-semibold text-foreground">{testimonial.name}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
               </motion.div>
             ))}
