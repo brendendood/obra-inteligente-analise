@@ -281,15 +281,15 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col md:flex-row font-geist w-[100dvw]">
+    <div className="min-h-[100dvh] flex flex-col lg:flex-row font-geist w-full bg-background">
       {/* Left column: multi-step form */}
-      <section className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
+      <section className="flex-1 flex items-center justify-center p-4 px-6 md:p-10">
+        <div className="w-full max-w-md mx-auto">
           <div className="flex flex-col gap-6">
-            <h1 className="animate-element animate-delay-100 text-4xl md:text-5xl font-semibold leading-tight">
+            <h1 className="animate-element animate-delay-100 text-3xl md:text-5xl font-bold leading-tight text-balance text-center lg:text-left">
               {title}
             </h1>
-            <p className="animate-element animate-delay-200 text-muted-foreground">{description}</p>
+            <p className="animate-element animate-delay-200 text-muted-foreground text-sm md:text-base mb-4 md:mb-6 text-center lg:text-left">{description}</p>
 
             <StepIndicator />
             
@@ -448,26 +448,36 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   </div>
 
                   <div className="animate-element animate-delay-400">
-                    <div className="flex items-start gap-3 p-4 border border-border rounded-2xl">
+                    <div className="flex items-start gap-3">
                       <input
                         type="checkbox"
-                        name="acceptTerms"
                         id="acceptTerms"
+                        name="acceptTerms"
                         checked={localFormData.acceptTerms || false}
                         onChange={handleChange}
-                        className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        className="mt-1 w-4 h-4 text-primary bg-transparent border-2 border-border rounded focus:ring-primary focus:ring-2"
                         required
                       />
-                      <label htmlFor="acceptTerms" className="text-sm text-muted-foreground leading-relaxed">
+                      <label htmlFor="acceptTerms" className="text-sm text-muted-foreground">
                         Li e aceito os{' '}
-                        <Link to="/termos" className="text-primary hover:underline" target="_blank">
+                        <Link 
+                          to="/terms" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
                           Termos de Uso
                         </Link>
                         {' '}e a{' '}
-                        <Link to="/politica" className="text-primary hover:underline" target="_blank">
+                        <Link 
+                          to="/privacy" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
                           Política de Privacidade
                         </Link>
-                        {' '}da MadeAI. *
+                        .
                       </label>
                     </div>
                     {validationErrors.acceptTerms && <ValidationMessage type="error" message={validationErrors.acceptTerms} />}
@@ -480,26 +490,23 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="animate-element animate-delay-600 flex-1 rounded-2xl border border-border py-4 font-medium text-foreground hover:bg-secondary transition-colors"
-                    disabled={loading}
+                    className="animate-element animate-delay-600 flex-1 rounded-2xl border border-border py-3 md:py-4 text-base font-medium text-muted-foreground hover:bg-muted transition-colors"
                   >
                     Voltar
                   </button>
                 )}
                 <button
                   type="submit"
-                  disabled={loading || emailChecking || (currentStep === 1 && emailExists)}
-                  className="animate-element animate-delay-600 flex-1 rounded-2xl bg-primary py-4 font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading || emailChecking || Object.keys(validationErrors).length > 0}
+                  className="animate-element animate-delay-600 flex-1 rounded-2xl bg-primary py-3 md:py-4 text-base font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                       Processando...
                     </div>
-                  ) : currentStep < 3 ? (
-                    "Próximo"
                   ) : (
-                    "Finalizar Cadastro"
+                    currentStep < 3 ? "Próximo" : "Finalizar Cadastro"
                   )}
                 </button>
               </div>
@@ -513,8 +520,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                 </div>
                 <button
                   onClick={onGoogleSignUp}
-                  disabled={loading}
-                  className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-4 hover:bg-secondary transition-colors disabled:opacity-50"
+                  className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-3 md:py-4 text-base font-medium hover:bg-secondary transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 48 48">
                     <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s12-5.373 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z" />
@@ -532,26 +538,30 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
 
       {/* Right column: hero image + testimonials */}
       {heroImageSrc && (
-        <section className="hidden md:block flex-1 relative p-4">
-          <div
-            className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroImageSrc})` }}
-          ></div>
-          {testimonials.length > 0 && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
-              <TestimonialCard testimonial={testimonials[0]} delay="animate-delay-1000" />
-              {testimonials[1] && (
-                <div className="hidden xl:flex">
-                  <TestimonialCard testimonial={testimonials[1]} delay="animate-delay-1200" />
+        <section className="hidden lg:block flex-1 relative p-4">
+          <div className="relative h-full flex flex-col items-center justify-center">
+            <div
+              className="animate-slide-right animate-delay-300 absolute inset-0 rounded-3xl bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImageSrc})` }}
+            ></div>
+            {testimonials.length > 0 && (
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 px-4 w-full justify-center max-w-4xl">
+                <div className="w-full max-w-sm mx-auto lg:max-w-none lg:mx-0">
+                  <TestimonialCard testimonial={testimonials[0]} delay="animate-delay-1000" />
                 </div>
-              )}
-              {testimonials[2] && (
-                <div className="hidden 2xl:flex">
-                  <TestimonialCard testimonial={testimonials[2]} delay="animate-delay-1400" />
-                </div>
-              )}
-            </div>
-          )}
+                {testimonials[1] && (
+                  <div className="hidden xl:flex w-full max-w-sm mx-auto lg:max-w-none lg:mx-0">
+                    <TestimonialCard testimonial={testimonials[1]} delay="animate-delay-1200" />
+                  </div>
+                )}
+                {testimonials[2] && (
+                  <div className="hidden 2xl:flex w-full max-w-sm mx-auto lg:max-w-none lg:mx-0">
+                    <TestimonialCard testimonial={testimonials[2]} delay="animate-delay-1400" />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </section>
       )}
     </div>
