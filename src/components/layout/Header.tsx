@@ -6,80 +6,50 @@ import { Logo } from '@/components/ui/logo';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
-import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  const { resolvedTheme, theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
-  const current = (resolvedTheme || theme || "system") as "light" | "dark" | "system";
-  const isDark = current === "dark";
 
   return (
-    <header className="w-full flex justify-center px-4 pt-4">
-      <div
-        className={cn(
-          "w-full max-w-7xl h-14 rounded-full flex items-center justify-between px-3 transition-colors",
-          "backdrop-blur-md border shadow-xl ring-1",
-          // Glass + base por tema
-          isDark
-            ? "bg-black/60 border-white/10 ring-white/10"
-            : "bg-white/60 border-black/10 ring-black/10"
-        )}
-      >
-        {/* Esquerda: logo */}
-        <div className="flex items-center gap-3 pl-2">
-          <Logo className="transition-all duration-300 hover:scale-105" />
-        </div>
+    <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-black dark:shadow-none dark:border-white/10 rounded-2xl">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Logo className="transition-all duration-300 hover:scale-105" />
+          </div>
 
-        {/* Direita: toggle + botões */}
-        <div className="flex items-center gap-3 pr-1">
-          <ThemeToggle />
-
-          <Link to="/login" className="hidden sm:block">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             <AppleButton 
-              variant="secondary"
+              as={Link}
+              to="/login" 
+              variant="ghost"
               size="sm"
-              className={cn(
-                "rounded-full",
-                // aparência coerente no glass
-                isDark
-                  ? "bg-neutral-800 text-white border border-white/10 hover:bg-neutral-700"
-                  : "bg-neutral-200 text-black border border-black/10 hover:bg-neutral-300"
-              )}
             >
               Login
             </AppleButton>
-          </Link>
-
-          <Link to="/cadastro">
             <AppleButton 
+              as={Link}
+              to="/cadastro"
               variant="primary"
               size="sm"
-              className={cn(
-                "rounded-full",
-                // mantém CTA com bom contraste nos dois temas
-                isDark
-                  ? "bg-blue-600 text-white hover:bg-blue-500"
-                  : "bg-blue-600 text-white hover:bg-blue-500"
-              )}
             >
               Começar Agora
             </AppleButton>
-          </Link>
+          </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
             <AppleButton 
               onClick={() => setIsMenuOpen(!isMenuOpen)} 
               variant="ghost"
@@ -91,39 +61,32 @@ const Header = () => {
           </div>
         </div>
 
-      </div>
-      
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className={cn(
-          "absolute top-full left-4 right-4 mt-2 rounded-2xl p-4",
-          "backdrop-blur-md border shadow-xl ring-1",
-          isDark
-            ? "bg-black/60 border-white/10 ring-white/10"
-            : "bg-white/60 border-black/10 ring-black/10"
-        )}>
-          <div className="flex flex-col space-y-3">
-            <AppleButton 
-              as={Link}
-              to="/login"
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start"
-            >
-              Login
-            </AppleButton>
-            <AppleButton 
-              as={Link}
-              to="/cadastro"
-              variant="primary"
-              size="sm"
-              className="w-full"
-            >
-              Começar Agora
-            </AppleButton>
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-border mt-4 theme-transition">
+            <div className="flex flex-col space-y-3">
+              <AppleButton 
+                as={Link}
+                to="/login"
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
+              >
+                Login
+              </AppleButton>
+              <AppleButton 
+                as={Link}
+                to="/cadastro"
+                variant="primary"
+                size="sm"
+                className="w-full"
+              >
+                Começar Agora
+              </AppleButton>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 };
