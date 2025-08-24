@@ -19,7 +19,15 @@ const Header = () => {
 
   return (
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent">
+      {/* Dark mode logo overlay */}
+      <div className="absolute top-0 right-0 z-10 hidden dark:block">
+        <img 
+          src="/lovable-uploads/b8beb263-1210-4245-9bca-6e6f269e85c7.png" 
+          alt="MadeAI Dark Logo" 
+          className="w-auto h-full object-contain rounded-tr-2xl"
+        />
+      </div>
+      <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
