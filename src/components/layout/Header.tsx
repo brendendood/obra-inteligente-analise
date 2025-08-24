@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { X, Menu } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
@@ -38,10 +39,18 @@ const Header = () => {
             </Button>
             <Button 
               size="sm" 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+              className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200"
               asChild
             >
               <Link to="/signup">
+                <GlowingEffect
+                  spread={40}
+                  glow={true}
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                  borderWidth={2}
+                />
                 Começar Agora
               </Link>
             </Button>
@@ -75,10 +84,18 @@ const Header = () => {
               </Button>
               <Button 
                 size="sm" 
-                className="bg-primary hover:bg-primary/90 text-primary-foreground justify-start transition-all duration-200"
+                className="relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground justify-start transition-all duration-200"
                 asChild
               >
                 <Link to="/signup">
+                  <GlowingEffect
+                    spread={40}
+                    glow={true}
+                    disabled={false}
+                    proximity={64}
+                    inactiveZone={0.01}
+                    borderWidth={2}
+                  />
                   Começar Agora
                 </Link>
               </Button>
