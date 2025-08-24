@@ -26,69 +26,78 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     badgeStyle: 'bg-gray-100 text-gray-600 border-gray-300',
     features: [
       'Até 2 projetos',
-      'Análise básica de IA',
+      '50 mensagens de IA/mês',
+      'Análise básica de plantas',
       'Visualização simples',
-      'Suporte por email'
+      'Suporte por email (até 72h)'
     ],
     limitations: [
-      'Orçamentos limitados',
-      'Sem cronogramas automáticos',
-      'Sem exportação avançada'
+      'Sem orçamentos automáticos',
+      'Sem cronogramas',
+      'Sem exportação',
+      'Sem documentação técnica'
     ]
   },
   basic: {
     name: 'basic',
     displayName: 'Basic',
-    price: 29,
+    price: 29.90,
     projectLimit: 5,
     icon: '📋',
     color: '#059669',
     badgeStyle: 'bg-green-600 text-white border-green-600',
     features: [
+      'Agente Geral (normas brasileiras – ABNT)',
+      'Uso individual',
       'Até 5 projetos',
-      'IA básica com insights',
-      'Orçamentos simples',
-      'Cronogramas básicos',
-      'Suporte por email',
-      'Exportação PDF básica'
+      '500 mensagens de IA/mês',
+      'Cronograma, orçamento e documentos básicos',
+      'Exportação simples',
+      '1 automação via webhook',
+      'Suporte em até 48h'
     ]
   },
   pro: {
     name: 'pro',
     displayName: 'Pro',
-    price: 99,
+    price: 79.90,
     projectLimit: 25,
     icon: '⭐',
     color: '#2563EB',
     badgeStyle: 'bg-blue-600 text-white border-blue-600',
     features: [
+      'Agente Geral (normas brasileiras – ABNT)',
+      'Colaboração com até 3 usuários inclusos',
       'Até 25 projetos',
-      'IA avançada com insights',
-      'Orçamentos detalhados',
-      'Cronogramas automatizados',
-      'Relatórios profissionais',
-      'Suporte prioritário',
-      'Exportação avançada (PDF/Excel)',
-      'API básica'
+      '2.000 mensagens de IA/mês',
+      'Cronograma, orçamento e documentos avançados',
+      'Permissões por papel',
+      'Até 5 automações integradas',
+      'Exportações avançadas',
+      'Suporte prioritário (<24h)'
     ]
   },
   enterprise: {
     name: 'enterprise',
     displayName: 'Enterprise',
-    price: 199,
+    price: 199.90,
     projectLimit: 999,
     icon: '👑',
     color: '#8B5CF6',
     badgeStyle: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-600',
     features: [
+      'Agente Geral (normas brasileiras – ABNT)',
+      'Até 10 usuários inclusos',
       'Projetos ilimitados',
-      'IA personalizada para sua empresa',
-      'Dashboard avançado',
-      'Relatórios personalizados',
-      'Suporte dedicado 24/7',
-      'Integrações customizadas',
-      'Treinamento da equipe',
-      'SLA garantido'
+      'Mensagens de IA ilimitadas',
+      '50 GB de anexos',
+      'SSO (Single Sign-On)',
+      'Auditoria completa',
+      'Integrações avançadas',
+      'SLA 99,9%',
+      'Gerente de conta dedicado',
+      'Contrato customizado',
+      'Onboarding e treinamento'
     ]
   }
 };
