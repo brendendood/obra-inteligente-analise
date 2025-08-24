@@ -112,26 +112,24 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section */}
-      <ArchitectureSaaSBackground>
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
-              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
-                <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
-                <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      </ArchitectureSaaSBackground>
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-muted-foreground mb-8 text-lg">Integrado com as principais bases de dados do mercado</p>
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-60">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-12 hover:opacity-100 transition-all duration-300" />
+              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-12 hover:opacity-100 transition-all duration-300" />
+              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-16 hover:opacity-100 transition-all duration-300" />
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
