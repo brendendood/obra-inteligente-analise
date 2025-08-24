@@ -1,20 +1,16 @@
 "use client"
 
-import { useState } from "react"
 import { Moon, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/hooks/useTheme"
 
 interface ThemeToggleProps {
   className?: string
 }
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
-  const [isDark, setIsDark] = useState(true)
-
-  // Caso use next-themes:
-  // const { resolvedTheme, setTheme } = useTheme()
-  // const isDark = resolvedTheme === "dark"
-  // onClick={() => setTheme(isDark ? "light" : "dark")}
+  const { theme, toggleTheme } = useTheme()
+  const isDark = theme === 'dark'
 
   return (
     <div
@@ -25,7 +21,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
           : "bg-white border border-zinc-200",
         className
       )}
-      onClick={() => setIsDark(!isDark)}
+      onClick={toggleTheme}
       role="button"
       tabIndex={0}
     >
