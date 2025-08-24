@@ -67,11 +67,14 @@ export function useCRM() {
 
   // CRUD - Clients
   const createClient = async (payload: Partial<CRMClient>) => {
-    const { data, error } = await supabase
-      .from("crm_clients")
-      .insert([{ name: payload.name, email: payload.email ?? null, phone: payload.phone ?? null, company: payload.company ?? null, status: payload.status ?? "prospect", avatar: payload.avatar ?? null }])
-      .select("*")
-      .single();
+    const { data, error } = await supabase.rpc('insert_crm_client', {
+      p_name: payload.name || '',
+      p_email: payload.email || null,
+      p_phone: payload.phone || null,
+      p_company: payload.company || null,
+      p_status: payload.status || 'prospect',
+      p_avatar: payload.avatar || null
+    });
     if (error) throw error;
     await fetchAll();
     return data as CRMClient;
@@ -80,7 +83,15 @@ export function useCRM() {
   const updateClient = async (id: string, payload: Partial<CRMClient>) => {
     const { error } = await supabase
       .from("crm_clients")
-      .update({ name: payload.name, email: payload.email ?? null, phone: payload.phone ?? null, company: payload.company ?? null, status: payload.status, avatar: payload.avatar ?? null })
+      .update({ 
+        name: payload.name, 
+        email: payload.email ?? null, 
+        phone: payload.phone ?? null, 
+        company: payload.company ?? null, 
+        status: payload.status, 
+        avatar: payload.avatar ?? null,
+        updated_at: new Date().toISOString()
+      })
       .eq("id", id);
     if (error) throw error;
     await fetchAll();
@@ -94,19 +105,15 @@ export function useCRM() {
 
   // CRUD - Projects
   const createProject = async (payload: Partial<CRMProject>) => {
-    const { data, error } = await supabase
-      .from("crm_projects")
-      .insert([{
-        name: payload.name,
-        client_id: payload.client_id,
-        value: payload.value ?? 0,
-        status: payload.status ?? "planning",
-        start_date: payload.start_date ?? new Date().toISOString().slice(0,10),
-        end_date: payload.end_date ?? null,
-        description: payload.description ?? null
-      }])
-      .select("*")
-      .single();
+    const { data, error } = await supabase.rpc('insert_crm_project', {
+      p_name: payload.name || '',
+      p_client_id: payload.client_id || '',
+      p_value: payload.value ?? 0,
+      p_status: payload.status || 'planning',
+      p_start_date: payload.start_date || new Date().toISOString().slice(0,10),
+      p_end_date: payload.end_date || null,
+      p_description: payload.description || null
+    });
     if (error) throw error;
     await fetchAll();
     return data as CRMProject;
@@ -122,7 +129,8 @@ export function useCRM() {
         status: payload.status,
         start_date: payload.start_date,
         end_date: payload.end_date,
-        description: payload.description
+        description: payload.description,
+        updated_at: new Date().toISOString()
       })
       .eq("id", id);
     if (error) throw error;

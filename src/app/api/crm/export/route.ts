@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { createClient } from "@supabase/supabase-js";
 
 function toCSV(rows: any[]): string {
   if (!rows || rows.length === 0) return "";
@@ -18,37 +18,52 @@ function toCSV(rows: any[]): string {
 }
 
 /**
- * Exporta dados do CRM do usuário autenticado (cliente + projetos + stats) em CSV.
- * Admin pode exportar de todos passando ?scope=admin (requer service role, ver rota abaixo).
+ * Exporta dados do CRM do usuário logado
  */
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const scope = searchParams.get("scope") ?? "user"; // "user"
+export async function GET(request: Request) {
+  try {
+    // Obter token do usuário
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader) {
+      return new Response('Unauthorized', { status: 401 });
+    }
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return new Response(JSON.stringify({ error: "not_authenticated" }), { status: 401 });
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Criar cliente Supabase com token do usuário
+    const supabase = createClient(
+      "https://mozqijzvtbuwuzgemzsm.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1venFpanp2dGJ1d3V6Z2VtenNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA1NTI2NTcsImV4cCI6MjA2NjEyODY1N30.03WIeunsXuTENSrXfsFjCYy7jehJVYaWK2Nt00Fx8sA",
+      {
+        global: {
+          headers: {
+            Authorization: authHeader
+          }
+        }
+      }
+    );
 
-  // Clientes do usuário
-  const { data: clients } = await supabase.from("crm_clients").select("*");
-  const { data: projects } = await supabase.from("crm_projects").select("*");
-  const { data: stats } = await supabase.from("v_crm_client_stats").select("*");
+    // Buscar dados do usuário
+    const [{ data: clients }, { data: projects }] = await Promise.all([
+      supabase.from("crm_clients").select("*").order("created_at", { ascending: false }),
+      supabase.from("crm_projects").select("*").order("created_at", { ascending: false }),
+    ]);
 
-  const clientsCsv = toCSV(clients ?? []);
-  const projectsCsv = toCSV(projects ?? []);
-  const statsCsv = toCSV(stats ?? []);
+    const boundary = "----CRM-EXPORT-BOUNDARY";
+    const body =
+      `--${boundary}\r\nContent-Type: text/csv\r\nContent-Disposition: attachment; filename="clients.csv"\r\n\r\n${toCSV(clients ?? [])}\r\n` +
+      `--${boundary}\r\nContent-Type: text/csv\r\nContent-Disposition: attachment; filename="projects.csv"\r\n\r\n${toCSV(projects ?? [])}\r\n` +
+      `--${boundary}--`;
 
-  const boundary = "----CRM-EXPORT-BOUNDARY";
-  const body =
-    `--${boundary}\r\nContent-Type: text/csv; charset=utf-8\r\nContent-Disposition: attachment; filename="clients.csv"\r\n\r\n` +
-    clientsCsv + `\r\n--${boundary}\r\nContent-Type: text/csv; charset=utf-8\r\nContent-Disposition: attachment; filename="projects.csv"\r\n\r\n` +
-    projectsCsv + `\r\n--${boundary}\r\nContent-Type: text/csv; charset=utf-8\r\nContent-Disposition: attachment; filename="client_stats.csv"\r\n\r\n` +
-    statsCsv + `\r\n--${boundary}--`;
-
-  return new Response(body, {
-    status: 200,
-    headers: {
-      "Content-Type": `multipart/mixed; boundary=${boundary}`,
-      "Content-Disposition": `attachment; filename="crm_export_${new Date().toISOString().slice(0,10)}.zipless"`,
-    },
-  });
+    return new Response(body, {
+      status: 200,
+      headers: {
+        "Content-Type": `multipart/mixed; boundary=${boundary}`,
+        "Content-Disposition": `attachment; filename="crm_export_${new Date().toISOString().slice(0,10)}.zip"`,
+      },
+    });
+  } catch (error) {
+    console.error('Erro na exportação:', error);
+    return new Response('Erro interno do servidor', { status: 500 });
+  }
 }

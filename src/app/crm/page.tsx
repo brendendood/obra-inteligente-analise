@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/table";
 
 import { useCRM } from "@/hooks/use-crm";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { CRMClient, CRMProject, CRMClientStatus, CRMProjectStatus } from "@/lib/supabase/client";
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -179,6 +181,7 @@ function ProjectForm({ project, clients, onSave, onCancel }: {
 }
 
 export default function CRMDashboardPage() {
+  const { toast } = useToast();
   const { loading, error, clients, projects, clientById,
     createClient, updateClient, deleteClient,
     createProject, updateProject, deleteProject } = useCRM();
@@ -232,14 +235,41 @@ export default function CRMDashboardPage() {
 
           <div className="flex gap-2">
             <Button variant="outline" onClick={async () => {
-              // export CSV do usuário
-              const res = await fetch("/api/crm/export");
-              const blob = await res.blob();
-              const a = document.createElement("a");
-              a.href = URL.createObjectURL(blob);
-              a.download = `crm_export_${new Date().toISOString().slice(0,10)}.zipless`;
-              a.click();
-              URL.revokeObjectURL(a.href);
+              try {
+                // Obter token de autenticação
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                  toast({
+                    title: "Erro",
+                    description: "Você precisa estar logado para exportar dados.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                const res = await fetch("/api/crm/export", {
+                  headers: {
+                    'Authorization': `Bearer ${session.access_token}`
+                  }
+                });
+                
+                if (!res.ok) {
+                  throw new Error('Erro na exportação');
+                }
+                
+                const blob = await res.blob();
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `crm_export_${new Date().toISOString().slice(0,10)}.zip`;
+                a.click();
+                URL.revokeObjectURL(a.href);
+              } catch (error) {
+                toast({
+                  title: "Erro na exportação",
+                  description: "Não foi possível exportar os dados.",
+                  variant: "destructive",
+                });
+              }
             }}>
               Exportar (Excel/CSV)
             </Button>
@@ -324,6 +354,7 @@ export default function CRMDashboardPage() {
           <TabsList>
             <TabsTrigger value="clients">Clientes</TabsTrigger>
             <TabsTrigger value="projects">Projetos</TabsTrigger>
+            <TabsTrigger value="reports">Relatórios</TabsTrigger>
           </TabsList>
 
           {/* Clientes */}
@@ -535,6 +566,157 @@ export default function CRMDashboardPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Relatórios */}
+          <TabsContent value="reports" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* Gráfico de Status dos Clientes */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Status dos Clientes</CardTitle>
+                  <CardDescription>Distribuição dos clientes por status</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-sm">Ativos</span>
+                      </div>
+                      <span className="text-sm font-medium">{clients.filter(c => c.status === 'active').length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm">Prospects</span>
+                      </div>
+                      <span className="text-sm font-medium">{clients.filter(c => c.status === 'prospect').length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
+                        <span className="text-sm">Inativos</span>
+                      </div>
+                      <span className="text-sm font-medium">{clients.filter(c => c.status === 'inactive').length}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Gráfico de Status dos Projetos */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Status dos Projetos</CardTitle>
+                  <CardDescription>Distribuição dos projetos por status</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <span className="text-sm">Planejamento</span>
+                      </div>
+                      <span className="text-sm font-medium">{projects.filter(p => p.status === 'planning').length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <span className="text-sm">Em Andamento</span>
+                      </div>
+                      <span className="text-sm font-medium">{projects.filter(p => p.status === 'in-progress').length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                        <span className="text-sm">Concluídos</span>
+                      </div>
+                      <span className="text-sm font-medium">{projects.filter(p => p.status === 'completed').length}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <span className="text-sm">Pausados</span>
+                      </div>
+                      <span className="text-sm font-medium">{projects.filter(p => p.status === 'on-hold').length}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top Clientes por Valor */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Clientes por Valor</CardTitle>
+                  <CardDescription>Clientes com maior valor de projetos</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {clients
+                      .sort((a, b) => ((b as any).totalValue || 0) - ((a as any).totalValue || 0))
+                      .slice(0, 5)
+                      .map((client) => (
+                        <div key={client.id} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Avatar className="h-6 w-6">
+                              <AvatarFallback className="text-xs">
+                                {client.name.split(" ").map((n) => n[0]).join("")}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-medium">{client.name}</div>
+                              <div className="text-xs text-muted-foreground">{client.company || "—"}</div>
+                            </div>
+                          </div>
+                          <span className="text-sm font-medium">
+                            R$ {Number((client as any).totalValue || 0).toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Resumo Mensal */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resumo do Período</CardTitle>
+                  <CardDescription>Estatísticas consolidadas</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Total de Clientes</span>
+                      <span className="text-sm font-medium">{totalClients}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Clientes Ativos</span>
+                      <span className="text-sm font-medium">{activeClients}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Total de Projetos</span>
+                      <span className="text-sm font-medium">{totalProjects}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Valor Total</span>
+                      <span className="text-sm font-medium">R$ {totalValue.toLocaleString("pt-BR")}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Taxa de Conversão</span>
+                      <span className="text-sm font-medium">
+                        {totalClients > 0 ? Math.round((activeClients / totalClients) * 100) : 0}%
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Ticket Médio</span>
+                      <span className="text-sm font-medium">
+                        R$ {totalProjects > 0 ? Math.round(totalValue / totalProjects).toLocaleString("pt-BR") : 0}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
