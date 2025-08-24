@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StarBorder } from '@/components/ui/star-border';
+import { AppleButton } from '@/components/ui/apple-button';
 import { Eye, EyeOff } from 'lucide-react';
 
 // --- ÍCONE DO GOOGLE ---
@@ -160,13 +160,15 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                 </a>
               </div>
 
-              <StarBorder
+              <AppleButton
                 type="submit"
+                variant="primary"
+                size="md"
                 disabled={loading}
-                className="w-full px-6 py-4"
+                className="w-full"
               >
                 {loading ? 'Entrando...' : 'Entrar'}
-              </StarBorder>
+              </AppleButton>
             </form>
 
             <div className="animate-element animate-delay-700 relative flex items-center justify-center">
@@ -174,14 +176,16 @@ export const SignInPage: React.FC<SignInPageProps> = ({
               <span className="px-4 text-sm text-muted-foreground bg-background absolute">ou continuar com</span>
             </div>
 
-            <StarBorder
+            <AppleButton
               onClick={onGoogleSignIn}
               disabled={loading}
-              className="w-full px-6 py-4 flex items-center justify-center gap-3"
+              variant="secondary"
+              size="md"
+              className="w-full flex items-center justify-center gap-3"
             >
               <GoogleIcon />
               Continuar com Google
-            </StarBorder>
+            </AppleButton>
 
             <p className="animate-element animate-delay-900 text-center text-sm text-muted-foreground">
               Novo na plataforma?{' '}

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { StarBorder } from '@/components/ui/star-border';
+import { AppleButton } from '@/components/ui/apple-button';
 import { X, Menu } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -29,31 +29,35 @@ const Header = () => {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
-            <StarBorder 
+            <AppleButton 
               as={Link}
               to="/login" 
-              className="px-4 py-2 text-sm"
+              variant="ghost"
+              size="sm"
             >
               Login
-            </StarBorder>
-            <StarBorder 
+            </AppleButton>
+            <AppleButton 
               as={Link}
               to="/cadastro"
-              className="px-6 py-2 text-sm"
+              variant="primary"
+              size="sm"
             >
               Começar Agora
-            </StarBorder>
+            </AppleButton>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
             <ThemeToggle />
-            <StarBorder 
+            <AppleButton 
               onClick={() => setIsMenuOpen(!isMenuOpen)} 
-              className="p-2 text-sm"
+              variant="ghost"
+              size="sm"
+              className="p-2"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </StarBorder>
+            </AppleButton>
           </div>
         </div>
 
@@ -61,20 +65,24 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-border mt-4 theme-transition">
             <div className="flex flex-col space-y-3">
-              <StarBorder 
+              <AppleButton 
                 as={Link}
                 to="/login"
-                className="w-full px-4 py-2 text-sm text-left"
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start"
               >
                 Login
-              </StarBorder>
-              <StarBorder 
+              </AppleButton>
+              <AppleButton 
                 as={Link}
                 to="/cadastro"
-                className="w-full px-4 py-2 text-sm text-left"
+                variant="primary"
+                size="sm"
+                className="w-full"
               >
                 Começar Agora
-              </StarBorder>
+              </AppleButton>
             </div>
           </div>
         )}

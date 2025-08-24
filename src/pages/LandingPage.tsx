@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { StarBorder } from '@/components/ui/star-border';
+import { AppleButton } from '@/components/ui/apple-button';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { HeroPill } from '@/components/ui/hero-pill';
@@ -100,12 +100,12 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
-              <StarBorder as={Link} to="/cadastro" className="w-full sm:w-auto px-8 py-4">
+              <AppleButton as={Link} to="/cadastro" variant="primary" size="lg" className="w-full sm:w-auto">
                 Começar Gratuitamente
-              </StarBorder>
-              <StarBorder as={Link} to="/demo" className="w-full sm:w-auto px-8 py-4">
+              </AppleButton>
+              <AppleButton as={Link} to="/demo" variant="ghost" size="lg" className="w-full sm:w-auto">
                 Ver Demonstração
-              </StarBorder>
+              </AppleButton>
             </div>
 
             {/* Trust Indicators */}
@@ -394,13 +394,15 @@ const LandingPage = () => {
                     </li>)}
                 </ul>
 
-                <StarBorder 
+                <AppleButton 
                   as={Link} 
                   to="/cadastro" 
-                  className="w-full px-6 py-3 text-center"
+                  variant="primary"
+                  size="md"
+                  className="w-full"
                 >
                   {plan.cta}
-                </StarBorder>
+                </AppleButton>
               </motion.div>)}
           </div>
         </div>
@@ -552,12 +554,12 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-              <StarBorder as={Link} to="/cadastro" className="w-full sm:w-auto px-8 py-4">
+              <AppleButton as={Link} to="/cadastro" variant="primary" size="lg" className="w-full sm:w-auto">
                 Começar Gratuitamente
-              </StarBorder>
-              <StarBorder as={Link} to="/contato" className="w-full sm:w-auto px-8 py-4">
+              </AppleButton>
+              <AppleButton as={Link} to="/contato" variant="secondary" size="lg" className="w-full sm:w-auto">
                 Falar com Especialista
-              </StarBorder>
+              </AppleButton>
             </div>
 
             <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">

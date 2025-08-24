@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StarBorder } from '@/components/ui/star-border';
+import { AppleButton } from '@/components/ui/apple-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -201,12 +201,14 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
               Logado em {new Date(user.last_sign_in_at || '').toLocaleDateString('pt-BR')}
             </p>
           </div>
-          <StarBorder 
+          <AppleButton 
             onClick={handleSignOut} 
-            className="w-full px-4 py-3"
+            variant="secondary"
+            size="md"
+            className="w-full"
           >
             Sair
-          </StarBorder>
+          </AppleButton>
         </CardContent>
       </Card>
     );
@@ -259,10 +261,10 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
                   />
                 </div>
               </div>
-              <StarBorder type="submit" className="w-full px-6 py-3" disabled={loading}>
+              <AppleButton type="submit" variant="primary" size="md" className="w-full" disabled={loading}>
                 <LogIn className="h-4 w-4 mr-2" />
                 {loading ? 'Entrando...' : 'Entrar'}
-              </StarBorder>
+              </AppleButton>
             </form>
           </TabsContent>
           
@@ -354,14 +356,16 @@ const AuthComponent = ({ onAuthSuccess }: AuthComponentProps) => {
                 </Label>
               </div>
               
-              <StarBorder 
+              <AppleButton 
                 type="submit" 
-                className="w-full px-6 py-3" 
+                variant="primary"
+                size="md"
+                className="w-full" 
                 disabled={loading || !acceptedTerms}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 {loading ? 'Cadastrando...' : 'Cadastrar'}
-              </StarBorder>
+              </AppleButton>
             </form>
           </TabsContent>
         </Tabs>
