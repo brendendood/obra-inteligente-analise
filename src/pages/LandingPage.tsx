@@ -78,24 +78,16 @@ const LandingPage = () => {
 
               {/* Linha 2:
                   - Desktop/tablet: animação Typewriter alternando as palavras
-                  - Mobile: texto fixo entre parênteses, sem animação */}
+                  - Mobile: animação Typewriter também */}
               <span className="block">
-                {/* DESKTOP/TABLET (md+) COM ANIMAÇÃO */}
-                <span className="hidden md:inline">
-                  <Typewriter
-                    text={["Orçamento", "Cronograma", "Projeto"]}
-                    speed={70}
-                    deleteSpeed={40}
-                    waitTime={4000}
-                    className="text-primary"
-                    cursorChar={"_"}
-                  />
-                </span>
-
-                {/* MOBILE (sem animação, 3 linhas fixas) */}
-                <span className="md:hidden text-primary">
-                  (Orçamento, Cronograma e Projeto)
-                </span>
+                <Typewriter
+                  text={["Orçamento", "Cronograma", "Projeto"]}
+                  speed={70}
+                  deleteSpeed={40}
+                  waitTime={4000}
+                  className="text-primary"
+                  cursorChar={"_"}
+                />
               </span>
 
               {/* Linha 3 (fixa para todos) */}
