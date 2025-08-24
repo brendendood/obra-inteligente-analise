@@ -1,12 +1,32 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { detectUserByIP, getWelcomeMessage } from '@/utils/ipDetection';
 import { validateEmail, formatAuthError } from '@/utils/authValidation';
-import { ForgotPasswordModal } from '@/components/auth/ForgotPasswordModal';
-import { SignInPage } from '@/components/ui/sign-in';
+import { SignInPage, type Testimonial } from '@/components/ui/sign-in';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
+
+const testimonials: Testimonial[] = [
+  {
+    avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
+    name: "Ana Souza",
+    handle: "@ana.madeai",
+    text: "A MadeAI simplificou nosso onboarding e acelerou o dia a dia do time. Design limpo e fluxo intuitivo."
+  },
+  {
+    avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
+    name: "Bruno Almeida",
+    handle: "@bruno.data",
+    text: "Excelente experiência! Login rápido, recursos claros e tudo funcionando muito bem no desktop e mobile."
+  },
+  {
+    avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Diego Martins",
+    handle: "@diegomartins",
+    text: "O acesso é estável e o visual é moderno. A MadeAI acertou em cheio no fluxo de autenticação."
+  },
+];
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -17,7 +37,6 @@ export default function Login() {
   
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { signInWithGoogle } = useSocialAuth();
 
   useEffect(() => {
@@ -67,7 +86,6 @@ export default function Login() {
         description: "Redirecionando para o painel..."
       });
 
-      // Reset loading state after successful login
       setLoading(false);
 
     } catch (error: any) {
@@ -97,9 +115,7 @@ export default function Login() {
     }
   };
 
-
   const handleResetPassword = () => {
-    // Implementar modal de reset de senha
     console.log('Reset password clicked');
   };
 
@@ -108,24 +124,24 @@ export default function Login() {
   };
 
   return (
-    <SignInPage
-      title={
-        <span className="font-light text-foreground tracking-tighter">
-          {welcomeMessage} <strong className="font-semibold">MadeAI</strong>
-        </span>
-      }
-      description="Acesse sua conta para continuar sua jornada com a MadeAI."
-      onSignIn={handleSubmit}
-      onGoogleSignIn={signInWithGoogle}
-      onResetPassword={handleResetPassword}
-      onCreateAccount={handleCreateAccount}
-      loading={loading}
-      email={email}
-      password={password}
-      onEmailChange={setEmail}
-      onPasswordChange={setPassword}
-      rememberMe={rememberMe}
-      onRememberMeChange={setRememberMe}
-    />
+    <div className="bg-background text-foreground">
+      <SignInPage
+        title={<span className="font-light tracking-tighter">Bem-vindo</span>}
+        description="Acesse sua conta para continuar sua jornada com a MadeAI."
+        heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
+        testimonials={testimonials}
+        onSignIn={handleSubmit}
+        onGoogleSignIn={signInWithGoogle}
+        onResetPassword={handleResetPassword}
+        onCreateAccount={handleCreateAccount}
+        loading={loading}
+        email={email}
+        password={password}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        rememberMe={rememberMe}
+        onRememberMeChange={setRememberMe}
+      />
+    </div>
   );
 }
