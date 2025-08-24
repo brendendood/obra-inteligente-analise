@@ -13,17 +13,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Facebook, Instagram, Linkedin, Moon, Send, Sun, Twitter } from "lucide-react"
+import { useTheme } from "@/hooks/useTheme"
 
 function Footerdemo() {
-  const [isDarkMode, setIsDarkMode] = React.useState(true)
-
-  React.useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [isDarkMode])
+  const { theme, toggleTheme } = useTheme()
 
   const currentYear = new Date().getFullYear()
 
@@ -148,8 +141,8 @@ function Footerdemo() {
               <Sun className="h-4 w-4" aria-hidden />
               <Switch
                 id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
+                checked={theme === 'dark'}
+                onCheckedChange={toggleTheme}
               />
               <Moon className="h-4 w-4" aria-hidden />
               <Label htmlFor="dark-mode" className="sr-only">
