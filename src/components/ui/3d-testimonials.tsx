@@ -133,7 +133,7 @@ export function MarqueeDemo() {
           </p>
         </motion.div>
 
-        <div className="relative w-full max-w-[800px] overflow-hidden border border-border rounded-lg flex flex-col gap-3 h-auto md:[perspective:300px] md:h-96 md:flex-row md:items-center md:justify-center md:gap-1.5">
+        <div className="relative w-full max-w-[800px] overflow-hidden border border-border rounded-lg flex flex-col gap-3 h-auto md:[perspective:300px] md:h-32 md:flex-row md:items-center md:justify-center md:gap-1.5">
           <div className="flex flex-col gap-3 md:flex-row md:gap-4">
             {/* COLUNA ESQUERDA — visível no mobile e desktop */}
             <div className="flex h-full w-full animate-marquee-vertical flex-col gap-2 md:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
