@@ -133,10 +133,10 @@ export function MarqueeDemo() {
           </p>
         </motion.div>
 
-        <div className="relative flex h-[400px] sm:h-[500px] md:h-[600px] w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background">
-          <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 [perspective:300px]">
+        <div className="relative w-full max-w-[800px] overflow-hidden border border-border rounded-lg flex flex-col gap-3 h-auto md:[perspective:300px] md:h-96 md:flex-row md:items-center md:justify-center md:gap-1.5">
+          <div className="flex flex-col gap-4 md:flex-row md:gap-4">
             {/* Primeira coluna */}
-            <div className="flex h-full w-60 sm:w-72 md:w-80 animate-marquee-vertical flex-col gap-3 sm:gap-4 [transform:rotateX(0deg)]">
+            <div className="flex h-full w-full animate-marquee-vertical flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
               {testimonials.slice(0, 3).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
               ))}
@@ -145,8 +145,8 @@ export function MarqueeDemo() {
               ))}
             </div>
 
-            {/* Segunda coluna - oculta no mobile */}
-            <div className="hidden sm:flex h-full w-72 md:w-80 animate-marquee-vertical-reverse flex-col gap-3 sm:gap-4 [transform:rotateX(0deg)]">
+            {/* Segunda coluna */}
+            <div className="flex h-full w-full animate-marquee-vertical-reverse flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
               {testimonials.slice(3, 6).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
               ))}
@@ -155,20 +155,32 @@ export function MarqueeDemo() {
               ))}
             </div>
 
-            {/* Terceira coluna - oculta no mobile */}
-            <div className="hidden md:flex h-full w-80 animate-marquee-vertical flex-col gap-4 [transform:rotateX(0deg)]">
+            {/* Terceira coluna */}
+            <div className="flex h-full w-full animate-marquee-vertical flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
               {testimonials.slice(6, 9).map((review, idx) => (
                 <ReviewCard key={idx} {...review} />
               ))}
               {testimonials.slice(6, 9).map((review, idx) => (
                 <ReviewCard key={idx + 3} {...review} />
+              ))}
+            </div>
+
+            {/* Quarta coluna */}
+            <div className="flex h-full w-full animate-marquee-vertical-reverse flex-col gap-3 sm:gap-4 md:w-80 md:[transform:rotateX(0deg)]">
+              {testimonials.slice(0, 3).map((review, idx) => (
+                <ReviewCard key={idx + 6} {...review} />
+              ))}
+              {testimonials.slice(3, 6).map((review, idx) => (
+                <ReviewCard key={idx + 9} {...review} />
               ))}
             </div>
           </div>
 
-          {/* Gradientes para fade effect */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-background"></div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background"></div>
+          {/* Gradientes para fade effect - Mobile: top/bottom, Desktop: left/right */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background md:hidden"></div>
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-background md:hidden"></div>
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background hidden md:block"></div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background hidden md:block"></div>
         </div>
       </div>
     </section>
