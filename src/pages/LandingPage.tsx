@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { HeroPill } from '@/components/ui/hero-pill';
-import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { TestimonialsColumns } from '@/components/ui/testimonials-columns-1';
 import { MarqueeDemo } from '@/components/ui/3d-testimonials';
@@ -59,12 +58,12 @@ const GridItem = ({ area, icon, title, description }: GridItemProps) => {
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-[#000000]">
       <Header />
       
       {/* Hero Section with ArchitectureSaaSBackground */}
       <ArchitectureSaaSBackground>
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 pt-20 dark:bg-[#000000]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -114,7 +113,7 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section */}
-      <section className="py-16 bg-muted/30">
+      <section className="py-16 bg-muted/30 dark:bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -145,10 +144,8 @@ const LandingPage = () => {
       {/* 3D Testimonials Section */}
       <MarqueeDemo />
 
-      <SectionDivider from="#fafafa" to="#ffffff" height={32} />
-
       {/* Problem & Solution Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -212,7 +209,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -270,10 +267,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <SectionDivider from="#fafafa" to="#ffffff" height={32} />
-
       {/* Demo Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -346,7 +341,7 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -461,10 +456,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <SectionDivider from="#fafafa" to="#ffffff" height={32} />
-
       {/* Testimonials Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-[#000000]">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -527,7 +520,7 @@ const LandingPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30 dark:bg-[#000000]">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -583,10 +576,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <SectionDivider from="#fafafa" to="#ffffff" height={32} />
-
       {/* Final CTA Section */}
-      <section className="py-20 bg-background">
+      <section className="py-20 bg-background dark:bg-[#000000]">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
