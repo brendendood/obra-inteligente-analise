@@ -637,6 +637,21 @@ export type Database = {
         }
         Relationships: []
       }
+      kv_store_40b370d9: {
+        Row: {
+          key: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       n8n_chat_histories: {
         Row: {
           id: number
@@ -1288,6 +1303,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plans: {
+        Row: {
+          billing_cycle: Database["public"]["Enums"]["billing_cycle"]
+          created_at: string
+          messages_quota: number
+          plan_tier: Database["public"]["Enums"]["plan_tier"]
+          seats: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
+          created_at?: string
+          messages_quota?: number
+          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          seats?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: Database["public"]["Enums"]["billing_cycle"]
+          created_at?: string
+          messages_quota?: number
+          plan_tier?: Database["public"]["Enums"]["plan_tier"]
+          seats?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_type: string | null
@@ -1794,6 +1839,8 @@ export type Database = {
     }
     Enums: {
       admin_role: "super_admin" | "marketing" | "financial" | "support"
+      billing_cycle: "mensal" | "anual"
+      plan_tier: "SOLO" | "STUDIO" | "ENTERPRISE"
       subscription_plan: "free" | "basic" | "pro" | "enterprise"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
       user_event_type:
@@ -1937,6 +1984,8 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "marketing", "financial", "support"],
+      billing_cycle: ["mensal", "anual"],
+      plan_tier: ["SOLO", "STUDIO", "ENTERPRISE"],
       subscription_plan: ["free", "basic", "pro", "enterprise"],
       subscription_status: ["active", "canceled", "past_due", "trialing"],
       user_event_type: [
