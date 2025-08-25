@@ -24,7 +24,7 @@ function ResendConfirmation() {
         type: 'signup', 
         email: email.trim(),
         options: { 
-          emailRedirectTo: 'https://madeai.com.br/v' 
+          emailRedirectTo: 'https://madeai.com.br/cadastro/confirmado' 
         } 
       });
       

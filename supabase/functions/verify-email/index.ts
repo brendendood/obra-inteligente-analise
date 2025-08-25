@@ -34,7 +34,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(null, {
         status: 302,
         headers: {
-          "Location": "https://madeai.com.br/cadastro?error=token-ausente",
+          "Location": "https://madeai.com.br/cadastro/confirmado?error=token-ausente",
           ...corsHeaders
         }
       });
@@ -51,7 +51,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(null, {
         status: 302,
         headers: {
-          "Location": "https://madeai.com.br/cadastro?error=token-invalido",
+          "Location": "https://madeai.com.br/cadastro/confirmado?error=token-invalido",
           ...corsHeaders
         }
       });
@@ -77,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(null, {
         status: 302,
         headers: {
-          "Location": "https://madeai.com.br/cadastro?success=verificado",
+          "Location": "https://madeai.com.br/cadastro/confirmado?success=verificado",
           ...corsHeaders
         }
       });
@@ -86,7 +86,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, {
       status: 302,
       headers: {
-        "Location": "https://madeai.com.br/cadastro?error=token-invalido",
+        "Location": "https://madeai.com.br/cadastro/confirmado?error=token-invalido",
         ...corsHeaders
       }
     });
@@ -96,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, {
       status: 302,
       headers: {
-        "Location": "https://madeai.com.br/cadastro?error=erro-interno",
+        "Location": "https://madeai.com.br/cadastro/confirmado?error=erro-interno",
         ...corsHeaders
       }
     });

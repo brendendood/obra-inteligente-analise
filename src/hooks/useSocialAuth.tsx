@@ -14,7 +14,7 @@ export const useSocialAuth = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://madeai.com.br/v'
+          redirectTo: 'https://madeai.com.br/cadastro/confirmado'
         }
       });
 
@@ -42,7 +42,7 @@ export const useSocialAuth = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
-          redirectTo: 'https://madeai.com.br/v'
+          redirectTo: 'https://madeai.com.br/cadastro/confirmado'
         }
       });
 
