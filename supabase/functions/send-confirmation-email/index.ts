@@ -230,42 +230,51 @@ const handler = async (req: Request): Promise<Response> => {
     const welcomeEmailPromise = new Promise<void>((resolve) => {
       setTimeout(async () => {
         try {
-          console.log('🎉 WELCOME-EMAIL: Iniciando envio do email de boas-vindas...');
+          console.log('🎉 WELCOME-EMAIL: Iniciando envio do email de boas-vindas com delay de 10 segundos...');
+          
+          // Buscar dados do usuário para personalização
+          const { data: userData, error: userError } = await supabaseClient
+            .from('user_profiles')
+            .select('full_name, user_id')
+            .eq('user_id', user.id)
+            .single();
+
+          const userName = userData?.full_name || user?.raw_user_meta_data?.full_name || user?.email?.split('@')[0] || 'Usuário';
           
           const welcomeResponse = await fetch(`https://mozqijzvtbuwuzgemzsm.supabase.co/functions/v1/send-custom-emails`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
             },
             body: JSON.stringify({
               email_type: 'welcome_user',
               recipient_email: user.email,
               user_data: {
-                name: user?.raw_user_meta_data?.full_name || user?.email?.split('@')[0] || 'Usuário',
-                email: user.email,
-                user_id: user.id
+                full_name: userName,
+                user_id: user.id,
+                email: user.email
               }
             })
           });
 
           if (welcomeResponse.ok) {
             const welcomeResult = await welcomeResponse.json();
-            console.log('✅ WELCOME-EMAIL: Enviado com sucesso:', welcomeResult);
+            console.log('✅ WELCOME-EMAIL: Email de boas-vindas enviado com sucesso após 10 segundos:', welcomeResult);
           } else {
             const errorText = await welcomeResponse.text();
-            console.error('❌ WELCOME-EMAIL: Falha no envio:', errorText);
+            console.error('❌ WELCOME-EMAIL: Falha no envio do email de boas-vindas:', errorText);
           }
           
         } catch (welcomeError) {
-          console.error('❌ WELCOME-EMAIL: Erro no processamento:', welcomeError);
+          console.error('❌ WELCOME-EMAIL: Erro no processamento do email de boas-vindas:', welcomeError);
         } finally {
           resolve();
         }
-      }, 10000); // 10 segundos de delay
+      }, 10000); // 10 segundos de delay conforme solicitado
     });
 
-    // Aguardar o email de boas-vindas em background
+    // Aguardar o email de boas-vindas em background usando EdgeRuntime.waitUntil
     EdgeRuntime.waitUntil(welcomeEmailPromise);
 
     return new Response(

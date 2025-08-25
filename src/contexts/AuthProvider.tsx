@@ -182,6 +182,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     console.log('✅ AUTH: Initializing AuthProvider...');
 
+    // Check if user wants to stay logged in
+    const rememberMe = localStorage.getItem('supabase.auth.remember_me') === 'true';
+    console.log('🔐 AUTH: Remember me preference:', rememberMe);
+
     // Initial auth check
     refreshAuth();
 

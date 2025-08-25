@@ -150,29 +150,42 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     let user = null;
+    let supabaseClient = null;
 
-    // Requer autenticação para todos os tipos de email personalizados
+    // Para emails de sistema (como welcome_user), usar service role key
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      throw new Error('Authorization header required for this email type');
-    }
-
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
+    const isSystemEmail = emailRequest.email_type === 'welcome_user' && authHeader?.includes(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '');
+    
+    if (isSystemEmail) {
+      // Usar service role key para emails de sistema
+      supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      );
+      console.log('📧 EMAIL-SYSTEM: Usando service role para email de sistema:', emailRequest.email_type);
+    } else {
+      // Requer autenticação para emails personalizados de usuário
+      if (!authHeader) {
+        throw new Error('Authorization header required for this email type');
       }
-    );
 
-    // Verificar se o usuário está autenticado
-    const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !authUser) {
-      throw new Error('Authentication required for this email type');
+      supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        {
+          global: {
+            headers: { Authorization: authHeader },
+          },
+        }
+      );
+
+      // Verificar se o usuário está autenticado
+      const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser();
+      if (authError || !authUser) {
+        throw new Error('Authentication required for this email type');
+      }
+      user = authUser;
     }
-    user = authUser;
 
     // Buscar conteúdo do email usando templates do admin
     const emailContent = await getEmailTemplateWithVariables(
@@ -201,26 +214,27 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('✅ EMAIL-SYSTEM: Email enviado com sucesso:', emailResponse.data);
 
     // Log do envio na base de dados (opcional)
-    if (user) {
+    if (user || isSystemEmail) {
       try {
-        const supabaseClient = createClient(
+        const logClient = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         );
         
-        await supabaseClient.from('email_logs').insert({
-          user_id: user.id,
+        await logClient.from('email_logs').insert({
+          user_id: user?.id || emailRequest.user_data?.user_id,
           email_type: emailRequest.email_type,
           recipient_email: emailRequest.recipient_email,
           resend_id: emailResponse.data?.id,
           status: 'sent',
           sent_at: new Date().toISOString()
         });
+        console.log('📝 EMAIL-SYSTEM: Log registrado com sucesso');
       } catch (logError) {
         console.warn('⚠️ EMAIL-SYSTEM: Falha ao registrar log (não crítico):', logError);
       }
     } else {
-      console.log('📝 EMAIL-SYSTEM: Log não registrado - email não autenticado (reset senha)');
+      console.log('📝 EMAIL-SYSTEM: Log não registrado - email não autenticado');
     }
 
     return new Response(

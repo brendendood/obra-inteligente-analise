@@ -190,7 +190,9 @@ const App = () => {
                 <Route path="/auth/callback" element={<ConfirmAccount />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
                 <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
+                <Route path="/terms" element={<LazyWrapper><Terms /></LazyWrapper>} />
                 <Route path="/politica" element={<LazyWrapper><Privacy /></LazyWrapper>} />
+                <Route path="/privacy" element={<LazyWrapper><Privacy /></LazyWrapper>} />
                 <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
                 
                 <Route path="/admin-panel" element={
