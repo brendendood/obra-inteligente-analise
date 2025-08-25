@@ -1,0 +1,525 @@
+# 🔍 CI Pipeline - Quality Check (Non-Blocking)
+#
+# Pipeline de verificação de qualidade que executa em paralelo
+# ao processo de build principal sem bloquear deploys.
+#
+# IMPORTANTE: Este pipeline é NÃO-BLOQUEANTE e apenas reporta
+# problemas de qualidade sem interromper o fluxo de desenvolvimento.
+
+name: Quality Check Pipeline
+
+# ===================================================================
+# 🎯 TRIGGERS
+# ===================================================================
+
+on:
+  # Executar em push para branches principais
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'src/**'
+      - 'quality/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'eslint.config.js'
+      - 'vite.config.ts'
+  
+  # Executar em pull requests
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'src/**'
+      - 'quality/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - 'eslint.config.js'
+      - 'vite.config.ts'
+  
+  # Executar manualmente
+  workflow_dispatch:
+    inputs:
+      run_full_analysis:
+        description: 'Run full quality analysis (includes heavy operations)'
+        required: false
+        default: 'false'
+        type: boolean
+      
+      skip_bundle_analysis:
+        description: 'Skip bundle analysis (faster execution)'
+        required: false
+        default: 'false'
+        type: boolean
+
+  # Executar em schedule (opcional - daily quality check)
+  schedule:
+    - cron: '0 6 * * 1' # Segunda-feira às 6:00 UTC
+
+# ===================================================================
+# 🔧 CONFIGURAÇÕES GLOBAIS
+# ===================================================================
+
+env:
+  # Node version
+  NODE_VERSION: '18'
+  
+  # Quality check mode
+  QUALITY_MODE: 'check-only'
+  
+  # Disable automatic fixes
+  NO_AUTO_FIX: 'true'
+  
+  # Report format
+  REPORT_FORMAT: 'github-actions'
+  
+  # Cache configuration
+  CACHE_VERSION: 'v1'
+
+# ===================================================================
+# 🏃 JOBS
+# ===================================================================
+
+jobs:
+  # =================================================================
+  # 📋 SETUP E PREPARAÇÃO
+  # =================================================================
+  
+  setup:
+    name: '🔧 Setup & Cache'
+    runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache.outputs.cache-hit }}
+      node-version: ${{ env.NODE_VERSION }}
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+        with:
+          # Fetch minimal history for commitlint
+          fetch-depth: 10
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: '📦 Cache Dependencies'
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+            quality/reports
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-
+            ${{ runner.os }}-node-
+      
+      - name: '📥 Install Dependencies'
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          npm ci --only=prod
+          npm ci --only=dev
+      
+      - name: '📁 Create Reports Directory'
+        run: mkdir -p quality/reports
+
+  # =================================================================
+  # 📏 ESLINT - ANÁLISE DE CÓDIGO
+  # =================================================================
+  
+  eslint:
+    name: '📏 ESLint Analysis'
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true # Não falhar o pipeline
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node-version }}
+          cache: 'npm'
+      
+      - name: '📦 Restore Dependencies'
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      
+      - name: '📏 Run ESLint'
+        run: |
+          npm run lint -- --format json --output-file quality/reports/eslint-report.json || true
+          npm run lint -- --format unix > quality/reports/eslint-summary.txt || true
+        continue-on-error: true
+      
+      - name: '📊 Process ESLint Results'
+        run: |
+          # Contar erros e warnings
+          if [ -f quality/reports/eslint-report.json ]; then
+            errors=$(jq '[.[] | .errorCount] | add // 0' quality/reports/eslint-report.json)
+            warnings=$(jq '[.[] | .warningCount] | add // 0' quality/reports/eslint-report.json)
+            echo "eslint_errors=$errors" >> $GITHUB_ENV
+            echo "eslint_warnings=$warnings" >> $GITHUB_ENV
+            echo "### 📏 ESLint Results" >> $GITHUB_STEP_SUMMARY
+            echo "- **Errors:** $errors" >> $GITHUB_STEP_SUMMARY
+            echo "- **Warnings:** $warnings" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: '📤 Upload ESLint Report'
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: eslint-report
+          path: quality/reports/eslint-*
+          retention-days: 7
+
+  # =================================================================
+  # 🎨 PRETTIER - VERIFICAÇÃO DE FORMATAÇÃO
+  # =================================================================
+  
+  prettier:
+    name: '🎨 Prettier Check'
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node-version }}
+          cache: 'npm'
+      
+      - name: '📦 Restore Dependencies'
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      
+      - name: '🎨 Run Prettier Check'
+        run: |
+          npx prettier --check "src/**/*.{ts,tsx,js,jsx,css,md}" > quality/reports/prettier-report.txt 2>&1 || true
+        continue-on-error: true
+      
+      - name: '📊 Process Prettier Results'
+        run: |
+          if [ -f quality/reports/prettier-report.txt ]; then
+            unformatted=$(grep -c "Code style issues found" quality/reports/prettier-report.txt || echo "0")
+            echo "prettier_unformatted=$unformatted" >> $GITHUB_ENV
+            echo "### 🎨 Prettier Results" >> $GITHUB_STEP_SUMMARY
+            echo "- **Files with formatting issues:** $unformatted" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: '📤 Upload Prettier Report'
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: prettier-report
+          path: quality/reports/prettier-*
+          retention-days: 7
+
+  # =================================================================
+  # 📝 TYPESCRIPT - VERIFICAÇÃO DE TIPOS
+  # =================================================================
+  
+  typescript:
+    name: '📝 TypeScript Check'
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node-version }}
+          cache: 'npm'
+      
+      - name: '📦 Restore Dependencies'
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      
+      - name: '📝 Run TypeScript Check'
+        run: |
+          npm run type-check > quality/reports/typescript-report.txt 2>&1 || true
+        continue-on-error: true
+      
+      - name: '📊 Process TypeScript Results'
+        run: |
+          if [ -f quality/reports/typescript-report.txt ]; then
+            errors=$(grep -c "error TS" quality/reports/typescript-report.txt || echo "0")
+            echo "typescript_errors=$errors" >> $GITHUB_ENV
+            echo "### 📝 TypeScript Results" >> $GITHUB_STEP_SUMMARY
+            echo "- **Type Errors:** $errors" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: '📤 Upload TypeScript Report'
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: typescript-report
+          path: quality/reports/typescript-*
+          retention-days: 7
+
+  # =================================================================
+  # 📦 DEPENDENCY ANALYSIS
+  # =================================================================
+  
+  dependencies:
+    name: '📦 Dependency Analysis'
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node-version }}
+          cache: 'npm'
+      
+      - name: '📦 Restore Dependencies'
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      
+      - name: '🔍 Security Audit'
+        run: |
+          npm audit --json > quality/reports/security-audit.json 2>/dev/null || true
+          npm audit > quality/reports/security-summary.txt 2>/dev/null || true
+        continue-on-error: true
+      
+      - name: '📊 Outdated Dependencies'
+        run: |
+          npm outdated --json > quality/reports/outdated-deps.json 2>/dev/null || true
+          npm outdated > quality/reports/outdated-summary.txt 2>/dev/null || true
+        continue-on-error: true
+      
+      - name: '📊 Process Security Results'
+        run: |
+          if [ -f quality/reports/security-audit.json ]; then
+            high=$(jq '.metadata.vulnerabilities.high // 0' quality/reports/security-audit.json)
+            critical=$(jq '.metadata.vulnerabilities.critical // 0' quality/reports/security-audit.json)
+            echo "security_high=$high" >> $GITHUB_ENV
+            echo "security_critical=$critical" >> $GITHUB_ENV
+            echo "### 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
+            echo "- **Critical vulnerabilities:** $critical" >> $GITHUB_STEP_SUMMARY
+            echo "- **High vulnerabilities:** $high" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: '📤 Upload Dependency Reports'
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dependency-reports
+          path: quality/reports/*deps* quality/reports/*security*
+          retention-days: 7
+
+  # =================================================================
+  # 📊 BUNDLE ANALYSIS
+  # =================================================================
+  
+  bundle-analysis:
+    name: '📊 Bundle Analysis'
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    if: github.event.inputs.skip_bundle_analysis != 'true'
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node-version }}
+          cache: 'npm'
+      
+      - name: '📦 Restore Dependencies'
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      
+      - name: '🏗️ Build for Analysis'
+        run: |
+          npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: '📊 Analyze Bundle'
+        run: |
+          # Simular análise de bundle (adaptar conforme ferramentas disponíveis)
+          du -sh dist/ > quality/reports/bundle-size.txt
+          find dist/ -name "*.js" -exec du -h {} \; | sort -hr > quality/reports/bundle-files.txt
+        continue-on-error: true
+      
+      - name: '📊 Process Bundle Results'
+        run: |
+          if [ -f quality/reports/bundle-size.txt ]; then
+            size=$(cat quality/reports/bundle-size.txt | cut -f1)
+            echo "bundle_size=$size" >> $GITHUB_ENV
+            echo "### 📊 Bundle Analysis" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total bundle size:** $size" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: '📤 Upload Bundle Report'
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: bundle-report
+          path: |
+            quality/reports/bundle-*
+            dist/
+          retention-days: 3
+
+  # =================================================================
+  # 🧪 SMOKE TESTS
+  # =================================================================
+  
+  smoke-tests:
+    name: '🧪 Smoke Tests'
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    
+    steps:
+      - name: '📥 Checkout Code'
+        uses: actions/checkout@v4
+      
+      - name: '🔧 Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ needs.setup.outputs.node-version }}
+          cache: 'npm'
+      
+      - name: '📦 Restore Dependencies'
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ env.CACHE_VERSION }}-${{ hashFiles('package-lock.json') }}
+      
+      - name: '🧪 Run Smoke Tests'
+        run: |
+          # Executar smoke tests se existirem
+          if [ -f "contracts/tests/smoke/basic/smoke-imports.test.ts" ]; then
+            npm run test:smoke > quality/reports/smoke-tests.txt 2>&1 || true
+          else
+            echo "Smoke tests not configured" > quality/reports/smoke-tests.txt
+          fi
+        continue-on-error: true
+      
+      - name: '📤 Upload Smoke Test Report'
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: smoke-test-report
+          path: quality/reports/smoke-*
+          retention-days: 7
+
+  # =================================================================
+  # 📋 QUALITY SUMMARY
+  # =================================================================
+  
+  quality-summary:
+    name: '📋 Quality Summary'
+    runs-on: ubuntu-latest
+    needs: [setup, eslint, prettier, typescript, dependencies, smoke-tests]
+    if: always()
+    
+    steps:
+      - name: '📥 Download All Reports'
+        uses: actions/download-artifact@v3
+        with:
+          path: quality/reports/
+      
+      - name: '📊 Generate Quality Summary'
+        run: |
+          echo "# 📊 Quality Check Summary" > quality/reports/SUMMARY.md
+          echo "" >> quality/reports/SUMMARY.md
+          echo "**Pipeline Status:** Non-blocking quality analysis completed" >> quality/reports/SUMMARY.md
+          echo "" >> quality/reports/SUMMARY.md
+          
+          # ESLint summary
+          echo "## 📏 ESLint" >> quality/reports/SUMMARY.md
+          echo "- Errors: ${{ env.eslint_errors || 'N/A' }}" >> quality/reports/SUMMARY.md
+          echo "- Warnings: ${{ env.eslint_warnings || 'N/A' }}" >> quality/reports/SUMMARY.md
+          echo "" >> quality/reports/SUMMARY.md
+          
+          # Prettier summary
+          echo "## 🎨 Prettier" >> quality/reports/SUMMARY.md
+          echo "- Unformatted files: ${{ env.prettier_unformatted || 'N/A' }}" >> quality/reports/SUMMARY.md
+          echo "" >> quality/reports/SUMMARY.md
+          
+          # TypeScript summary
+          echo "## 📝 TypeScript" >> quality/reports/SUMMARY.md
+          echo "- Type errors: ${{ env.typescript_errors || 'N/A' }}" >> quality/reports/SUMMARY.md
+          echo "" >> quality/reports/SUMMARY.md
+          
+          # Security summary
+          echo "## 🔒 Security" >> quality/reports/SUMMARY.md
+          echo "- Critical vulnerabilities: ${{ env.security_critical || 'N/A' }}" >> quality/reports/SUMMARY.md
+          echo "- High vulnerabilities: ${{ env.security_high || 'N/A' }}" >> quality/reports/SUMMARY.md
+          echo "" >> quality/reports/SUMMARY.md
+          
+          echo "---" >> quality/reports/SUMMARY.md
+          echo "*This is a non-blocking quality check. Issues found here are for informational purposes only.*" >> quality/reports/SUMMARY.md
+      
+      - name: '📤 Upload Final Summary'
+        uses: actions/upload-artifact@v3
+        with:
+          name: quality-summary
+          path: quality/reports/SUMMARY.md
+          retention-days: 30
+      
+      - name: '📋 Add to Job Summary'
+        run: |
+          cat quality/reports/SUMMARY.md >> $GITHUB_STEP_SUMMARY
+
+# ===================================================================
+# ⚠️ IMPORTANTE - NÃO BLOQUEANTE
+# ===================================================================
+#
+# Este pipeline é configurado como NÃO-BLOQUEANTE:
+#
+# 1. Todos os jobs usam `continue-on-error: true`
+# 2. O pipeline principal não depende deste
+# 3. Falhas aqui não impedem deploys
+# 4. Serve apenas para monitoramento de qualidade
+#
+# OBJETIVO: Fornecer visibilidade sobre qualidade do código
+# sem interromper o fluxo de desenvolvimento.
+#
+# ===================================================================
