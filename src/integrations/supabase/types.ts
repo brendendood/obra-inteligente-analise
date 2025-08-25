@@ -1987,6 +1987,10 @@ export type Database = {
         Args: { p_ip_address?: string; p_user_id: string }
         Returns: string
       }
+      process_pending_welcome_emails: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       recover_historical_logins: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -2010,6 +2014,10 @@ export type Database = {
       test_manual_login_tracking: {
         Args: { user_email: string }
         Returns: string
+      }
+      trigger_welcome_email_for_user: {
+        Args: { target_user_id: string }
+        Returns: Json
       }
       update_login_location_by_ip: {
         Args: {
