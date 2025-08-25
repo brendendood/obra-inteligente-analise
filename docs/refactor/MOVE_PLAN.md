@@ -1,923 +1,406 @@
-# 🏗️ Plano de Reorganização da Estrutura - MadenAI
+# 🔄 MadenAI Refactor - Move Plan
 
-**Data:** 2025-08-25  
-**Versão:** 1.0  
-**Projeto:** MadenAI (React + TypeScript + Supabase)  
-**Modo:** ULTRA SEGURO (apenas planejamento)
+> ⚠️ **IMPORTANTE**: Este é um documento de **PLANEJAMENTO APENAS**. Nenhuma movimentação foi executada.
 
----
+**Status**: Planejamento  
+**Data**: 2025-08-25  
+**Autor**: MadenAI Architecture Team
 
 ## 📋 Resumo Executivo
 
-Este documento define um plano abrangente para reorganizar a estrutura de pastas do projeto MadenAI, migrando de uma estrutura monolítica para uma arquitetura modular e escalável, mantendo 100% de compatibilidade funcional.
+Este documento define a **estratégia de refatoração** para reorganizar a estrutura de arquivos do MadenAI seguindo princípios de:
 
-### Objetivos
+- ✅ **Separação clara de responsabilidades**
+- ✅ **Boundaries arquiteturais definidos**
+- ✅ **Facilidade de manutenção e testes**
+- ✅ **Compatibilidade durante transição**
 
-1. **Modularização:** Separar responsabilidades em módulos independentes
-2. **Escalabilidade:** Facilitar crescimento e manutenção da equipe
-3. **Testabilidade:** Melhorar cobertura e isolamento de testes
-4. **Performance:** Otimizar importações e tree-shaking
-5. **Manutenibilidade:** Reduzir acoplamento e aumentar coesão
+## 🎯 Estrutura-Alvo Proposta
 
----
-
-## 🎯 Estrutura-Alvo
-
-### Arquitetura Proposta
+### 📁 **Nova Organização**
 
 ```
-madenai/
-├── apps/                           # Aplicações principais
-│   ├── web/                        # Frontend React (atual src/)
-│   │   ├── src/
-│   │   │   ├── app/                # Configuração da aplicação
-│   │   │   ├── pages/              # Componentes de página
-│   │   │   ├── features/           # Features modulares
-│   │   │   └── shared/             # Recursos compartilhados
-│   │   ├── public/
-│   │   ├── package.json
-│   │   └── vite.config.ts
-│   └── admin/                      # Futuro painel admin separado
+src/
+├── 📱 apps/                    # Aplicações principais
+│   ├── web/                   # App web principal
+│   │   ├── pages/             # Páginas da aplicação
+│   │   ├── layouts/           # Layouts e shells
+│   │   └── router/            # Configuração de rotas
+│   ├── admin/                 # Painel administrativo
+│   │   ├── pages/
+│   │   ├── components/
+│   │   └── router/
+│   └── mobile/                # App mobile (futuro)
 │
-├── packages/                       # Pacotes reutilizáveis
-│   ├── ui/                         # Design System
-│   │   ├── src/
-│   │   │   ├── components/         # Componentes UI
-│   │   │   ├── styles/             # Estilos globais
-│   │   │   └── tokens/             # Design tokens
-│   │   └── package.json
-│   │
-│   ├── core/                       # Lógica de negócio
-│   │   ├── src/
-│   │   │   ├── types/              # Tipos globais
-│   │   │   ├── utils/              # Utilitários
-│   │   │   ├── constants/          # Constantes
-│   │   │   └── validation/         # Schemas Zod
-│   │   └── package.json
-│   │
-│   ├── auth/                       # Módulo de autenticação
-│   │   ├── src/
-│   │   │   ├── components/         # Componentes auth
-│   │   │   ├── hooks/              # Hooks auth
-│   │   │   ├── stores/             # Estado auth
-│   │   │   └── services/           # Serviços auth
-│   │   └── package.json
-│   │
-│   ├── projects/                   # Módulo de projetos
-│   │   ├── src/
-│   │   │   ├── components/         # Componentes projetos
-│   │   │   ├── hooks/              # Hooks projetos
-│   │   │   ├── stores/             # Estado projetos
-│   │   │   └── services/           # Serviços projetos
-│   │   └── package.json
-│   │
-│   ├── ai/                         # Módulo IA
-│   │   ├── src/
-│   │   │   ├── components/         # Componentes IA
-│   │   │   ├── hooks/              # Hooks IA
-│   │   │   ├── agents/             # Configurações agentes
-│   │   │   └── services/           # Serviços IA
-│   │   └── package.json
-│   │
-│   └── analytics/                  # Módulo analytics
-│       ├── src/
-│       │   ├── components/         # Componentes analytics
-│       │   ├── hooks/              # Hooks analytics
-│       │   └── services/           # Serviços analytics
-│       └── package.json
+├── 🧩 modules/                 # Módulos de domínio
+│   ├── auth/                  # Módulo de autenticação
+│   │   ├── components/        # UI específica de auth
+│   │   ├── hooks/             # Hooks de auth
+│   │   ├── services/          # Lógica de negócio
+│   │   ├── types/             # Types específicos
+│   │   └── index.ts           # Barrel export
+│   ├── projects/              # Módulo de projetos
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── services/
+│   │   ├── types/
+│   │   └── index.ts
+│   ├── budget/                # Módulo de orçamento
+│   ├── schedule/              # Módulo de cronograma
+│   ├── ai-assistant/          # Módulo do assistente IA
+│   └── documents/             # Módulo de documentos
 │
-├── modules/                        # Módulos de infraestrutura
-│   ├── database/                   # Configurações DB
-│   │   ├── migrations/             # Migrações
-│   │   ├── seeds/                  # Seeds
-│   │   ├── types/                  # Tipos Supabase
-│   │   └── client.ts               # Cliente Supabase
-│   │
-│   ├── email/                      # Sistema de email
-│   │   ├── templates/              # Templates
-│   │   ├── services/               # Serviços email
-│   │   └── types.ts                # Tipos email
-│   │
-│   └── monitoring/                 # Observabilidade
-│       ├── logger/                 # Logger adapter
-│       ├── tracing/                # Request tracing
-│       └── metrics/                # Métricas
+├── 🎭 facades/                 # Camada de abstração
+│   ├── auth/
+│   │   ├── AuthFacade.ts
+│   │   ├── types.ts
+│   │   └── index.ts
+│   ├── storage/
+│   ├── ai/
+│   └── analytics/
 │
-├── infra/                          # Infraestrutura e configuração
-│   ├── docker/                     # Configurações Docker
-│   ├── ci/                         # Pipelines CI/CD
-│   ├── deployment/                 # Scripts deploy
-│   └── monitoring/                 # Configurações observabilidade
+├── 🔗 integrations/            # Integrações externas
+│   ├── supabase/
+│   │   ├── client.ts
+│   │   ├── types.ts
+│   │   └── helpers/
+│   ├── n8n/
+│   │   ├── webhooks.ts
+│   │   ├── client.ts
+│   │   └── types.ts
+│   └── external-apis/
 │
-├── tests/                          # Testes organizados
-│   ├── smoke/                      # Smoke tests (já existente)
-│   ├── integration/                # Testes integração
-│   ├── e2e/                        # Testes end-to-end
-│   ├── fixtures/                   # Dados teste
-│   └── utils/                      # Utilitários teste
+├── 🏗️ infra/                   # Infraestrutura e configuração
+│   ├── config/                # Configurações da aplicação
+│   ├── constants/             # Constantes globais
+│   ├── providers/             # Providers React (Context, Query, etc.)
+│   ├── router/                # Router base e guards
+│   └── theme/                 # Theme e design system
 │
-├── docs/                           # Documentação (já existente)
-│   ├── api/                        # Documentação API
-│   ├── db/                         # Documentação DB
-│   ├── refactor/                   # Documentação refactor
-│   └── guides/                     # Guias desenvolvimento
+├── 🧪 __tests__/               # Testes organizados por tipo
+│   ├── unit/                  # Testes unitários
+│   ├── integration/           # Testes de integração
+│   ├── e2e/                   # Testes end-to-end
+│   └── fixtures/              # Dados de teste
 │
-├── tools/                          # Ferramentas desenvolvimento
-│   ├── scripts/                    # Scripts utilitários
-│   ├── generators/                 # Geradores código
-│   └── quality/                    # Ferramentas qualidade
+├── 🔧 shared/                  # Código compartilhado
+│   ├── components/            # Componentes reutilizáveis
+│   │   ├── ui/                # Design system base
+│   │   ├── forms/             # Componentes de formulário
+│   │   ├── charts/            # Componentes de gráfico
+│   │   └── layout/            # Componentes de layout
+│   ├── hooks/                 # Hooks genéricos
+│   ├── utils/                 # Utilitários puros
+│   ├── types/                 # Types globais
+│   └── lib/                   # Bibliotecas específicas
 │
-├── package.json                    # Root workspace
-├── pnpm-workspace.yaml             # Configuração workspace
-├── tsconfig.json                   # TypeScript root
-└── README.md                       # Documentação principal
+└── 📊 assets/                  # Assets estáticos
+    ├── images/
+    ├── icons/
+    ├── fonts/
+    └── styles/
 ```
 
----
+## 🗺️ Matriz de Movimentação (Origem → Destino)
+
+### 📄 **Pages**
+```
+ORIGEM                          → DESTINO
+src/pages/Dashboard.tsx         → src/apps/web/pages/Dashboard.tsx
+src/pages/Projects.tsx          → src/apps/web/pages/Projects.tsx
+src/pages/Budget.tsx            → src/modules/budget/pages/Budget.tsx
+src/pages/Schedule.tsx          → src/modules/schedule/pages/Schedule.tsx
+src/pages/Assistant.tsx         → src/modules/ai-assistant/pages/Assistant.tsx
+src/pages/Documents.tsx         → src/modules/documents/pages/Documents.tsx
+src/pages/admin/               → src/apps/admin/pages/
+```
+
+### 🧩 **Components**
+```
+ORIGEM                          → DESTINO
+src/components/ui/             → src/shared/components/ui/
+src/components/forms/          → src/shared/components/forms/
+src/components/charts/         → src/shared/components/charts/
+src/components/layout/         → src/shared/components/layout/
+src/components/auth/           → src/modules/auth/components/
+src/components/project/        → src/modules/projects/components/
+```
+
+### 🎣 **Hooks**
+```
+ORIGEM                          → DESTINO
+src/hooks/useAuth.ts           → src/modules/auth/hooks/useAuth.ts
+src/hooks/useProjects.ts       → src/modules/projects/hooks/useProjects.ts
+src/hooks/useBudget.ts         → src/modules/budget/hooks/useBudget.ts
+src/hooks/useLocalStorage.ts   → src/shared/hooks/useLocalStorage.ts
+src/hooks/useDebounce.ts       → src/shared/hooks/useDebounce.ts
+```
+
+### 🌍 **Contexts**
+```
+ORIGEM                          → DESTINO
+src/contexts/AuthContext.tsx   → src/modules/auth/context/AuthContext.tsx
+src/contexts/ProjectContext.tsx → src/modules/projects/context/ProjectContext.tsx
+src/contexts/ThemeContext.tsx  → src/infra/providers/ThemeProvider.tsx
+```
+
+### 🔗 **Integrations**
+```
+ORIGEM                          → DESTINO
+src/integrations/supabase/     → src/integrations/supabase/ (mantém)
+src/integrations/n8n/          → src/integrations/n8n/ (mantém)
+src/lib/supabase.ts            → src/integrations/supabase/client.ts
+```
+
+### 🔧 **Utils**
+```
+ORIGEM                          → DESTINO
+src/utils/validation.ts        → src/shared/utils/validation.ts
+src/utils/formatting.ts        → src/shared/utils/formatting.ts
+src/utils/constants.ts         → src/infra/constants/app.ts
+src/utils/securityValidation.ts → src/shared/utils/security.ts
+```
+
+### 🎭 **Facades** (Novos)
+```
+ORIGEM                          → DESTINO
+[Novo] AuthFacade              → src/facades/auth/AuthFacade.ts
+[Novo] ProjectFacade           → src/facades/projects/ProjectFacade.ts
+[Novo] AIFacade                → src/facades/ai/AIFacade.ts
+[Novo] StorageFacade           → src/facades/storage/StorageFacade.ts
+```
 
 ## 🔧 Estratégias de Compatibilidade
 
-### 1. Node.js/TypeScript (Stack Atual)
+### 📦 **Barrel Exports**
 
-#### A. Barrels (index.ts)
-Cada pacote terá um arquivo `index.ts` que exporta todas as funcionalidades públicas:
+Cada módulo terá um `index.ts` que exporta sua API pública:
 
 ```typescript
-// packages/ui/src/index.ts
-export * from './components';
-export * from './styles';
-export * from './tokens';
-export { default as Button } from './components/Button';
-export { default as Card } from './components/Card';
+// src/modules/auth/index.ts
+export { useAuth } from './hooks/useAuth'
+export { LoginForm } from './components/LoginForm'
+export { AuthProvider } from './context/AuthContext'
+export type { User, AuthState } from './types'
 
-// packages/auth/src/index.ts
-export * from './hooks';
-export * from './components';
-export * from './stores';
-export { useAuth } from './hooks/useAuth';
-export { AuthProvider } from './components/AuthProvider';
+// src/facades/auth/index.ts
+export { AuthFacade } from './AuthFacade'
+export type { LoginCredentials, AuthResult } from './types'
 ```
 
-#### B. Path Aliases (tsconfig)
-Configuração de aliases para importações limitas:
+### 🎭 **Facade Pattern**
+
+Facades abstraem complexidade e fornecem API estável:
+
+```typescript
+// src/facades/auth/AuthFacade.ts
+export class AuthFacade {
+  static async login(credentials: LoginCredentials): Promise<AuthResult> {
+    // Implementação usando integrations
+  }
+  
+  static async logout(): Promise<void> {
+    // Implementação
+  }
+}
+```
+
+### 🛤️ **TypeScript Path Mapping**
 
 ```json
 // tsconfig.json
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@madenai/ui": ["./packages/ui/src"],
-      "@madenai/ui/*": ["./packages/ui/src/*"],
-      "@madenai/core": ["./packages/core/src"],
-      "@madenai/core/*": ["./packages/core/src/*"],
-      "@madenai/auth": ["./packages/auth/src"],
-      "@madenai/auth/*": ["./packages/auth/src/*"],
-      "@madenai/projects": ["./packages/projects/src"],
-      "@madenai/projects/*": ["./packages/projects/src/*"],
-      "@madenai/ai": ["./packages/ai/src"],
-      "@madenai/ai/*": ["./packages/ai/src/*"],
-      "@madenai/analytics": ["./packages/analytics/src"],
-      "@madenai/analytics/*": ["./packages/analytics/src/*"],
-      "@/database": ["./modules/database"],
-      "@/database/*": ["./modules/database/*"],
-      "@/shared": ["./apps/web/src/shared"],
-      "@/shared/*": ["./apps/web/src/shared/*"]
+      "@/apps/*": ["src/apps/*"],
+      "@/modules/*": ["src/modules/*"],
+      "@/facades/*": ["src/facades/*"],
+      "@/integrations/*": ["src/integrations/*"],
+      "@/infra/*": ["src/infra/*"],
+      "@/shared/*": ["src/shared/*"],
+      "@/tests/*": ["src/__tests__/*"]
     }
   }
 }
 ```
 
-#### C. Re-exports Estratégicos
-Manter compatibilidade durante migração com re-exports:
+### 🔗 **Compatibility Layer**
+
+Durante transição, mantém imports antigos funcionando:
 
 ```typescript
-// apps/web/src/shared/compat/index.ts (temporário)
-// Mantém imports antigos funcionando durante migração
-export { Button, Card, Input } from '@madenai/ui';
-export { useAuth, AuthProvider } from '@madenai/auth';
-export { useProjects, ProjectCard } from '@madenai/projects';
+// src/hooks/index.ts (compatibility layer)
+export { useAuth } from '@/modules/auth'
+export { useProjects } from '@/modules/projects'
+// ... outros exports para compatibilidade
 ```
 
-#### D. Workspace Configuration (pnpm/yarn)
-```yaml
-# pnpm-workspace.yaml
-packages:
-  - 'apps/*'
-  - 'packages/*'
-  - 'modules/*'
-```
+## 📋 Estratégia de Migração por Fases
 
-```json
-// Root package.json
-{
-  "name": "@madenai/root",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*", 
-    "modules/*"
-  ],
-  "scripts": {
-    "dev": "pnpm --filter @madenai/web dev",
-    "build": "pnpm --recursive build",
-    "test": "pnpm --recursive test",
-    "lint": "pnpm --recursive lint"
-  }
-}
-```
+### 🎯 **Fase 1: Preparação** (1-2 dias)
+1. **Criar estrutura de pastas** vazias
+2. **Configurar TypeScript paths**
+3. **Criar barrels vazios**
+4. **Configurar tooling** (ESLint, etc.)
 
----
+### 🎭 **Fase 2: Facades** (2-3 dias)
+1. **Criar AuthFacade** encapsulando Supabase Auth
+2. **Criar ProjectFacade** para operações de projeto
+3. **Criar AIFacade** para integrações N8N
+4. **Criar StorageFacade** para file operations
 
-## 📊 Matriz Origem → Destino
+### 🔧 **Fase 3: Utils & Shared** (1-2 dias)
+1. **Mover utils** para `src/shared/utils/`
+2. **Mover components UI** para `src/shared/components/`
+3. **Atualizar imports** para usar paths mapeados
+4. **Testar compatibilidade**
 
-### Core Application Files
+### 🧩 **Fase 4: Modules** (3-4 dias)
+1. **Mover auth module** completo
+2. **Mover projects module**
+3. **Mover budget module**
+4. **Mover outros modules** gradualmente
 
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `src/App.tsx` | `apps/web/src/app/App.tsx` | Mover | Path alias |
-| `src/App.css` | `apps/web/src/app/App.css` | Mover | Path alias |
-| `src/main.tsx` | `apps/web/src/main.tsx` | Mover | Path alias |
-| `src/index.css` | `packages/ui/src/styles/globals.css` | Mover + Rename | Import update |
+### 📄 **Fase 5: Apps** (2-3 dias)
+1. **Reorganizar pages** em apps
+2. **Configurar routers** por app
+3. **Ajustar layouts** e shells
+4. **Testar navegação**
 
-### Pages
+### 🧪 **Fase 6: Tests** (1-2 dias)
+1. **Reorganizar testes** por tipo
+2. **Atualizar imports** nos testes
+3. **Configurar test runners**
+4. **Validar coverage**
 
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `src/pages/LandingPage.tsx` | `apps/web/src/pages/LandingPage.tsx` | Mover | Path alias |
-| `src/pages/Login.tsx` | `packages/auth/src/components/LoginPage.tsx` | Mover + Refactor | Re-export |
-| `src/pages/Signup.tsx` | `packages/auth/src/components/SignupPage.tsx` | Mover + Refactor | Re-export |
-| `src/pages/Dashboard.tsx` | `apps/web/src/pages/Dashboard.tsx` | Mover | Path alias |
-| `src/pages/Upload.tsx` | `apps/web/src/pages/Upload.tsx` | Mover | Path alias |
-| `src/pages/Assistant.tsx` | `packages/ai/src/components/AssistantPage.tsx` | Mover + Refactor | Re-export |
-| `src/pages/Account.tsx` | `packages/auth/src/components/AccountPage.tsx` | Mover + Refactor | Re-export |
-| `src/pages/AdminPanel.tsx` | `apps/web/src/pages/AdminPanel.tsx` | Mover | Path alias |
-| `src/pages/CRMPage.tsx` | `apps/web/src/pages/CRMPage.tsx` | Mover | Path alias |
-| `src/pages/project-specific/*` | `packages/projects/src/pages/*` | Mover + Refactor | Re-export |
-
-### Components
-
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `src/components/ui/*` | `packages/ui/src/components/*` | Mover | Barrel exports |
-| `src/components/auth/*` | `packages/auth/src/components/*` | Mover | Barrel exports |
-| `src/components/admin/*` | `apps/web/src/features/admin/components/*` | Mover | Path alias |
-| `src/components/account/*` | `packages/auth/src/components/*` | Mover | Barrel exports |
-| `src/components/error/*` | `packages/core/src/components/error/*` | Mover | Barrel exports |
-| `src/components/providers/*` | `packages/core/src/providers/*` | Mover | Barrel exports |
-| `src/components/project/*` | `packages/projects/src/components/*` | Mover | Barrel exports |
-
-### Hooks
-
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `src/hooks/use-toast.ts` | `packages/ui/src/hooks/use-toast.ts` | Mover | Barrel exports |
-| `src/hooks/useAuth.ts` | `packages/auth/src/hooks/useAuth.ts` | Mover | Barrel exports |
-| `src/hooks/useProjects.ts` | `packages/projects/src/hooks/useProjects.ts` | Mover | Barrel exports |
-| `src/hooks/useUnifiedProjectStore.ts` | `packages/projects/src/stores/useUnifiedProjectStore.ts` | Mover + Rename | Barrel exports |
-
-### Stores (Zustand)
-
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `src/stores/authStore.ts` | `packages/auth/src/stores/authStore.ts` | Mover | Barrel exports |
-| `src/stores/unifiedProjectStore.ts` | `packages/projects/src/stores/unifiedProjectStore.ts` | Mover | Barrel exports |
-| `src/stores/adminStore.ts` | `apps/web/src/features/admin/stores/adminStore.ts` | Mover | Path alias |
-| `src/stores/crmStore.ts` | `apps/web/src/features/crm/stores/crmStore.ts` | Mover | Path alias |
-
-### Services & Utilities
-
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `src/lib/utils.ts` | `packages/core/src/utils/index.ts` | Mover | Barrel exports |
-| `src/lib/agents/*` | `packages/ai/src/agents/*` | Mover | Barrel exports |
-| `src/lib/validations/*` | `packages/core/src/validation/*` | Mover | Barrel exports |
-| `src/integrations/supabase/*` | `modules/database/*` | Mover | Path alias |
-
-### Configuration Files
-
-| Origem | Destino | Tipo | Compatibilidade |
-|--------|---------|------|-----------------|
-| `tailwind.config.ts` | `packages/ui/tailwind.config.ts` | Mover + Extend | Config inheritance |
-| `vite.config.ts` | `apps/web/vite.config.ts` | Mover | Package-specific |
-| `tsconfig.json` | `tsconfig.json` (root) + individual configs | Extend | Project references |
-| `package.json` | Root + individual packages | Split | Workspace |
-
----
-
-## 🛡️ Estratégias de Migração Segura
-
-### Fase 1: Preparação (Sem Breaking Changes)
-
-#### 1.1 Configuração Workspace
-```bash
-# Criar estrutura de pastas
-mkdir -p apps/web packages/{ui,core,auth,projects,ai,analytics} modules/{database,email,monitoring}
-
-# Configurar workspace
-echo 'packages:\n  - "apps/*"\n  - "packages/*"\n  - "modules/*"' > pnpm-workspace.yaml
-```
-
-#### 1.2 Configuração TypeScript
-```json
-// tsconfig.json (root)
-{
-  "files": [],
-  "references": [
-    { "path": "./apps/web" },
-    { "path": "./packages/ui" },
-    { "path": "./packages/core" },
-    { "path": "./packages/auth" },
-    { "path": "./packages/projects" },
-    { "path": "./packages/ai" },
-    { "path": "./packages/analytics" }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@madenai/*": ["./packages/*/src"]
-    }
-  }
-}
-```
-
-#### 1.3 Pacotes Individuais package.json
-```json
-// packages/ui/package.json
-{
-  "name": "@madenai/ui",
-  "version": "1.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
-  }
-}
-```
-
-### Fase 2: Migração Gradual (Com Compatibilidade)
-
-#### 2.1 Componentes UI (Prioridade 1)
-```bash
-# Mover componentes UI mantendo compatibilidade
-cp -r src/components/ui/* packages/ui/src/components/
-```
-
-```typescript
-// packages/ui/src/index.ts
-export * from './components/Button';
-export * from './components/Card';
-export * from './components/Input';
-// ... todos os componentes
-
-// apps/web/src/components/ui/index.ts (compatibilidade temporária)
-export * from '@madenai/ui';
-```
-
-#### 2.2 Autenticação (Prioridade 2)
-```bash
-# Mover módulo de autenticação
-cp -r src/components/auth/* packages/auth/src/components/
-cp -r src/hooks/useAuth.ts packages/auth/src/hooks/
-cp -r src/stores/authStore.ts packages/auth/src/stores/
-```
-
-#### 2.3 Projetos (Prioridade 3)
-```bash
-# Mover módulo de projetos
-cp -r src/components/project/* packages/projects/src/components/
-cp -r src/hooks/useProjects.ts packages/projects/src/hooks/
-cp -r src/stores/unifiedProjectStore.ts packages/projects/src/stores/
-```
-
-### Fase 3: Limpeza e Otimização
-
-#### 3.1 Remover Arquivos Antigos
-```bash
-# Após confirmar que tudo funciona
-rm -rf src/components/ui
-rm -rf src/components/auth
-rm -rf src/components/project
-```
-
-#### 3.2 Atualizar Importações
-```bash
-# Script automático para atualizar imports
-find apps/web/src -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/@\/components\/ui/@madenai\/ui/g'
-find apps/web/src -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/@\/components\/auth/@madenai\/auth/g'
-```
-
----
+### 🧹 **Fase 7: Cleanup** (1 dia)
+1. **Remover arquivos antigos**
+2. **Remover compatibility layers**
+3. **Atualizar documentação**
+4. **Final validation**
 
 ## ⚠️ Riscos e Mitigações
 
-### Riscos Técnicos
+### 🚨 **Riscos Altos**
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|---------------|---------|-----------|
-| **Circular Dependencies** | Média | Alto | Análise dependências + Linting |
-| **Type Resolution Issues** | Alta | Médio | Project references + Path mapping |
-| **Bundle Size Increase** | Baixa | Médio | Tree-shaking + Bundle analysis |
-| **Hot Reload Breaking** | Média | Baixo | Workspace dev scripts |
-| **Import Resolution** | Alta | Alto | Gradual migration + Compatibility layer |
+#### 1. **Breaking Changes**
+- **Risco**: Imports quebrados em toda aplicação
+- **Mitigação**: Compatibility layers temporárias, migração gradual
 
-### Riscos de Negócio
+#### 2. **Build Failures**
+- **Risco**: TypeScript/Vite não resolve novos paths
+- **Mitigação**: Testar configuração em branch separada
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|---------------|---------|-----------|
-| **Downtime durante migração** | Baixa | Alto | Feature flags + Rollback plan |
-| **Perda de funcionalidade** | Baixa | Crítico | Smoke tests + E2E tests |
-| **Performance degradation** | Média | Alto | Performance monitoring |
-| **Developer productivity** | Alta | Médio | Training + Documentation |
+#### 3. **Test Failures**
+- **Risco**: Testes não encontram módulos
+- **Mitigação**: Atualizar jest/vitest config simultaneamente
 
-### Plano de Mitigação
+#### 4. **Developer Confusion**
+- **Risco**: Time não sabe onde encontrar código
+- **Mitigação**: Documentação clara e onboarding
 
-#### 1. Dependency Analysis
-```bash
-# Instalar ferramenta análise dependências
-npm install -g madge
+### ⚠️ **Riscos Médios**
 
-# Analisar dependências circulares
-madge --circular --extensions ts,tsx src/
+#### 1. **Performance Impact**
+- **Risco**: Barrel exports podem afetar tree-shaking
+- **Mitigação**: Monitorar bundle size, usar exports específicos
 
-# Gerar grafo dependências
-madge --image deps.svg src/
-```
+#### 2. **Git History Loss**
+- **Risco**: `git mv` pode quebrar blame/history
+- **Mitigação**: Usar `git mv` adequadamente, documentar moves
 
-#### 2. Automated Testing
-```bash
-# Executar smoke tests antes da migração
-node tests/smoke/runner.js
+#### 3. **IDE Support**
+- **Risco**: VSCode pode não resolver paths corretamente
+- **Mitigação**: Atualizar workspace settings
 
-# Executar testes após cada fase
-npm run test
-npm run test:e2e
-npm run smoke-test
-```
+## ✅ Checklist Pós-Movimentação
 
-#### 3. Performance Monitoring
-```typescript
-// tools/scripts/bundle-analysis.ts
-import { analyzeBundle } from './utils/bundle-analyzer';
+### 🔍 **Build & Runtime**
+- [ ] `npm run build` executa sem erros
+- [ ] `npm run dev` inicia corretamente
+- [ ] `npm run preview` funciona
+- [ ] Todas as rotas carregam sem erro
 
-// Comparar tamanho bundle antes/depois
-const beforeSize = await analyzeBundle('build-before/');
-const afterSize = await analyzeBundle('build-after/');
+### 🧪 **Tests**
+- [ ] `npm run test` executa todos os testes
+- [ ] Coverage mantido ou melhorado
+- [ ] Smoke tests passam
+- [ ] E2E tests funcionam
 
-console.log(`Bundle size change: ${afterSize - beforeSize}kb`);
-```
+### 🛠️ **Tooling**
+- [ ] ESLint não reporta erros de import
+- [ ] TypeScript não tem erros de resolução
+- [ ] VSCode resolve imports corretamente
+- [ ] Git blame/history preservado onde possível
 
----
+### 📊 **Performance**
+- [ ] Bundle size não aumentou significativamente
+- [ ] Tree-shaking ainda funciona
+- [ ] Load times mantidos
+- [ ] Memory usage aceitável
 
-## 🧪 Plano de Testes e Validação
+### 📚 **Documentation**
+- [ ] README atualizado com nova estrutura
+- [ ] CONTRIBUTING_AI.md atualizado
+- [ ] Architecture docs atualizados
+- [ ] Import examples atualizados
 
-### 1. Testes Automatizados
+## 📊 Métricas de Sucesso
 
-#### Smoke Tests (Existentes)
-```bash
-# Executar smoke tests atuais
-node tests/smoke/runner.js
+### ✅ **Quantitativas**
+- **Zero** breaking changes em produção
+- **< 10%** aumento no bundle size
+- **100%** dos testes passando
+- **< 5 min** adicional no build time
 
-# Verificações específicas pós-migração
-node tests/smoke/routes.test.js    # Rotas funcionando
-node tests/smoke/imports.test.js   # Imports resolvendo
-```
+### ✅ **Qualitativas**
+- **Clareza**: Desenvolvedores encontram código facilmente
+- **Manutenibilidade**: Mudanças são mais localizadas
+- **Testabilidade**: Módulos testáveis isoladamente
+- **Onboarding**: Novos devs entendem estrutura rapidamente
 
-#### Testes de Integração
-```typescript
-// tests/integration/module-integration.test.ts
-describe('Module Integration Tests', () => {
-  it('should import UI components correctly', () => {
-    const { Button } = require('@madenai/ui');
-    expect(Button).toBeDefined();
-  });
+## 🔄 Rollback Plan
 
-  it('should import auth hooks correctly', () => {
-    const { useAuth } = require('@madenai/auth');
-    expect(useAuth).toBeDefined();
-  });
+Se movimentação causar problemas críticos:
 
-  it('should maintain cross-module communication', () => {
-    // Testar comunicação entre módulos
-  });
-});
-```
+### 🚨 **Rollback Imediato** (< 30 min)
+1. **Git revert** dos commits de movimentação
+2. **Restore** tsconfig.json anterior
+3. **Rebuild** e test
+4. **Deploy** versão anterior
 
-#### Bundle Analysis Tests
-```typescript
-// tests/performance/bundle-size.test.ts
-describe('Bundle Size Tests', () => {
-  it('should not increase bundle size significantly', async () => {
-    const bundleSize = await getBundleSize();
-    expect(bundleSize).toBeLessThan(PREVIOUS_SIZE * 1.1); // Max 10% increase
-  });
+### 📋 **Rollback Gradual** (1-2 horas)
+1. **Manter nova estrutura** de pastas
+2. **Restaurar imports antigos** via compatibility
+3. **Fix** issues específicos um por vez
+4. **Re-plan** movimentação com aprendizados
 
-  it('should maintain tree-shaking effectiveness', () => {
-    // Verificar tree-shaking funciona
-  });
-});
-```
+## 📞 Comunicação e Coordenação
 
-### 2. Validação Manual
+### 👥 **Stakeholders**
+- **Tech Lead**: Aprovação e coordenação
+- **Senior Devs**: Review e implementação
+- **QA Team**: Validação pós-migração
+- **DevOps**: Support com CI/CD
 
-#### Checklist Funcional
-- [ ] Login/logout funcionando
-- [ ] Criação de projetos funcionando
-- [ ] Upload de arquivos funcionando
-- [ ] IA conversas funcionando
-- [ ] CRM funcionando
-- [ ] Admin panel funcionando
-- [ ] Responsividade mantida
-- [ ] Dark/light mode funcionando
+### 📅 **Timeline**
+- **Planning**: 1 semana
+- **Implementation**: 2-3 semanas
+- **Validation**: 1 semana
+- **Documentation**: Paralelo
 
-#### Checklist Performance
-- [ ] Hot reload funcionando
-- [ ] Build time aceitável (<5min)
-- [ ] Bundle size não aumentou >10%
-- [ ] Lighthouse score mantido
-- [ ] Core Web Vitals mantidos
-
-#### Checklist Developer Experience
-- [ ] Auto-complete funcionando
-- [ ] Type checking funcionando
-- [ ] Linting funcionando
-- [ ] Imports resolving corretamente
-- [ ] Dev server iniciando <30s
-
-### 3. Validação de Contratos
-
-#### API Contracts
-```typescript
-// tests/contracts/api-contracts.test.ts
-describe('API Contracts', () => {
-  it('should maintain Supabase client interface', () => {
-    const client = createSupabaseClient();
-    expect(client.auth).toBeDefined();
-    expect(client.from).toBeFunction();
-  });
-
-  it('should maintain store interfaces', () => {
-    const authStore = useAuthStore();
-    expect(authStore.user).toBeDefined();
-    expect(authStore.login).toBeFunction();
-  });
-});
-```
-
-#### Component Contracts
-```typescript
-// tests/contracts/component-contracts.test.ts
-describe('Component Contracts', () => {
-  it('should maintain Button component interface', () => {
-    render(<Button onClick={jest.fn()}>Test</Button>);
-    expect(screen.getByRole('button')).toBeInTheDocument();
-  });
-
-  it('should maintain form components interfaces', () => {
-    // Testar interfaces de formulários
-  });
-});
-```
+### 📢 **Communication Plan**
+- **Daily standup**: Updates de progresso
+- **Slack channel**: #refactor-move para discussões
+- **Documentation**: Atualizada em tempo real
+- **Demo**: Apresentação final para team
 
 ---
 
-## 📈 Cronograma de Execução
-
-### Semana 1: Preparação
-- **Dia 1-2:** Setup workspace e configurações
-- **Dia 3-4:** Migrar pacote UI (@madenai/ui)
-- **Dia 5:** Testes e validação UI
-
-### Semana 2: Módulos Core
-- **Dia 1-2:** Migrar core utilities (@madenai/core)
-- **Dia 3-4:** Migrar módulo auth (@madenai/auth)
-- **Dia 5:** Testes e validação core/auth
-
-### Semana 3: Módulos Específicos
-- **Dia 1-2:** Migrar módulo projects (@madenai/projects)
-- **Dia 3-4:** Migrar módulo AI (@madenai/ai)
-- **Dia 5:** Testes e validação projects/AI
-
-### Semana 4: Finalização
-- **Dia 1-2:** Migrar módulos restantes (analytics, database)
-- **Dia 3-4:** Limpeza e otimização
-- **Dia 5:** Testes finais e documentação
-
----
-
-## 🔧 Ferramentas de Apoio
-
-### Scripts de Migração
-
-#### 1. Dependency Scanner
-```typescript
-// tools/scripts/dependency-scanner.ts
-import { scanDependencies } from './utils/scanner';
-
-// Escanear dependências circulares
-const circularDeps = await scanDependencies('src/', {
-  circular: true,
-  extensions: ['.ts', '.tsx']
-});
-
-console.log('Circular dependencies found:', circularDeps);
-```
-
-#### 2. Import Updater
-```typescript
-// tools/scripts/import-updater.ts
-import { updateImports } from './utils/import-updater';
-
-// Atualizar imports automaticamente
-await updateImports('apps/web/src/', {
-  '@/components/ui': '@madenai/ui',
-  '@/components/auth': '@madenai/auth',
-  '@/hooks/useAuth': '@madenai/auth',
-});
-```
-
-#### 3. Bundle Analyzer
-```typescript
-// tools/scripts/bundle-analyzer.ts
-import { analyzeBundles } from './utils/bundle-analyzer';
-
-// Comparar bundles antes/depois
-const analysis = await analyzeBundles({
-  before: 'dist-before/',
-  after: 'dist-after/'
-});
-
-console.log('Bundle analysis:', analysis);
-```
-
-### Linting Rules
-
-#### ESLint Configuration
-```json
-// .eslintrc.json
-{
-  "rules": {
-    "import/no-cycle": "error",
-    "import/no-self-import": "error",
-    "@typescript-eslint/no-unused-vars": "error",
-    "import/order": ["error", {
-      "groups": [
-        "builtin",
-        "external", 
-        "internal",
-        "parent",
-        "sibling"
-      ],
-      "pathGroups": [
-        {
-          "pattern": "@madenai/**",
-          "group": "internal",
-          "position": "before"
-        }
-      ]
-    }]
-  }
-}
-```
-
----
-
-## 📚 Documentação Atualizada
-
-### 1. README.md Updates
-```markdown
-# MadenAI - Estrutura Modular
-
-## Arquitetura
-
-Este projeto utiliza uma arquitetura modular com workspace:
-
-- `apps/web/` - Frontend React
-- `packages/` - Pacotes reutilizáveis
-- `modules/` - Módulos infraestrutura
-
-## Desenvolvimento
-
-```bash
-# Instalar dependências
-pnpm install
-
-# Desenvolver
-pnpm dev
-
-# Build
-pnpm build
-```
-
-## Importações
-
-```typescript
-// Componentes UI
-import { Button, Card } from '@madenai/ui';
-
-// Autenticação
-import { useAuth, AuthProvider } from '@madenai/auth';
-
-// Projetos
-import { useProjects, ProjectCard } from '@madenai/projects';
-```
-```
-
-### 2. Contributing Guidelines
-```markdown
-# Contribuindo
-
-## Estrutura de Módulos
-
-Ao adicionar funcionalidades:
-
-1. **UI Components:** `packages/ui/`
-2. **Business Logic:** `packages/[domain]/`
-3. **App-specific:** `apps/web/src/features/`
-
-## Regras de Importação
-
-- Nunca importar de `apps/` para `packages/`
-- Usar barrel exports (`index.ts`)
-- Seguir convenções de nomenclatura
-```
-
----
-
-## 🎯 Critérios de Sucesso
-
-### Métricas Técnicas
-
-| Métrica | Atual | Meta | Como Medir |
-|---------|-------|------|------------|
-| **Build Time** | ~2min | <3min | CI/CD logs |
-| **Bundle Size** | ~2.5MB | <2.8MB | Webpack bundle analyzer |
-| **Type Check Time** | ~30s | <45s | TypeScript compiler |
-| **Test Coverage** | 75% | >75% | Jest coverage reports |
-| **Circular Dependencies** | 5 | 0 | Madge analysis |
-
-### Métricas de Qualidade
-
-| Métrica | Meta | Como Medir |
-|---------|------|------------|
-| **No Breaking Changes** | 100% | Smoke tests passing |
-| **Import Resolution** | 100% | TypeScript compilation |
-| **Hot Reload** | <3s | Dev server metrics |
-| **Developer Onboarding** | <1h | Time to first contribution |
-
-### Critérios de Rollback
-
-Se qualquer uma das condições abaixo for verdadeira, fazer rollback:
-
-1. **Smoke tests falhando** - Funcionalidade básica quebrada
-2. **Build time >5min** - Performance inaceitável
-3. **Bundle size >3MB** - Impacto usuário significativo
-4. **Circular dependencies >2** - Arquitetura comprometida
-5. **Type errors >10** - TypeScript quebrado
-
----
-
-## 🔄 Plano de Rollback
-
-### Estratégia de Rollback
-
-#### 1. Rollback Completo (Emergency)
-```bash
-# Restaurar de backup Git
-git checkout backup-branch-before-refactor
-git push origin main --force
-
-# Restaurar package.json original
-cp backup/package.json .
-cp backup/tsconfig.json .
-
-# Reinstalar dependências
-rm -rf node_modules
-npm install
-```
-
-#### 2. Rollback Parcial (Gradual)
-```bash
-# Reverter apenas pacotes problemáticos
-git checkout HEAD~1 -- packages/problematic-package/
-git commit -m "Rollback problematic package"
-
-# Atualizar imports para versão anterior
-node tools/scripts/rollback-imports.js
-```
-
-#### 3. Rollback com Preserve (Selective)
-```bash
-# Manter mudanças que funcionam
-git cherry-pick <working-commits>
-
-# Reverter apenas mudanças problemáticas
-git revert <problematic-commits>
-```
-
----
-
-## 🚀 Benefícios Esperados
-
-### Desenvolvimento
-- **Onboarding 50% mais rápido** - Estrutura clara e documentada
-- **Desenvolvimento paralelo** - Equipes trabalham em módulos independentes
-- **Reutilização de código** - Componentes e hooks compartilhados
-- **Debugging simplificado** - Isolamento de responsabilidades
-
-### Performance
-- **Tree-shaking otimizado** - Imports específicos por módulo
-- **Hot reload mais rápido** - Apenas módulos alterados recompilam
-- **Bundle splitting** - Chunks menores e mais eficientes
-- **Lazy loading** - Módulos carregados sob demanda
-
-### Manutenção
-- **Testes isolados** - Cada módulo tem seus próprios testes
-- **Dependencies claras** - Grafo de dependências explícito
-- **Refactoring seguro** - Mudanças isoladas em módulos
-- **Scaling preparado** - Arquitetura para crescimento
-
----
-
-## 📞 Suporte e Contatos
-
-### Responsáveis
-- **Tech Lead:** Responsável por arquitetura e decisões técnicas
-- **DevOps:** Responsável por CI/CD e deployment
-- **QA Lead:** Responsável por estratégia de testes
-
-### Canais de Comunicação
-- **Slack:** #refactoring-project
-- **Daily Standups:** Status updates diários
-- **Weekly Reviews:** Revisão semanal de progresso
-
----
-
-## 📋 Anexos
-
-### A. Exemplo de Package.json Completo
-```json
-{
-  "name": "@madenai/ui",
-  "version": "1.0.0",
-  "description": "MadenAI Design System",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./styles": "./dist/styles.css"
-  },
-  "scripts": {
-    "build": "tsc && rollup -c",
-    "dev": "tsc --watch",
-    "lint": "eslint src/",
-    "test": "jest"
-  },
-  "dependencies": {
-    "@radix-ui/react-button": "^1.0.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.0",
-    "typescript": "^5.0.0"
-  }
-}
-```
-
-### B. Exemplo de TSConfig Individual
-```json
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "declaration": true,
-    "declarationMap": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules"]
-}
-```
-
----
-
-**Status:** 📋 PLANO APROVADO PARA EXECUÇÃO  
-**Próximo Passo:** Implementação Fase 1 (Setup Workspace)  
-**Data de Revisão:** 2025-09-01  
-**Versão do Documento:** 1.0
+> ⚠️ **LEMBRETE**: Este é um **PLANO TEÓRICO**. Antes de executar qualquer movimentação:
+> 1. **Review completo** do plano com team
+> 2. **Backup** completo do projeto
+> 3. **Branch dedicada** para movimentação
+> 4. **Testes extensivos** antes de merge
+
+**Próximos Passos**: Discussão em team meeting e refinamento do plano.
