@@ -682,6 +682,57 @@ export type Database = {
         }
         Relationships: []
       }
+      email_queue: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          last_attempt_at: string | null
+          max_retries: number
+          next_retry_at: string | null
+          payload: Json
+          recipient_email: string
+          resend_id: string | null
+          retries: number
+          status: string
+          template_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          max_retries?: number
+          next_retry_at?: string | null
+          payload?: Json
+          recipient_email: string
+          resend_id?: string | null
+          retries?: number
+          status?: string
+          template_type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_attempt_at?: string | null
+          max_retries?: number
+          next_retry_at?: string | null
+          payload?: Json
+          recipient_email?: string
+          resend_id?: string | null
+          retries?: number
+          status?: string
+          template_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       email_templates: {
         Row: {
           category: string | null
@@ -1775,6 +1826,10 @@ export type Database = {
         Args: { points: number }
         Returns: number
       }
+      calculate_next_retry_time: {
+        Args: { retry_count: number }
+        Returns: string
+      }
       calculate_user_engagement: {
         Args: Record<PropertyKey, never> | { target_user_id: string }
         Returns: number
@@ -1786,6 +1841,15 @@ export type Database = {
       end_impersonation_session: {
         Args: { session_id: string }
         Returns: undefined
+      }
+      enqueue_email: {
+        Args: {
+          p_payload?: Json
+          p_recipient_email: string
+          p_template_type: string
+          p_user_id: string
+        }
+        Returns: string
       }
       example_function: {
         Args: Record<PropertyKey, never>
@@ -1921,6 +1985,17 @@ export type Database = {
         Args: { level_num: number }
         Returns: Json
       }
+      get_pending_emails_for_retry: {
+        Args: { batch_size?: number }
+        Returns: {
+          payload: Json
+          queue_id: string
+          recipient_email: string
+          retries: number
+          template_type: string
+          user_id: string
+        }[]
+      }
       get_total_users_count: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -1986,6 +2061,14 @@ export type Database = {
       manual_login_insert: {
         Args: { p_ip_address?: string; p_user_id: string }
         Returns: string
+      }
+      mark_email_failed: {
+        Args: { p_error_message: string; p_queue_id: string }
+        Returns: boolean
+      }
+      mark_email_sent: {
+        Args: { p_queue_id: string; p_resend_id?: string }
+        Returns: boolean
       }
       process_pending_welcome_emails: {
         Args: Record<PropertyKey, never>

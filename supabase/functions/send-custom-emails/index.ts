@@ -144,6 +144,9 @@ const handler = async (req: Request): Promise<Response> => {
     const emailRequest: EmailRequest = await req.json();
     console.log('📧 EMAIL-SYSTEM: Processando email do tipo:', emailRequest.email_type);
 
+    // Enfileirar email para sistema de retry
+    let queueId: string | null = null;
+
     // Validar campos obrigatórios
     if (!emailRequest.email_type || !emailRequest.recipient_email) {
       throw new Error('Missing required fields: email_type and recipient_email');
@@ -196,6 +199,32 @@ const handler = async (req: Request): Promise<Response> => {
       emailRequest.extra_data
     );
 
+    // Enfileirar email antes de tentar enviar
+    if (user || isSystemEmail) {
+      try {
+        const queueClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        const { data: queueResult, error: queueError } = await queueClient.rpc('enqueue_email', {
+          p_user_id: user?.id || emailRequest.user_data?.user_id,
+          p_template_type: emailRequest.email_type,
+          p_recipient_email: emailRequest.recipient_email,
+          p_payload: emailRequest
+        });
+
+        if (queueError) {
+          console.warn('⚠️ EMAIL-SYSTEM: Erro ao enfileirar email (continuando direto):', queueError);
+        } else {
+          queueId = queueResult;
+          console.log('📝 EMAIL-SYSTEM: Email enfileirado com ID:', queueId);
+        }
+      } catch (queueError) {
+        console.warn('⚠️ EMAIL-SYSTEM: Falha ao enfileirar (continuando direto):', queueError);
+      }
+    }
+
     console.log('📧 EMAIL-SYSTEM: Enviando email via Resend para:', emailRequest.recipient_email);
 
     // Enviar email via Resend usando domínio verificado
@@ -208,10 +237,49 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (emailResponse.error) {
       console.error('❌ EMAIL-SYSTEM: Erro no Resend:', emailResponse.error);
+      
+      // Marcar como falha na queue se existir
+      if (queueId) {
+        try {
+          const queueClient = createClient(
+            Deno.env.get('SUPABASE_URL') ?? '',
+            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+          );
+          
+          await queueClient.rpc('mark_email_failed', {
+            p_queue_id: queueId,
+            p_error_message: `Resend error: ${emailResponse.error.message}`
+          });
+          
+          console.log('📝 EMAIL-SYSTEM: Email marcado como falha na queue:', queueId);
+        } catch (queueUpdateError) {
+          console.warn('⚠️ EMAIL-SYSTEM: Erro ao atualizar queue:', queueUpdateError);
+        }
+      }
+      
       throw new Error(`Resend error: ${emailResponse.error.message}`);
     }
 
     console.log('✅ EMAIL-SYSTEM: Email enviado com sucesso:', emailResponse.data);
+    
+    // Marcar como enviado na queue se existir
+    if (queueId) {
+      try {
+        const queueClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        
+        await queueClient.rpc('mark_email_sent', {
+          p_queue_id: queueId,
+          p_resend_id: emailResponse.data?.id
+        });
+        
+        console.log('📝 EMAIL-SYSTEM: Email marcado como enviado na queue:', queueId);
+      } catch (queueUpdateError) {
+        console.warn('⚠️ EMAIL-SYSTEM: Erro ao atualizar queue (email foi enviado):', queueUpdateError);
+      }
+    }
 
     // Log do envio na base de dados (opcional)
     if (user || isSystemEmail) {
