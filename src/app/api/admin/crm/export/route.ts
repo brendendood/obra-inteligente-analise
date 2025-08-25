@@ -26,11 +26,27 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const [{ data: clients }, { data: projects }, { data: stats }] = await Promise.all([
+  const [{ data: clients }, { data: projects }] = await Promise.all([
     admin.from("crm_clients").select("*"),
     admin.from("crm_projects").select("*"),
-    admin.from("v_crm_client_stats").select("*"),
   ]);
+
+  // Calcular estatísticas dos clientes localmente
+  const clientsData = clients ?? [];
+  const projectsData = projects ?? [];
+  
+  const stats = clientsData.map((client: any) => {
+    const clientProjects = projectsData.filter((project: any) => project.client_id === client.id);
+    return {
+      client_id: client.id,
+      client_name: client.name,
+      projects_count: clientProjects.length,
+      total_value: clientProjects.reduce((sum: number, project: any) => sum + (project.value || 0), 0),
+      last_project_date: clientProjects.length > 0 
+        ? clientProjects.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0].created_at
+        : null
+    };
+  });
 
   const boundary = "----CRM-EXPORT-BOUNDARY";
   const body =

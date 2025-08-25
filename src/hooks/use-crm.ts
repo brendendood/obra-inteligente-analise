@@ -24,20 +24,37 @@ export function useCRM() {
         return;
       }
 
-      const [{ data: c, error: cErr }, { data: p, error: pErr }, { data: v, error: vErr }] =
+      const [{ data: c, error: cErr }, { data: p, error: pErr }] =
         await Promise.all([
           supabase.from("crm_clients").select("*").order("created_at", { ascending: false }),
           supabase.from("crm_projects").select("*").order("created_at", { ascending: false }),
-          supabase.from("v_crm_client_stats").select("*"),
         ]);
 
       if (cErr) throw cErr;
       if (pErr) throw pErr;
-      if (vErr) throw vErr;
 
       setClients((c ?? []) as CRMClient[]);
       setProjects((p ?? []) as CRMProject[]);
-      setStats((v ?? []) as CRMClientStatsView[]);
+      
+      // Calcular estatísticas dos clientes localmente
+      const clientsData = (c ?? []) as CRMClient[];
+      const projectsData = (p ?? []) as CRMProject[];
+      
+      const statsData = clientsData.map(client => {
+        const clientProjects = projectsData.filter(project => project.client_id === client.id);
+        return {
+          client_id: client.id,
+          client_name: client.name,
+          projects_count: clientProjects.length,
+          total_value: clientProjects.reduce((sum, project) => sum + (project.value || 0), 0),
+          last_project_date: clientProjects.length > 0 
+            ? clientProjects.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0].created_at
+            : null,
+          owner_id: client.owner_id // Adicionando o campo obrigatório
+        };
+      });
+      
+      setStats(statsData as CRMClientStatsView[]);
     } catch (e: any) {
       setError(e?.message ?? "Erro ao carregar CRM");
     } finally {

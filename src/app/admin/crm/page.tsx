@@ -11,10 +11,9 @@ export default async function AdminCRMPage() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const [{ data: clients }, { data: projects }, { data: stats }] = await Promise.all([
+  const [{ data: clients }, { data: projects }] = await Promise.all([
     admin.from("crm_clients").select("*").order("created_at", { ascending: false }),
     admin.from("crm_projects").select("*").order("created_at", { ascending: false }),
-    admin.from("v_crm_client_stats").select("*"),
   ]);
 
   return (
