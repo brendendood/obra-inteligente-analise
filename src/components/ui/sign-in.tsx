@@ -147,7 +147,7 @@ export const SignInPage: React.FC<SignInPageProps> = ({
                     name="rememberMe" 
                     checked={rememberMe}
                     onChange={(e) => onRememberMeChange?.(e.target.checked)}
-                    className="custom-checkbox" 
+                    className="w-4 h-4 text-primary bg-transparent border-2 border-border rounded focus:ring-primary focus:ring-2 focus:ring-offset-0 checked:bg-primary checked:border-primary" 
                   />
                   <span className="text-foreground/90">Manter conectado</span>
                 </label>
