@@ -32,7 +32,7 @@ export function Logo({ className, width = 120, height = 40 }: LogoProps) {
     >
       {/* Light mode logo (black) */}
       <img
-        src="/lovable-uploads/40f77539-a7a6-48cb-b23d-8f8b3752e4d9.png"
+        src="/lovable-uploads/1df805be-5b43-4697-835a-964d5633971a.png"
         alt="MadeAI Logo Light"
         width={width}
         height={height}
@@ -42,7 +42,7 @@ export function Logo({ className, width = 120, height = 40 }: LogoProps) {
       />
       {/* Dark mode logo (white) */}
       <img
-        src="/lovable-uploads/171e0d43-b586-47df-b8ac-01d0f9546728.png"
+        src="/lovable-uploads/1df805be-5b43-4697-835a-964d5633971a.png"
         alt="MadeAI Logo Dark"
         width={width}
         height={height}

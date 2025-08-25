@@ -67,17 +67,22 @@ export function useCRM() {
 
   // CRUD - Clients
   const createClient = async (payload: Partial<CRMClient>) => {
-    const { data, error } = await supabase.rpc('insert_crm_client', {
-      p_name: payload.name || '',
-      p_email: payload.email || null,
-      p_phone: payload.phone || null,
-      p_company: payload.company || null,
-      p_status: payload.status || 'prospect',
-      p_avatar: payload.avatar || null
-    });
-    if (error) throw error;
-    await fetchAll();
-    return data as CRMClient;
+    try {
+      const { data, error } = await supabase.rpc('insert_crm_client', {
+        p_name: payload.name || '',
+        p_email: payload.email || null,
+        p_phone: payload.phone || null,
+        p_company: payload.company || null,
+        p_status: payload.status || 'prospect',
+        p_avatar: payload.avatar || null
+      });
+      if (error) throw error;
+      await fetchAll();
+      return data as CRMClient;
+    } catch (error) {
+      console.error('Erro ao criar cliente:', error);
+      throw error;
+    }
   };
 
   const updateClient = async (id: string, payload: Partial<CRMClient>) => {
@@ -105,18 +110,23 @@ export function useCRM() {
 
   // CRUD - Projects
   const createProject = async (payload: Partial<CRMProject>) => {
-    const { data, error } = await supabase.rpc('insert_crm_project', {
-      p_name: payload.name || '',
-      p_client_id: payload.client_id || '',
-      p_value: payload.value ?? 0,
-      p_status: payload.status || 'planning',
-      p_start_date: payload.start_date || new Date().toISOString().slice(0,10),
-      p_end_date: payload.end_date || null,
-      p_description: payload.description || null
-    });
-    if (error) throw error;
-    await fetchAll();
-    return data as CRMProject;
+    try {
+      const { data, error } = await supabase.rpc('insert_crm_project', {
+        p_name: payload.name || '',
+        p_client_id: payload.client_id || '',
+        p_value: payload.value ?? 0,
+        p_status: payload.status || 'planning',
+        p_start_date: payload.start_date || new Date().toISOString().slice(0,10),
+        p_end_date: payload.end_date || null,
+        p_description: payload.description || null
+      });
+      if (error) throw error;
+      await fetchAll();
+      return data as CRMProject;
+    } catch (error) {
+      console.error('Erro ao criar projeto:', error);
+      throw error;
+    }
   };
 
   const updateProject = async (id: string, payload: Partial<CRMProject>) => {

@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users, DollarSign, TrendingUp, Plus, Search, Edit, Trash2,
-  Building2, Mail, Phone, Calendar
+  Building2, Mail, Phone, Calendar, ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -181,6 +182,7 @@ function ProjectForm({ project, clients, onSave, onCancel }: {
 }
 
 export default function CRMDashboardPage() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { loading, error, clients, projects, clientById,
     createClient, updateClient, deleteClient,
@@ -228,9 +230,20 @@ export default function CRMDashboardPage() {
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">CRM</h1>
-            <p className="text-muted-foreground">Gerencie seus clientes e projetos — dados sincronizados ao Supabase.</p>
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/painel')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Voltar ao Dashboard</span>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">CRM</h1>
+              <p className="text-muted-foreground">Gerencie seus clientes e projetos — dados sincronizados ao Supabase.</p>
+            </div>
           </div>
 
           <div className="flex gap-2">
@@ -274,6 +287,50 @@ export default function CRMDashboardPage() {
               Exportar (Excel/CSV)
             </Button>
 
+            <Dialog open={isProjectDialogOpen} onOpenChange={setIsProjectDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" onClick={() => { setEditingProject(undefined); }}>
+                  <Plus className="h-4 w-4 mr-2" /> Novo Projeto
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>{editingProject ? "Editar Projeto" : "Novo Projeto"}</DialogTitle>
+                  <DialogDescription>Preencha os dados do projeto e associe a um cliente.</DialogDescription>
+                </DialogHeader>
+                <ProjectForm
+                  project={editingProject}
+                  clients={clients}
+                  onSave={async (payload) => {
+                    try {
+                      if (editingProject) {
+                        await updateProject(editingProject.id, payload);
+                        toast({
+                          title: "Projeto atualizado",
+                          description: "Projeto foi atualizado com sucesso.",
+                        });
+                      } else {
+                        await createProject(payload);
+                        toast({
+                          title: "Projeto criado",
+                          description: "Projeto foi criado e associado ao cliente.",
+                        });
+                      }
+                      setIsProjectDialogOpen(false);
+                      setEditingProject(undefined);
+                    } catch (error: any) {
+                      toast({
+                        title: "Erro",
+                        description: error.message || "Erro ao salvar projeto.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  onCancel={() => { setIsProjectDialogOpen(false); setEditingProject(undefined); }}
+                />
+              </DialogContent>
+            </Dialog>
+
             <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => { setEditingClient(undefined); }}>
@@ -288,10 +345,29 @@ export default function CRMDashboardPage() {
                 <ClientForm
                   client={editingClient}
                   onSave={async (payload) => {
-                    if (editingClient) await updateClient(editingClient.id, payload);
-                    else await createClient(payload);
-                    setIsClientDialogOpen(false);
-                    setEditingClient(undefined);
+                    try {
+                      if (editingClient) {
+                        await updateClient(editingClient.id, payload);
+                        toast({
+                          title: "Cliente atualizado",
+                          description: "Cliente foi atualizado com sucesso.",
+                        });
+                      } else {
+                        await createClient(payload);
+                        toast({
+                          title: "Cliente criado",
+                          description: "Cliente foi criado com sucesso.",
+                        });
+                      }
+                      setIsClientDialogOpen(false);
+                      setEditingClient(undefined);
+                    } catch (error: any) {
+                      toast({
+                        title: "Erro",
+                        description: error.message || "Erro ao salvar cliente.",
+                        variant: "destructive",
+                      });
+                    }
                   }}
                   onCancel={() => { setIsClientDialogOpen(false); setEditingClient(undefined); }}
                 />
@@ -479,10 +555,29 @@ export default function CRMDashboardPage() {
                         project={editingProject}
                         clients={clients}
                         onSave={async (payload) => {
-                          if (editingProject) await updateProject(editingProject.id, payload);
-                          else await createProject(payload);
-                          setIsProjectDialogOpen(false);
-                          setEditingProject(undefined);
+                          try {
+                            if (editingProject) {
+                              await updateProject(editingProject.id, payload);
+                              toast({
+                                title: "Projeto atualizado",
+                                description: "Projeto foi atualizado com sucesso.",
+                              });
+                            } else {
+                              await createProject(payload);
+                              toast({
+                                title: "Projeto criado",
+                                description: "Projeto foi criado e associado ao cliente.",
+                              });
+                            }
+                            setIsProjectDialogOpen(false);
+                            setEditingProject(undefined);
+                          } catch (error: any) {
+                            toast({
+                              title: "Erro",
+                              description: error.message || "Erro ao salvar projeto.",
+                              variant: "destructive",
+                            });
+                          }
                         }}
                         onCancel={() => { setIsProjectDialogOpen(false); setEditingProject(undefined); }}
                       />
