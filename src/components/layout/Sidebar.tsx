@@ -178,7 +178,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       <div className="flex items-center justify-between p-6 border-b border-sidebar-border">
         <div className="flex items-center">
           <img 
-            src="/lovable-uploads/408baabf-5e00-46ac-85e9-6cd8ff338a86.png" 
+            src="/lovable-uploads/31e0f373-20df-44cd-ac99-82e34612caa1.png" 
             alt="MadeAI" 
             className="h-20 w-auto" 
           />
