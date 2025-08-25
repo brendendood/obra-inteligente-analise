@@ -16,7 +16,7 @@ import {
   MessageCircle,
   Globe,
   Mail,
-  
+  Building2,
 } from 'lucide-react';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
@@ -26,6 +26,7 @@ import { AdminAIConversations } from '@/components/admin/AdminAIConversations';
 import { ReferralSystemTest } from '@/components/admin/ReferralSystemTest';
 import { GeolocationManager } from '@/components/admin/GeolocationManager';
 import { AdminEmailTemplates } from '@/components/admin/AdminEmailTemplates';
+import { AdminCRMManagement } from '@/components/admin/AdminCRMManagement';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 
 
@@ -170,6 +171,12 @@ const AdminPanel = () => {
       component: <AdminProjectsManagement />
     },
     {
+      id: 'crm',
+      label: 'CRM',
+      icon: Building2,
+      component: <AdminCRMManagement />
+    },
+    {
       id: 'conversations',
       label: 'Conversas IA',
       icon: MessageCircle,
@@ -233,7 +240,7 @@ const AdminPanel = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             {tabItems.map((tab) => (
               <TabsTrigger 
                 key={tab.id} 

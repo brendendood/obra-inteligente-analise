@@ -56,7 +56,14 @@ export interface CRMProject {
 
 export interface CRMClientStatsView {
   client_id: string;
+  client_name: string;
   owner_id: string;
   projects_count: number;
   total_value: number;
+  last_project_date: string | null;
+  client_status: string;
+  client_company: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+  client_created_at: string;
 }
