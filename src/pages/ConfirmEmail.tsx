@@ -7,6 +7,7 @@ import { CheckCircle, XCircle, Mail } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { logConfirmationEvent } from '@/observability/telemetry';
 
 export default function ConfirmEmail() {
   const navigate = useNavigate();
@@ -31,6 +32,8 @@ export default function ConfirmEmail() {
     }
 
     const confirmEmailOptimistic = async () => {
+      const startTime = Date.now();
+      
       try {
         // Estratégia OTIMISTA: verificar se há tokens na URL
         const hash = window.location.hash.substring(1);
@@ -44,8 +47,25 @@ export default function ConfirmEmail() {
         const code = urlParams.get('code');
         const type = hashParams.get('type') || urlParams.get('type');
         
+        const hasToken = !!(access_token || token_hash || code);
+        const tokenType = access_token ? 'access_token' : token_hash ? 'token_hash' : code ? 'code' : 'none';
+        
+        logConfirmationEvent('email_verification_start', {
+          tokenType,
+          hasToken,
+          type,
+          route: '/cadastro/confirmado'
+        });
+        
         // Se houver qualquer token, mostrar sucesso IMEDIATAMENTE (otimista)
-        if (access_token || token_hash || code) {
+        if (hasToken) {
+          logConfirmationEvent('email_verification_success', {
+            tokenType,
+            hasToken,
+            optimistic: true,
+            route: '/cadastro/confirmado'
+          });
+          
           setStatus('success');
           setMessage('✅ Conta verificada com sucesso!');
           
@@ -96,25 +116,66 @@ export default function ConfirmEmail() {
             if (verificationResult?.error) {
               const error = verificationResult.error;
               
+              logConfirmationEvent('email_verification_error', {
+                tokenType,
+                hasToken,
+                error: error.message,
+                durationMs: Date.now() - startTime
+              });
+              
               if (error.message.includes('expired') || 
                   error.message.includes('invalid') ||
                   error.message === 'otp_expired') {
+                
+                logConfirmationEvent('email_verification_invalid_token', {
+                  reason: 'token_verification_failed',
+                  tokenType,
+                  hasToken,
+                  error: error.message
+                });
+                
                 clearInterval(timer);
                 navigate('/cadastro/token-invalido');
                 return;
               }
+            } else {
+              logConfirmationEvent('email_verification_success', {
+                tokenType,
+                hasToken,
+                background: true,
+                durationMs: Date.now() - startTime
+              });
             }
             
-            // Log de sucesso
-            console.log('Email verification successful');
-            
           } catch (error: any) {
-            // Em caso de timeout ou erro, manter UI de sucesso mas logar erro
-            console.error('Email verification error (mantendo UI de sucesso):', error);
+            // Log de timeout ou erro
+            if (error.message === 'Timeout') {
+              logConfirmationEvent('email_verification_timeout', {
+                tokenType,
+                hasToken,
+                durationMs: 6000,
+                error: error.message
+              });
+            } else {
+              logConfirmationEvent('email_verification_error', {
+                tokenType,
+                hasToken,
+                error: error.message,
+                durationMs: Date.now() - startTime
+              });
+            }
             
             // Se for erro específico de token inválido/expirado, redirecionar
             if (error?.message?.includes('expired') || 
                 error?.message?.includes('invalid')) {
+              
+              logConfirmationEvent('email_verification_invalid_token', {
+                reason: 'token_verification_failed',
+                tokenType,
+                hasToken,
+                error: error.message
+              });
+              
               clearInterval(timer);
               navigate('/cadastro/token-invalido');
               return;
@@ -123,12 +184,25 @@ export default function ConfirmEmail() {
           
         } else {
           // Sem tokens válidos na URL
+          logConfirmationEvent('email_verification_invalid_token', {
+            reason: 'no_token_found',
+            tokenType: 'none',
+            hasToken: false
+          });
+          
           setStatus('error');
           setMessage('Link inválido ou expirado');
         }
         
       } catch (error: any) {
-        console.error('Erro inesperado na confirmação:', error);
+        logConfirmationEvent('email_verification_error', {
+          tokenType: 'unknown',
+          hasToken: false,
+          error: error.message,
+          unexpected: true,
+          durationMs: Date.now() - startTime
+        });
+        
         setStatus('error');
         setMessage('Link inválido ou expirado');
       }
@@ -148,6 +222,10 @@ export default function ConfirmEmail() {
     }
 
     setResendLoading(true);
+    logConfirmationEvent('email_verification_resend_requested', {
+      email: email.trim(),
+      route: '/cadastro/confirmado'
+    });
     
     try {
       const { error } = await supabase.auth.resend({ 
@@ -159,12 +237,23 @@ export default function ConfirmEmail() {
       });
       
       if (error) {
+        logConfirmationEvent('email_verification_resend_error', {
+          email: email.trim(),
+          error: error.message,
+          route: '/cadastro/confirmado'
+        });
+        
         toast({
           title: "❌ Erro",
           description: error.message,
           variant: "destructive"
         });
       } else {
+        logConfirmationEvent('email_verification_resend_success', {
+          email: email.trim(),
+          route: '/cadastro/confirmado'
+        });
+        
         toast({
           title: "📧 E-mail reenviado",
           description: "Verifique sua caixa de entrada e clique no link de confirmação.",
@@ -172,6 +261,13 @@ export default function ConfirmEmail() {
         setEmail('');
       }
     } catch (err: any) {
+      logConfirmationEvent('email_verification_resend_error', {
+        email: email.trim(),
+        error: err.message,
+        unexpected: true,
+        route: '/cadastro/confirmado'
+      });
+      
       toast({
         title: "❌ Erro",
         description: "Erro ao reenviar e-mail. Tente novamente.",

@@ -52,10 +52,19 @@ export default function Login() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Telemetria
-  const logAuthEvent = (event: string, details?: any) => {
-    console.log(`📊 AUTH_EVENT: ${event}`, details);
-  };
+  // Importar telemetria do módulo centralizado
+  const { logAuthEvent } = (() => {
+    try {
+      return require('@/observability/telemetry');
+    } catch {
+      // Fallback caso o módulo não esteja disponível
+      return {
+        logAuthEvent: (event: string, details?: any) => {
+          console.log(`📊 AUTH_EVENT: ${event}`, details);
+        }
+      };
+    }
+  })();
 
   useEffect(() => {
     const setupWelcomeMessage = async () => {
