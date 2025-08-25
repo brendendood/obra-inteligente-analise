@@ -1905,6 +1905,17 @@ export type Database = {
           count: number
         }[]
       }
+      insert_crm_client: {
+        Args: {
+          p_avatar?: string
+          p_company?: string
+          p_email?: string
+          p_name: string
+          p_phone?: string
+          p_status?: string
+        }
+        Returns: string
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
