@@ -229,150 +229,152 @@ export default function CRMDashboardPage() {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/painel')}
-              className="flex items-center space-x-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span>Voltar ao Dashboard</span>
-            </Button>
+        {/* Header com botão voltar mais destacado */}
+        <div className="mb-8">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/painel')}
+            className="mb-4 flex items-center space-x-2 hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Voltar ao Dashboard</span>
+          </Button>
+          
+          <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-foreground">CRM</h1>
               <p className="text-muted-foreground">Gerencie seus clientes e projetos — dados sincronizados ao Supabase.</p>
             </div>
-          </div>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={async () => {
-              try {
-                // Obter token de autenticação
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) {
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={async () => {
+                try {
+                  // Obter token de autenticação
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (!session) {
+                    toast({
+                      title: "Erro",
+                      description: "Você precisa estar logado para exportar dados.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  const res = await fetch("/api/crm/export", {
+                    headers: {
+                      'Authorization': `Bearer ${session.access_token}`
+                    }
+                  });
+                  
+                  if (!res.ok) {
+                    throw new Error('Erro na exportação');
+                  }
+                  
+                  const blob = await res.blob();
+                  const a = document.createElement("a");
+                  a.href = URL.createObjectURL(blob);
+                  a.download = `crm_export_${new Date().toISOString().slice(0,10)}.zip`;
+                  a.click();
+                  URL.revokeObjectURL(a.href);
+                } catch (error) {
                   toast({
-                    title: "Erro",
-                    description: "Você precisa estar logado para exportar dados.",
+                    title: "Erro na exportação",
+                    description: "Não foi possível exportar os dados.",
                     variant: "destructive",
                   });
-                  return;
                 }
+              }}>
+                Exportar (Excel/CSV)
+              </Button>
 
-                const res = await fetch("/api/crm/export", {
-                  headers: {
-                    'Authorization': `Bearer ${session.access_token}`
-                  }
-                });
-                
-                if (!res.ok) {
-                  throw new Error('Erro na exportação');
-                }
-                
-                const blob = await res.blob();
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = `crm_export_${new Date().toISOString().slice(0,10)}.zip`;
-                a.click();
-                URL.revokeObjectURL(a.href);
-              } catch (error) {
-                toast({
-                  title: "Erro na exportação",
-                  description: "Não foi possível exportar os dados.",
-                  variant: "destructive",
-                });
-              }
-            }}>
-              Exportar (Excel/CSV)
-            </Button>
-
-            <Dialog open={isProjectDialogOpen} onOpenChange={setIsProjectDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" onClick={() => { setEditingProject(undefined); }}>
-                  <Plus className="h-4 w-4 mr-2" /> Novo Projeto
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>{editingProject ? "Editar Projeto" : "Novo Projeto"}</DialogTitle>
-                  <DialogDescription>Preencha os dados do projeto e associe a um cliente.</DialogDescription>
-                </DialogHeader>
-                <ProjectForm
-                  project={editingProject}
-                  clients={clients}
-                  onSave={async (payload) => {
-                    try {
-                      if (editingProject) {
-                        await updateProject(editingProject.id, payload);
+              <Dialog open={isProjectDialogOpen} onOpenChange={setIsProjectDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" onClick={() => { setEditingProject(undefined); }}>
+                    <Plus className="h-4 w-4 mr-2" /> Novo Projeto
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>{editingProject ? "Editar Projeto" : "Novo Projeto"}</DialogTitle>
+                    <DialogDescription>Preencha os dados do projeto e associe a um cliente.</DialogDescription>
+                  </DialogHeader>
+                  <ProjectForm
+                    project={editingProject}
+                    clients={clients}
+                    onSave={async (payload) => {
+                      try {
+                        if (editingProject) {
+                          await updateProject(editingProject.id, payload);
+                          toast({
+                            title: "Projeto atualizado",
+                            description: "Projeto foi atualizado com sucesso.",
+                          });
+                        } else {
+                          await createProject(payload);
+                          toast({
+                            title: "Projeto criado",
+                            description: "Projeto foi criado e associado ao cliente.",
+                          });
+                        }
+                        setIsProjectDialogOpen(false);
+                        setEditingProject(undefined);
+                      } catch (error: any) {
                         toast({
-                          title: "Projeto atualizado",
-                          description: "Projeto foi atualizado com sucesso.",
-                        });
-                      } else {
-                        await createProject(payload);
-                        toast({
-                          title: "Projeto criado",
-                          description: "Projeto foi criado e associado ao cliente.",
+                          title: "Erro",
+                          description: error.message || "Erro ao salvar projeto.",
+                          variant: "destructive",
                         });
                       }
-                      setIsProjectDialogOpen(false);
-                      setEditingProject(undefined);
-                    } catch (error: any) {
-                      toast({
-                        title: "Erro",
-                        description: error.message || "Erro ao salvar projeto.",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                  onCancel={() => { setIsProjectDialogOpen(false); setEditingProject(undefined); }}
-                />
-              </DialogContent>
-            </Dialog>
+                    }}
+                    onCancel={() => { setIsProjectDialogOpen(false); setEditingProject(undefined); }}
+                  />
+                </DialogContent>
+              </Dialog>
 
-            <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => { setEditingClient(undefined); }}>
-                  <Plus className="h-4 w-4 mr-2" /> Novo Cliente
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>{editingClient ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
-                  <DialogDescription>Preencha os dados do cliente.</DialogDescription>
-                </DialogHeader>
-                <ClientForm
-                  client={editingClient}
-                  onSave={async (payload) => {
-                    try {
-                      if (editingClient) {
-                        await updateClient(editingClient.id, payload);
+              <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => { setEditingClient(undefined); }}>
+                    <Plus className="h-4 w-4 mr-2" /> Novo Cliente
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>{editingClient ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
+                    <DialogDescription>Preencha os dados do cliente.</DialogDescription>
+                  </DialogHeader>
+                  <ClientForm
+                    client={editingClient}
+                    onSave={async (payload) => {
+                      try {
+                        if (editingClient) {
+                          await updateClient(editingClient.id, payload);
+                          toast({
+                            title: "Cliente atualizado",
+                            description: "Cliente foi atualizado com sucesso.",
+                          });
+                        } else {
+                          await createClient(payload);
+                          toast({
+                            title: "Cliente criado",
+                            description: "Cliente foi criado com sucesso.",
+                          });
+                        }
+                        setIsClientDialogOpen(false);
+                        setEditingClient(undefined);
+                      } catch (error: any) {
                         toast({
-                          title: "Cliente atualizado",
-                          description: "Cliente foi atualizado com sucesso.",
-                        });
-                      } else {
-                        await createClient(payload);
-                        toast({
-                          title: "Cliente criado",
-                          description: "Cliente foi criado com sucesso.",
+                          title: "Erro",
+                          description: error.message || "Erro ao salvar cliente.",
+                          variant: "destructive",
                         });
                       }
-                      setIsClientDialogOpen(false);
-                      setEditingClient(undefined);
-                    } catch (error: any) {
-                      toast({
-                        title: "Erro",
-                        description: error.message || "Erro ao salvar cliente.",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                  onCancel={() => { setIsClientDialogOpen(false); setEditingClient(undefined); }}
-                />
-              </DialogContent>
-            </Dialog>
+                    }}
+                    onCancel={() => { setIsClientDialogOpen(false); setEditingClient(undefined); }}
+                  />
+                </DialogContent>
+                </Dialog>
+            </div>
           </div>
         </div>
 

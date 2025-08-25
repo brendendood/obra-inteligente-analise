@@ -1916,6 +1916,18 @@ export type Database = {
         }
         Returns: string
       }
+      insert_crm_project: {
+        Args: {
+          p_client_id: string
+          p_description?: string
+          p_end_date?: string
+          p_name: string
+          p_start_date?: string
+          p_status?: string
+          p_value?: number
+        }
+        Returns: string
+      }
       is_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: boolean
