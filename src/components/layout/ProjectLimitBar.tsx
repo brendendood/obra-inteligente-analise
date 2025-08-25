@@ -2,7 +2,7 @@
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Crown, Gift } from 'lucide-react';
-import { getPlanDisplayName, getPlanLimit, getPlanIcon, getPlanBadgeStyle } from '@/utils/planUtils';
+import { getPlanDisplayName, getPlanLimit, getPlanIcon, getPlanBadgeStyle } from '@/facades/core';
 import { useState } from 'react';
 import { GamificationModal } from '@/components/gamification/GamificationModal';
 

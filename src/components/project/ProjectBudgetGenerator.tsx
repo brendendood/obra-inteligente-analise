@@ -2,7 +2,7 @@
 import { Project } from '@/types/project';
 import { BudgetWorkspace } from './budget/BudgetWorkspace';
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BudgetData } from '@/utils/budgetGenerator';
+import type { BudgetData } from '@/facades/projects';
 import { useBudgetLogic } from '@/hooks/useBudgetLogic';
 
 interface ProjectBudgetGeneratorProps {

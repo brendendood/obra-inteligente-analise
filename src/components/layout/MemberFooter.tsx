@@ -1,6 +1,6 @@
 
 import { useUserData } from '@/hooks/useUserData';
-import { getPlanDisplayName } from '@/utils/planUtils';
+import { getPlanDisplayName } from '@/facades/core';
 import { Link } from 'react-router-dom';
 import { Github, Twitter, Linkedin, Mail, ExternalLink } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';

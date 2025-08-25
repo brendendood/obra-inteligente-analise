@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { validateEmail } from '@/utils/authValidation';
+import { validateEmail } from '@/facades/core';
 
 interface ForgotPasswordModalProps {
   children: React.ReactNode;

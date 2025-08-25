@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { detectUserByIP, getWelcomeMessage } from '@/utils/ipDetection';
-import { validateEmail, formatAuthError } from '@/utils/authValidation';
+import { validateEmail, formatAuthError } from '@/facades/core';
 import { SignInPage, type Testimonial } from '@/components/ui/sign-in';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { ArrowLeft } from 'lucide-react';

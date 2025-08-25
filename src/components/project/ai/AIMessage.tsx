@@ -2,7 +2,7 @@
 import { Bot, User, Table, FileText, Home } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { sanitizeAIContent } from '@/utils/contentSanitizer';
+import { sanitizeAIContent } from '@/facades/core';
 
 interface ChatMessage {
   id: string;

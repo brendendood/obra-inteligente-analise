@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calculator, TrendingUp, Receipt } from 'lucide-react';
-import { BudgetData } from '@/utils/budgetGenerator';
+import type { BudgetData } from '@/facades/projects';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 
 interface BudgetSummaryProps {
