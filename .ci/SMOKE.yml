@@ -1,0 +1,228 @@
+# 🧪 CI Pipeline - Smoke Tests
+#
+# Pipeline NÃO BLOQUEANTE para testes de fumaça básicos
+# Executa verificações rápidas de integridade do sistema
+
+name: Smoke Tests
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke-tests:
+    name: 🧪 Smoke Testing
+    runs-on: ubuntu-latest
+    continue-on-error: true  # NÃO BLOQUEIA desenvolvimento
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 🔧 Install Dependencies
+      run: npm ci
+      continue-on-error: true
+      
+    - name: 🏗️ Build Test
+      run: |
+        echo "🏗️ Testando build..."
+        mkdir -p .ci/smoke
+        
+        # Teste de build (não falha o job)
+        npm run build > .ci/smoke/build-output.log 2>&1
+        BUILD_EXIT_CODE=$?
+        
+        echo "📋 BUILD TEST RESULTS - $(date)" > .ci/smoke/build-results.txt
+        echo "=========================" >> .ci/smoke/build-results.txt
+        
+        if [ $BUILD_EXIT_CODE -eq 0 ]; then
+          echo "✅ Build: SUCCESS" >> .ci/smoke/build-results.txt
+          echo "Build completed successfully" >> .ci/smoke/build-results.txt
+        else
+          echo "❌ Build: FAILED" >> .ci/smoke/build-results.txt
+          echo "Build failed with exit code: $BUILD_EXIT_CODE" >> .ci/smoke/build-results.txt
+        fi
+        
+        # Tamanho do bundle (se build teve sucesso)
+        if [ $BUILD_EXIT_CODE -eq 0 ] && [ -d dist ]; then
+          BUNDLE_SIZE=$(du -sh dist 2>/dev/null | cut -f1 || echo "Unknown")
+          echo "Bundle size: $BUNDLE_SIZE" >> .ci/smoke/build-results.txt
+        fi
+        
+    - name: 🔍 Import Resolution Test
+      run: |
+        echo "🔗 Testando resolução de imports..."
+        
+        # Teste de imports (não falha o job)
+        node -e "
+          const fs = require('fs');
+          const path = require('path');
+          
+          let errors = [];
+          let total = 0;
+          
+          function checkFile(filePath) {
+            try {
+              const content = fs.readFileSync(filePath, 'utf8');
+              const imports = content.match(/import.*from ['\"]([^'\"]*)['\"];?/g) || [];
+              
+              imports.forEach(imp => {
+                total++;
+                const module = imp.match(/from ['\"]([^'\"]*)['\"];?/)[1];
+                
+                // Verificar imports relativos suspeitos
+                if (module.includes('../../../')) {
+                  errors.push(\`Deep relative import: \${module} in \${filePath}\`);
+                }
+                
+                // Verificar imports de /archive (proibidos)
+                if (module.includes('/archive/')) {
+                  errors.push(\`Forbidden archive import: \${module} in \${filePath}\`);
+                }
+              });
+            } catch (e) {
+              errors.push(\`Error reading \${filePath}: \${e.message}\`);
+            }
+          }
+          
+          // Buscar arquivos TypeScript
+          function scanDir(dir) {
+            const files = fs.readdirSync(dir);
+            files.forEach(file => {
+              const fullPath = path.join(dir, file);
+              const stat = fs.statSync(fullPath);
+              
+              if (stat.isDirectory() && file !== 'node_modules' && file !== '.git') {
+                scanDir(fullPath);
+              } else if (file.endsWith('.ts') || file.endsWith('.tsx')) {
+                checkFile(fullPath);
+              }
+            });
+          }
+          
+          scanDir('src');
+          
+          // Salvar resultados
+          const results = [
+            '🔗 IMPORT RESOLUTION TEST - ' + new Date().toISOString(),
+            '=============================',
+            'Total imports checked: ' + total,
+            'Issues found: ' + errors.length,
+            '',
+            ...errors
+          ];
+          
+          fs.writeFileSync('.ci/smoke/import-results.txt', results.join('\\n'));
+          
+          console.log('✅ Import resolution test completed');
+          console.log('Total imports:', total);
+          console.log('Issues found:', errors.length);
+        " 2>/dev/null || echo "Import test completed with warnings"
+        
+    - name: 🎯 Component Structure Test  
+      run: |
+        echo "🧩 Testando estrutura de componentes..."
+        
+        # Verificar estrutura básica de componentes
+        echo "🧩 COMPONENT STRUCTURE TEST - $(date)" > .ci/smoke/component-results.txt
+        echo "===============================" >> .ci/smoke/component-results.txt
+        
+        # Componentes sem default export (padrão recomendado)
+        NO_DEFAULT=$(grep -r "export default" src/components/ | wc -l 2>/dev/null || echo "0")
+        echo "Components with default export: $NO_DEFAULT" >> .ci/smoke/component-results.txt
+        
+        # Componentes de UI (shadcn)
+        UI_COMPONENTS=$(find src/components/ui -name "*.tsx" | wc -l 2>/dev/null || echo "0")
+        echo "UI components found: $UI_COMPONENTS" >> .ci/smoke/component-results.txt
+        
+        # Hooks customizados
+        CUSTOM_HOOKS=$(find src/hooks -name "*.ts" | wc -l 2>/dev/null || echo "0")
+        echo "Custom hooks found: $CUSTOM_HOOKS" >> .ci/smoke/component-results.txt
+        
+        # Páginas
+        PAGES=$(find src/pages -name "*.tsx" | wc -l 2>/dev/null || echo "0")
+        echo "Pages found: $PAGES" >> .ci/smoke/component-results.txt
+        
+    - name: 🔧 Configuration Test
+      run: |
+        echo "⚙️ Testando configurações..."
+        
+        echo "⚙️ CONFIGURATION TEST - $(date)" > .ci/smoke/config-results.txt
+        echo "========================" >> .ci/smoke/config-results.txt
+        
+        # Verificar arquivos de configuração essenciais
+        configs=("package.json" "tsconfig.json" "tailwind.config.ts" "vite.config.ts")
+        
+        for config in "${configs[@]}"; do
+          if [ -f "$config" ]; then
+            echo "✅ $config: Found" >> .ci/smoke/config-results.txt
+          else
+            echo "❌ $config: Missing" >> .ci/smoke/config-results.txt
+          fi
+        done
+        
+        # Verificar scripts essenciais no package.json
+        if [ -f package.json ]; then
+          echo "" >> .ci/smoke/config-results.txt
+          echo "📋 Package.json scripts:" >> .ci/smoke/config-results.txt
+          
+          scripts=("dev" "build" "preview" "lint")
+          for script in "${scripts[@]}"; do
+            if jq -e ".scripts.\"$script\"" package.json >/dev/null 2>&1; then
+              echo "✅ Script '$script': Found" >> .ci/smoke/config-results.txt
+            else
+              echo "❌ Script '$script': Missing" >> .ci/smoke/config-results.txt
+            fi
+          done
+        fi
+        
+    - name: 📊 Generate Smoke Test Report
+      run: |
+        echo "📊 Gerando relatório de smoke tests..."
+        
+        echo "🧪 SMOKE TEST REPORT - $(date)" > .ci/smoke/smoke-report.md
+        echo "=========================" >> .ci/smoke/smoke-report.md
+        echo "" >> .ci/smoke/smoke-report.md
+        
+        echo "## 🏗️ Build Test" >> .ci/smoke/smoke-report.md
+        cat .ci/smoke/build-results.txt >> .ci/smoke/smoke-report.md
+        echo "" >> .ci/smoke/smoke-report.md
+        
+        echo "## 🔗 Import Resolution" >> .ci/smoke/smoke-report.md
+        head -10 .ci/smoke/import-results.txt >> .ci/smoke/smoke-report.md
+        echo "" >> .ci/smoke/smoke-report.md
+        
+        echo "## 🧩 Component Structure" >> .ci/smoke/smoke-report.md
+        cat .ci/smoke/component-results.txt >> .ci/smoke/smoke-report.md
+        echo "" >> .ci/smoke/smoke-report.md
+        
+        echo "## ⚙️ Configuration" >> .ci/smoke/smoke-report.md
+        cat .ci/smoke/config-results.txt >> .ci/smoke/smoke-report.md
+        echo "" >> .ci/smoke/smoke-report.md
+        
+        echo "---" >> .ci/smoke/smoke-report.md
+        echo "*Generated by MadenAI CI - $(date)*" >> .ci/smoke/smoke-report.md
+        
+    - name: 📤 Upload Smoke Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: smoke-test-results
+        path: .ci/smoke/
+        retention-days: 30
+        
+    - name: 📝 Log Summary
+      if: always()
+      run: |
+        echo "✅ Smoke tests concluídos!"
+        echo "📊 Resultados disponíveis em Actions > Artifacts"
+        echo "🧪 Testes básicos de integridade executados"
+        echo "ℹ️ Este pipeline é informativo e não bloqueia desenvolvimento"

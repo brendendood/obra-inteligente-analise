@@ -1,0 +1,110 @@
+# 📊 CI Pipeline - Inventory Generation
+# 
+# Pipeline NÃO BLOQUEANTE para geração automática de inventários
+# Gera artefatos informativos sem impactar desenvolvimento
+
+name: Inventory Generation
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Roda diariamente às 6h UTC (3h BRT)
+    - cron: '0 6 * * *'
+
+jobs:
+  generate-inventory:
+    name: 📋 Generate Project Inventory
+    runs-on: ubuntu-latest
+    continue-on-error: true  # NÃO BLOQUEIA outros workflows
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 🔧 Install Dependencies
+      run: npm ci
+      continue-on-error: true
+      
+    - name: 📋 Generate File Inventory
+      run: |
+        echo "🔍 Gerando inventário de arquivos..."
+        mkdir -p .ci/artifacts
+        
+        # Inventário geral de arquivos
+        find src -type f -name "*.ts" -o -name "*.tsx" | \
+          head -100 > .ci/artifacts/typescript-files.txt
+        
+        find src -type f -name "*.json" | \
+          head -50 > .ci/artifacts/config-files.txt
+          
+        # Estatísticas básicas
+        echo "📊 ESTATÍSTICAS DO PROJETO - $(date)" > .ci/artifacts/project-stats.txt
+        echo "=================================" >> .ci/artifacts/project-stats.txt
+        echo "TypeScript files: $(find src -name "*.ts" -o -name "*.tsx" | wc -l)" >> .ci/artifacts/project-stats.txt
+        echo "Components: $(find src/components -name "*.tsx" | wc -l)" >> .ci/artifacts/project-stats.txt
+        echo "Hooks: $(find src/hooks -name "*.ts" | wc -l)" >> .ci/artifacts/project-stats.txt
+        echo "Pages: $(find src/pages -name "*.tsx" | wc -l)" >> .ci/artifacts/project-stats.txt
+        echo "Utils: $(find src/utils -name "*.ts" | wc -l)" >> .ci/artifacts/project-stats.txt
+        
+    - name: 🎯 Generate Dependency Analysis
+      run: |
+        echo "📦 Analisando dependências..."
+        
+        # Análise de package.json
+        if [ -f package.json ]; then
+          echo "📋 DEPENDÊNCIAS - $(date)" > .ci/artifacts/dependencies.txt
+          echo "========================" >> .ci/artifacts/dependencies.txt
+          echo "Production deps:" >> .ci/artifacts/dependencies.txt
+          jq -r '.dependencies | keys[]?' package.json | wc -l >> .ci/artifacts/dependencies.txt
+          echo "Dev deps:" >> .ci/artifacts/dependencies.txt
+          jq -r '.devDependencies | keys[]?' package.json | wc -l >> .ci/artifacts/dependencies.txt
+        fi
+        
+    - name: 🔍 Generate Import Analysis
+      run: |
+        echo "🔗 Analisando imports..."
+        
+        # Imports mais frequentes
+        grep -r "import.*from" src/ | \
+          sed "s/.*import.*from ['\"]\\([^'\"]*\\)['\"].*/\\1/" | \
+          sort | uniq -c | sort -nr | \
+          head -20 > .ci/artifacts/top-imports.txt
+          
+        # Imports de utils (para análise de migração)
+        grep -r "import.*@/utils" src/ | \
+          wc -l > .ci/artifacts/utils-imports-count.txt
+          
+    - name: 📄 Generate Documentation Index
+      run: |
+        echo "📚 Indexando documentação..."
+        
+        echo "📖 ÍNDICE DE DOCUMENTAÇÃO - $(date)" > .ci/artifacts/docs-index.txt
+        echo "===================================" >> .ci/artifacts/docs-index.txt
+        
+        find docs -name "*.md" | sort >> .ci/artifacts/docs-index.txt
+        echo "" >> .ci/artifacts/docs-index.txt
+        echo "Total docs: $(find docs -name "*.md" | wc -l)" >> .ci/artifacts/docs-index.txt
+        
+    - name: 📤 Upload Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: inventory-artifacts
+        path: .ci/artifacts/
+        retention-days: 30
+        
+    - name: 📝 Log Summary
+      if: always()
+      run: |
+        echo "✅ Inventário gerado com sucesso!"
+        echo "📊 Artefatos disponíveis em Actions > Artifacts"
+        echo "🔄 Próxima execução: daily @ 6h UTC"
