@@ -1,54 +1,53 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Mail } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ConfirmEmail() {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const location = useLocation();
+  const { toast } = useToast();
+  
+  const [status, setStatus] = useState<'success' | 'error' | 'resend'>('success');
   const [message, setMessage] = useState('');
   const [countdown, setCountdown] = useState(3);
+  const [email, setEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+
+  // Verificar se estamos na rota de token inválido
+  const isTokenInvalidRoute = location.pathname === '/cadastro/token-invalido';
 
   useEffect(() => {
-    const confirmEmail = async () => {
+    // Se estamos na rota de token inválido, mostrar interface de reenvio
+    if (isTokenInvalidRoute) {
+      setStatus('resend');
+      setMessage('Link inválido ou expirado');
+      return;
+    }
+
+    const confirmEmailOptimistic = async () => {
       try {
-        // Ler parâmetros do hash da URL
-        const hash = window.location.hash.substring(1); // Remove o #
+        // Estratégia OTIMISTA: verificar se há tokens na URL
+        const hash = window.location.hash.substring(1);
         const hashParams = new URLSearchParams(hash);
+        const urlParams = new URLSearchParams(window.location.search);
         
-        const access_token = hashParams.get('access_token');
-        const refresh_token = hashParams.get('refresh_token');
-        const type = hashParams.get('type');
-
-        if (!access_token || !refresh_token || type !== 'recovery') {
-          setStatus('error');
-          setMessage('Link inválido ou expirado');
-          return;
-        }
-
-        // Confirmar a sessão usando os tokens
-        const { data, error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token
-        });
-
-        if (error) {
-          console.error('Erro na confirmação:', error);
-          setStatus('error');
-          
-          if (error.message.includes('expired') || error.message === 'otp_expired') {
-            setMessage('Link inválido ou expirado');
-          } else if (error.message.includes('access_denied')) {
-            setMessage('Acesso negado. Tente novamente.');
-          } else {
-            setMessage('Erro ao confirmar email. Tente novamente.');
-          }
-        } else if (data.session) {
+        // Verificar diferentes tipos de tokens possíveis
+        const access_token = hashParams.get('access_token') || urlParams.get('access_token');
+        const refresh_token = hashParams.get('refresh_token') || urlParams.get('refresh_token');
+        const token_hash = urlParams.get('token_hash') || urlParams.get('token');
+        const code = urlParams.get('code');
+        const type = hashParams.get('type') || urlParams.get('type');
+        
+        // Se houver qualquer token, mostrar sucesso IMEDIATAMENTE (otimista)
+        if (access_token || token_hash || code) {
           setStatus('success');
-          setMessage('Conta confirmada com sucesso!');
+          setMessage('✅ Conta verificada com sucesso!');
           
           // Iniciar countdown para redirecionamento
           const timer = setInterval(() => {
@@ -61,25 +60,127 @@ export default function ConfirmEmail() {
               return prev - 1;
             });
           }, 1000);
+          
+          // Em paralelo, fazer verificação real com timeout de 6s
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout')), 6000);
+          });
+          
+          try {
+            let verificationResult;
+            
+            if (access_token && refresh_token) {
+              // Verificação via setSession
+              verificationResult = await Promise.race([
+                supabase.auth.setSession({ access_token, refresh_token }),
+                timeoutPromise
+              ]);
+            } else if (token_hash) {
+              // Verificação via verifyOtp
+              verificationResult = await Promise.race([
+                supabase.auth.verifyOtp({
+                  token_hash,
+                  type: (type as any) || 'signup'
+                }),
+                timeoutPromise
+              ]);
+            } else if (code) {
+              // Verificação via exchangeCodeForSession
+              verificationResult = await Promise.race([
+                supabase.auth.exchangeCodeForSession(code),
+                timeoutPromise
+              ]);
+            }
+            
+            // Se a verificação falhou, trocar para tela de erro
+            if (verificationResult?.error) {
+              const error = verificationResult.error;
+              
+              if (error.message.includes('expired') || 
+                  error.message.includes('invalid') ||
+                  error.message === 'otp_expired') {
+                clearInterval(timer);
+                navigate('/cadastro/token-invalido');
+                return;
+              }
+            }
+            
+            // Log de sucesso
+            console.log('Email verification successful');
+            
+          } catch (error: any) {
+            // Em caso de timeout ou erro, manter UI de sucesso mas logar erro
+            console.error('Email verification error (mantendo UI de sucesso):', error);
+            
+            // Se for erro específico de token inválido/expirado, redirecionar
+            if (error?.message?.includes('expired') || 
+                error?.message?.includes('invalid')) {
+              clearInterval(timer);
+              navigate('/cadastro/token-invalido');
+              return;
+            }
+          }
+          
         } else {
+          // Sem tokens válidos na URL
           setStatus('error');
           setMessage('Link inválido ou expirado');
         }
-      } catch (error) {
-        console.error('Erro inesperado:', error);
+        
+      } catch (error: any) {
+        console.error('Erro inesperado na confirmação:', error);
         setStatus('error');
-        setMessage('Erro inesperado. Tente novamente.');
+        setMessage('Link inválido ou expirado');
       }
     };
 
-    // Verificar se há parâmetros no hash
-    if (window.location.hash) {
-      confirmEmail();
-    } else {
-      setStatus('error');
-      setMessage('Link inválido ou expirado');
+    confirmEmailOptimistic();
+  }, [navigate, isTokenInvalidRoute]);
+
+  const handleResendEmail = async () => {
+    if (!email.trim()) {
+      toast({
+        title: "❌ Erro",
+        description: "Por favor, digite seu e-mail.",
+        variant: "destructive"
+      });
+      return;
     }
-  }, [navigate]);
+
+    setResendLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resend({ 
+        type: 'signup', 
+        email: email.trim(),
+        options: { 
+          emailRedirectTo: 'https://madeai.com.br/cadastro/confirmado' 
+        } 
+      });
+      
+      if (error) {
+        toast({
+          title: "❌ Erro",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "📧 E-mail reenviado",
+          description: "Verifique sua caixa de entrada e clique no link de confirmação.",
+        });
+        setEmail('');
+      }
+    } catch (err: any) {
+      toast({
+        title: "❌ Erro",
+        description: "Erro ao reenviar e-mail. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   const handleGoToLogin = () => {
     navigate('/login');
@@ -91,26 +192,17 @@ export default function ConfirmEmail() {
         <CardHeader className="text-center space-y-4">
           <Logo width={64} height={24} />
           <CardTitle className="text-2xl font-bold">
-            Confirmação de Email
+            {status === 'resend' ? 'Reenviar Confirmação' : 'Confirmação de Email'}
           </CardTitle>
         </CardHeader>
         
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center space-y-4">
-            {status === 'loading' && (
-              <>
-                <Loader2 className="h-12 w-12 text-primary animate-spin" />
-                <p className="text-center text-muted-foreground">
-                  Confirmando e-mail...
-                </p>
-              </>
-            )}
-            
             {status === 'success' && (
               <>
-                <CheckCircle className="h-12 w-12 text-success" />
+                <CheckCircle className="h-12 w-12 text-green-600" />
                 <div className="text-center space-y-2">
-                  <p className="text-success font-medium">{message}</p>
+                  <p className="text-green-600 font-medium">{message}</p>
                   <p className="text-sm text-muted-foreground">
                     Redirecionando para login em {countdown} segundos...
                   </p>
@@ -133,6 +225,41 @@ export default function ConfirmEmail() {
                 <Button onClick={handleGoToLogin} variant="outline" className="w-full">
                   Voltar para Login
                 </Button>
+              </>
+            )}
+
+            {status === 'resend' && (
+              <>
+                <Mail className="h-12 w-12 text-primary" />
+                <div className="text-center space-y-2">
+                  <p className="text-destructive font-medium">{message}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Digite seu e-mail para receber um novo link de confirmação.
+                  </p>
+                </div>
+                <div className="w-full space-y-3">
+                  <Input
+                    type="email"
+                    placeholder="Digite seu e-mail"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleResendEmail()}
+                  />
+                  <Button 
+                    onClick={handleResendEmail} 
+                    className="w-full"
+                    disabled={resendLoading}
+                  >
+                    {resendLoading ? 'Enviando...' : 'Reenviar E-mail de Confirmação'}
+                  </Button>
+                  <Button 
+                    onClick={handleGoToLogin} 
+                    variant="outline" 
+                    className="w-full"
+                  >
+                    Voltar para Login
+                  </Button>
+                </div>
               </>
             )}
           </div>
