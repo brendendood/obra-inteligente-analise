@@ -631,13 +631,6 @@ export type Database = {
             referencedRelation: "crm_clients"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "crm_projects_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "v_crm_client_stats"
-            referencedColumns: ["client_id"]
-          },
         ]
       }
       email_logs: {
@@ -1695,16 +1688,6 @@ export type Database = {
       }
     }
     Views: {
-      v_crm_client_stats: {
-        Row: {
-          client_id: string | null
-          client_name: string | null
-          last_project_date: string | null
-          projects_count: number | null
-          total_value: number | null
-        }
-        Relationships: []
-      }
       v_project_summary: {
         Row: {
           overall_end: string | null
