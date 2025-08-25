@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users, DollarSign, TrendingUp, Plus, Search, Edit, Trash2,
-  Building2, Mail, Phone, Calendar
+  Building2, Mail, Phone, Calendar, ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -179,6 +180,7 @@ function ProjectForm({ project, clients, onSave, onCancel }: {
 }
 
 export default function CRMDashboardPage() {
+  const navigate = useNavigate();
   const { loading, error, clients, projects,
     createClient, updateClient, deleteClient,
     createProject, updateProject, deleteProject } = useCRM();
@@ -225,9 +227,20 @@ export default function CRMDashboardPage() {
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">CRM</h1>
-            <p className="text-muted-foreground">Gerencie seus clientes e projetos — dados sincronizados ao Supabase.</p>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar ao Dashboard
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">CRM MadeAI</h1>
+              <p className="text-muted-foreground">Gerencia seus clientes e projetos conectados com a Made.</p>
+            </div>
           </div>
 
           <div className="flex gap-2">
