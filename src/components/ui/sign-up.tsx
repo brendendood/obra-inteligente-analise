@@ -456,16 +456,17 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         name="acceptTerms"
                         checked={localFormData.acceptTerms || false}
                         onChange={handleChange}
-                        className="mt-1 w-4 h-4 text-primary bg-transparent border-2 border-border rounded focus:ring-primary focus:ring-2"
+                        className="mt-1 w-4 h-4 text-primary bg-transparent border-2 border-border rounded focus:ring-primary focus:ring-2 cursor-pointer"
                         required
                       />
-                      <label htmlFor="acceptTerms" className="text-sm text-muted-foreground">
+                      <label htmlFor="acceptTerms" className="text-sm text-muted-foreground cursor-pointer">
                         Li e aceito os{' '}
                         <Link 
                           to="/terms" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-primary hover:underline"
+                          className="text-primary hover:underline font-medium"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           Termos de Uso
                         </Link>
@@ -474,7 +475,8 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                           to="/privacy" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-primary hover:underline"
+                          className="text-primary hover:underline font-medium"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           Política de Privacidade
                         </Link>

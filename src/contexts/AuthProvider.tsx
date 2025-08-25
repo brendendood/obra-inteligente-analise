@@ -11,6 +11,9 @@ interface AuthState {
 
 interface AuthContextType extends AuthState {
   refreshAuth: () => Promise<void>;
+  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error?: any }>;
+  signUp: (email: string, password: string, userData?: any) => Promise<{ error?: any }>;
+  signOut: () => Promise<void>;
 }
 
 // Fallback state para casos críticos
@@ -25,6 +28,9 @@ const FALLBACK_AUTH_STATE: AuthState = {
 export const AuthContext = createContext<AuthContextType>({
   ...FALLBACK_AUTH_STATE,
   refreshAuth: async () => {},
+  signIn: async () => ({ error: null }),
+  signUp: async () => ({ error: null }),
+  signOut: async () => {},
 });
 
 interface AuthProviderProps {
@@ -79,6 +85,88 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (mountedRef.current) {
         setAuthState({ user: null, session: null, loading: false, isAuthenticated: false });
       }
+    }
+  }, []);
+
+  // Enhanced Sign In with Remember Me functionality
+  const signIn = useCallback(async (email: string, password: string, rememberMe: boolean = false) => {
+    try {
+      console.log('🔑 AUTH: Iniciando login para:', email, 'Remember me:', rememberMe);
+      
+      // Configure session persistence
+      const persistSession = rememberMe ? 'local' : 'session';
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password
+      });
+      
+      if (error) {
+        console.error('🔴 AUTH: Login error:', error);
+        return { error };
+      }
+
+      // Set session storage based on remember me preference
+      if (rememberMe) {
+        localStorage.setItem('supabase.auth.remember_me', 'true');
+      } else {
+        localStorage.removeItem('supabase.auth.remember_me');
+      }
+
+      console.log('✅ AUTH: Login successful for:', email);
+      return { error: null };
+    } catch (error) {
+      console.error('🔴 AUTH: Sign in error:', error);
+      return { error };
+    }
+  }, []);
+
+  // Enhanced Sign Up with email verification
+  const signUp = useCallback(async (email: string, password: string, userData?: any) => {
+    try {
+      console.log('📝 AUTH: Iniciando cadastro para:', email);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: {
+          ...(userData && { data: userData }),
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) {
+        console.error('🔴 AUTH: Signup error:', error);
+        return { error };
+      }
+
+      console.log('✅ AUTH: Signup successful, verification email sent to:', email);
+      return { error: null };
+    } catch (error) {
+      console.error('🔴 AUTH: Sign up error:', error);
+      return { error };
+    }
+  }, []);
+
+  // Sign Out
+  const signOut = useCallback(async () => {
+    try {
+      console.log('🚪 AUTH: Signing out...');
+      
+      // Clear remember me preference
+      localStorage.removeItem('supabase.auth.remember_me');
+      
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('🔴 AUTH: Logout error:', error);
+      } else {
+        console.log('✅ AUTH: Logout successful');
+        // Redirect to login page
+        window.location.href = '/login';
+      }
+    } catch (error) {
+      console.error('🔴 AUTH: Sign out error:', error);
     }
   }, []);
 
@@ -180,7 +268,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const contextValue = useMemo(() => ({
     ...authState,
     refreshAuth,
-  }), [authState, refreshAuth]);
+    signIn,
+    signUp,
+    signOut,
+  }), [authState, refreshAuth, signIn, signUp, signOut]);
 
   return (
     <AuthContext.Provider value={contextValue}>

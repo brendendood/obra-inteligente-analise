@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { SignUpPage, type Testimonial } from '@/components/ui/sign-up';
 import { passo1Schema, passo2Schema, passo3Schema } from '@/schemas/cadastro';
@@ -51,6 +52,7 @@ function Signup() {
 
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const { signInWithGoogle } = useSocialAuth();
 
   // Check for success/error params
@@ -198,15 +200,8 @@ function Signup() {
         userData.ref_code = referralCode;
       }
 
-      // Signup with email confirmation using custom redirect URL
-      const { data, error } = await supabase.auth.signUp({
-        email: finalData.email,
-        password: finalData.password,
-        options: {
-          data: userData,
-          emailRedirectTo: `${window.location.origin}/functions/v1/verify-email`
-        }
-      });
+      // Enhanced signup with integrated email verification
+      const { error } = await signUp(finalData.email, finalData.password, userData);
 
       if (error) {
         console.error('Erro no cadastro:', error);
@@ -233,27 +228,22 @@ function Signup() {
         return;
       }
 
-      if (data.user && !data.user.email_confirmed_at) {
-        // Cadastro realizado com sucesso - aguardando confirmação
-        toast({
-          title: "📧 Confirme seu email",
-          description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta e receber o email de boas-vindas.",
-          duration: 8000
-        });
+      // Cadastro realizado com sucesso - aguardando confirmação
+      toast({
+        title: "📧 Confirme seu email",
+        description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta e receber o email de boas-vindas automaticamente!",
+        duration: 8000
+      });
 
-        // Show success message and redirect to login
-        setTimeout(() => {
-          toast({
-            title: "✨ Cadastro concluído!",
-            description: "Verifique sua caixa de entrada e spam para confirmar seu email.",
-            duration: 6000
-          });
-          navigate('/login');
-        }, 4000);
-      } else {
-        // User is already confirmed (shouldn't happen in normal flow)
-        navigate('/painel');
-      }
+      // Show success message and redirect to login
+      setTimeout(() => {
+        toast({
+          title: "✨ Cadastro concluído!",
+          description: "Verifique sua caixa de entrada e spam para confirmar seu email.",
+          duration: 6000
+        });
+        navigate('/login');
+      }, 4000);
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({

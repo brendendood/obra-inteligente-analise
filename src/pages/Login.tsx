@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { detectUserByIP, getWelcomeMessage } from '@/utils/ipDetection';
 import { validateEmail, formatAuthError } from '@/utils/authValidation';
 import { SignInPage, type Testimonial } from '@/components/ui/sign-in';
@@ -39,6 +39,7 @@ export default function Login() {
   
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const { signInWithGoogle } = useSocialAuth();
 
   useEffect(() => {
@@ -74,10 +75,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await signIn(email, password, rememberMe);
 
       if (error) {
         throw error;
@@ -85,10 +83,8 @@ export default function Login() {
 
       toast({
         title: "✅ Login realizado com sucesso!",
-        description: "Redirecionando para o painel..."
+        description: rememberMe ? "Você permanecerá conectado neste dispositivo." : "Redirecionando para o painel..."
       });
-
-      setLoading(false);
 
     } catch (error: any) {
       console.error('Erro no login:', error);
@@ -113,6 +109,7 @@ export default function Login() {
           variant: "destructive"
         });
       }
+    } finally {
       setLoading(false);
     }
   };
