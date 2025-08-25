@@ -1,8 +1,8 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 
 interface LogoProps {
   className?: string;
@@ -30,20 +30,20 @@ export function Logo({ className, width = 120, height = 40 }: LogoProps) {
       className={cn("relative transition-all duration-500 ease-in-out", className)}
       style={{ width, height }}
     >
-      {/* Light mode logo (black) */}
+      {/* Light theme logo (dark logo) */}
       <img
-        src="/lovable-uploads/1df805be-5b43-4697-835a-964d5633971a.png"
-        alt="MadeAI Logo Light"
+        src="/logo-dark.png"
+        alt="MadeAI Logo Dark"
         width={width}
         height={height}
         className={`absolute left-0 top-0 w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
           theme === "light" ? "opacity-100" : "opacity-0"
         }`}
       />
-      {/* Dark mode logo (white) */}
+      {/* Dark theme logo (light logo) */}
       <img
-        src="/lovable-uploads/1df805be-5b43-4697-835a-964d5633971a.png"
-        alt="MadeAI Logo Dark"
+        src="/logo-light.png"
+        alt="MadeAI Logo Light"
         width={width}
         height={height}
         className={`absolute left-0 top-0 w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
