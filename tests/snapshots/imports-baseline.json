@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-08-25T00:00:00.000Z",
+  "description": "Estado baseline dos módulos importáveis",
+  "total_modules": 15,
+  "modules": {
+    "core": [
+      { "name": "React", "path": "react", "status": "importable" },
+      { "name": "ReactDOM", "path": "react-dom", "status": "importable" },
+      { "name": "ReactRouter", "path": "react-router-dom", "status": "importable" }
+    ],
+    "ui": [
+      { "name": "Button", "path": "@/components/ui/button", "status": "importable" },
+      { "name": "Card", "path": "@/components/ui/card", "status": "importable" },
+      { "name": "Input", "path": "@/components/ui/input", "status": "importable" },
+      { "name": "Dialog", "path": "@/components/ui/dialog", "status": "importable" },
+      { "name": "Table", "path": "@/components/ui/table", "status": "importable" }
+    ],
+    "utilities": [
+      { "name": "SupabaseClient", "path": "@/integrations/supabase/client", "status": "importable" },
+      { "name": "ReactQuery", "path": "@tanstack/react-query", "status": "importable" },
+      { "name": "Zustand", "path": "zustand", "status": "importable" }
+    ],
+    "auth": [
+      { "name": "AuthProvider", "path": "@/contexts/AuthProvider", "status": "importable" },
+      { "name": "ProtectedRoute", "path": "@/components/auth/ProtectedRoute", "status": "importable" }
+    ]
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "@supabase/supabase-js": "^2.50.0",
+    "@tanstack/react-query": "^5.56.2",
+    "zustand": "^5.0.6"
+  },
+  "notes": [
+    "Todos os módulos listados devem ser importáveis sem erro",
+    "Paths com @ referem-se aos aliases configurados no TypeScript",
+    "Componentes UI baseados no shadcn/ui",
+    "Estado gerenciado via Zustand + React Query"
+  ]
+}

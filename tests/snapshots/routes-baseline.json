@@ -1,0 +1,53 @@
+{
+  "timestamp": "2025-08-25T00:00:00.000Z",
+  "description": "Estado baseline das rotas do sistema",
+  "total_routes": 25,
+  "routes": {
+    "public": [
+      { "path": "/", "description": "Landing Page", "status": "available" },
+      { "path": "/login", "description": "Login", "status": "available" },
+      { "path": "/cadastro", "description": "Cadastro", "status": "available" },
+      { "path": "/signup", "description": "Signup (redirect)", "status": "available" },
+      { "path": "/reset-password", "description": "Reset Password", "status": "available" },
+      { "path": "/auth/callback", "description": "Auth Callback", "status": "available" },
+      { "path": "/confirm-email", "description": "Confirm Email", "status": "available" },
+      { "path": "/termos", "description": "Termos", "status": "available" },
+      { "path": "/terms", "description": "Terms (redirect)", "status": "available" },
+      { "path": "/politica", "description": "Política", "status": "available" },
+      { "path": "/privacy", "description": "Privacy (redirect)", "status": "available" }
+    ],
+    "protected": [
+      { "path": "/painel", "description": "Dashboard Principal", "status": "available" },
+      { "path": "/upload", "description": "Upload de Documentos", "status": "available" },
+      { "path": "/ia", "description": "Assistente IA", "status": "available" },
+      { "path": "/conta", "description": "Conta do Usuário", "status": "available" },
+      { "path": "/plano", "description": "Planos", "status": "available" },
+      { "path": "/ajuda", "description": "Ajuda", "status": "available" },
+      { "path": "/contato", "description": "Contato", "status": "available" },
+      { "path": "/crm", "description": "CRM", "status": "available" },
+      { "path": "/admin-panel", "description": "Painel Administrativo", "status": "available" }
+    ],
+    "project": [
+      { "path": "/projeto/:projectId", "description": "Projeto Específico", "status": "available" },
+      { "path": "/projeto/:projectId/orcamento", "description": "Orçamento do Projeto", "status": "available" },
+      { "path": "/projeto/:projectId/cronograma", "description": "Cronograma do Projeto", "status": "available" },
+      { "path": "/projeto/:projectId/assistente", "description": "Assistente do Projeto", "status": "available" },
+      { "path": "/projeto/:projectId/documentos", "description": "Documentos do Projeto", "status": "available" }
+    ]
+  },
+  "redirects": [
+    { "from": "/signup", "to": "/cadastro" },
+    { "from": "/terms", "to": "/termos" },
+    { "from": "/privacy", "to": "/politica" },
+    { "from": "/admin", "to": "/admin-panel" },
+    { "from": "/app", "to": "/painel" },
+    { "from": "/dashboard", "to": "/painel" },
+    { "from": "/projetos", "to": "/painel" },
+    { "from": "/obras", "to": "/painel" }
+  ],
+  "fallback": {
+    "path": "*",
+    "component": "NotFound",
+    "status": "available"
+  }
+}
