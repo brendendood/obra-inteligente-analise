@@ -19,6 +19,9 @@ const config: Config = {
       },
     },
     extend: {
+      maxWidth: {
+        container: "1280px",
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -181,6 +184,10 @@ const config: Config = {
           "0%": { transform: "translate(0%, 0%)", opacity: "1" },
           "100%": { transform: "translate(100%, 0%)", opacity: "0" },
         },
+        "marquee": {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(calc(-100% - var(--gap)))' }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -202,6 +209,7 @@ const config: Config = {
         "marquee-vertical-reverse": "marquee-vertical-reverse 40s linear infinite",
         "marquee-horizontal": "marquee-horizontal 30s linear infinite",
         "marquee-horizontal-reverse": "marquee-horizontal-reverse 30s linear infinite",
+        "marquee": 'marquee var(--duration) linear infinite',
         "star-movement-bottom": "star-movement-bottom linear infinite alternate",
         "star-movement-top": "star-movement-top linear infinite alternate",
       },

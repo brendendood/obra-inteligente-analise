@@ -8,7 +8,8 @@ import { HeroPill } from '@/components/ui/hero-pill';
 import { Typewriter } from '@/components/ui/typewriter';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
-import { TestimonialsSection } from '@/components/ui/testimonials-columns-1';
+import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
+import { CounterStats } from '@/components/ui/counter-stats';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
 import Header from '@/components/layout/Header';
@@ -117,8 +118,8 @@ const LandingPage = () => {
         </div>
       </ArchitectureSaaSBackground>
 
-      {/* Social Proof Section */}
-      <section className="py-12 sm:py-16 bg-muted/30">
+      {/* Social Proof Section - Seção 2 com fundo preto no dark mode */}
+      <section className="py-12 sm:py-16 bg-muted/30 dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div initial={{
           opacity: 0,
@@ -148,14 +149,77 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Counter Stats */}
+      <CounterStats />
+
       
-      {/* Testimonials Section */}
-      <TestimonialsSection />
+      {/* Testimonials Section - Marquee com depoimentos em português */}
+      <TestimonialsSection 
+        title="Profissionais do Brasil confiam na MadeAI"
+        description="Depoimentos de arquitetos e engenheiros que já transformaram seus workflows"
+        testimonials={[
+          {
+            author: {
+              name: "Bruna Almeida",
+              handle: "@bruna.arq",
+              avatar: "",
+              avatarBg: "bg-blue-500"
+            },
+            text: "A MadeAI acelerou nossa análise de projetos e reduziu retrabalho no orçamento.",
+            href: "https://twitter.com/bruna_arq"
+          },
+          {
+            author: {
+              name: "João Pereira",
+              handle: "@joaopereira.eng",
+              avatar: "",
+              avatarBg: "bg-emerald-500"
+            },
+            text: "Cronogramas gerados com precisão e integração tranquila com nosso fluxo."
+          },
+          {
+            author: {
+              name: "Camila Santos",
+              handle: "@camila.projetos",
+              avatar: "",
+              avatarBg: "bg-rose-500"
+            },
+            text: "Upload do projeto e pronto: análise completa com quantitativos claros."
+          },
+          {
+            author: {
+              name: "Ricardo Silva",
+              handle: "@ricardo.eng",
+              avatar: "",
+              avatarBg: "bg-purple-500"
+            },
+            text: "Reduzimos de 3 dias para 2 horas o tempo de criação de orçamentos detalhados."
+          },
+          {
+            author: {
+              name: "Mariana Costa",
+              handle: "@mari.arquiteta",
+              avatar: "",
+              avatarBg: "bg-orange-500"
+            },
+            text: "Interface intuitiva e resultados precisos. Revolucionou nossa produtividade."
+          },
+          {
+            author: {
+              name: "Carlos Oliveira",
+              handle: "@carlos.proj",
+              avatar: "",
+              avatarBg: "bg-teal-500"
+            },
+            text: "A IA entende perfeitamente projetos brasileiros e normas da ABNT."
+          }
+        ]}
+      />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Problem & Solution Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background text-foreground">
         <div className="max-w-7xl mx-auto sm:px-6 px-[34px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <motion.div initial={{
@@ -233,7 +297,7 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Demo Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background text-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div initial={{
           opacity: 0,
@@ -315,7 +379,7 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
+      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30 text-foreground">
         <Pricing
           plans={[
             {
@@ -514,7 +578,7 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Final CTA Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background">
+      <section className="py-12 sm:py-16 lg:py-20 bg-background text-foreground">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{
           opacity: 0,

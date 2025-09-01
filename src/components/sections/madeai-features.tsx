@@ -40,7 +40,7 @@ const features: Feature[] = [
     icon: (
       <CalendarClock className="h-4 w-4 text-black dark:text-neutral-400" />
     ),
-    area: "md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]",
+    area: "md:[grid-area:2/1/3/7] xl:[grid-area:1/5/2/8]",
   },
   {
     title: "Documentação automática",
@@ -57,11 +57,20 @@ const features: Feature[] = [
     area: "md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]",
   },
   {
+    title: "Cronograma otimizado II",
+    description:
+      "Alertas inteligentes e atualizações automáticas mantêm seus prazos sempre precisos.",
+    icon: (
+      <CalendarClock className="h-4 w-4 text-black dark:text-neutral-400" />
+    ),
+    area: "md:[grid-area:3/1/4/13] xl:[grid-area:2/5/3/8]",
+  },
+  {
     title: "Segurança e LGPD",
     description:
       "Criptografia, controle de acesso e conformidade com a LGPD para proteger seus projetos.",
     icon: <ShieldCheck className="h-4 w-4 text-black dark:text-neutral-400" />,
-    area: "md:[grid-area:3/1/4/13] xl:[grid-area:2/5/3/8]",
+    area: "md:[grid-area:3/1/4/13] xl:[grid-area:3/1/4/13]",
   },
 ];
 
@@ -84,7 +93,7 @@ export function MadeAIFeaturesSection() {
           </p>
         </div>
 
-        <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
+        <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-3">
           {features.map((item, idx) => (
             <GridItem
               key={idx}
