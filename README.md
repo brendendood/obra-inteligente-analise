@@ -1,4 +1,38 @@
-# Welcome to your Lovable project
+# MadeAI
+
+Sistema de gestão e análise de obras com integração de IA via N8N.
+
+## 🔒 Configuração de Autenticação Supabase
+
+### Auth Redirect URL no Supabase
+
+Para que o fluxo de confirmação de e-mail funcione corretamente, configure o Auth Redirect URL no painel do Supabase:
+
+1. Acesse o [Dashboard do Supabase](https://supabase.com/dashboard)
+2. Selecione seu projeto
+3. Vá em **Authentication** → **URL Configuration**
+4. Configure:
+
+#### Site URL
+- **Desenvolvimento**: `http://localhost:8080`
+- **Produção**: `https://SEU_DOMINIO.com`
+
+#### Redirect URLs
+- **Desenvolvimento**: `http://localhost:8080/auth/callback`
+- **Produção**: `https://SEU_DOMINIO.com/auth/callback`
+
+### Fluxo de Confirmação de E-mail
+
+O sistema implementa um fluxo robusto que:
+
+- ✅ **Sempre termina com sucesso**: independente do resultado técnico
+- ✅ **Timeout de segurança**: 8 segundos máximo para evitar loading infinito
+- ✅ **Todos os cenários cobertos**: tokens válidos, inválidos, ausentes ou expirados
+- ✅ **Acessibilidade completa**: foco automático, aria-live e labels descritivos
+
+#### URLs do Fluxo
+- **Callback**: `/auth/callback` - processa os tokens do Supabase
+- **Sucesso**: `/email/sucesso` - página final com animação Lottie e botão para login
 
 ## Project info
 
