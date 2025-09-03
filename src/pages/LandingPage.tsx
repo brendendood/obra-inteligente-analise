@@ -97,7 +97,7 @@ const LandingPage = () => {
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              Nossa IA especializada analisa seus projetos arquitetônicos e gera orçamentos detalhados, cronogramas otimizados e insights valiosos em minutos.
+              A MadeAI analisa projetos de construções — de casas a grandes edifícios — e gera orçamentos precisos (SINAPI/ABNT), cronogramas realistas baseados em dados de Gantt e relatórios técnicos que apontam possíveis falhas. Tudo exportável em PDF e Excel.
             </p>
 
             {/* CTA Buttons */}
@@ -132,7 +132,8 @@ const LandingPage = () => {
         }} viewport={{
           once: true
         }} className="text-center">
-            <p className="text-muted-foreground mb-6 sm:mb-8 text-base sm:text-lg">Integrado com as principais bases de dados do mercado</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Integração com SINAPI, Sienge e outras bases oficiais</h2>
+            <p className="text-muted-foreground mb-6 sm:mb-8 text-base sm:text-lg">Acesse preços atualizados, normas e índices diretamente na plataforma</p>
             <div className="flex justify-center items-center mb-6 sm:mb-8">
               <div className="relative w-full max-w-[600px] aspect-[3/2]">
                 <iframe src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" className="w-full h-full rounded-lg" style={{
@@ -251,6 +252,10 @@ const LandingPage = () => {
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm sm:text-base">Riscos de falhas construtivas não identificadas</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-sm sm:text-base">Perda de competitividade por demora na entrega</p>
                 </div>
               </div>
@@ -271,19 +276,19 @@ const LandingPage = () => {
               <div className="space-y-3 sm:space-y-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground text-sm sm:text-base">Análise automática de plantas e projetos</p>
+                  <p className="text-foreground text-sm sm:text-base">Análise automática de plantas, cortes e elevações</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground text-sm sm:text-base">Orçamentos precisos em minutos</p>
+                  <p className="text-foreground text-sm sm:text-base">Orçamentos e cronogramas precisos em minutos (baseados em SINAPI, Sienge e normas ABNT)</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground text-sm sm:text-base">Cronogramas otimizados automaticamente</p>
+                  <p className="text-foreground text-sm sm:text-base">Alertas de falhas construtivas e inconsistências no projeto</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-primary mt-1 sm:mt-0.5 flex-shrink-0" />
-                  <p className="text-foreground text-sm sm:text-base">Integração com bases de dados atualizadas</p>
+                  <p className="text-foreground text-sm sm:text-base">Relatórios técnicos e planilhas exportáveis (PDF, Excel)</p>
                 </div>
               </div>
             </motion.div>
@@ -350,7 +355,7 @@ const LandingPage = () => {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">Upload do Projeto</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground">Faça upload de plantas, documentos ou dados do seu projeto</p>
+                  <p className="text-sm sm:text-base text-muted-foreground">Faça upload de projetos residenciais, comerciais e industriais (PDF, DWG, BIM)</p>
                 </div>
               </div>
               
@@ -370,7 +375,7 @@ const LandingPage = () => {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1">Resultados Instantâneos</h3>
-                  <p className="text-sm sm:text-base text-muted-foreground">Receba orçamentos e cronogramas detalhados em minutos</p>
+                  <p className="text-sm sm:text-base text-muted-foreground">Receba orçamentos, cronogramas e relatórios técnicos com recomendações, exportáveis em PDF e Excel</p>
                 </div>
               </div>
             </motion.div>
@@ -388,7 +393,7 @@ const LandingPage = () => {
               yearlyPrice: "23.92",
               period: "mês",
               features: [
-                "Agente Geral (normas brasileiras – ABNT)",
+                "Análise Geral (normas ABNT)",
                 "Uso individual",
                 "Até 5 projetos",
                 "500 mensagens de IA/mês",
@@ -408,7 +413,7 @@ const LandingPage = () => {
               yearlyPrice: "63.92",
               period: "mês",
               features: [
-                "Agente Geral (normas brasileiras – ABNT)",
+                "Análise Geral (normas ABNT)",
                 "Colaboração com até 3 usuários inclusos",
                 "Até 25 projetos",
                 "2.000 mensagens de IA/mês",
@@ -429,14 +434,15 @@ const LandingPage = () => {
               yearlyPrice: "159.92",
               period: "mês",
               features: [
-                "Agente Geral (normas brasileiras – ABNT)",
+                "Análise Geral (normas ABNT)",
                 "Até 10 usuários inclusos",
                 "Projetos ilimitados",
                 "Mensagens de IA ilimitadas",
                 "50 GB de anexos",
                 "SSO (Single Sign-On)",
                 "Auditoria completa",
-                "Integrações avançadas",
+                "Integração nativa com Sienge/ERP",
+                "Auditoria técnica completa",
                 "SLA 99,9%",
                 "Gerente de conta dedicado",
                 "Contrato customizado",
@@ -449,7 +455,7 @@ const LandingPage = () => {
             },
           ]}
           title="MadeAI — Planos simples e acessíveis"
-          description="Escolha o plano ideal para você ou seu escritório. Todos os planos incluem o Agente Geral (baseado nas normas brasileiras), dashboard moderno e suporte dedicado."
+          description="Escolha o plano ideal para você ou seu escritório. Todos os planos incluem orçamentos precisos e cronogramas realistas com dados de mercado, e as automações variam de acordo com o plano."
         />
       </section>
 
@@ -546,10 +552,13 @@ const LandingPage = () => {
             answer: "Nossa IA utiliza algoritmos de visão computacional e processamento de linguagem natural para analisar plantas, documentos e especificações técnicas, extraindo automaticamente informações sobre materiais, quantidades e especificações."
           }, {
             question: "Os preços são baseados em quais tabelas?",
-            answer: "Utilizamos principalmente a tabela SINAPI (IBGE) como base, complementada com dados de mercado regional para garantir a precisão e atualização dos preços dos insumos e serviços."
+            answer: "Utilizamos principalmente a tabela SINAPI (IBGE) como base, complementada com dados de mercado regional. A plataforma também se integra ao Sienge e considera índices regionais com atualizações mensais para garantir precisão."
           }, {
-            question: "Posso exportar os orçamentos?",
-            answer: "Sim! Você pode exportar orçamentos em PDF, Excel e outros formatos. Também oferecemos templates personalizáveis com sua marca e layout."
+            question: "A IA detecta falhas de projeto?",
+            answer: "Sim! Nossa IA analisa inconsistências estruturais, conflitos entre elementos e possíveis problemas construtivos, alertando sobre falhas que poderiam passar despercebidas."
+          }, {
+            question: "Posso exportar resultados em PDF/Excel?", 
+            answer: "Sim! Você pode exportar orçamentos, cronogramas e relatórios técnicos em PDF e Excel. Também oferecemos templates personalizáveis com sua marca e layout."
           }, {
             question: "Há limite de tamanho para os projetos?",
             answer: "O plano gratuito suporta projetos de até 500m². Planos pagos não têm limite de área e suportam projetos complexos como edifícios e complexos industriais."
@@ -594,9 +603,9 @@ const LandingPage = () => {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
               Pronto para revolucionar seus projetos?
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
-              Junte-se a centenas de arquitetos e engenheiros que já transformaram seus processos com nossa IA
-            </p>
+             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
+               Teste gratuitamente sem cartão de crédito e receba uma análise detalhada do seu próximo projeto em poucos minutos
+             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <AppleButton as={Link} to="/cadastro" variant="primary" size="lg" className="w-full sm:w-auto">

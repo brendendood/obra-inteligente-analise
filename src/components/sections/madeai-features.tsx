@@ -22,21 +22,21 @@ const features: Feature[] = [
   {
     title: "IA especializada para projetos",
     description:
-      "Modelos treinados para arquitetura e construção analisam plantas e extraem informações com precisão.",
+      "Modelos treinados analisam plantas e modelos 3D (PDF, DWG, IFC) e extraem quantitativos de materiais, áreas e ambientes automaticamente.",
     icon: <Brain className="h-4 w-4 text-black dark:text-neutral-400" />,
     area: "lg:[grid-area:1/1/2/2]",
   },
   {
     title: "Orçamentos inteligentes (SINAPI)",
     description:
-      "Geração automática de orçamentos detalhados com base no SINAPI e mercado local, atualizados.",
+      "Geração de orçamentos detalhados usando SINAPI/IBGE e índices regionais atualizados, integrando-se ao Sienge e outros ERPs.",
     icon: <Calculator className="h-4 w-4 text-black dark:text-neutral-400" />,
     area: "lg:[grid-area:1/2/2/3]",
   },
   {
     title: "Cronograma otimizado",
     description:
-      "Planejamento com sequenciamento lógico, caminho crítico e prazos realistas em poucos cliques.",
+      "Planejamento com sequenciamento lógico e durações baseadas na média de centenas de cronogramas reais em Gantt.",
     icon: (
       <CalendarClock className="h-4 w-4 text-black dark:text-neutral-400" />
     ),
@@ -45,14 +45,14 @@ const features: Feature[] = [
   {
     title: "Documentação automática",
     description:
-      "Memoriais, relatórios e escopos técnicos gerados de forma padronizada e prontos para envio.",
+      "Gere memoriais, relatórios e escopos técnicos conforme normas ABNT, prontos para aprovação e envio.",
     icon: <FileText className="h-4 w-4 text-black dark:text-neutral-400" />,
     area: "lg:[grid-area:2/1/3/2]",
   },
   {
-    title: "Cronograma otimizado II",
+    title: "Alertas inteligentes",
     description:
-      "Alertas inteligentes e atualizações automáticas mantêm seus prazos sempre precisos.",
+      "Receba alertas de atrasos, conflitos de recursos e atualizações automáticas quando houver mudanças no projeto ou orçamento.",
     icon: (
       <CalendarClock className="h-4 w-4 text-black dark:text-neutral-400" />
     ),
@@ -61,14 +61,14 @@ const features: Feature[] = [
   {
     title: "Integrações CAD/BIM e planilhas",
     description:
-      "Importe desenhos e dados das suas ferramentas preferidas. Exporte para planilhas e ERPs.",
+      "Importe desenhos e dados de CAD/BIM, integre-se ao Sienge e exporte relatórios e planilhas (Excel, CSV) para ERPs.",
     icon: <PlugZap className="h-4 w-4 text-black dark:text-neutral-400" />,
     area: "lg:[grid-area:2/3/3/4]",
   },
   {
     title: "Segurança e LGPD",
     description:
-      "Criptografia, controle de acesso e conformidade com a LGPD para proteger seus projetos.",
+      "Criptografia ponta a ponta, controle de acesso granular e conformidade com LGPD para proteger seus dados e dos seus clientes.",
     icon: <ShieldCheck className="h-4 w-4 text-black dark:text-neutral-400" />,
     area: "lg:[grid-area:3/1/4/4]",
   },
