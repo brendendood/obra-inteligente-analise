@@ -49,11 +49,24 @@ export function CounterStats({
   )
 
   return (
-    <section className="w-full bg-background text-foreground py-10">
-      <div className="mx-auto max-w-container px-4 grid grid-cols-1 sm:grid-cols-3 gap-6">
-        {item("Usuários ativos", users)}
-        {item("Projetos ativos", projects)}
-        {item("Análises concluídas", analyses)}
+    <section className="w-full bg-background text-foreground py-12 sm:py-16">
+      <div className="mx-auto max-w-container px-4">
+        {/* Título da seção */}
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+            Nossos Números
+          </h2>
+          <p className="text-muted-foreground mt-2 text-base sm:text-lg">
+            Resultados que falam por si
+          </p>
+        </div>
+        
+        {/* Contadores */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {item("Usuários ativos", users)}
+          {item("Projetos ativos", projects)}
+          {item("Análises concluídas", analyses)}
+        </div>
       </div>
     </section>
   )
