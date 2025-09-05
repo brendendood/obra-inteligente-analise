@@ -64,18 +64,18 @@ return (
 aria-label="Key performance cards"
 className="mx-auto w-full max-w-6xl px-4 py-16 md:py-20"
 >
-{/* Cabeçalho opcional da seção */}
-<div className="mb-8 flex items-end justify-between">
-<h2 className="text-2xl font-semibold tracking-tight text-black dark:text-white">
-Insights que provam valor
-</h2>
-<div className="hidden text-sm text-neutral-500 dark:text-neutral-400 md:block">
-Dados reais e reconhecimentos do mercado
-</div>
-</div>
+    {/* Cabeçalho centralizado da seção */}
+    <div className="mb-8 text-center">
+      <h2 className="text-2xl font-semibold tracking-tight text-black dark:text-white">
+        Insights que provam valor
+      </h2>
+      <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+        Dados reais sobre eficiência e performance
+      </p>
+    </div>
 
-{/* Desktop: 2 colunas */}
-<div className="hidden gap-6 md:grid md:grid-cols-2">
+    {/* Desktop: 2 colunas centralizadas */}
+    <div className="hidden gap-6 md:flex md:justify-center md:max-w-4xl md:mx-auto">
 {/* Card 1 */}
 <AnimatedCard>
 <CardVisual>
@@ -91,19 +91,19 @@ mantendo transparência e rigor regulatório.
 </CardBody>
 </AnimatedCard>
 
-{/* Card 2 */}
-<AnimatedCard>
-<CardVisual>
-<Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" />
-</CardVisual>
-<CardBody>
-<CardTitle>Plataforma premiada</CardTitle>
-<CardDescription>
-Reconhecida em 2024 e 2025 por inovação em GenAI para saúde —
-validação independente do impacto e da qualidade.
-</CardDescription>
-</CardBody>
-</AnimatedCard>
+        {/* Card 2 */}
+        <AnimatedCard>
+          <CardVisual>
+            <Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" />
+          </CardVisual>
+          <CardBody>
+            <CardTitle>Precisão em orçamentos</CardTitle>
+            <CardDescription>
+              Orçamentos baseados em SINAPI/IBGE com margem de erro reduzida 
+              em até 75% comparado a planilhas manuais tradicionais.
+            </CardDescription>
+          </CardBody>
+        </AnimatedCard>
 </div>
 
 {/* Mobile: carrossel horizontal sem auto-play */}
@@ -153,11 +153,11 @@ data-inview={card2.inView}
 <Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" />
 </CardVisual>
 <CardBody>
-<CardTitle>Plataforma premiada</CardTitle>
-<CardDescription>
-Prêmios em 2024 e 2025 por excelência em GenAI — confiança de
-mercado para operar em escala.
-</CardDescription>
+                <CardTitle>Precisão em orçamentos</CardTitle>
+                <CardDescription>
+                  Orçamentos baseados em SINAPI/IBGE com margem de erro reduzida 
+                  em até 75% comparado a planilhas manuais tradicionais.
+                </CardDescription>
 </CardBody>
 </AnimatedCard>
 </div>

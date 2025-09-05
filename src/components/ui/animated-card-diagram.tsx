@@ -278,13 +278,13 @@ style={{ "--color": color } as React.CSSProperties}
 <div className="ease-[cubic-bezier(0.6, 0.6, 0, 1)] rounded-md border border-zinc-200 bg-white/25 px-2 py-1.5 opacity-100 backdrop-blur-sm transition-opacity duration-500 group-hover/animated-card:opacity-0 dark:border-zinc-800 dark:bg-black/25">
 <div className="flex items-center gap-2">
 <div className="h-2 w-2 shrink-0 rounded-full bg-[var(--color)]" />
-<p className="text-xs text-black dark:text-white">
-Random Data Visualization
-</p>
-</div>
-<p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-Displaying some interesting stats.
-</p>
+              <p className="text-xs text-black dark:text-white">
+                Análise de Dados Avançada
+              </p>
+            </div>
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              Visualizando métricas de performance.
+            </p>
 </div>
 </div>
 </div>
