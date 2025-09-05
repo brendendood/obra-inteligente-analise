@@ -10,6 +10,7 @@ import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
 import { CounterStats } from '@/components/ui/counter-stats';
+import MadeAITwoCardsSection from "@/components/sections/madeai-two-cards";
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
 import Header from '@/components/layout/Header';
@@ -298,6 +299,68 @@ const LandingPage = () => {
 
       {/* Features Section */}
       <MadeAIFeaturesSection />
+
+      {/* Why Choose Section */}
+      <section className="py-16 md:py-20 bg-background">
+        <div className="max-w-container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Por que escolher a MadeAI?
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Transforme seu processo de gestão de obras com nossa plataforma inteligente
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <TrendingUp className="h-8 w-8 text-primary" />,
+                title: "Velocidade sem precedentes",
+                description: "Análise completa de projetos em minutos, não dias. Nossa IA processa plantas e documentos instantaneamente."
+              },
+              {
+                icon: <Shield className="h-8 w-8 text-primary" />,
+                title: "Precisão e confiabilidade",
+                description: "Baseado em normas ABNT e dados SINAPI atualizados. Relatórios técnicos que você pode confiar."
+              },
+              {
+                icon: <Brain className="h-8 w-8 text-primary" />,
+                title: "Insights inteligentes",
+                description: "Detecte falhas construtivas e inconsistências no projeto antes que se tornem problemas custosos."
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center p-6 rounded-xl bg-card border border-border hover:shadow-lg transition-shadow"
+              >
+                <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-muted-foreground">
+                  {item.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Two Cards Section */}
+      <MadeAITwoCardsSection />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 

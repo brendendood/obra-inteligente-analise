@@ -1,25 +1,24 @@
-import { PromptBox } from "@/components/ui/chatgpt-prompt-input";
+import {
+AnimatedCard,
+CardBody,
+CardDescription,
+CardTitle,
+CardVisual,
+} from "@/components/ui/animated-card-diagram"
+import { Visual2 } from "@/components/ui/animated-card-diagram"
 
-export function PromptBoxDemo() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const message = formData.get("message");
-    // In a real app, you would also handle the uploaded file here.
-    if (!message && !event.currentTarget.querySelector('img')) {
-      return;
-    }
-    alert(`Message Submitted!`);
-  };
-
-  return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background dark:bg-[#212121] p-4">
-      <div className="w-full max-w-xl flex flex-col gap-10">
-          <p className="text-center text-3xl text-foreground">
-            How Can I Help You
-          </p>
-          <PromptBox />
-      </div>
-    </div>
-  );
+export default function AnimatedCard2Demo() {
+return (
+<AnimatedCard>
+<CardVisual>
+<Visual2 mainColor="#ff6900" secondaryColor="#f54900" />
+</CardVisual>
+<CardBody>
+<CardTitle>Just find the right caption</CardTitle>
+<CardDescription>
+This card will tell everything you want
+</CardDescription>
+</CardBody>
+</AnimatedCard>
+)
 }
