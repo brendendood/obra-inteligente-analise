@@ -17,93 +17,42 @@ function targetValues(seedUtc: string) {
   return { users, projects, analyses }
 }
 
-function useCountUpOnView(target: number, isVisible: boolean, durationMs = 2000) {
+function useCountUp(target: number, durationMs = 1000) {
   const [value, setValue] = useState(0)
   const raf = useRef<number | null>(null)
-  
   useEffect(() => {
-    if (!isVisible) {
-      setValue(0)
-      return
-    }
-    
     const start = performance.now()
     const step = (t: number) => {
       const p = Math.min(1, (t - start) / durationMs)
-      const easeOut = 1 - Math.pow(1 - p, 3) // Easing function for smooth animation
-      setValue(Math.floor(easeOut * target))
+      setValue(Math.floor(p * target))
       if (p < 1) raf.current = requestAnimationFrame(step)
     }
     raf.current = requestAnimationFrame(step)
     return () => { if (raf.current) cancelAnimationFrame(raf.current) }
-  }, [target, durationMs, isVisible])
-  
+  }, [target, durationMs])
   return value
 }
 
 export function CounterStats({
   seedUtc = "2025-09-01T00:00:00Z"
 }: { seedUtc?: string }) {
-  const [isVisible, setIsVisible] = useState(false)
-  const sectionRef = useRef<HTMLElement>(null)
   const targets = useMemo(() => targetValues(seedUtc), [seedUtc])
-  
-  const users = useCountUpOnView(targets.users, isVisible, 2000)
-  const projects = useCountUpOnView(targets.projects, isVisible, 2200)
-  const analyses = useCountUpOnView(targets.analyses, isVisible, 2400)
+  const users = useCountUp(targets.users)
+  const projects = useCountUp(targets.projects)
+  const analyses = useCountUp(targets.analyses)
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.3 }
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current)
-      }
-    }
-  }, [isVisible])
-
-  const item = (label: string, val: number, index: number) => (
-    <div 
-      className={`flex flex-col items-center gap-2 transform transition-all duration-700 ${
-        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-      }`}
-      style={{ transitionDelay: `${index * 150}ms` }}
-    >
-      <div className="relative">
-        <div className="text-4xl sm:text-5xl md:text-6xl font-bold tabular-nums text-primary">
-          {val}
-        </div>
-        <div className={`absolute inset-0 rounded-lg bg-primary/10 blur-xl transition-opacity duration-1000 ${
-          isVisible ? 'opacity-100' : 'opacity-0'
-        }`} />
-      </div>
-      <div className="text-sm sm:text-base text-muted-foreground font-medium">
-        {label}
-      </div>
+  const item = (label: string, val: number) => (
+    <div className="flex flex-col items-center gap-1">
+      <div className="text-4xl font-bold tabular-nums">{val}</div>
+      <div className="text-sm text-muted-foreground">{label}</div>
     </div>
   )
 
   return (
-    <section 
-      ref={sectionRef}
-      className="w-full bg-background text-foreground py-12 sm:py-16 overflow-hidden"
-    >
+    <section className="w-full bg-background text-foreground py-12 sm:py-16">
       <div className="mx-auto max-w-container px-4">
         {/* Título da seção */}
-        <div className={`text-center mb-8 sm:mb-12 transform transition-all duration-700 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-        }`}>
+        <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
             Nossos Números
           </h2>
@@ -112,11 +61,11 @@ export function CounterStats({
           </p>
         </div>
         
-        {/* Contadores - Mobile horizontal, Desktop grid */}
-        <div className="flex flex-row justify-center items-center gap-8 sm:gap-12 md:grid md:grid-cols-3 md:gap-6">
-          {item("Usuários ativos", users, 0)}
-          {item("Projetos ativos", projects, 1)}
-          {item("Análises concluídas", analyses, 2)}
+        {/* Contadores */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {item("Usuários ativos", users)}
+          {item("Projetos ativos", projects)}
+          {item("Análises concluídas", analyses)}
         </div>
       </div>
     </section>

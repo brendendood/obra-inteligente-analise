@@ -9,7 +9,7 @@ import { Typewriter } from '@/components/ui/typewriter';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
 import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
-import { CounterStats } from '@/components/ui/counter-stats';
+import DigitalSerenity from '@/components/ui/digital-serenity-animated-landing-page';
 import MadeAITwoCardsSection from "@/components/sections/madeai-two-cards";
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { ArchitectureSaaSBackground } from '@/components/ui/architecture-saas-background';
@@ -151,8 +151,8 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Counter Stats */}
-      <CounterStats />
+      {/* Digital Serenity Countdown */}
+      <DigitalSerenity />
 
       
       {/* Testimonials Section - Marquee com depoimentos em português */}
