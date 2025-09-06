@@ -2,6 +2,7 @@
 import { ReactNode, memo, useMemo, useState, useEffect } from 'react';
 import { MemberFooter } from './MemberFooter';
 import { Sidebar } from './Sidebar';
+import SidebarMadeDesktopOnly from '@/components/sections/sidebar-made-desktop-only';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
@@ -75,9 +76,36 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   }
 
   return (
-    <div className={layoutClasses.container}>
-      {!shouldHideSidebar && <MemoizedSidebar />}
-      <main className={layoutClasses.main}>
+    <div className={cn(
+      "min-h-screen w-full bg-gray-50",
+      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
+    )}>
+      {/* Sidebar original para mobile */}
+      {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
+      
+      {/* Novo sidebar colapsável para desktop */}
+      {!isMobile && !shouldHideSidebar && (
+        <SidebarMadeDesktopOnly
+          projectsCurrent={0}
+          projectsLimit={2}
+          planLabel="Free"
+          userName={user?.user_metadata?.full_name || user?.email || "Usuário"}
+          onUpgradeHref="/plano"
+          onInviteHref="/indique"
+          hrefs={{
+            assistenteIA: "/ia",
+            dashboard: "/painel",
+            crm: "/crm",
+            contaPref: "/conta",
+            planoPag: "/plano",
+            ajudaFaqs: "/ajuda",
+            faleComAGente: "/contato",
+            sair: "/logout",
+          }}
+        />
+      )}
+      
+      <main className="flex-1 flex flex-col min-h-screen">
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
