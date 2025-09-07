@@ -161,9 +161,8 @@ export function SessionNavBar() {
                   <li key={item.label}>
                     <button
                       onClick={() => {
-                        // Trigger logout - this will be handled by the existing Sidebar component
-                        const event = new CustomEvent('logout');
-                        window.dispatchEvent(event);
+                        // Simple redirect to logout route
+                        window.location.href = '/logout';
                       }}
                       className={cn(
                         "group flex items-center gap-3 rounded-md px-2 py-2 transition-colors w-full text-left",

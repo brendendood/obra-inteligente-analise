@@ -2,7 +2,7 @@
 import { ReactNode, memo, useMemo, useState, useEffect } from 'react';
 import { MemberFooter } from './MemberFooter';
 import { Sidebar } from './Sidebar';
-import SidebarMadeDesktopOnly from '@/components/sections/sidebar-made-desktop-only';
+import { SessionNavBar } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
@@ -54,10 +54,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
     container: "min-h-screen flex flex-col w-full bg-gray-50",
-    main: cn(
-      "flex-1 flex flex-col min-h-screen transition-none",
-      !isMobile && !shouldHideSidebar && "ml-[280px]"
-    ),
+    main: "flex-1 flex flex-col min-h-screen transition-none",
     content: cn(
       "flex-1",
       isAIPage ? "overflow-hidden" : "overflow-auto"
@@ -85,27 +82,12 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       
       {/* Novo sidebar colapsável para desktop */}
       {!isMobile && !shouldHideSidebar && (
-        <SidebarMadeDesktopOnly
-          projectsCurrent={0}
-          projectsLimit={2}
-          planLabel="Free"
-          userName={user?.user_metadata?.full_name || user?.email || "Usuário"}
-          onUpgradeHref="/plano"
-          onInviteHref="/indique"
-          hrefs={{
-            assistenteIA: "/ia",
-            dashboard: "/painel",
-            crm: "/crm",
-            contaPref: "/conta",
-            planoPag: "/plano",
-            ajudaFaqs: "/ajuda",
-            faleComAGente: "/contato",
-            sair: "/logout",
-          }}
-        />
+        <div className="hidden md:block">
+          <SessionNavBar />
+        </div>
       )}
       
-      <main className="flex-1 flex flex-col min-h-screen">
+      <main className={layoutClasses.main}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
