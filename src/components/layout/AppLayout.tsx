@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { useLocation } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -40,8 +41,13 @@ MemoizedFooter.displayName = 'MemoizedFooter';
 
 export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   const { user, loading } = useAuth();
+  const { theme } = useTheme();
   const isMobile = useOptimizedMediaQuery('(max-width: 1023px)');
   const location = useLocation();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+  const isDark = theme === "dark";
   
   // Verifica se é a página de IA
   const isAIPage = location.pathname === '/ia';
@@ -73,28 +79,30 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   }
 
   return (
-    <div className={cn(
-      "min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
-    )}>
-      {/* Sidebar original para mobile */}
-      {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
-      
-      {/* Novo sidebar colapsável para desktop */}
-      {!isMobile && !shouldHideSidebar && (
-        <div className="hidden md:block">
-          <SessionNavBar />
-        </div>
-      )}
-      
-      <main className={cn(layoutClasses.main, !isMobile && !shouldHideSidebar ? "pl-6" : "")}>
-        <div className={layoutClasses.content}>
-          <div className={layoutClasses.innerContent}>
-            {children}
+    <div className={`user-area ${mounted && isDark ? "dark" : ""}`}>
+      <div className={cn(
+        "min-h-screen w-full",
+        !isMobile && !shouldHideSidebar ? "md:grid md:grid-cols-[auto_1fr] md:gap-x-6" : "flex flex-col"
+      )}>
+        {/* Sidebar original para mobile */}
+        {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
+        
+        {/* Novo sidebar colapsável para desktop */}
+        {!isMobile && !shouldHideSidebar && (
+          <div className="hidden md:block">
+            <SessionNavBar />
           </div>
-        </div>
-        {!shouldHideFooter && <MemoizedFooter />}
-      </main>
+        )}
+        
+        <main className={layoutClasses.main}>
+          <div className={layoutClasses.content}>
+            <div className={layoutClasses.innerContent}>
+              {children}
+            </div>
+          </div>
+          {!shouldHideFooter && <MemoizedFooter />}
+        </main>
+      </div>
     </div>
   );
 });
