@@ -16,6 +16,13 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { Logo } from "@/components/ui/logo";
+import { ProjectLimitBar } from "@/components/layout/ProjectLimitBar";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserData } from "@/hooks/useUserData";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { canUpgrade, getUpgradeMessage } from "@/utils/planUtils";
 
 /**
  * IMPORTANTE
@@ -97,25 +104,13 @@ const makeItems = (pathname: string): NavItem[] => [
     icon: <MessageCircle className="h-5 w-5" />,
     activeMatch: (p) => p.startsWith("/contato") || p.startsWith("/suporte"),
   },
-  // "Indique e ganhe" — item colapsável (apenas ícone quando fechado)
-  {
-    label: "Indique e ganhe projetos grátis",
-    href: "/indique",
-    icon: <Gift className="h-5 w-5" />,
-    activeMatch: (p) => p.startsWith("/indique"),
-  },
-  // Sair sempre por último
-  {
-    label: "Sair",
-    href: "#",
-    icon: <LogOut className="h-5 w-5" />,
-    activeMatch: () => false,
-  },
 ];
 
 export function SessionNavBar() {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const { user } = useAuth();
+  const { userData } = useUserData();
   const items = makeItems(location.pathname ?? "");
 
   return (
@@ -134,16 +129,54 @@ export function SessionNavBar() {
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
-      {/* Header compacto opcional (logo da MadeAI pode ser inserido fora deste arquivo) */}
-      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center">
-        <div className="h-5 w-5 rounded-sm bg-foreground/90" aria-hidden />
-        <motion.span
-          className="ml-2 text-sm font-medium"
-          variants={labelVariants}
-          animate={isCollapsed ? "closed" : "open"}
+      {/* Header com logo MadeAI */}
+      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center justify-center">
+        <motion.div
+          className="overflow-hidden"
+          animate={{
+            width: isCollapsed ? "32px" : "auto",
+          }}
         >
-          Menu
-        </motion.span>
+          <Logo 
+            width={isCollapsed ? 32 : 120} 
+            height={isCollapsed ? 32 : 32}
+            className="transition-all duration-300"
+          />
+        </motion.div>
+      </div>
+
+      {/* Project Limit Bar */}
+      <div className="px-2 py-3 border-b border-border/70">
+        <motion.div
+          animate={{
+            opacity: isCollapsed ? 0 : 1,
+            height: isCollapsed ? 0 : "auto",
+          }}
+          className="overflow-hidden"
+        >
+          <ProjectLimitBar 
+            currentProjects={userData.projectCount} 
+            plan={userData.plan}
+            extraCredits={userData.credits}
+          />
+        </motion.div>
+        
+        {/* Link "Indique e ganhe" visível quando colapsado */}
+        <motion.div
+          animate={{
+            opacity: isCollapsed ? 1 : 0,
+            height: isCollapsed ? "auto" : 0,
+          }}
+          className="overflow-hidden flex justify-center"
+        >
+          <Link
+            to="/indique"
+            className="p-2 rounded-md hover:bg-accent transition-colors"
+            title="Indique e ganhe projetos grátis"
+          >
+            <Gift className="h-5 w-5 text-muted-foreground" />
+          </Link>
+        </motion.div>
       </div>
 
       <ScrollArea className="flex-1">
@@ -154,43 +187,6 @@ export function SessionNavBar() {
                 typeof item.activeMatch === "function"
                   ? item.activeMatch(location.pathname ?? "")
                   : location.pathname === item.href;
-
-              // Handle logout action
-              if (item.label === "Sair") {
-                return (
-                  <li key={item.label}>
-                    <button
-                      onClick={() => {
-                        // Simple redirect to logout route
-                        window.location.href = '/logout';
-                      }}
-                      className={cn(
-                        "group flex items-center gap-3 rounded-md px-2 py-2 transition-colors w-full text-left",
-                        "text-muted-foreground hover:text-foreground",
-                        "hover:bg-accent"
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "grid place-items-center",
-                          isCollapsed ? "w-8" : "w-5"
-                        )}
-                      >
-                        {item.icon}
-                      </span>
-
-                      {/* Rótulo que some quando colapsado */}
-                      <motion.span
-                        className="text-sm truncate"
-                        variants={labelVariants}
-                        animate={isCollapsed ? "closed" : "open"}
-                      >
-                        {item.label}
-                      </motion.span>
-                    </button>
-                  </li>
-                );
-              }
 
               return (
                 <li key={item.label}>
@@ -204,12 +200,7 @@ export function SessionNavBar() {
                     )}
                     aria-current={active ? "page" : undefined}
                   >
-                    <span
-                      className={cn(
-                        "grid place-items-center",
-                        isCollapsed ? "w-8" : "w-5"
-                      )}
-                    >
+                    <span className="grid place-items-center w-5 h-5 flex-shrink-0">
                       {item.icon}
                     </span>
 
@@ -229,8 +220,91 @@ export function SessionNavBar() {
         </nav>
       </ScrollArea>
 
-      {/* Footer fino apenas para separação visual */}
-      <div className="h-4 border-t border-border/70" />
+      {/* User Profile Section */}
+      <div className="border-t border-border/70 p-2">
+        <motion.div
+          animate={{
+            opacity: isCollapsed ? 0 : 1,
+            height: isCollapsed ? 0 : "auto",
+          }}
+          className="overflow-hidden"
+        >
+          <div className="space-y-3 p-2">
+            {/* User Info */}
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {user?.user_metadata?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 
+                   user?.email?.slice(0, 2).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-foreground truncate">
+                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </div>
+              </div>
+            </div>
+
+            {/* Upgrade Button */}
+            {canUpgrade(userData.plan) && (
+              <Button 
+                asChild 
+                className="w-full h-8 text-xs"
+                variant="default"
+              >
+                <Link to="/plano">
+                  {getUpgradeMessage(userData.plan)}
+                </Link>
+              </Button>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Collapsed User Avatar */}
+        <motion.div
+          animate={{
+            opacity: isCollapsed ? 1 : 0,
+            height: isCollapsed ? "auto" : 0,
+          }}
+          className="overflow-hidden flex justify-center"
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+              {user?.user_metadata?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2) || 
+               user?.email?.slice(0, 2).toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </motion.div>
+
+        {/* Logout Button */}
+        <div className="mt-2">
+          <button
+            onClick={() => {
+              window.location.href = '/logout';
+            }}
+            className={cn(
+              "group flex items-center gap-3 rounded-md px-2 py-2 transition-colors w-full text-left",
+              "text-muted-foreground hover:text-foreground",
+              "hover:bg-accent"
+            )}
+            title="Sair"
+          >
+            <span className="grid place-items-center w-5 h-5 flex-shrink-0">
+              <LogOut className="h-5 w-5" />
+            </span>
+            <motion.span
+              className="text-sm truncate"
+              variants={labelVariants}
+              animate={isCollapsed ? "closed" : "open"}
+            >
+              Sair
+            </motion.span>
+          </button>
+        </div>
+      </div>
     </motion.aside>
   );
 }
