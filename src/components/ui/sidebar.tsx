@@ -16,8 +16,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { useTheme } from "@/hooks/useTheme";
-import { Sun, Moon } from "lucide-react";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { ProjectLimitBar } from "@/components/layout/ProjectLimitBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserData } from "@/hooks/useUserData";
@@ -112,9 +111,7 @@ export function SessionNavBar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const { user } = useAuth();
   const { userData } = useUserData();
-  const { theme, toggleTheme } = useTheme();
   const items = makeItems(location.pathname ?? "");
-  const isDark = theme === "dark";
 
   return (
     <motion.aside
@@ -133,33 +130,41 @@ export function SessionNavBar() {
       onMouseLeave={() => setIsCollapsed(true)}
     >
       {/* Header com logo MadeAI */}
-      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center">
-        <div className="flex items-center gap-2">
-          {/* Logo com tamanho fixo (não escala no collapse) */}
-          <div className="relative h-7 w-7 shrink-0 select-none pointer-events-none">
-            {/* Light */}
-            <img
-              src="/lovable-uploads/647b2a47-622a-4d51-b065-536ce53708e0.png"
-              alt="MADE.AI"
-              className="absolute inset-0 w-full h-full object-contain dark:hidden"
-            />
-            {/* Dark */}
-            <img
-              src="/lovable-uploads/20907bfc-be0d-490c-9375-39a51c3bffb4.png"
-              alt="MADE.AI"
-              className="absolute inset-0 w-full h-full object-contain hidden dark:block"
-            />
-          </div>
-
-          {/* Label que só aparece aberto; logo não muda de tamanho */}
-          <motion.span
-            className="ml-1 text-sm font-medium"
-            variants={labelVariants}
-            animate={isCollapsed ? "closed" : "open"}
-          >
-            MADE.AI
-          </motion.span>
-        </div>
+      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center justify-between">
+        <motion.div
+          className="overflow-hidden"
+          animate={{
+            width: isCollapsed ? "32px" : "auto",
+          }}
+        >
+          <img 
+            src="/lovable-uploads/647b2a47-622a-4d51-b065-536ce53708e0.png"
+            alt="MadeAI Logo"
+            className={cn(
+              "transition-all duration-300 dark:hidden",
+              isCollapsed ? "w-8 h-8" : "w-[120px] h-8"
+            )}
+          />
+          <img 
+            src="/lovable-uploads/20907bfc-be0d-490c-9375-39a51c3bffb4.png"
+            alt="MadeAI Logo"
+            className={cn(
+              "transition-all duration-300 hidden dark:block",
+              isCollapsed ? "w-8 h-8" : "w-[120px] h-8"
+            )}
+          />
+        </motion.div>
+        
+        {/* Theme Toggle */}
+        <motion.div
+          animate={{
+            opacity: isCollapsed ? 0 : 1,
+            width: isCollapsed ? 0 : "auto",
+          }}
+          className="overflow-hidden"
+        >
+          <ThemeToggle />
+        </motion.div>
       </div>
 
       {/* Project Limit Bar */}
@@ -296,27 +301,8 @@ export function SessionNavBar() {
           </Avatar>
         </motion.div>
 
-        {/* Theme Toggle */}
-        <div className="border-t border-border/70 px-2 py-2 flex items-center justify-between">
-          <button
-            type="button"
-            aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
-            onClick={toggleTheme}
-            className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition w-full"
-          >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            <motion.span
-              variants={labelVariants}
-              animate={isCollapsed ? "closed" : "open"}
-              className="truncate"
-            >
-              {isDark ? "Modo claro" : "Modo escuro"}
-            </motion.span>
-          </button>
-        </div>
-
         {/* Logout Button */}
-        <div className="px-2 pb-2">
+        <div className="mt-2">
           <button
             onClick={() => {
               window.location.href = '/logout';
