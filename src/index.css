@@ -58,32 +58,39 @@
   --sidebar-accent: 0 0% 95%;
 }
 
-/* User Area - Light Mode Only */
-.user-area {
-  /* Force light mode tokens */
-  --background: 0 0% 99%;
-  --foreground: 0 0% 9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 9%;
-  --primary: 211 100% 50%;
+/* Dark Mode - AppConty Style */
+.dark {
+  /* Background com gradientes coloridos animados */
+  --background: 0 0% 0%; /* #000000 */
+  --foreground: 0 0% 100%;
+  --card: 217 22% 15%; /* #1a1d23 */
+  --card-foreground: 0 0% 100%;
+  --popover: 217 22% 15%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 211 100% 50%; /* Manter #0281FE */
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 95%;
-  --secondary-foreground: 0 0% 11%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 54%;
-  --accent: 0 0% 95%;
-  --accent-foreground: 0 0% 11%;
-  --destructive: 4 90% 58%;
+  --secondary: 218 23% 16%; /* #252a33 */
+  --secondary-foreground: 219 14% 71%; /* #b8bcc5 */
+  --muted: 218 23% 16%;
+  --muted-foreground: 219 14% 71%;
+  --accent: 218 23% 16%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 89%;
-  --input: 0 0% 96%;
+  --border: 217 19% 22%; /* #3a3f47 */
+  --input: 218 23% 16%;
   --ring: 211 100% 50%;
-  --sidebar: 0 0% 98%;
-  --sidebar-foreground: 0 0% 11%;
-  --sidebar-border: 0 0% 91%;
-  --sidebar-accent: 0 0% 95%;
+  --chart-1: 211 100% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+  
+  /* Sidebar Dark Mode */
+  --sidebar: 218 23% 16%;
+  --sidebar-foreground: 0 0% 100%;
+  --sidebar-border: 217 19% 22%;
+  --sidebar-accent: 218 23% 20%;
 }
 
 /* AppConty-style animated background for dark mode */
