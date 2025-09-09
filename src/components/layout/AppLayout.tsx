@@ -87,7 +87,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
         </div>
       )}
       
-      <main className={layoutClasses.main}>
+      <main className={cn(layoutClasses.main, !isMobile && !shouldHideSidebar ? "pl-6" : "")}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
