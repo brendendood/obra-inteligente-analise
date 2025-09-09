@@ -21,9 +21,9 @@ export function HeroPill({
       href={href}
       target={isExternal ? "_blank" : undefined}
       className={cn(
-        "flex w-auto items-center space-x-2 rounded-full",
+        "flex w-auto items-center justify-center space-x-2 rounded-full",
         "bg-primary/20 ring-1 ring-accent",
-        "px-2 py-1 whitespace-pre",
+        "px-2 py-1 whitespace-pre text-center",
         className
       )}
       initial={{ opacity: 0, y: -20 }}
@@ -37,8 +37,8 @@ export function HeroPill({
       )}>
         {announcement}
       </div>
-      <p className="text-xs font-medium text-primary sm:text-sm">
-        {label}
+      <p className="text-xs font-medium text-primary sm:text-sm text-center">
+        Faça a análise de conflito dos seus projetos via IA
       </p>
       <svg
         width="12"
