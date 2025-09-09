@@ -73,28 +73,30 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   }
 
   return (
-    <div className={cn(
-      "min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
-    )}>
-      {/* Sidebar original para mobile */}
-      {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
-      
-      {/* Novo sidebar colapsável para desktop */}
-      {!isMobile && !shouldHideSidebar && (
-        <div className="hidden md:block">
-          <SessionNavBar />
-        </div>
-      )}
-      
-      <main className={cn(layoutClasses.main, !isMobile && !shouldHideSidebar ? "pl-6" : "")}>
-        <div className={layoutClasses.content}>
-          <div className={layoutClasses.innerContent}>
-            {children}
+    <div className="user-area">
+      <div className={cn(
+        "min-h-screen w-full bg-gray-50",
+        !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
+      )}>
+        {/* Sidebar original para mobile */}
+        {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
+        
+        {/* Novo sidebar colapsável para desktop */}
+        {!isMobile && !shouldHideSidebar && (
+          <div className="hidden md:block">
+            <SessionNavBar />
           </div>
-        </div>
-        {!shouldHideFooter && <MemoizedFooter />}
-      </main>
+        )}
+        
+        <main className={cn(layoutClasses.main, !isMobile && !shouldHideSidebar ? "pl-6" : "")}>
+          <div className={layoutClasses.content}>
+            <div className={layoutClasses.innerContent}>
+              {children}
+            </div>
+          </div>
+          {!shouldHideFooter && <MemoizedFooter />}
+        </main>
+      </div>
     </div>
   );
 });
