@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import ThemeToggle from "@/components/ui/ThemeToggle";
+import { Logo } from "@/components/ui/logo";
 import { ProjectLimitBar } from "@/components/layout/ProjectLimitBar";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserData } from "@/hooks/useUserData";
@@ -130,40 +130,18 @@ export function SessionNavBar() {
       onMouseLeave={() => setIsCollapsed(true)}
     >
       {/* Header com logo MadeAI */}
-      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center justify-between">
+      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center justify-center">
         <motion.div
           className="overflow-hidden"
           animate={{
             width: isCollapsed ? "32px" : "auto",
           }}
         >
-          <img 
-            src="/lovable-uploads/647b2a47-622a-4d51-b065-536ce53708e0.png"
-            alt="MadeAI Logo"
-            className={cn(
-              "transition-all duration-300 dark:hidden",
-              isCollapsed ? "w-8 h-8" : "w-[120px] h-8"
-            )}
+          <Logo 
+            width={isCollapsed ? 32 : 120} 
+            height={isCollapsed ? 32 : 32}
+            className="transition-all duration-300"
           />
-          <img 
-            src="/lovable-uploads/20907bfc-be0d-490c-9375-39a51c3bffb4.png"
-            alt="MadeAI Logo"
-            className={cn(
-              "transition-all duration-300 hidden dark:block",
-              isCollapsed ? "w-8 h-8" : "w-[120px] h-8"
-            )}
-          />
-        </motion.div>
-        
-        {/* Theme Toggle */}
-        <motion.div
-          animate={{
-            opacity: isCollapsed ? 0 : 1,
-            width: isCollapsed ? 0 : "auto",
-          }}
-          className="overflow-hidden"
-        >
-          <ThemeToggle />
         </motion.div>
       </div>
 
