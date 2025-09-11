@@ -34,7 +34,7 @@ const Header = () => {
           />
           {/* Light mode image */}
           <img 
-            src="/lovable-uploads/9ca84508-ada4-4c4e-937f-dc368bcdde4f.png" 
+            src="/lovable-uploads/7941e5b3-cadc-4cba-ad71-21d8d88f9e7e.png" 
             alt="Decorative element light" 
             className={`absolute left-0 top-0 w-16 h-16 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
               theme === 'light' ? 'opacity-100' : 'opacity-0'
