@@ -134,9 +134,9 @@ export function SessionNavBar() {
         <div className="flex items-center gap-2">
           {/* LOGO: wrapper fixo, sem scale */}
           <div className="relative h-7 w-7 shrink-0 select-none pointer-events-none">
-            <Logo 
-              width={28} 
-              height={28}
+            <img 
+              src="/lovable-uploads/4f0d09a9-f699-4cf6-b6b2-f493c19cec77.png"
+              alt="MADE.AI"
               className="absolute inset-0 h-full w-full object-contain"
             />
           </div>
