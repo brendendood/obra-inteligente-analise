@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { useLocation } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -40,8 +41,16 @@ MemoizedFooter.displayName = 'MemoizedFooter';
 
 export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   const { user, loading } = useAuth();
+  const { setTheme } = useTheme();
   const isMobile = useOptimizedMediaQuery('(max-width: 1023px)');
   const location = useLocation();
+
+  // Force Light Mode only in user area
+  useEffect(() => {
+    if (user) {
+      setTheme('light');
+    }
+  }, [user, setTheme]);
   
   // Verifica se é a página de IA
   const isAIPage = location.pathname === '/ia';
@@ -74,7 +83,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
 
   return (
     <div className={cn(
-      "min-h-screen w-full bg-gray-50",
+      "user-area min-h-screen w-full bg-gray-50",
       !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
     )}>
       {/* Sidebar original para mobile */}

@@ -130,19 +130,25 @@ export function SessionNavBar() {
       onMouseLeave={() => setIsCollapsed(true)}
     >
       {/* Header com logo MadeAI */}
-      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center justify-center">
-        <motion.div
-          className="overflow-hidden"
-          animate={{
-            width: isCollapsed ? "32px" : "auto",
-          }}
-        >
-          <Logo 
-            width={isCollapsed ? 32 : 120} 
-            height={isCollapsed ? 32 : 32}
-            className="transition-all duration-300"
-          />
-        </motion.div>
+      <div className="h-14 w-full border-b border-border/70 px-3 flex items-center">
+        <div className="flex items-center gap-2">
+          {/* LOGO: wrapper fixo, sem scale */}
+          <div className="relative h-7 w-7 shrink-0 select-none pointer-events-none">
+            <Logo 
+              width={28} 
+              height={28}
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          </div>
+          {/* Label opcional: pode animar opacidade/translação; NÃO altera o tamanho da logo */}
+          <motion.span
+            className="text-sm font-medium text-foreground truncate"
+            variants={labelVariants}
+            animate={isCollapsed ? "closed" : "open"}
+          >
+            MADE.AI
+          </motion.span>
+        </div>
       </div>
 
       {/* Project Limit Bar */}
