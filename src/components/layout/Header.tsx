@@ -23,12 +23,12 @@ const Header = () => {
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
       <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
         {/* Decorative image in left corner - responsive to theme */}
-        <div className="absolute left-6 top-0 w-12 h-12">
+        <div className="absolute left-6 top-2 w-8 h-8">
           {/* Dark mode image */}
           <img 
-            src="/lovable-uploads/e5e54634-7aef-4e5d-8d3d-263312b69d3b.png" 
+            src="/lovable-uploads/33f8fff7-3935-48f9-9e17-262b4bf237a9.png" 
             alt="Decorative element dark" 
-            className={`absolute left-0 top-0 w-12 h-12 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
+            className={`absolute left-0 top-0 w-8 h-8 object-contain transition-opacity duration-500 ease-in-out ${
               theme === 'dark' ? 'opacity-100' : 'opacity-0'
             }`}
           />
@@ -36,14 +36,14 @@ const Header = () => {
           <img 
             src="/lovable-uploads/7941e5b3-cadc-4cba-ad71-21d8d88f9e7e.png" 
             alt="Decorative element light" 
-            className={`absolute left-0 top-0 w-12 h-12 object-cover rounded-tl-2xl transition-opacity duration-500 ease-in-out ${
+            className={`absolute left-0 top-0 w-8 h-8 object-contain transition-opacity duration-500 ease-in-out ${
               theme === 'light' ? 'opacity-100' : 'opacity-0'
             }`}
           />
         </div>
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center ml-12">
+          <div className="flex items-center ml-10">
             <Logo className="transition-all duration-300 hover:scale-105" />
           </div>
 
