@@ -154,7 +154,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center">
           <img 
-            src="/lovable-uploads/408baabf-5e00-46ac-85e9-6cd8ff338a86.png" 
+            src="/lovable-uploads/fb7db26b-60c1-427f-9a52-501fbec5adac.png" 
             alt="MadeAI" 
             className="h-12 w-auto" 
           />
