@@ -90,9 +90,9 @@ const LandingPage = () => {
               <span className="block">com a MadeAI</span>
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
-              A MadeAI analisa projetos de construções — de casas a grandes edifícios — e gera orçamentos precisos (SINAPI/ABNT), cronogramas realistas baseados em dados de Gantt e relatórios técnicos que apontam possíveis falhas. Tudo exportável em PDF e Excel.
-            </p>
+            <p className="sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed text-base">É simples, você faz upload do seu projeto em PDF ou DWG, a MadeAI analisa e te da resultados precisos e completos de orçamento, cronograma e análise de conflito entre
+ projetos.
+          </p>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
