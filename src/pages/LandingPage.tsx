@@ -18,6 +18,7 @@ import { MadeAIFeaturesSection } from '@/components/sections/madeai-features';
 import { CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Pricing } from "@/components/ui/pricing";
+import { TestPhaseHeading } from "@/components/sections/test-phase-heading";
 
 // GridItem component for Features section
 interface GridItemProps {
@@ -105,9 +106,7 @@ const LandingPage = () => {
             </div>
 
             {/* Trust Indicators */}
-            <div className="text-sm sm:text-base text-muted-foreground">
-              Mais de 1.000+ arquitetos já confiam na nossa plataforma
-            </div>
+            <TestPhaseHeading />
           </motion.div>
         </div>
       </ArchitectureSaaSBackground>
