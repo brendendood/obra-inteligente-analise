@@ -83,14 +83,7 @@ const LandingPage = () => {
                   - Desktop/tablet: animação Typewriter alternando as palavras
                   - Mobile: animação Typewriter também */}
               <span className="block">
-                <Typewriter
-                  text={["Orçamento", "Cronograma", "Projeto"]}
-                  speed={70}
-                  deleteSpeed={40}
-                  waitTime={4000}
-                  className="text-primary"
-                  cursorChar={"_"}
-                />
+                <Typewriter text={["Orçamento", "Cronograma", "Projeto"]} speed={70} deleteSpeed={40} waitTime={4000} className="text-primary" cursorChar={"_"} />
               </span>
 
               {/* Linha 3 (fixa para todos) */}
@@ -156,72 +149,61 @@ const LandingPage = () => {
 
       
       {/* Testimonials Section - Marquee com depoimentos em português */}
-      <TestimonialsSection 
-        title="Profissionais do Brasil confiam na MadeAI"
-        description="Depoimentos de arquitetos e engenheiros que já transformaram seus workflows"
-        testimonials={[
-          {
-            author: {
-              name: "Bruna Almeida",
-              handle: "@bruna.arq",
-              avatar: "",
-              avatarBg: "bg-blue-500"
-            },
-            text: "A MadeAI acelerou nossa análise de projetos e reduziu retrabalho no orçamento.",
-            href: "https://twitter.com/bruna_arq"
-          },
-          {
-            author: {
-              name: "João Pereira",
-              handle: "@joaopereira.eng",
-              avatar: "",
-              avatarBg: "bg-emerald-500"
-            },
-            text: "Cronogramas gerados com precisão e integração tranquila com nosso fluxo."
-          },
-          {
-            author: {
-              name: "Camila Santos",
-              handle: "@camila.projetos",
-              avatar: "",
-              avatarBg: "bg-rose-500"
-            },
-            text: "Upload do projeto e pronto: análise completa com quantitativos claros."
-          },
-          {
-            author: {
-              name: "Ricardo Silva",
-              handle: "@ricardo.eng",
-              avatar: "",
-              avatarBg: "bg-purple-500"
-            },
-            text: "Reduzimos de 3 dias para 2 horas o tempo de criação de orçamentos detalhados."
-          },
-          {
-            author: {
-              name: "Mariana Costa",
-              handle: "@mari.arquiteta",
-              avatar: "",
-              avatarBg: "bg-orange-500"
-            },
-            text: "Interface intuitiva e resultados precisos. Revolucionou nossa produtividade."
-          },
-          {
-            author: {
-              name: "Carlos Oliveira",
-              handle: "@carlos.proj",
-              avatar: "",
-              avatarBg: "bg-teal-500"
-            },
-            text: "A IA entende perfeitamente projetos brasileiros e normas da ABNT."
-          }
-        ]}
-      />
+      <TestimonialsSection title="Profissionais do Brasil confiam na MadeAI" description="Depoimentos de arquitetos e engenheiros que já transformaram seus workflows" testimonials={[{
+      author: {
+        name: "Bruna Almeida",
+        handle: "@bruna.arq",
+        avatar: "",
+        avatarBg: "bg-blue-500"
+      },
+      text: "A MadeAI acelerou nossa análise de projetos e reduziu retrabalho no orçamento.",
+      href: "https://twitter.com/bruna_arq"
+    }, {
+      author: {
+        name: "João Pereira",
+        handle: "@joaopereira.eng",
+        avatar: "",
+        avatarBg: "bg-emerald-500"
+      },
+      text: "Cronogramas gerados com precisão e integração tranquila com nosso fluxo."
+    }, {
+      author: {
+        name: "Camila Santos",
+        handle: "@camila.projetos",
+        avatar: "",
+        avatarBg: "bg-rose-500"
+      },
+      text: "Upload do projeto e pronto: análise completa com quantitativos claros."
+    }, {
+      author: {
+        name: "Ricardo Silva",
+        handle: "@ricardo.eng",
+        avatar: "",
+        avatarBg: "bg-purple-500"
+      },
+      text: "Reduzimos de 3 dias para 2 horas o tempo de criação de orçamentos detalhados."
+    }, {
+      author: {
+        name: "Mariana Costa",
+        handle: "@mari.arquiteta",
+        avatar: "",
+        avatarBg: "bg-orange-500"
+      },
+      text: "Interface intuitiva e resultados precisos. Revolucionou nossa produtividade."
+    }, {
+      author: {
+        name: "Carlos Oliveira",
+        handle: "@carlos.proj",
+        avatar: "",
+        avatarBg: "bg-teal-500"
+      },
+      text: "A IA entende perfeitamente projetos brasileiros e normas da ABNT."
+    }]} />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Problem & Solution Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background text-foreground">
+      <section className="sm:py-16 lg:py-20 bg-background text-foreground py-[21px]">
         <div className="max-w-7xl mx-auto sm:px-6 px-[34px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
             <motion.div initial={{
@@ -303,13 +285,17 @@ const LandingPage = () => {
       {/* Why Choose Section */}
       <section className="py-16 md:py-20 bg-background">
         <div className="max-w-container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
+          <motion.div initial={{
+          opacity: 0,
+          y: 20
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.6
+        }} viewport={{
+          once: true
+        }} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               Por que escolher a MadeAI?
             </h2>
@@ -319,31 +305,30 @@ const LandingPage = () => {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <TrendingUp className="h-8 w-8 text-primary" />,
-                title: "Velocidade sem precedentes",
-                description: "Análise completa de projetos em minutos, não dias. Nossa IA processa plantas e documentos instantaneamente."
-              },
-              {
-                icon: <Shield className="h-8 w-8 text-primary" />,
-                title: "Precisão e confiabilidade",
-                description: "Baseado em normas ABNT e dados SINAPI atualizados. Relatórios técnicos que você pode confiar."
-              },
-              {
-                icon: <Brain className="h-8 w-8 text-primary" />,
-                title: "Insights inteligentes",
-                description: "Detecte falhas construtivas e inconsistências no projeto antes que se tornem problemas custosos."
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="text-center p-6 rounded-xl bg-card border border-border hover:shadow-lg transition-shadow"
-              >
+            {[{
+            icon: <TrendingUp className="h-8 w-8 text-primary" />,
+            title: "Velocidade sem precedentes",
+            description: "Análise completa de projetos em minutos, não dias. Nossa IA processa plantas e documentos instantaneamente."
+          }, {
+            icon: <Shield className="h-8 w-8 text-primary" />,
+            title: "Precisão e confiabilidade",
+            description: "Baseado em normas ABNT e dados SINAPI atualizados. Relatórios técnicos que você pode confiar."
+          }, {
+            icon: <Brain className="h-8 w-8 text-primary" />,
+            title: "Insights inteligentes",
+            description: "Detecte falhas construtivas e inconsistências no projeto antes que se tornem problemas custosos."
+          }].map((item, index) => <motion.div key={index} initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.6,
+            delay: index * 0.1
+          }} viewport={{
+            once: true
+          }} className="text-center p-6 rounded-xl bg-card border border-border hover:shadow-lg transition-shadow">
                 <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                   {item.icon}
                 </div>
@@ -353,8 +338,7 @@ const LandingPage = () => {
                 <p className="text-muted-foreground">
                   {item.description}
                 </p>
-              </motion.div>
-            ))}
+              </motion.div>)}
           </div>
         </div>
       </section>
@@ -448,78 +432,37 @@ const LandingPage = () => {
 
       {/* Pricing Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-muted/30 text-foreground">
-        <Pricing
-          plans={[
-            {
-              name: "BASIC",
-              price: "29.90",
-              yearlyPrice: "23.92",
-              period: "mês",
-              features: [
-                "Análise Geral (normas ABNT)",
-                "Uso individual",
-                "Até 5 projetos",
-                "500 mensagens de IA/mês",
-                "Cronograma, orçamento e documentos básicos",
-                "Exportação simples",
-                "1 automação via webhook",
-                "Suporte em até 48h",
-              ],
-              description: "Perfeito para profissionais autônomos que precisam organizar seus projetos com agilidade.",
-              buttonText: "Começar agora",
-              href: "/cadastro",
-              isPopular: false,
-            },
-            {
-              name: "PRO",
-              price: "79.90",
-              yearlyPrice: "63.92",
-              period: "mês",
-              features: [
-                "Análise Geral (normas ABNT)",
-                "Colaboração com até 3 usuários inclusos",
-                "Até 25 projetos",
-                "2.000 mensagens de IA/mês",
-                "Cronograma, orçamento e documentos avançados",
-                "Permissões por papel",
-                "Até 5 automações integradas",
-                "Exportações avançadas",
-                "Suporte prioritário (<24h)",
-              ],
-              description: "Ideal para pequenos escritórios de engenharia e arquitetura que buscam produtividade em equipe.",
-              buttonText: "Escolher Pro",
-              href: "/cadastro",
-              isPopular: true,
-            },
-            {
-              name: "ENTERPRISE",
-              price: "199.90",
-              yearlyPrice: "159.92",
-              period: "mês",
-              features: [
-                "Análise Geral (normas ABNT)",
-                "Até 10 usuários inclusos",
-                "Projetos ilimitados",
-                "Mensagens de IA ilimitadas",
-                "50 GB de anexos",
-                "SSO (Single Sign-On)",
-                "Auditoria completa",
-                "Integração nativa com Sienge/ERP",
-                "Auditoria técnica completa",
-                "SLA 99,9%",
-                "Gerente de conta dedicado",
-                "Contrato customizado",
-                "Onboarding e treinamento",
-              ],
-              description: "Solução corporativa completa para empresas que precisam de segurança, escala e suporte avançado.",
-              buttonText: "Falar com vendas",
-              href: "/contact",
-              isPopular: false,
-            },
-          ]}
-          title="MadeAI — Planos simples e acessíveis"
-          description="Escolha o plano ideal para você ou seu escritório. Todos os planos incluem orçamentos precisos e cronogramas realistas com dados de mercado, e as automações variam de acordo com o plano."
-        />
+        <Pricing plans={[{
+        name: "BASIC",
+        price: "29.90",
+        yearlyPrice: "23.92",
+        period: "mês",
+        features: ["Análise Geral (normas ABNT)", "Uso individual", "Até 5 projetos", "500 mensagens de IA/mês", "Cronograma, orçamento e documentos básicos", "Exportação simples", "1 automação via webhook", "Suporte em até 48h"],
+        description: "Perfeito para profissionais autônomos que precisam organizar seus projetos com agilidade.",
+        buttonText: "Começar agora",
+        href: "/cadastro",
+        isPopular: false
+      }, {
+        name: "PRO",
+        price: "79.90",
+        yearlyPrice: "63.92",
+        period: "mês",
+        features: ["Análise Geral (normas ABNT)", "Colaboração com até 3 usuários inclusos", "Até 25 projetos", "2.000 mensagens de IA/mês", "Cronograma, orçamento e documentos avançados", "Permissões por papel", "Até 5 automações integradas", "Exportações avançadas", "Suporte prioritário (<24h)"],
+        description: "Ideal para pequenos escritórios de engenharia e arquitetura que buscam produtividade em equipe.",
+        buttonText: "Escolher Pro",
+        href: "/cadastro",
+        isPopular: true
+      }, {
+        name: "ENTERPRISE",
+        price: "199.90",
+        yearlyPrice: "159.92",
+        period: "mês",
+        features: ["Análise Geral (normas ABNT)", "Até 10 usuários inclusos", "Projetos ilimitados", "Mensagens de IA ilimitadas", "50 GB de anexos", "SSO (Single Sign-On)", "Auditoria completa", "Integração nativa com Sienge/ERP", "Auditoria técnica completa", "SLA 99,9%", "Gerente de conta dedicado", "Contrato customizado", "Onboarding e treinamento"],
+        description: "Solução corporativa completa para empresas que precisam de segurança, escala e suporte avançado.",
+        buttonText: "Falar com vendas",
+        href: "/contact",
+        isPopular: false
+      }]} title="MadeAI — Planos simples e acessíveis" description="Escolha o plano ideal para você ou seu escritório. Todos os planos incluem orçamentos precisos e cronogramas realistas com dados de mercado, e as automações variam de acordo com o plano." />
       </section>
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
@@ -620,7 +563,7 @@ const LandingPage = () => {
             question: "A IA detecta falhas de projeto?",
             answer: "Sim! Nossa IA analisa inconsistências estruturais, conflitos entre elementos e possíveis problemas construtivos, alertando sobre falhas que poderiam passar despercebidas."
           }, {
-            question: "Posso exportar resultados em PDF/Excel?", 
+            question: "Posso exportar resultados em PDF/Excel?",
             answer: "Sim! Você pode exportar orçamentos, cronogramas e relatórios técnicos em PDF e Excel. Também oferecemos templates personalizáveis com sua marca e layout."
           }, {
             question: "Há limite de tamanho para os projetos?",
