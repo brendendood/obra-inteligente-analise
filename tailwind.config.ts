@@ -188,6 +188,11 @@ const config: Config = {
           from: { transform: 'translateX(0)' },
           to: { transform: 'translateX(calc(-100% - var(--gap)))' }
         },
+        gradient: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -212,6 +217,7 @@ const config: Config = {
         "marquee": 'marquee var(--duration) linear infinite',
         "star-movement-bottom": "star-movement-bottom linear infinite alternate",
         "star-movement-top": "star-movement-top linear infinite alternate",
+        gradient: "gradient var(--animation-duration, 8s) linear infinite",
       },
     },
   },
