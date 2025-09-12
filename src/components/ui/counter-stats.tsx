@@ -87,11 +87,6 @@ export function CounterStats({
         <div className={`absolute inset-0 rounded-lg bg-primary/10 blur-xl transition-opacity duration-1000 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`} />
-        {/* Badge Live */}
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full mt-2">
-          <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-          LIVE
-        </div>
       </div>
       <div className="text-sm sm:text-base text-muted-foreground font-medium text-center">
         {label}
@@ -105,6 +100,14 @@ export function CounterStats({
       className="w-full bg-background text-foreground py-12 sm:py-16 overflow-hidden"
     >
       <div className="mx-auto max-w-container px-4">
+        {/* Badge Live */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+            LIVE
+          </div>
+        </div>
+        
         {/* Título da seção */}
         <div className={`text-center mb-8 sm:mb-12 transform transition-all duration-700 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
