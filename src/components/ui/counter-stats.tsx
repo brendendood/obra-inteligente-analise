@@ -80,15 +80,20 @@ export function CounterStats({
       }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      <div className="relative">
-        <div className="text-4xl sm:text-5xl md:text-6xl font-bold tabular-nums text-primary">
+      <div className="relative flex flex-col items-center">
+        <div className="text-4xl sm:text-5xl md:text-6xl font-bold tabular-nums text-primary text-center">
           {val}
         </div>
         <div className={`absolute inset-0 rounded-lg bg-primary/10 blur-xl transition-opacity duration-1000 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`} />
+        {/* Badge Live */}
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded-full mt-2">
+          <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+          LIVE
+        </div>
       </div>
-      <div className="text-sm sm:text-base text-muted-foreground font-medium">
+      <div className="text-sm sm:text-base text-muted-foreground font-medium text-center">
         {label}
       </div>
     </div>
