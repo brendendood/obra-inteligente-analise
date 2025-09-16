@@ -112,7 +112,7 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section - Seção 2 com fundo preto no dark mode */}
-      <section className="py-12 sm:py-16 bg-muted/30 dark:bg-black">
+      <section className="sm:py-16 py-[28px] bg-[#fdfdfd]/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div initial={{
           opacity: 0,
@@ -164,11 +164,11 @@ const LandingPage = () => {
             duration: 0.6
           }} viewport={{
             once: true
-          }}>
+          }} className="py-0 px-0">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
                 Chega de orçamentos manuais que levam dias
               </h2>
-              <div className="space-y-3 sm:space-y-4 text-muted-foreground">
+              <div className="space-y-3 sm:space-y-4 text-muted-foreground px-[19px]">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-destructive rounded-full mt-2 flex-shrink-0"></div>
                   <p className="text-sm sm:text-base">Planilhas complexas e propensas a erros humanos</p>
@@ -379,7 +379,7 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30 text-foreground">
+      <section className="sm:py-16 lg:py-20 bg-muted/30 text-foreground py-[9px]">
         <Pricing plans={[{
         name: "BASIC",
         price: "29.90",
@@ -416,91 +416,65 @@ const LandingPage = () => {
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* FAQ Section */}
-      <FAQ 
-        title="Perguntas Frequentes"
-        subtitle="Tire suas dúvidas sobre a MadeAI"
-        categories={{
-          "geral": "Sobre a MadeAI",
-          "planos": "Planos e Preços", 
-          "tecnico": "Parte Técnica",
-          "projetos": "Projetos e Arquitetura"
-        }}
-        faqData={{
-          "geral": [
-            {
-              question: "O que é a MadeAI?",
-              answer: "A MadeAI é uma plataforma de inteligência artificial voltada para engenheiros e arquitetos. Ela auxilia na análise de projetos, dúvidas técnicas e na organização de documentos de forma prática e confiável."
-            },
-            {
-              question: "A MadeAI substitui um profissional de arquitetura ou engenharia?",
-              answer: "Não. A MadeAI é uma ferramenta de apoio que ajuda profissionais e estudantes, mas não substitui a responsabilidade técnica de um engenheiro ou arquiteto."
-            },
-            {
-              question: "A MadeAI segue normas brasileiras?",
-              answer: "Sim. A IA da MadeAI foi treinada para responder com base em normas técnicas brasileiras, garantindo maior segurança e confiabilidade nas respostas."
-            },
-            {
-              question: "Preciso ter conhecimento avançado para usar a MadeAI?",
-              answer: "Não. A plataforma foi desenvolvida para ser simples e intuitiva, permitindo que qualquer pessoa da área consiga aproveitar seus recursos sem dificuldades."
-            }
-          ],
-          "planos": [
-            {
-              question: "A MadeAI é gratuita?",
-              answer: "A MadeAI possui um plano inicial gratuito com recursos limitados. Também oferece planos pagos que desbloqueiam funcionalidades avançadas, como maior limite de projetos e acesso completo aos agentes de IA."
-            },
-            {
-              question: "Quais são as opções de planos disponíveis?",
-              answer: "Atualmente oferecemos um plano gratuito e planos pagos com diferentes níveis de acesso. Os planos pagos incluem mais armazenamento, agentes especializados e suporte prioritário."
-            },
-            {
-              question: "Posso cancelar meu plano a qualquer momento?",
-              answer: "Sim. O cancelamento pode ser feito diretamente na plataforma, sem taxas adicionais ou burocracia."
-            },
-            {
-              question: "Há desconto para empresas ou equipes?",
-              answer: "Sim. A MadeAI oferece planos corporativos para empresas que desejam integrar equipes inteiras, com valores diferenciados e recursos extras."
-            }
-          ],
-          "tecnico": [
-            {
-              question: "Quais tecnologias a MadeAI utiliza?",
-              answer: "A MadeAI é construída com tecnologias modernas como React, Tailwind, Supabase e integração com modelos de IA avançados. Tudo isso garante rapidez, segurança e escalabilidade."
-            },
-            {
-              question: "Preciso instalar algum programa para usar?",
-              answer: "Não. A MadeAI é 100% online e pode ser acessada diretamente pelo navegador, sem necessidade de instalação."
-            },
-            {
-              question: "Meus dados e projetos estão seguros?",
-              answer: "Sim. Utilizamos padrões de segurança e criptografia para proteger as informações dos usuários, além de armazenar dados em servidores confiáveis."
-            },
-            {
-              question: "A MadeAI funciona no celular?",
-              answer: "Sim. A plataforma é responsiva e pode ser acessada tanto no computador quanto em dispositivos móveis."
-            }
-          ],
-          "projetos": [
-            {
-              question: "Quais tipos de projetos posso analisar na MadeAI?",
-              answer: "Você pode analisar projetos de arquitetura e engenharia civil, incluindo cronogramas, orçamentos e documentos técnicos."
-            },
-            {
-              question: "A MadeAI interpreta plantas e arquivos PDF?",
-              answer: "Sim. A plataforma permite o upload de arquivos PDF e oferece recursos de leitura e análise para auxiliar na interpretação de documentos."
-            },
-            {
-              question: "Posso compartilhar meus projetos com outras pessoas?",
-              answer: "Sim. A MadeAI permite colaboração, facilitando o compartilhamento de informações entre equipes e clientes."
-            },
-            {
-              question: "Existe limite de projetos que posso carregar?",
-              answer: "Depende do seu plano. O plano gratuito possui limite reduzido, enquanto os planos pagos oferecem maior capacidade de armazenamento e análise."
-            }
-          ]
-        }}
-        className="py-12 sm:py-16 lg:py-20"
-      />
+      <FAQ title="Perguntas Frequentes" subtitle="Tire suas dúvidas sobre a MadeAI" categories={{
+      "geral": "Sobre a MadeAI",
+      "planos": "Planos e Preços",
+      "tecnico": "Parte Técnica",
+      "projetos": "Projetos e Arquitetura"
+    }} faqData={{
+      "geral": [{
+        question: "O que é a MadeAI?",
+        answer: "A MadeAI é uma plataforma de inteligência artificial voltada para engenheiros e arquitetos. Ela auxilia na análise de projetos, dúvidas técnicas e na organização de documentos de forma prática e confiável."
+      }, {
+        question: "A MadeAI substitui um profissional de arquitetura ou engenharia?",
+        answer: "Não. A MadeAI é uma ferramenta de apoio que ajuda profissionais e estudantes, mas não substitui a responsabilidade técnica de um engenheiro ou arquiteto."
+      }, {
+        question: "A MadeAI segue normas brasileiras?",
+        answer: "Sim. A IA da MadeAI foi treinada para responder com base em normas técnicas brasileiras, garantindo maior segurança e confiabilidade nas respostas."
+      }, {
+        question: "Preciso ter conhecimento avançado para usar a MadeAI?",
+        answer: "Não. A plataforma foi desenvolvida para ser simples e intuitiva, permitindo que qualquer pessoa da área consiga aproveitar seus recursos sem dificuldades."
+      }],
+      "planos": [{
+        question: "A MadeAI é gratuita?",
+        answer: "A MadeAI possui um plano inicial gratuito com recursos limitados. Também oferece planos pagos que desbloqueiam funcionalidades avançadas, como maior limite de projetos e acesso completo aos agentes de IA."
+      }, {
+        question: "Quais são as opções de planos disponíveis?",
+        answer: "Atualmente oferecemos um plano gratuito e planos pagos com diferentes níveis de acesso. Os planos pagos incluem mais armazenamento, agentes especializados e suporte prioritário."
+      }, {
+        question: "Posso cancelar meu plano a qualquer momento?",
+        answer: "Sim. O cancelamento pode ser feito diretamente na plataforma, sem taxas adicionais ou burocracia."
+      }, {
+        question: "Há desconto para empresas ou equipes?",
+        answer: "Sim. A MadeAI oferece planos corporativos para empresas que desejam integrar equipes inteiras, com valores diferenciados e recursos extras."
+      }],
+      "tecnico": [{
+        question: "Quais tecnologias a MadeAI utiliza?",
+        answer: "A MadeAI é construída com tecnologias modernas como React, Tailwind, Supabase e integração com modelos de IA avançados. Tudo isso garante rapidez, segurança e escalabilidade."
+      }, {
+        question: "Preciso instalar algum programa para usar?",
+        answer: "Não. A MadeAI é 100% online e pode ser acessada diretamente pelo navegador, sem necessidade de instalação."
+      }, {
+        question: "Meus dados e projetos estão seguros?",
+        answer: "Sim. Utilizamos padrões de segurança e criptografia para proteger as informações dos usuários, além de armazenar dados em servidores confiáveis."
+      }, {
+        question: "A MadeAI funciona no celular?",
+        answer: "Sim. A plataforma é responsiva e pode ser acessada tanto no computador quanto em dispositivos móveis."
+      }],
+      "projetos": [{
+        question: "Quais tipos de projetos posso analisar na MadeAI?",
+        answer: "Você pode analisar projetos de arquitetura e engenharia civil, incluindo cronogramas, orçamentos e documentos técnicos."
+      }, {
+        question: "A MadeAI interpreta plantas e arquivos PDF?",
+        answer: "Sim. A plataforma permite o upload de arquivos PDF e oferece recursos de leitura e análise para auxiliar na interpretação de documentos."
+      }, {
+        question: "Posso compartilhar meus projetos com outras pessoas?",
+        answer: "Sim. A MadeAI permite colaboração, facilitando o compartilhamento de informações entre equipes e clientes."
+      }, {
+        question: "Existe limite de projetos que posso carregar?",
+        answer: "Depende do seu plano. O plano gratuito possui limite reduzido, enquanto os planos pagos oferecem maior capacidade de armazenamento e análise."
+      }]
+    }} className="sm:py-16 lg:py-20 py-[26px]" />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
