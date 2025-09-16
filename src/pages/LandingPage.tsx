@@ -8,7 +8,7 @@ import { HeroPill } from '@/components/ui/hero-pill';
 import { Typewriter } from '@/components/ui/typewriter';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
-import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
+import { FAQ } from '@/components/ui/faq-tabs';
 import { CounterStats } from '@/components/ui/counter-stats';
 import MadeAITwoCardsSection from "@/components/sections/madeai-two-cards";
 import { GlowingEffect } from '@/components/ui/glowing-effect';
@@ -147,57 +147,92 @@ const LandingPage = () => {
       <CounterStats />
 
       
-      {/* Testimonials Section - Marquee com depoimentos em português */}
-      <TestimonialsSection title="Profissionais do Brasil confiam na MadeAI" description="Depoimentos de arquitetos e engenheiros que já transformaram seus workflows" testimonials={[{
-      author: {
-        name: "Bruna Almeida",
-        handle: "@bruna.arq",
-        avatar: "",
-        avatarBg: "bg-blue-500"
-      },
-      text: "A MadeAI acelerou nossa análise de projetos e reduziu retrabalho no orçamento.",
-      href: "https://twitter.com/bruna_arq"
-    }, {
-      author: {
-        name: "João Pereira",
-        handle: "@joaopereira.eng",
-        avatar: "",
-        avatarBg: "bg-emerald-500"
-      },
-      text: "Cronogramas gerados com precisão e integração tranquila com nosso fluxo."
-    }, {
-      author: {
-        name: "Camila Santos",
-        handle: "@camila.projetos",
-        avatar: "",
-        avatarBg: "bg-rose-500"
-      },
-      text: "Upload do projeto e pronto: análise completa com quantitativos claros."
-    }, {
-      author: {
-        name: "Ricardo Silva",
-        handle: "@ricardo.eng",
-        avatar: "",
-        avatarBg: "bg-purple-500"
-      },
-      text: "Reduzimos de 3 dias para 2 horas o tempo de criação de orçamentos detalhados."
-    }, {
-      author: {
-        name: "Mariana Costa",
-        handle: "@mari.arquiteta",
-        avatar: "",
-        avatarBg: "bg-orange-500"
-      },
-      text: "Interface intuitiva e resultados precisos. Revolucionou nossa produtividade."
-    }, {
-      author: {
-        name: "Carlos Oliveira",
-        handle: "@carlos.proj",
-        avatar: "",
-        avatarBg: "bg-teal-500"
-      },
-      text: "A IA entende perfeitamente projetos brasileiros e normas da ABNT."
-    }]} />
+      {/* FAQ Section */}
+      <FAQ 
+        title="Perguntas Frequentes"
+        subtitle="Tire suas dúvidas sobre a MadeAI"
+        categories={{
+          "geral": "Sobre a MadeAI",
+          "planos": "Planos e Preços", 
+          "tecnico": "Parte Técnica",
+          "projetos": "Projetos e Arquitetura"
+        }}
+        faqData={{
+          "geral": [
+            {
+              question: "O que é a MadeAI?",
+              answer: "A MadeAI é uma plataforma de inteligência artificial voltada para engenheiros e arquitetos. Ela auxilia na análise de projetos, dúvidas técnicas e na organização de documentos de forma prática e confiável."
+            },
+            {
+              question: "A MadeAI substitui um profissional de arquitetura ou engenharia?",
+              answer: "Não. A MadeAI é uma ferramenta de apoio que ajuda profissionais e estudantes, mas não substitui a responsabilidade técnica de um engenheiro ou arquiteto."
+            },
+            {
+              question: "A MadeAI segue normas brasileiras?",
+              answer: "Sim. A IA da MadeAI foi treinada para responder com base em normas técnicas brasileiras, garantindo maior segurança e confiabilidade nas respostas."
+            },
+            {
+              question: "Preciso ter conhecimento avançado para usar a MadeAI?",
+              answer: "Não. A plataforma foi desenvolvida para ser simples e intuitiva, permitindo que qualquer pessoa da área consiga aproveitar seus recursos sem dificuldades."
+            }
+          ],
+          "planos": [
+            {
+              question: "A MadeAI é gratuita?",
+              answer: "A MadeAI possui um plano inicial gratuito com recursos limitados. Também oferece planos pagos que desbloqueiam funcionalidades avançadas, como maior limite de projetos e acesso completo aos agentes de IA."
+            },
+            {
+              question: "Quais são as opções de planos disponíveis?",
+              answer: "Atualmente oferecemos um plano gratuito e planos pagos com diferentes níveis de acesso. Os planos pagos incluem mais armazenamento, agentes especializados e suporte prioritário."
+            },
+            {
+              question: "Posso cancelar meu plano a qualquer momento?",
+              answer: "Sim. O cancelamento pode ser feito diretamente na plataforma, sem taxas adicionais ou burocracia."
+            },
+            {
+              question: "Há desconto para empresas ou equipes?",
+              answer: "Sim. A MadeAI oferece planos corporativos para empresas que desejam integrar equipes inteiras, com valores diferenciados e recursos extras."
+            }
+          ],
+          "tecnico": [
+            {
+              question: "Quais tecnologias a MadeAI utiliza?",
+              answer: "A MadeAI é construída com tecnologias modernas como React, Tailwind, Supabase e integração com modelos de IA avançados. Tudo isso garante rapidez, segurança e escalabilidade."
+            },
+            {
+              question: "Preciso instalar algum programa para usar?",
+              answer: "Não. A MadeAI é 100% online e pode ser acessada diretamente pelo navegador, sem necessidade de instalação."
+            },
+            {
+              question: "Meus dados e projetos estão seguros?",
+              answer: "Sim. Utilizamos padrões de segurança e criptografia para proteger as informações dos usuários, além de armazenar dados em servidores confiáveis."
+            },
+            {
+              question: "A MadeAI funciona no celular?",
+              answer: "Sim. A plataforma é responsiva e pode ser acessada tanto no computador quanto em dispositivos móveis."
+            }
+          ],
+          "projetos": [
+            {
+              question: "Quais tipos de projetos posso analisar na MadeAI?",
+              answer: "Você pode analisar projetos de arquitetura e engenharia civil, incluindo cronogramas, orçamentos e documentos técnicos."
+            },
+            {
+              question: "A MadeAI interpreta plantas e arquivos PDF?",
+              answer: "Sim. A plataforma permite o upload de arquivos PDF e oferece recursos de leitura e análise para auxiliar na interpretação de documentos."
+            },
+            {
+              question: "Posso compartilhar meus projetos com outras pessoas?",
+              answer: "Sim. A MadeAI permite colaboração, facilitando o compartilhamento de informações entre equipes e clientes."
+            },
+            {
+              question: "Existe limite de projetos que posso carregar?",
+              answer: "Depende do seu plano. O plano gratuito possui limite reduzido, enquanto os planos pagos oferecem maior capacidade de armazenamento e análise."
+            }
+          ]
+        }}
+        className="py-12 sm:py-24 md:py-32"
+      />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
