@@ -8,7 +8,7 @@ import { HeroPill } from '@/components/ui/hero-pill';
 import { Typewriter } from '@/components/ui/typewriter';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { Footerdemo } from '@/components/ui/footer-section';
-import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
+import { FAQ } from '@/components/ui/faq-tabs';
 import { CounterStats } from '@/components/ui/counter-stats';
 import MadeAITwoCardsSection from "@/components/sections/madeai-two-cards";
 import { GlowingEffect } from '@/components/ui/glowing-effect';
@@ -147,57 +147,6 @@ const LandingPage = () => {
       <CounterStats />
 
       
-      {/* Testimonials Section - Marquee com depoimentos em português */}
-      <TestimonialsSection title="Profissionais do Brasil confiam na MadeAI" description="Depoimentos de arquitetos e engenheiros que já transformaram seus workflows" testimonials={[{
-      author: {
-        name: "Bruna Almeida",
-        handle: "@bruna.arq",
-        avatar: "",
-        avatarBg: "bg-blue-500"
-      },
-      text: "A MadeAI acelerou nossa análise de projetos e reduziu retrabalho no orçamento.",
-      href: "https://twitter.com/bruna_arq"
-    }, {
-      author: {
-        name: "João Pereira",
-        handle: "@joaopereira.eng",
-        avatar: "",
-        avatarBg: "bg-emerald-500"
-      },
-      text: "Cronogramas gerados com precisão e integração tranquila com nosso fluxo."
-    }, {
-      author: {
-        name: "Camila Santos",
-        handle: "@camila.projetos",
-        avatar: "",
-        avatarBg: "bg-rose-500"
-      },
-      text: "Upload do projeto e pronto: análise completa com quantitativos claros."
-    }, {
-      author: {
-        name: "Ricardo Silva",
-        handle: "@ricardo.eng",
-        avatar: "",
-        avatarBg: "bg-purple-500"
-      },
-      text: "Reduzimos de 3 dias para 2 horas o tempo de criação de orçamentos detalhados."
-    }, {
-      author: {
-        name: "Mariana Costa",
-        handle: "@mari.arquiteta",
-        avatar: "",
-        avatarBg: "bg-orange-500"
-      },
-      text: "Interface intuitiva e resultados precisos. Revolucionou nossa produtividade."
-    }, {
-      author: {
-        name: "Carlos Oliveira",
-        handle: "@carlos.proj",
-        avatar: "",
-        avatarBg: "bg-teal-500"
-      },
-      text: "A IA entende perfeitamente projetos brasileiros e normas da ABNT."
-    }]} />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
@@ -466,128 +415,92 @@ const LandingPage = () => {
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
-      {/* Testimonials Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} viewport={{
-          once: true
-        }} className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-              O que nossos clientes dizem
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-              Depoimentos reais de profissionais que transformaram seus processos
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {[{
-            name: "Ana Silva",
-            role: "Arquiteta - Silva Arquitetura",
-            content: "Reduzi o tempo de elaboração de orçamentos de 3 dias para 30 minutos. A precisão é impressionante e meus clientes ficam satisfeitos com a rapidez.",
-            rating: 5
-          }, {
-            name: "Carlos Santos",
-            role: "Engenheiro Civil - Santos Construções",
-            content: "A integração com SINAPI é perfeita. Nossos orçamentos ficaram muito mais competitivos e precisos. Recomendo para qualquer escritório.",
-            rating: 5
-          }, {
-            name: "Maria Oliveira",
-            role: "Arquiteta - Studio Oliveira",
-            content: "Como freelancer, preciso ser ágil. O MadeAI me permitiu aceitar mais projetos mantendo a qualidade. É uma ferramenta indispensável.",
-            rating: 5
-          }].map((testimonial, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }} className="bg-muted/30 p-4 sm:p-6 rounded-xl border border-border">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />)}
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground mb-4 italic">"{testimonial.content}"</p>
-                <div>
-                  <p className="text-sm sm:text-base font-semibold text-foreground">{testimonial.name}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">{testimonial.role}</p>
-                </div>
-              </motion.div>)}
-          </div>
-        </div>
-      </section>
-
       {/* FAQ Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-muted/30">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} viewport={{
-          once: true
-        }} className="text-center mb-8 sm:mb-12 lg:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-              Perguntas Frequentes
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
-              Tire suas dúvidas sobre a plataforma
-            </p>
-          </motion.div>
-
-          <div className="space-y-3 sm:space-y-4">
-            {[{
-            question: "Como a IA analisa meus projetos?",
-            answer: "Nossa IA utiliza algoritmos de visão computacional e processamento de linguagem natural para analisar plantas, documentos e especificações técnicas, extraindo automaticamente informações sobre materiais, quantidades e especificações."
-          }, {
-            question: "Os preços são baseados em quais tabelas?",
-            answer: "Utilizamos principalmente a tabela SINAPI (IBGE) como base, complementada com dados de mercado regional. A plataforma também se integra ao Sienge e considera índices regionais com atualizações mensais para garantir precisão."
-          }, {
-            question: "A IA detecta falhas de projeto?",
-            answer: "Sim! Nossa IA analisa inconsistências estruturais, conflitos entre elementos e possíveis problemas construtivos, alertando sobre falhas que poderiam passar despercebidas."
-          }, {
-            question: "Posso exportar resultados em PDF/Excel?",
-            answer: "Sim! Você pode exportar orçamentos, cronogramas e relatórios técnicos em PDF e Excel. Também oferecemos templates personalizáveis com sua marca e layout."
-          }, {
-            question: "Há limite de tamanho para os projetos?",
-            answer: "O plano gratuito suporta projetos de até 500m². Planos pagos não têm limite de área e suportam projetos complexos como edifícios e complexos industriais."
-          }, {
-            question: "Como funciona o suporte técnico?",
-            answer: "Oferecemos suporte por email para todos os usuários. Clientes dos planos pagos têm acesso a suporte prioritário e, no plano Enterprise, suporte 24/7 com SLA garantido."
-          }].map((faq, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }} className="bg-background border border-border rounded-lg sm:rounded-xl p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{faq.question}</h3>
-                <p className="text-sm sm:text-base text-muted-foreground">{faq.answer}</p>
-              </motion.div>)}
-          </div>
-        </div>
-      </section>
+      <FAQ 
+        title="Perguntas Frequentes"
+        subtitle="Tire suas dúvidas sobre a MadeAI"
+        categories={{
+          "geral": "Sobre a MadeAI",
+          "planos": "Planos e Preços", 
+          "tecnico": "Parte Técnica",
+          "projetos": "Projetos e Arquitetura"
+        }}
+        faqData={{
+          "geral": [
+            {
+              question: "O que é a MadeAI?",
+              answer: "A MadeAI é uma plataforma de inteligência artificial voltada para engenheiros e arquitetos. Ela auxilia na análise de projetos, dúvidas técnicas e na organização de documentos de forma prática e confiável."
+            },
+            {
+              question: "A MadeAI substitui um profissional de arquitetura ou engenharia?",
+              answer: "Não. A MadeAI é uma ferramenta de apoio que ajuda profissionais e estudantes, mas não substitui a responsabilidade técnica de um engenheiro ou arquiteto."
+            },
+            {
+              question: "A MadeAI segue normas brasileiras?",
+              answer: "Sim. A IA da MadeAI foi treinada para responder com base em normas técnicas brasileiras, garantindo maior segurança e confiabilidade nas respostas."
+            },
+            {
+              question: "Preciso ter conhecimento avançado para usar a MadeAI?",
+              answer: "Não. A plataforma foi desenvolvida para ser simples e intuitiva, permitindo que qualquer pessoa da área consiga aproveitar seus recursos sem dificuldades."
+            }
+          ],
+          "planos": [
+            {
+              question: "A MadeAI é gratuita?",
+              answer: "A MadeAI possui um plano inicial gratuito com recursos limitados. Também oferece planos pagos que desbloqueiam funcionalidades avançadas, como maior limite de projetos e acesso completo aos agentes de IA."
+            },
+            {
+              question: "Quais são as opções de planos disponíveis?",
+              answer: "Atualmente oferecemos um plano gratuito e planos pagos com diferentes níveis de acesso. Os planos pagos incluem mais armazenamento, agentes especializados e suporte prioritário."
+            },
+            {
+              question: "Posso cancelar meu plano a qualquer momento?",
+              answer: "Sim. O cancelamento pode ser feito diretamente na plataforma, sem taxas adicionais ou burocracia."
+            },
+            {
+              question: "Há desconto para empresas ou equipes?",
+              answer: "Sim. A MadeAI oferece planos corporativos para empresas que desejam integrar equipes inteiras, com valores diferenciados e recursos extras."
+            }
+          ],
+          "tecnico": [
+            {
+              question: "Quais tecnologias a MadeAI utiliza?",
+              answer: "A MadeAI é construída com tecnologias modernas como React, Tailwind, Supabase e integração com modelos de IA avançados. Tudo isso garante rapidez, segurança e escalabilidade."
+            },
+            {
+              question: "Preciso instalar algum programa para usar?",
+              answer: "Não. A MadeAI é 100% online e pode ser acessada diretamente pelo navegador, sem necessidade de instalação."
+            },
+            {
+              question: "Meus dados e projetos estão seguros?",
+              answer: "Sim. Utilizamos padrões de segurança e criptografia para proteger as informações dos usuários, além de armazenar dados em servidores confiáveis."
+            },
+            {
+              question: "A MadeAI funciona no celular?",
+              answer: "Sim. A plataforma é responsiva e pode ser acessada tanto no computador quanto em dispositivos móveis."
+            }
+          ],
+          "projetos": [
+            {
+              question: "Quais tipos de projetos posso analisar na MadeAI?",
+              answer: "Você pode analisar projetos de arquitetura e engenharia civil, incluindo cronogramas, orçamentos e documentos técnicos."
+            },
+            {
+              question: "A MadeAI interpreta plantas e arquivos PDF?",
+              answer: "Sim. A plataforma permite o upload de arquivos PDF e oferece recursos de leitura e análise para auxiliar na interpretação de documentos."
+            },
+            {
+              question: "Posso compartilhar meus projetos com outras pessoas?",
+              answer: "Sim. A MadeAI permite colaboração, facilitando o compartilhamento de informações entre equipes e clientes."
+            },
+            {
+              question: "Existe limite de projetos que posso carregar?",
+              answer: "Depende do seu plano. O plano gratuito possui limite reduzido, enquanto os planos pagos oferecem maior capacidade de armazenamento e análise."
+            }
+          ]
+        }}
+        className="py-12 sm:py-16 lg:py-20"
+      />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
