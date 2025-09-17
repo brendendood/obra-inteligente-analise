@@ -112,7 +112,7 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section - Seção 2 com fundo preto no dark mode */}
-      <section className="sm:py-16 py-[28px] bg-[#fdfdfd]/30">
+      <section className="sm:py-16 py-[28px] bg-[#fdfdfd]/30 dark:bg-black dark:shadow-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div initial={{
           opacity: 0,
