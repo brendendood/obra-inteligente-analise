@@ -55,7 +55,7 @@
     "dompurify": "^3.2.6",
     "embla-carousel-react": "^8.3.0",
     "file-saver": "^2.0.5",
-    "framer-motion": "^12.23.12",
+    "framer-motion": "^12.23.16",
     "html2canvas": "^1.4.1",
     "input-otp": "^1.2.4",
     "jspdf": "^3.0.1",
