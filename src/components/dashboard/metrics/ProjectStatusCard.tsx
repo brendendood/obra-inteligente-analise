@@ -59,12 +59,12 @@ export const ProjectStatusCard = ({ projectStatus }: ProjectStatusCardProps) => 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <MetricTile
             title="Projetos com Orçamento"
             value={projectStatus.projectsWithBudget}
             icon={CheckCircle}
-            className="min-h-[120px]"
+            className="min-h-[100px]"
           />
           <MetricTile
             title="Última Data de Envio"
@@ -76,13 +76,13 @@ export const ProjectStatusCard = ({ projectStatus }: ProjectStatusCardProps) => 
                 })
               : 'N/D'}
             icon={Calendar}
-            className="min-h-[120px]"
+            className="min-h-[100px]"
           />
           <MetricTile
             title="Taxa de Conclusão"
             value={`${budgetPercentage}%`}
             icon={TrendingUp}
-            className="min-h-[120px]"
+            className="min-h-[100px]"
           />
         </div>
       </CardContent>

@@ -49,12 +49,12 @@ export const ProjectMetricsCard = ({ projectMetrics }: ProjectMetricsCardProps) 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <MetricTile
             title="Área Total dos Projetos"
             value={`${projectMetrics.totalArea.toLocaleString('pt-BR')} m²`}
             icon={Building}
-            className="min-h-[120px]"
+            className="min-h-[100px]"
           />
           <MetricTile
             title="Custo Médio por Projeto"
@@ -62,13 +62,13 @@ export const ProjectMetricsCard = ({ projectMetrics }: ProjectMetricsCardProps) 
               ? `R$ ${projectMetrics.avgCostPerProject.toLocaleString('pt-BR')}` 
               : 'N/D'}
             icon={Calculator}
-            className="min-h-[120px]"
+            className="min-h-[100px]"
           />
           <MetricTile
             title="Total de Projetos"
             value={projectMetrics.projectCount}
             icon={BarChart3}
-            className="min-h-[120px]"
+            className="min-h-[100px]"
           />
         </div>
       </CardContent>
