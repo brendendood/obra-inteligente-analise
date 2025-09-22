@@ -196,13 +196,39 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
                 {project.name}
               </h3>
               {!!project.notes && (
-                <button
-                  className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted flex-shrink-0"
-                  title={project.notes.length > 120 ? project.notes.slice(0, 120) + "…" : project.notes}
-                  aria-label="Ver nota"
-                >
-                  <MessageSquare className="h-4 w-4 text-primary" />
-                </button>
+                <FloatingActionPanelRoot>
+                  {({ setIsOpen, setMode, mode }) => (
+                    <>
+                      <button
+                        className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted flex-shrink-0"
+                        title="Ver nota"
+                        aria-label="Ver nota"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMode('note');
+                          setIsOpen(true);
+                        }}
+                      >
+                        <MessageSquare className="h-4 w-4 text-primary" />
+                      </button>
+                      
+                      <FloatingActionPanelContent>
+                        <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
+                          <FloatingActionPanelTextarea 
+                            className="mb-3 h-28" 
+                            id={`note-icon-${project.id}`} 
+                            defaultValue={project.notes || ''}
+                          />
+                          <div className="flex justify-end">
+                            <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
+                              Salvar nota
+                            </button>
+                          </div>
+                        </FloatingActionPanelForm>
+                      </FloatingActionPanelContent>
+                    </>
+                  )}
+                </FloatingActionPanelRoot>
               )}
             </div>
             <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${currentStatus.bgColor} ${currentStatus.color} ${currentStatus.borderColor} border flex-shrink-0`}>
@@ -362,13 +388,39 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
                   {project.name}
                 </h3>
                 {!!project.notes && (
-                  <button
-                    className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted flex-shrink-0"
-                    title={project.notes.length > 120 ? project.notes.slice(0, 120) + "…" : project.notes}
-                    aria-label="Ver nota"
-                  >
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                  </button>
+                  <FloatingActionPanelRoot>
+                    {({ setIsOpen, setMode, mode }) => (
+                      <>
+                        <button
+                          className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted flex-shrink-0"
+                          title="Ver nota"
+                          aria-label="Ver nota"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMode('note');
+                            setIsOpen(true);
+                          }}
+                        >
+                          <MessageSquare className="h-4 w-4 text-primary" />
+                        </button>
+                        
+                        <FloatingActionPanelContent>
+                          <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
+                            <FloatingActionPanelTextarea 
+                              className="mb-3 h-28" 
+                              id={`note-icon-desktop-${project.id}`} 
+                              defaultValue={project.notes || ''}
+                            />
+                            <div className="flex justify-end">
+                              <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
+                                Salvar nota
+                              </button>
+                            </div>
+                          </FloatingActionPanelForm>
+                        </FloatingActionPanelContent>
+                      </>
+                    )}
+                  </FloatingActionPanelRoot>
                 )}
               </div>
             </div>

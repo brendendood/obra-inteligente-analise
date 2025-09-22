@@ -25,7 +25,7 @@ function useFloatingActionPanel() {
 }
 
 interface FloatingActionPanelRootProps {
-  children: (props: { mode: PanelMode | null }) => ReactNode;
+  children: (props: { mode: PanelMode | null; setIsOpen: (open: boolean) => void; setMode: (mode: PanelMode | null) => void }) => ReactNode;
 }
 
 export function FloatingActionPanelRoot({ children }: FloatingActionPanelRootProps) {
@@ -36,7 +36,7 @@ export function FloatingActionPanelRoot({ children }: FloatingActionPanelRootPro
   return (
     <FloatingActionPanelContext.Provider value={{ isOpen, setIsOpen, mode, setMode, triggerRef }}>
       <div className="relative">
-        {children({ mode })}
+        {children({ mode, setIsOpen, setMode })}
       </div>
     </FloatingActionPanelContext.Provider>
   );
