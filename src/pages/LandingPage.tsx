@@ -69,7 +69,7 @@ const LandingPage = () => {
           y: 0
         }} transition={{
           duration: 0.8
-        }} className="text-center max-w-4xl mx-auto">
+        }} className="text-center max-w-4xl mx-auto py-[25px]">
             {/* HeroPill */}
             <div className="mb-6 sm:mb-8">
               <HeroPill href="/cadastro" label="Para arquitetos e engenheiros do Brasil" announcement="🎯 Grátis" className="mx-auto" />
