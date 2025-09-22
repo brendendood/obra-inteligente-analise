@@ -42,7 +42,7 @@ export function Logo({ className, width = 120, height = 40 }: LogoProps) {
       />
       {/* Dark mode logo (white) */}
       <img
-        src="/lovable-uploads/1df805be-5b43-4697-835a-964d5633971a.png"
+        src="/assets/madeai-logo-dark.png"
         alt="MadeAI Logo Dark"
         width={width}
         height={height}
