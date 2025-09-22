@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import FileDropzone from '@/components/upload/FileDropzone';
+import SlideButton from '@/components/ui/slide-button';
 import { useBrazilLocations } from '@/hooks/useBrazilLocations';
 import { useEffect } from 'react';
 
@@ -110,10 +111,16 @@ const UploadProjectDialog = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>Cancelar</Button>
-          <Button onClick={onSubmit} disabled={!canSubmit || submitting}>
-            {submitting ? 'Enviando...' : 'Salvar e enviar'}
-          </Button>
+          <div className="flex flex-col items-center justify-center gap-3 w-full py-2">
+            <SlideButton 
+              disabled={!canSubmit || submitting}
+              onComplete={onSubmit} 
+            />
+            <p className="text-sm text-muted-foreground">Arraste para fazer upload</p>
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
+              Cancelar
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
