@@ -129,12 +129,21 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      // Força logout e limpa todas as sessões
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Limpa localStorage manualmente para garantir
+      localStorage.clear();
+      sessionStorage.clear();
+      
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso.",
       });
-      navigate('/');
+      
+      // Força reload da página para garantir limpeza completa
+      window.location.href = '/';
+      
       if (isMobile) {
         setIsMobileOpen(false);
       }
