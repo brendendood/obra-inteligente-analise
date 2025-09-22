@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
-import { CheckCircle, Calendar, FileText } from 'lucide-react';
+import { MetricTile } from '@/components/ui/metric-tile';
+import { CheckCircle, Calendar, FileText, TrendingUp } from 'lucide-react';
 
 interface ProjectStatusCardProps {
   projectStatus: {
@@ -49,54 +50,37 @@ export const ProjectStatusCard = ({ projectStatus }: ProjectStatusCardProps) => 
   );
 
   return (
-    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
+    <Card className="rounded-2xl border bg-card text-card-foreground shadow-sm">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-          <FileText className="h-5 w-5 text-orange-600" />
+        <CardTitle className="font-semibold tracking-tight flex items-center space-x-2">
+          <FileText className="h-5 w-5 text-muted-foreground" />
           <span className="whitespace-nowrap">Status Projetos</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4">
-          {/* Projetos com Orçamento */}
-          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {projectStatus.projectsWithBudget}
-            </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span>Projetos com Orçamento</span>
-            </div>
-          </div>
-
-          {/* Última Data de Envio */}
-          <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-            <div className="text-3xl font-bold text-orange-600 mb-2">
-              {projectStatus.lastSubmissionDate 
-                ? new Date(projectStatus.lastSubmissionDate).toLocaleDateString('pt-BR', { 
-                    day: '2-digit', 
-                    month: '2-digit',
-                    year: '2-digit'
-                  })
-                : 'N/D'}
-            </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <Calendar className="h-4 w-4 text-orange-500" />
-              <span>Última Data de Envio</span>
-            </div>
-          </div>
-
-          {/* Taxa de Conclusão */}
-          <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-            <div className={`text-3xl font-bold ${getStatusColor(budgetPercentage)} mb-2`}>
-              {budgetPercentage}%
-            </div>
-            <div className="text-sm text-gray-600 flex items-center justify-center space-x-1">
-              <FileText className="h-4 w-4 text-purple-500" />
-              <span>Taxa de Conclusão</span>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <MetricTile
+            title="Projetos com Orçamento"
+            value={projectStatus.projectsWithBudget}
+            icon={CheckCircle}
+          />
+          <MetricTile
+            title="Última Data de Envio"
+            value={projectStatus.lastSubmissionDate 
+              ? new Date(projectStatus.lastSubmissionDate).toLocaleDateString('pt-BR', { 
+                  day: '2-digit', 
+                  month: '2-digit',
+                  year: '2-digit'
+                })
+              : 'N/D'}
+            icon={Calendar}
+          />
+          <MetricTile
+            title="Taxa de Conclusão"
+            value={`${budgetPercentage}%`}
+            icon={TrendingUp}
+          />
         </div>
       </CardContent>
     </Card>

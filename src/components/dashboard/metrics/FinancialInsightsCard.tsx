@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
-import { DollarSign } from 'lucide-react';
+import { MetricTile } from '@/components/ui/metric-tile';
+import { DollarSign, Calculator } from 'lucide-react';
 
 interface FinancialInsightsCardProps {
   financial: {
@@ -42,31 +43,26 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
   );
 
   return (
-    <Card className="border border-gray-200 shadow-sm bg-white hover:shadow-md transition-shadow">
+    <Card className="rounded-2xl border bg-card text-card-foreground shadow-sm">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-          <DollarSign className="h-5 w-5 text-green-600" />
+        <CardTitle className="font-semibold tracking-tight flex items-center space-x-2">
+          <DollarSign className="h-5 w-5 text-muted-foreground" />
           <span>Análise Financeira</span>
           <InfoTooltip content={tooltipContent} />
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4">
-          {/* Investimento Total */}
-          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg border border-green-200">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {formatCurrency(financial.totalInvestment)}
-            </div>
-            <div className="text-sm text-gray-600">Investimento Total</div>
-          </div>
-
-          {/* Custo Médio por m² */}
-          <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-            <div className="text-3xl font-bold text-blue-600 mb-2">
-              {financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
-            </div>
-            <div className="text-sm text-gray-600">Custo Médio/m²</div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <MetricTile
+            title="Investimento Total"
+            value={formatCurrency(financial.totalInvestment)}
+            icon={DollarSign}
+          />
+          <MetricTile
+            title="Custo Médio/m²"
+            value={financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
+            icon={Calculator}
+          />
         </div>
       </CardContent>
     </Card>
