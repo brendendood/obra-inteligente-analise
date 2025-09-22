@@ -11,10 +11,10 @@ function daysSince(seedUtc: string) {
 
 function targetValues(seedUtc: string) {
   const d = daysSince(seedUtc)
-  const users = 8 + Math.floor(d / 2) * 8      // +8 a cada 2 dias
-  const projects = 12 + d * 8                   // +8 por dia
-  const analyses = 5 + d * 5                    // +5 por dia
-  return { users, projects, analyses }
+  const professionals = 450 + Math.floor(d / 3) * 5  // +5 profissionais a cada 3 dias
+  const savedHours = 12000 + d * 15                   // +15 horas economizadas por dia
+  const savedMoney = 800000 + d * 5000                // +R$ 5.000 economizados por dia
+  return { professionals, savedHours, savedMoney }
 }
 
 function useCountUpOnView(target: number, isVisible: boolean, durationMs = 2000) {
@@ -48,9 +48,9 @@ export function CounterStats({
   const sectionRef = useRef<HTMLElement>(null)
   const targets = useMemo(() => targetValues(seedUtc), [seedUtc])
   
-  const users = useCountUpOnView(targets.users, isVisible, 2000)
-  const projects = useCountUpOnView(targets.projects, isVisible, 2200)
-  const analyses = useCountUpOnView(targets.analyses, isVisible, 2400)
+  const professionals = useCountUpOnView(targets.professionals, isVisible, 2000)
+  const savedHours = useCountUpOnView(targets.savedHours, isVisible, 2200)
+  const savedMoney = useCountUpOnView(targets.savedMoney, isVisible, 2400)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -73,7 +73,7 @@ export function CounterStats({
     }
   }, [isVisible])
 
-  const item = (label: string, val: number, index: number) => (
+  const item = (label: string, val: number | string, index: number) => (
     <div 
       className={`flex flex-col items-center gap-2 transform transition-all duration-700 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
@@ -82,7 +82,7 @@ export function CounterStats({
     >
       <div className="relative flex flex-col items-center">
         <div className="text-4xl sm:text-5xl md:text-6xl font-bold tabular-nums text-primary text-center">
-          {val}
+          {typeof val === 'number' ? val : val}
         </div>
         <div className={`absolute inset-0 rounded-lg bg-primary/10 blur-xl transition-opacity duration-1000 ${
           isVisible ? 'opacity-100' : 'opacity-0'
@@ -113,18 +113,18 @@ export function CounterStats({
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
-            Nossos Números
+            Insights que provam valor
           </h2>
           <p className="text-muted-foreground mt-2 text-base sm:text-lg">
-            Resultados que falam por si
+            Números reais da transformação que proporcionamos
           </p>
         </div>
         
         {/* Contadores - Mobile horizontal, Desktop grid */}
         <div className="flex flex-row justify-center items-center gap-8 sm:gap-12 md:grid md:grid-cols-3 md:gap-6">
-          {item("Usuários ativos", users, 0)}
-          {item("Projetos ativos", projects, 1)}
-          {item("Análises concluídas", analyses, 2)}
+          {item("Profissionais Ativos", professionals, 0)}
+          {item("Horas Economizadas", savedHours, 1)}
+          {item("R$ Economizados", savedMoney.toLocaleString('pt-BR'), 2)}
         </div>
       </div>
     </section>

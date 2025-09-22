@@ -241,7 +241,7 @@ const LandingPage = () => {
           once: true
         }} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Por que mais de 500 profissionais escolheram a MadeAI?
+              Por que mais de 450 profissionais escolheram a MadeAI?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Economize 90% do tempo em orçamentos e elimine erros custosos antes que aconteçam
@@ -256,11 +256,11 @@ const LandingPage = () => {
           }, {
             icon: <Shield className="h-8 w-8 text-primary" />,
             title: "Confiabilidade técnica comprovada",
-            description: "Dados SINAPI e Sienge atualizados, normas ABNT validadas. Já usado por +500 profissionais com 98% de precisão."
+            description: "Dados SINAPI e Sienge atualizados, normas ABNT validadas. Já usado por +450 profissionais com 98% de precisão."
           }, {
             icon: <Brain className="h-8 w-8 text-primary" />,
             title: "Evite erros custosos",
-            description: "Nossa IA detecta falhas construtivas que custam R$ 50.000+ na obra. Previna problemas antes que aconteçam."
+            description: "Nossa IA detecta falhas construtivas que custam R$ 30.000+ na obra. Previna problemas antes que aconteçam."
           }].map((item, index) => <motion.div key={index} initial={{
             opacity: 0,
             y: 20
