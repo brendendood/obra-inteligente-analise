@@ -109,7 +109,7 @@ export function SessionNavBar() {
       <div className="h-14 w-full border-b border-border/70 px-3 flex items-center">
         <div className="flex items-center gap-2">
           {/* LOGO: wrapper fixo, sem scale */}
-          <div className="relative h-7 w-7 shrink-0 select-none pointer-events-none">
+          <div className="relative h-8 w-8 shrink-0 select-none pointer-events-none">
             <img src="/lovable-uploads/4f0d09a9-f699-4cf6-b6b2-f493c19cec77.png" alt="MADE.AI" className="absolute inset-0 h-full w-full object-contain" />
           </div>
           {/* Label opcional: pode animar opacidade/translação; NÃO altera o tamanho da logo */}
