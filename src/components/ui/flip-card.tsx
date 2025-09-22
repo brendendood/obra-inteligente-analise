@@ -72,13 +72,7 @@ export default function CardFlip({
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className={cn(
-                    'h-3 w-full rounded-sm',
-                    'bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20',
-                    'dark:from-primary/30 dark:via-primary/40 dark:to-primary/30',
-                    'animate-slideIn',
-                    'opacity-0',
-                  )}
+                  className="h-3 w-full animate-slideIn bg-primary/30 dark:bg-primary/40 rounded-sm"
                   style={{
                     width: `${60 + Math.random() * 40}%`,
                     animationDelay: `${i * 0.2}s`,
@@ -95,11 +89,10 @@ export default function CardFlip({
                     'bg-gradient-to-br from-primary via-primary/90 to-primary/80',
                     'flex items-center justify-center',
                     'shadow-lg shadow-primary/25',
-                    'animate-pulse',
                     'transition-all duration-500 group-hover:scale-110 group-hover:rotate-12',
                   )}
                 >
-                  <Building2 className="h-6 w-6 text-white" />
+                  <Building2 className="h-6 w-6 text-primary-foreground" />
                 </div>
               </div>
             </div>
@@ -124,7 +117,7 @@ export default function CardFlip({
                     'opacity-0 group-hover/icon:opacity-100',
                   )}
                 />
-                <Ruler className="relative z-10 h-5 w-5 text-primary transition-all duration-300 group-hover/icon:scale-110 group-hover/icon:rotate-12" />
+                <Ruler className="relative z-10 h-5 w-5 text-foreground transition-all duration-300 group-hover/icon:scale-110 group-hover/icon:rotate-12" />
               </div>
             </div>
           </div>
@@ -154,7 +147,7 @@ export default function CardFlip({
             <div className="space-y-2">
               <div className="mb-2 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary via-primary/90 to-primary/80">
-                  <Code2 className="h-4 w-4 text-white" />
+                  <Code2 className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <h3 className="text-lg leading-snug font-semibold tracking-tight text-zinc-900 transition-all duration-500 ease-out group-hover:translate-y-[-2px] dark:text-white">
                   {title}
