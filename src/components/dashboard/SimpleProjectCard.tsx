@@ -213,18 +213,12 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
                       </button>
                       
                       <FloatingActionPanelContent>
-                        <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
-                          <FloatingActionPanelTextarea 
-                            className="mb-3 h-28" 
-                            id={`note-icon-${project.id}`} 
-                            defaultValue={project.notes || ''}
-                          />
-                          <div className="flex justify-end">
-                            <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
-                              Salvar nota
-                            </button>
-                          </div>
-                        </FloatingActionPanelForm>
+                        <div className="p-4 max-w-sm">
+                          <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-2">Nota do Projeto</h4>
+                          <p className="text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
+                            {project.notes}
+                          </p>
+                        </div>
                       </FloatingActionPanelContent>
                     </>
                   )}
@@ -405,18 +399,12 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
                         </button>
                         
                         <FloatingActionPanelContent>
-                          <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
-                            <FloatingActionPanelTextarea 
-                              className="mb-3 h-28" 
-                              id={`note-icon-desktop-${project.id}`} 
-                              defaultValue={project.notes || ''}
-                            />
-                            <div className="flex justify-end">
-                              <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
-                                Salvar nota
-                              </button>
-                            </div>
-                          </FloatingActionPanelForm>
+                          <div className="p-4 max-w-sm">
+                            <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-50 mb-2">Nota do Projeto</h4>
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400 whitespace-pre-wrap">
+                              {project.notes}
+                            </p>
+                          </div>
                         </FloatingActionPanelContent>
                       </>
                     )}
