@@ -325,14 +325,14 @@ gradientUnits="userSpaceOnUse"
 };
 
 const Layer4: React.FC<LayerProps> = ({ color, secondaryColor, hovered }) => {
-const items = [
-{ id: 1, translateX: "100", translateY: "50", text: "ReactJS" },
-{ id: 2, translateX: "100", translateY: "-50", text: "MongoDB" },
-{ id: 3, translateX: "125", translateY: "0", text: "Prisma" },
-{ id: 4, translateX: "-125", translateY: "0", text: "NextJs" },
-{ id: 5, translateX: "-100", translateY: "50", text: "Auth.js" },
-{ id: 6, translateX: "-100", translateY: "-50", text: "Stripe" },
-];
+  const items = [
+    { id: 1, translateX: "100", translateY: "50", text: "AutoCAD" },
+    { id: 2, translateX: "100", translateY: "-50", text: "Revit" },
+    { id: 3, translateX: "125", translateY: "0", text: "SketchUp" },
+    { id: 4, translateX: "-125", translateY: "0", text: "BIM 360" },
+    { id: 5, translateX: "-100", translateY: "50", text: "DWG" },
+    { id: 6, translateX: "-100", translateY: "-50", text: "PDF" },
+  ];
 
 return (
 <div className="ease-[cubic-bezier(0.6, 0.6, 0, 1)] absolute inset-0 z-[7] flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover/animated-card:opacity-100">
