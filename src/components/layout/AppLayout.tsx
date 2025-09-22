@@ -63,12 +63,12 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
     container: "min-h-screen flex flex-col w-full bg-gray-50",
-    main: "flex-1 flex flex-col min-h-screen transition-none",
+    main: "flex-1 flex flex-col min-h-screen transition-none pr-4",
     content: cn(
       "flex-1",
       isAIPage ? "overflow-hidden" : "overflow-auto"
     ),
-    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : (isProjectPage ? "h-full p-0 sm:p-4 lg:p-6" : "h-full p-4 sm:p-6 lg:p-8")
+    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : (isProjectPage ? "h-full p-0 sm:p-4 lg:p-6" : "h-full p-6 sm:p-8 lg:p-12")
   }), [isMobile, isAIPage, shouldHideSidebar, isProjectPage]);
 
   // Early return for loading state with unified loading
@@ -84,7 +84,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   return (
     <div className={cn(
       "user-area min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
+      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr] gap-6" : "flex flex-col"
     )}>
       {/* Sidebar original para mobile */}
       {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
