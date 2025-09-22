@@ -52,16 +52,18 @@ export const FinancialInsightsCard = ({ financial }: FinancialInsightsCardProps)
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-4">
           <MetricTile
             title="Investimento Total"
             value={formatCurrency(financial.totalInvestment)}
             icon={DollarSign}
+            className="min-h-[120px]"
           />
           <MetricTile
             title="Custo Médio/m²"
             value={financial.avgCostPerSqm ? formatCurrency(financial.avgCostPerSqm) : 'N/D'}
             icon={Calculator}
+            className="min-h-[120px]"
           />
         </div>
       </CardContent>

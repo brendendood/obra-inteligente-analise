@@ -28,18 +28,16 @@ export const MetricTile = ({ title, value, icon: Icon, className = "" }: MetricT
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
       whileHover={{ scale: 1.02 }}
-      className={`group rounded-2xl border border-primary/20 bg-primary/10 p-6 transition-all duration-300 hover:shadow-md ${className}`}
+      className={`group rounded-2xl border border-primary/20 bg-primary/10 p-4 transition-all duration-300 hover:shadow-md flex flex-col justify-center items-center text-center ${className}`}
     >
-      <div className="text-center">
-        <div className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2">
-          {value}
-        </div>
-        <div className="flex items-center justify-center space-x-2 mt-1">
-          {Icon && (
-            <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-          )}
-          <span className="text-sm text-muted-foreground">{title}</span>
-        </div>
+      <div className="text-2xl font-bold tracking-tight text-foreground mb-2 line-clamp-2">
+        {value}
+      </div>
+      <div className="flex items-center justify-center space-x-1">
+        {Icon && (
+          <Icon className="h-3 w-3 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+        )}
+        <span className="text-xs text-muted-foreground line-clamp-2 leading-tight">{title}</span>
       </div>
     </motion.div>
   );
