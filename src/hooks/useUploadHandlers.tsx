@@ -131,8 +131,19 @@ export const useUploadHandlers = ({
           code: insertError.code,
           message: insertError.message,
           details: insertError.details,
-          hint: insertError.hint
+          hint: insertError.hint,
+          projectData: projectData
         });
+        
+        // Verificar se é um erro relacionado ao client_id (que já foi corrigido)
+        if (insertError.message?.includes('client_id')) {
+          toast({
+            title: "❌ Erro no upload", 
+            description: "Problema na sincronização CRM foi detectado. Tentando novamente...",
+            variant: "destructive"
+          });
+        }
+        
         throw new Error(`Falha ao criar projeto: ${insertError.message}`);
       }
 

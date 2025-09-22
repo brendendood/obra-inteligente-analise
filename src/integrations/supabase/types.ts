@@ -585,7 +585,7 @@ export type Database = {
       }
       crm_projects: {
         Row: {
-          client_id: string
+          client_id: string | null
           created_at: string
           description: string | null
           end_date: string | null
@@ -598,7 +598,7 @@ export type Database = {
           value: number
         }
         Insert: {
-          client_id: string
+          client_id?: string | null
           created_at?: string
           description?: string | null
           end_date?: string | null
@@ -611,7 +611,7 @@ export type Database = {
           value?: number
         }
         Update: {
-          client_id?: string
+          client_id?: string | null
           created_at?: string
           description?: string | null
           end_date?: string | null
