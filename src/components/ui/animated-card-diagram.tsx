@@ -187,10 +187,10 @@ useEffect(() => {
 let timeout: NodeJS.Timeout;
 
 if (hovered) {
-timeout = setTimeout(() => {
-setMainProgress(66);
-setSecondaryProgress(100);
-}, 200);
+      timeout = setTimeout(() => {
+        setMainProgress(60);
+        setSecondaryProgress(60);
+      }, 200);
 } else {
 setMainProgress(12.5);
 setSecondaryProgress(0);
@@ -253,14 +253,14 @@ transition:
 />
 </svg>
 <div className="absolute inset-0 flex items-center justify-center">
-<span className="font-gilroy text-xl text-black dark:text-white">
-{hovered
-? secondaryProgress > 66
-? secondaryProgress
-: mainProgress
-: mainProgress}
-%
-</span>
+            <span className="font-gilroy text-xl text-black dark:text-white">
+              {hovered
+                ? secondaryProgress > 60
+                  ? secondaryProgress
+                  : mainProgress
+                : mainProgress}
+              %
+            </span>
 </div>
 </div>
 </div>
