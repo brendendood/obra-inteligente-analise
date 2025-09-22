@@ -180,7 +180,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
           <img 
             src="/lovable-uploads/31e0f373-20df-44cd-ac99-82e34612caa1.png" 
             alt="MadeAI" 
-            className="h-14 w-auto" 
+            className="h-8 w-auto" 
           />
         </div>
         
