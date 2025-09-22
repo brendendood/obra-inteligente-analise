@@ -1832,7 +1832,14 @@ export type Database = {
       }
       calculate_user_engagement: {
         Args: Record<PropertyKey, never> | { target_user_id: string }
-        Returns: number
+        Returns: {
+          avg_session_duration: number
+          engagement_score: number
+          last_activity: string
+          total_events: number
+          total_sessions: number
+          user_id: string
+        }[]
       }
       cleanup_expired_impersonation_sessions: {
         Args: Record<PropertyKey, never>
