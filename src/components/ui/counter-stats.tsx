@@ -11,10 +11,10 @@ function daysSince(seedUtc: string) {
 
 function targetValues(seedUtc: string) {
   const d = daysSince(seedUtc)
-  const professionals = 450 + Math.floor(d / 3) * 5  // +5 profissionais a cada 3 dias
-  const savedHours = 12000 + d * 15                   // +15 horas economizadas por dia
-  const savedMoney = 800000 + d * 5000                // +R$ 5.000 economizados por dia
-  return { professionals, savedHours, savedMoney }
+  const projects = 850 + Math.floor(d / 2) * 3        // +3 projetos a cada 2 dias
+  const savedHours = 15000 + d * 18                    // +18 horas economizadas por dia
+  const savedMoney = 1200000 + d * 6500                // +R$ 6.500 economizados por dia
+  return { projects, savedHours, savedMoney }
 }
 
 function useCountUpOnView(target: number, isVisible: boolean, durationMs = 2000) {
@@ -48,7 +48,7 @@ export function CounterStats({
   const sectionRef = useRef<HTMLElement>(null)
   const targets = useMemo(() => targetValues(seedUtc), [seedUtc])
   
-  const professionals = useCountUpOnView(targets.professionals, isVisible, 2000)
+  const projects = useCountUpOnView(targets.projects, isVisible, 2000)
   const savedHours = useCountUpOnView(targets.savedHours, isVisible, 2200)
   const savedMoney = useCountUpOnView(targets.savedMoney, isVisible, 2400)
 
@@ -122,9 +122,9 @@ export function CounterStats({
         
         {/* Contadores - Mobile horizontal, Desktop grid */}
         <div className="flex flex-row justify-center items-center gap-8 sm:gap-12 md:grid md:grid-cols-3 md:gap-6">
-          {item("Profissionais Ativos", professionals, 0)}
-          {item("Horas Economizadas", savedHours, 1)}
-          {item("R$ Economizados", savedMoney.toLocaleString('pt-BR'), 2)}
+          {item("Projetos Analisados", projects.toLocaleString('pt-BR'), 0)}
+          {item("Horas Economizadas", savedHours.toLocaleString('pt-BR'), 1)}
+          {item("R$ Economizados", `R$ ${savedMoney.toLocaleString('pt-BR')}`, 2)}
         </div>
       </div>
     </section>

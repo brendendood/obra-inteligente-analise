@@ -67,11 +67,11 @@ export default function MadeAITwoCardsSection() {
           <Visual2 mainColor="#0ea5e9" secondaryColor="#22d3ee" />
         </CardVisual>
         <CardBody>
-          <CardTitle>AI-as-Reviewer acelera a triagem</CardTitle>
+          <CardTitle>Análise inteligente de projetos</CardTitle>
           <CardDescription>
-Reduza o tempo de{" "}
-            <span className="whitespace-nowrap">screening</span> em até 60%
-mantendo transparência e rigor regulatório.
+            Processamento automático de documentos com{" "}
+            <span className="whitespace-nowrap">60% mais eficiência</span>{" "}
+            na análise de viabilidade e custos.
           </CardDescription>
         </CardBody>
       </AnimatedCard>
@@ -101,11 +101,11 @@ mantendo transparência e rigor regulatório.
               <Visual2 mainColor="#0ea5e9" secondaryColor="#22d3ee" />
             </CardVisual>
             <CardBody>
-              <CardTitle>AI-as-Reviewer acelera a triagem</CardTitle>
+              <CardTitle>Análise inteligente de projetos</CardTitle>
               <CardDescription>
-Reduza o tempo de{" "}
-                <span className="whitespace-nowrap">screening</span> em até
-60% com validações claras em cada etapa.
+                Processamento automático de documentos com{" "}
+                <span className="whitespace-nowrap">60% mais eficiência</span>{" "}
+                na análise de viabilidade e custos.
               </CardDescription>
             </CardBody>
           </AnimatedCard>
