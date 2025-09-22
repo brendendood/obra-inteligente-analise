@@ -49,7 +49,7 @@ const UploadProjectDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100svw-2rem)] max-w-[calc(100svw-2rem)] sm:max-w-xl max-h-[85dvh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="w-[calc(100svw-2rem)] max-w-[calc(100svw-2rem)] sm:max-w-xl max-h-[85dvh] overflow-y-auto p-4 sm:p-6 rounded-3xl sm:rounded-lg">
         <DialogHeader>
           <DialogTitle>Novo Projeto</DialogTitle>
         </DialogHeader>

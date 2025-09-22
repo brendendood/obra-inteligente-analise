@@ -16,7 +16,7 @@ import {
   useTransform,
   type PanInfo,
 } from "framer-motion"
-import { Check, Loader2, Upload, X } from "lucide-react"
+import { Check, Loader2, ArrowRight, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button, ButtonProps } from "@/components/ui/button"
@@ -175,7 +175,7 @@ const SlideButton = forwardRef<HTMLButtonElement, SlideButtonProps>(
                   className
                 )}
               >
-                <Upload className="size-4" />
+                <ArrowRight className="size-4" />
               </Button>
             </motion.div>
           )}
