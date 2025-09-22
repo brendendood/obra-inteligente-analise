@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { ArrowRight, Code2, Copy, Rocket, Zap } from 'lucide-react';
+import { ArrowRight, Code2, Copy, Building2, Ruler, Hammer } from 'lucide-react';
 import { useState } from 'react';
 
 export interface CardFlipProps {
@@ -34,6 +34,7 @@ export default function CardFlip({
       className="group relative h-[360px] w-full max-w-[300px] [perspective:2000px]"
       onMouseEnter={() => setIsFlipped(true)}
       onMouseLeave={() => setIsFlipped(false)}
+      onClick={() => setIsFlipped((v) => !v)}
     >
       <div
         className={cn(
@@ -98,7 +99,7 @@ export default function CardFlip({
                     'transition-all duration-500 group-hover:scale-110 group-hover:rotate-12',
                   )}
                 >
-                  <Rocket className="h-6 w-6 text-white" />
+                  <Building2 className="h-6 w-6 text-white" />
                 </div>
               </div>
             </div>
@@ -123,7 +124,7 @@ export default function CardFlip({
                     'opacity-0 group-hover/icon:opacity-100',
                   )}
                 />
-                <Zap className="relative z-10 h-5 w-5 text-primary transition-all duration-300 group-hover/icon:scale-110 group-hover/icon:rotate-12" />
+                <Ruler className="relative z-10 h-5 w-5 text-primary transition-all duration-300 group-hover/icon:scale-110 group-hover/icon:rotate-12" />
               </div>
             </div>
           </div>
@@ -166,7 +167,7 @@ export default function CardFlip({
 
             <div className="space-y-2.5">
               {features.map((feature, index) => {
-                const icons = [Copy, Code2, Rocket, Zap];
+                const icons = [Ruler, Hammer, Building2, Code2];
                 const IconComponent = icons[index % icons.length];
 
                 return (
