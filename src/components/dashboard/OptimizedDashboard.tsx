@@ -5,12 +5,10 @@ import { ArchitectQuote } from '@/components/dashboard/ArchitectQuote';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EnhancedProjectsSection } from '@/components/dashboard/EnhancedProjectsSection';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
-
 import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteConfirmDialog';
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
 import { useDashboardGeolocation } from '@/hooks/useDashboardGeolocation';
-
 interface OptimizedDashboardProps {
   userName: string;
   projects: any[];
@@ -18,31 +16,28 @@ interface OptimizedDashboardProps {
   error?: string | null;
   onRetry?: () => void;
 }
-
-const OptimizedDashboard = memo(({ 
-  userName, 
-  projects, 
-  isLoadingProjects, 
-  error, 
-  onRetry 
+const OptimizedDashboard = memo(({
+  userName,
+  projects,
+  isLoadingProjects,
+  error,
+  onRetry
 }: OptimizedDashboardProps) => {
   // Hook para capturar geolocalização apenas no painel
   useDashboardGeolocation();
-  
+
   // Hook para gerenciar exclusão de projetos
   const {
     projectToDelete,
     isDeleting,
     confirmDelete,
     cancelDelete,
-    executeDelete,
+    executeDelete
   } = useProjectDeletion();
 
   // Métricas avançadas baseadas nos projetos
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
-
-  return (
-    <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto px-4 sm:px-6 lg:px-8">
+  return <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto sm:px-6 lg:px-8 px-px">
       {/* Header Section */}
       <div className="bg-card border border-border rounded-apple p-6 sm:p-8 w-full">
         <div className="flex items-center justify-between w-full mb-6">
@@ -61,30 +56,15 @@ const OptimizedDashboard = memo(({
         <QuickActions />
         
         {/* 2. Hub de Projetos */}
-        <EnhancedProjectsSection
-          projects={projects}
-          isLoading={isLoadingProjects}
-          onDeleteProject={confirmDelete}
-        />
+        <EnhancedProjectsSection projects={projects} isLoading={isLoadingProjects} onDeleteProject={confirmDelete} />
         
         {/* 3. Métricas Avançadas */}
-        <DashboardStatsGrid 
-          advancedMetrics={advancedMetrics}
-        />
+        <DashboardStatsGrid advancedMetrics={advancedMetrics} />
       </div>
 
       {/* Dialog de Confirmação de Exclusão */}
-      <ProjectDeleteConfirmDialog
-        project={projectToDelete}
-        isOpen={!!projectToDelete}
-        isDeleting={isDeleting}
-        onConfirm={executeDelete}
-        onCancel={cancelDelete}
-      />
-    </div>
-  );
+      <ProjectDeleteConfirmDialog project={projectToDelete} isOpen={!!projectToDelete} isDeleting={isDeleting} onConfirm={executeDelete} onCancel={cancelDelete} />
+    </div>;
 });
-
 OptimizedDashboard.displayName = 'OptimizedDashboard';
-
 export { OptimizedDashboard };
