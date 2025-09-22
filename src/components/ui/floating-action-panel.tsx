@@ -96,7 +96,8 @@ export function FloatingActionPanelContent({ children }: FloatingActionPanelCont
 
   useEffect(() => {
     if (isOpen && triggerRef.current) {
-      setTriggerRect(triggerRef.current.getBoundingClientRect());
+      const rect = triggerRef.current.getBoundingClientRect();
+      setTriggerRect(rect);
     }
   }, [isOpen, triggerRef]);
 
@@ -133,11 +134,9 @@ export function FloatingActionPanelContent({ children }: FloatingActionPanelCont
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
-            className="fixed inset-0 z-40 bg-black/5" 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div 
+            className="fixed inset-0 z-40 bg-transparent" 
+            onClick={() => setIsOpen(false)}
           />
           <motion.div
             ref={contentRef}
@@ -145,10 +144,10 @@ export function FloatingActionPanelContent({ children }: FloatingActionPanelCont
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="fixed z-50 min-w-[280px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl outline-none dark:border-zinc-800 dark:bg-zinc-950"
+            className="fixed z-50 min-w-[280px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-950"
             style={{
-              left: triggerRect ? triggerRect.left + window.scrollX : "50%",
-              top: triggerRect ? triggerRect.bottom + 8 + window.scrollY : "50%",
+              left: triggerRect ? Math.max(8, triggerRect.left) : "50%",
+              top: triggerRect ? triggerRect.bottom + 8 : "50%",
               transformOrigin: "top left",
             }}
           >
