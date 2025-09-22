@@ -79,7 +79,7 @@ export default function MadeAITwoCardsSection() {
         {/* Card 2 */}
         <AnimatedCard>
           <CardVisual>
-            <Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" />
+            <Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" targetPercentage={75} />
           </CardVisual>
           <CardBody>
             <CardTitle>Precisão em orçamentos</CardTitle>
@@ -115,7 +115,7 @@ export default function MadeAITwoCardsSection() {
         <div ref={card2.ref} className={["snap-center shrink-0 transition-all duration-700", "data-[inview=false]:translate-y-4 data-[inview=false]:opacity-0", "data-[inview=true]:translate-y-0 data-[inview=true]:opacity-100"].join(" ")} data-inview={card2.inView}>
           <AnimatedCard className="shadow-md">
             <CardVisual>
-              <Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" />
+              <Visual2 mainColor="#a78bfa" secondaryColor="#fbbf24" targetPercentage={75} />
             </CardVisual>
             <CardBody>
                 <CardTitle>Precisão em orçamentos</CardTitle>

@@ -89,15 +89,17 @@ className={cn("h-[180px] w-[356px] overflow-hidden", className)}
 // --- Visual2 Component and its Sub-components ---
 
 interface Visual2Props {
-mainColor?: string;
-secondaryColor?: string;
-gridColor?: string;
+  mainColor?: string;
+  secondaryColor?: string;
+  gridColor?: string;
+  targetPercentage?: number;
 }
 
 export function Visual2({
-mainColor = "#8b5cf6",
-secondaryColor = "#fbbf24",
-gridColor = "#80808015",
+  mainColor = "#8b5cf6",
+  secondaryColor = "#fbbf24",
+  gridColor = "#80808015",
+  targetPercentage = 60,
 }: Visual2Props) {
 const [hovered, setHovered] = useState(false);
 
@@ -115,18 +117,19 @@ style={
 }
 />
 <div className="relative h-[180px] w-[356px] overflow-hidden rounded-t-lg">
-<Layer1
-hovered={hovered}
-color={mainColor}
-secondaryColor={secondaryColor}
-/>
-<Layer2 color={mainColor} />
-<Layer3 color={mainColor} />
-<Layer4
-color={mainColor}
-secondaryColor={secondaryColor}
-hovered={hovered}
-/>
+        <Layer1
+          hovered={hovered}
+          color={mainColor}
+          secondaryColor={secondaryColor}
+          targetPercentage={targetPercentage}
+        />
+        <Layer2 color={mainColor} />
+        <Layer3 color={mainColor} />
+        <Layer4
+          color={mainColor}
+          secondaryColor={secondaryColor}
+          hovered={hovered}
+        />
 <EllipseGradient color={mainColor} />
 <GridLayer color={gridColor} />
 </div>
@@ -135,9 +138,10 @@ hovered={hovered}
 }
 
 interface LayerProps {
-color: string;
-secondaryColor?: string;
-hovered?: boolean;
+  color: string;
+  secondaryColor?: string;
+  hovered?: boolean;
+  targetPercentage?: number;
 }
 
 const EllipseGradient: React.FC<{ color: string }> = ({ color }) => {
@@ -179,27 +183,27 @@ className="pointer-events-none absolute inset-0 z-[4] h-full w-full bg-transpare
 );
 };
 
-const Layer1: React.FC<LayerProps> = ({ hovered, color, secondaryColor }) => {
-const [mainProgress, setMainProgress] = useState(12.5);
-const [secondaryProgress, setSecondaryProgress] = useState(0);
+const Layer1: React.FC<LayerProps> = ({ hovered, color, secondaryColor, targetPercentage = 60 }) => {
+  const [mainProgress, setMainProgress] = useState(12.5);
+  const [secondaryProgress, setSecondaryProgress] = useState(0);
 
-useEffect(() => {
-let timeout: NodeJS.Timeout;
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
 
-if (hovered) {
+    if (hovered) {
       timeout = setTimeout(() => {
-        setMainProgress(60);
-        setSecondaryProgress(60);
+        setMainProgress(targetPercentage);
+        setSecondaryProgress(targetPercentage);
       }, 200);
-} else {
-setMainProgress(12.5);
-setSecondaryProgress(0);
-}
+    } else {
+      setMainProgress(12.5);
+      setSecondaryProgress(0);
+    }
 
-return () => {
-clearTimeout(timeout);
-};
-}, [hovered]);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [hovered, targetPercentage]);
 
 const radius = 40;
 const circumference = 2 * Math.PI * radius;
@@ -255,7 +259,7 @@ transition:
 <div className="absolute inset-0 flex items-center justify-center">
             <span className="font-gilroy text-xl text-black dark:text-white">
               {hovered
-                ? secondaryProgress > 60
+                ? secondaryProgress >= targetPercentage
                   ? secondaryProgress
                   : mainProgress
                 : mainProgress}
