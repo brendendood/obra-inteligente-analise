@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload as UploadIcon, Zap } from 'lucide-react';
+import { Upload as UploadIcon } from 'lucide-react';
+import SlideButton from '@/components/ui/slide-button';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import ProjectNameField from '@/components/upload/ProjectNameField';
@@ -88,14 +89,12 @@ const Upload = () => {
             <CardContent className="p-8">
               {!uploading && !uploadComplete && (
                 <>
-                  <Button 
-                    onClick={() => setDialogOpen(true)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-semibold shadow-sm"
-                    size="lg"
-                  >
-                    <Zap className="h-5 w-5 mr-2" />
-                    Upload de Projeto
-                  </Button>
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <SlideButton onSlideComplete={() => setDialogOpen(true)} />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Arraste para fazer upload
+                    </p>
+                  </div>
 
                   <UploadProjectDialog
                     open={dialogOpen}
