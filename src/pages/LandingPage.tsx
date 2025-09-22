@@ -112,7 +112,7 @@ const LandingPage = () => {
       </ArchitectureSaaSBackground>
 
       {/* Social Proof Section - Seção 2 com fundo preto no dark mode */}
-      <section className="sm:py-16 py-[28px] bg-[#fdfdfd]/30 dark:bg-black dark:shadow-none">
+      <section className="sm:py-16 bg-[#fdfdfd]/30 dark:bg-black dark:shadow-none py-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div initial={{
           opacity: 0,
@@ -134,11 +134,7 @@ const LandingPage = () => {
               }} frameBorder="0" allowFullScreen />
               </div>
             </div>
-            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-12 opacity-60">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Logo_IBGE.svg/200px-Logo_IBGE.svg.png" alt="SINAPI - IBGE" className="h-8 sm:h-10 md:h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://supabase.com/brand-assets/supabase-logo-wordmark--dark.svg" alt="Supabase" className="h-8 sm:h-10 md:h-12 hover:opacity-100 transition-all duration-300" />
-              <img src="https://docs.n8n.io/favicon.svg" alt="N8N" className="h-10 sm:h-12 md:h-16 hover:opacity-100 transition-all duration-300" />
-            </div>
+            
           </motion.div>
         </div>
       </section>
@@ -298,7 +294,7 @@ const LandingPage = () => {
 
       {/* Demo Section */}
       <section className="py-12 sm:py-16 lg:py-20 bg-background text-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto sm:px-6 px-[29px]">
           <motion.div initial={{
           opacity: 0,
           y: 20

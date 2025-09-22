@@ -55,7 +55,7 @@ export function Pricing({
       });
     }
   };
-  return <div className="container py-[24px]">
+  return <div className="container py-[69px]">
       <div className="text-center space-y-4 mb-12">
         <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
           {title}
@@ -76,7 +76,7 @@ export function Pricing({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 px-[20px]">
+      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 px-0">
         {plans.map((plan, index) => <motion.div key={index} initial={{
         y: 50,
         opacity: 1
