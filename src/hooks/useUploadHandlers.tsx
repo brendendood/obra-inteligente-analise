@@ -39,10 +39,37 @@ export const useUploadHandlers = ({
   const navigate = useNavigate();
 
   const handleUpload = async () => {
-    console.log('🔍 UPLOAD (popup): validação inicial...');
+    console.log('🔍 UPLOAD: Iniciando processo de upload...');
+    console.log('📊 UPLOAD: Dados do usuário:', { userId: user?.id, email: user?.email });
+    console.log('📄 UPLOAD: Dados do projeto:', { projectName, file: file?.name, stateUF, cityName });
+
+    // Verificar autenticação robusta
+    if (!user?.id) {
+      console.error('❌ UPLOAD: Usuário não autenticado ou sem ID');
+      toast({ 
+        title: '❌ Erro de autenticação', 
+        description: 'Faça login novamente para continuar.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    // Verificar sessão Supabase
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session) {
+      console.error('❌ UPLOAD: Sessão inválida:', sessionError);
+      toast({ 
+        title: '❌ Sessão expirada', 
+        description: 'Sua sessão expirou. Faça login novamente.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+    console.log('✅ UPLOAD: Sessão válida confirmada');
 
     const validation = await validateCompleteUpload(file, projectName);
     if (!validation.isValid) {
+      console.error('❌ UPLOAD: Validação falhou:', validation.combinedError);
       toast({
         title: '❌ Validação falhou',
         description: validation.combinedError || 'Arquivo ou nome inválido',
@@ -51,12 +78,8 @@ export const useUploadHandlers = ({
       return;
     }
 
-    if (!user) {
-      toast({ title: '❌ Usuário não autenticado', description: 'Faça login novamente.', variant: 'destructive' });
-      return;
-    }
-
     if (!stateUF || !cityName) {
+      console.error('❌ UPLOAD: Campos obrigatórios faltando:', { stateUF, cityName });
       toast({ title: '❌ Campos obrigatórios', description: 'Selecione Estado e Cidade.', variant: 'destructive' });
       return;
     }
@@ -68,38 +91,57 @@ export const useUploadHandlers = ({
     try {
       // 1) Upload do arquivo primeiro (para respeitar NOT NULL de file_path)
       const storagePath = `${user.id}/${Date.now()}-${file!.name}`;
+      console.log('📤 UPLOAD: Iniciando upload para storage:', storagePath);
+      
       const { error: uploadError } = await supabase.storage
         .from('project-files')
         .upload(storagePath, file!);
 
       if (uploadError) {
-        console.error('❌ Erro no storage:', uploadError);
-        throw new Error(`Erro no upload: ${uploadError.message}`);
+        console.error('❌ UPLOAD: Erro no storage:', uploadError);
+        throw new Error(`Erro no upload para storage: ${uploadError.message}`);
       }
+      console.log('✅ UPLOAD: Arquivo enviado para storage com sucesso');
 
       setProgress(25);
 
       // 2) Criar projeto no banco com caminho do arquivo
+      console.log('💾 UPLOAD: Criando projeto no banco de dados...');
+      const projectData = {
+        user_id: user.id,
+        name: projectName.trim(),
+        state: stateUF,
+        city: cityName,
+        country: 'Brasil',
+        project_status: 'draft',
+        file_path: storagePath,
+        file_size: file!.size,
+      };
+      console.log('📊 UPLOAD: Dados do projeto para inserção:', projectData);
+
       const { data: createdProject, error: insertError } = await supabase
         .from('projects')
-        .insert({
-          user_id: user.id,
-          name: projectName.trim(),
-          state: stateUF,
-          city: cityName,
-          country: 'Brasil',
-          project_status: 'draft',
-          file_path: storagePath,
-          file_size: file!.size,
-        })
+        .insert(projectData)
         .select()
         .single();
 
-      if (insertError || !createdProject) {
-        console.error('❌ Erro ao criar projeto:', insertError);
+      if (insertError) {
+        console.error('❌ UPLOAD: Erro detalhado ao criar projeto:', {
+          error: insertError,
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint
+        });
+        throw new Error(`Falha ao criar projeto: ${insertError.message}`);
+      }
+
+      if (!createdProject) {
+        console.error('❌ UPLOAD: Projeto não foi criado (dados null)');
         throw new Error('Falha ao criar o projeto no banco de dados.');
       }
 
+      console.log('✅ UPLOAD: Projeto criado com sucesso:', createdProject.id);
       setProgress(45);
 
       // 4) Enviar webhook ao N8N com ID do projeto, UF e user_id (sem cidade)
@@ -127,40 +169,85 @@ export const useUploadHandlers = ({
       setProgress(65);
 
       // 5) Chamar edge function para processar e ATUALIZAR projeto existente
+      console.log('🔄 UPLOAD: Chamando edge function para processamento...');
+      const edgeFunctionPayload = {
+        fileName: storagePath,
+        originalName: file!.name,
+        projectName: projectName.trim(),
+        fileSize: file!.size,
+        projectId: createdProject.id,
+        state: stateUF,
+        city: cityName,
+      };
+      console.log('📤 UPLOAD: Payload para edge function:', edgeFunctionPayload);
+
       const { data, error: processError } = await supabase.functions.invoke('upload-project', {
-        body: {
-          fileName: storagePath,
-          originalName: file!.name,
-          projectName: projectName.trim(),
-          fileSize: file!.size,
-          projectId: createdProject.id,
-          state: stateUF,
-          city: cityName,
-        },
+        body: edgeFunctionPayload,
       });
 
       if (processError) {
-        console.error('❌ Erro no processamento:', processError);
+        console.error('❌ UPLOAD: Erro na edge function:', {
+          error: processError,
+          message: processError.message,
+          context: processError.context
+        });
         throw new Error(`Erro no processamento: ${processError.message}`);
       }
 
+      console.log('📊 UPLOAD: Resposta da edge function:', data);
+
       if (!data?.success) {
-        throw new Error(data?.error || 'Erro no processamento');
+        console.error('❌ UPLOAD: Edge function retornou falha:', data);
+        throw new Error(data?.error || 'Erro no processamento da edge function');
       }
 
+      console.log('✅ UPLOAD: Edge function processada com sucesso');
       setProgress(100);
       setUploadComplete(true);
       stopProcessing();
+
+      // Recarregar lista de projetos para garantir que apareça no painel
+      try {
+        await loadUserProjects();
+        console.log('✅ UPLOAD: Lista de projetos recarregada');
+      } catch (reloadError) {
+        console.warn('⚠️ UPLOAD: Erro ao recarregar projetos:', reloadError);
+      }
 
       toast({ title: '🎉 Projeto enviado!', description: data.message || 'Seu projeto foi analisado com sucesso.' });
 
       // Redirecionar para o projeto criado
       const pid = data.project?.id || createdProject.id;
+      console.log('🔄 UPLOAD: Redirecionando para projeto:', pid);
       setTimeout(() => navigate(`/projeto/${pid}`, { replace: true }), 1200);
     } catch (error: any) {
-      console.error('💥 Erro no upload:', error);
+      console.error('💥 UPLOAD: Erro crítico:', {
+        error,
+        message: error?.message,
+        stack: error?.stack,
+        name: error?.name
+      });
       stopProcessing();
-      toast({ title: '❌ Erro no upload', description: error?.message || 'Erro desconhecido', variant: 'destructive' });
+      
+      // Mensagem de erro mais específica
+      let errorMessage = 'Erro desconhecido';
+      if (error?.message?.includes('autenticação') || error?.message?.includes('Unauthorized')) {
+        errorMessage = 'Erro de autenticação. Faça login novamente.';
+      } else if (error?.message?.includes('storage')) {
+        errorMessage = 'Erro no envio do arquivo. Tente novamente.';
+      } else if (error?.message?.includes('banco de dados')) {
+        errorMessage = 'Erro ao salvar projeto. Verifique sua conexão.';
+      } else if (error?.message?.includes('processamento')) {
+        errorMessage = 'Erro no processamento. O arquivo pode estar corrompido.';
+      } else {
+        errorMessage = error?.message || 'Erro inesperado durante o upload';
+      }
+      
+      toast({ 
+        title: '❌ Erro no upload', 
+        description: errorMessage, 
+        variant: 'destructive' 
+      });
     } finally {
       setUploading(false);
     }
