@@ -76,7 +76,7 @@ export function Pricing({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 px-[20px]">
         {plans.map((plan, index) => <motion.div key={index} initial={{
         y: 50,
         opacity: 1

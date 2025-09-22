@@ -474,7 +474,7 @@ const LandingPage = () => {
         question: "Existe limite de projetos que posso carregar?",
         answer: "Depende do seu plano. O plano gratuito possui limite reduzido, enquanto os planos pagos oferecem maior capacidade de armazenamento e análise."
       }]
-    }} className="sm:py-16 lg:py-20 py-[26px]" />
+    }} className="sm:py-16 lg:py-20 py-[26px] px-[34px]" />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
