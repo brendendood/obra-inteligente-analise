@@ -72,27 +72,24 @@ export default function CardFlip({
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-3 w-full animate-slideIn bg-primary/30 dark:bg-primary/40 rounded-sm"
+                  className="h-3 w-full rounded-sm animate-slideIn bg-primary/30 dark:bg-primary/40"
                   style={{
                     width: `${60 + Math.random() * 40}%`,
                     animationDelay: `${i * 0.2}s`,
                     marginLeft: `${Math.random() * 20}%`,
+                    backgroundImage: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent)',
+                    backgroundSize: '200% 100%',
+                    animation: 'slideIn 2s ease-in-out infinite, shimmer 2.5s linear infinite'
                   }}
                 />
               ))}
 
-              {/* Central rocket icon */}
+              {/* Central icon container */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div
-                  className={cn(
-                    'h-12 w-12 rounded-xl',
-                    'bg-gradient-to-br from-primary via-primary/90 to-primary/80',
-                    'flex items-center justify-center',
-                    'shadow-lg shadow-primary/25',
-                    'transition-all duration-500 group-hover:scale-110 group-hover:rotate-12',
-                  )}
-                >
-                  <Building2 className="h-6 w-6 text-primary-foreground" />
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-lg shadow-primary/25 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12">
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-primary-foreground" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -110,14 +107,10 @@ export default function CardFlip({
                 </p>
               </div>
               <div className="group/icon relative">
-                <div
-                  className={cn(
-                    'absolute inset-[-8px] rounded-lg transition-opacity duration-300',
-                    'bg-gradient-to-br from-primary/20 via-primary/10 to-transparent',
-                    'opacity-0 group-hover/icon:opacity-100',
-                  )}
-                />
-                <Ruler className="relative z-10 h-5 w-5 text-foreground transition-all duration-300 group-hover/icon:scale-110 group-hover/icon:rotate-12" />
+                <div className="absolute inset-[-8px] rounded-lg transition-opacity duration-300 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent opacity-0 group-hover/icon:opacity-100" />
+                <div className="w-5 h-5 flex items-center justify-center">
+                  <Ruler className="relative z-10 w-5 h-5 text-foreground transition-all duration-300 group-hover/icon:scale-110 group-hover/icon:rotate-12" />
+                </div>
               </div>
             </div>
           </div>
@@ -146,8 +139,10 @@ export default function CardFlip({
           <div className="relative z-10 flex-1 space-y-5">
             <div className="space-y-2">
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary via-primary/90 to-primary/80">
-                  <Code2 className="h-4 w-4 text-primary-foreground" />
+                <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-primary via-primary/90 to-primary/80">
+                  <div className="w-4 h-4 flex items-center justify-center">
+                    <Code2 className="w-4 h-4 text-primary-foreground" />
+                  </div>
                 </div>
                 <h3 className="text-lg leading-snug font-semibold tracking-tight text-zinc-900 transition-all duration-500 ease-out group-hover:translate-y-[-2px] dark:text-white">
                   {title}
@@ -175,8 +170,10 @@ export default function CardFlip({
                       transitionDelay: `${index * 100 + 200}ms`,
                     }}
                   >
-                    <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-primary/10 dark:bg-primary/20">
-                      <IconComponent className="h-3 w-3 text-primary" />
+                    <div className="h-5 w-5 flex items-center justify-center rounded-md bg-primary/10 dark:bg-primary/20">
+                      <div className="w-3 h-3 flex items-center justify-center">
+                        <IconComponent className="w-3 h-3 text-primary" />
+                      </div>
                     </div>
                     <span className="font-medium">{feature}</span>
                   </div>

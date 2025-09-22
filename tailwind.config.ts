@@ -9,6 +9,7 @@ const config: Config = {
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  safelist: ["animate-slideIn"],
   prefix: "",
   theme: {
     container: {
@@ -198,6 +199,10 @@ const config: Config = {
           '50%': { transform: 'translateX(0)', opacity: '0.8' },
           '100%': { transform: 'translateX(100px)', opacity: '0' },
         },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -224,6 +229,7 @@ const config: Config = {
         "star-movement-top": "star-movement-top linear infinite alternate",
         gradient: "gradient var(--animation-duration, 8s) linear infinite",
         slideIn: "slideIn 2s ease-in-out infinite",
+        shimmer: "shimmer 2.5s linear infinite",
       },
     },
   },
