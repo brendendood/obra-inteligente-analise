@@ -75,20 +75,20 @@ export function CounterStats({
 
   const item = (label: string, val: number | string, index: number) => (
     <div 
-      className={`flex flex-col items-center gap-2 transform transition-all duration-700 ${
+      className={`flex flex-col items-center justify-center gap-3 transform transition-all duration-700 min-w-0 ${
         isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
       }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
       <div className="relative flex flex-col items-center">
-        <div className="text-4xl sm:text-5xl md:text-6xl font-bold tabular-nums text-primary text-center">
+        <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tabular-nums text-primary text-center leading-tight">
           {typeof val === 'number' ? val : val}
         </div>
         <div className={`absolute inset-0 rounded-lg bg-primary/10 blur-xl transition-opacity duration-1000 ${
           isVisible ? 'opacity-100' : 'opacity-0'
         }`} />
       </div>
-      <div className="text-sm sm:text-base text-muted-foreground font-medium text-center">
+      <div className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium text-center leading-tight px-2 max-w-full">
         {label}
       </div>
     </div>
@@ -120,8 +120,9 @@ export function CounterStats({
           </p>
         </div>
         
-        {/* Contadores - Mobile horizontal, Desktop grid */}
-        <div className="flex flex-row justify-center items-center gap-8 sm:gap-12 md:grid md:grid-cols-3 md:gap-6">
+        
+        {/* Contadores - Mobile stack, Desktop grid */}
+        <div className="flex flex-col items-center gap-8 sm:flex-row sm:justify-center sm:gap-6 md:grid md:grid-cols-3 md:gap-8 lg:gap-12">
           {item("Projetos Analisados", projects.toLocaleString('pt-BR'), 0)}
           {item("Horas Economizadas", savedHours.toLocaleString('pt-BR'), 1)}
           {item("R$ Economizados", `R$ ${savedMoney.toLocaleString('pt-BR')}`, 2)}
