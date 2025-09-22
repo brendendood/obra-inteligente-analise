@@ -167,17 +167,6 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
     }
   };
 
-  // Funções para ações rápidas
-  const navigateTo = (projectId: string, tab: "orcamento"|"cronograma"|"documentos"|"assistente") => {
-    const routes = {
-      orcamento: `/projeto/${projectId}`,
-      cronograma: `/projeto/${projectId}`, 
-      documentos: `/projeto/${projectId}`,
-      assistente: `/ia/${projectId}`
-    };
-    window.location.href = routes[tab];
-  };
-
   const saveNote = async (projectId: string, note: string) => {
     const { error } = await supabase
       .from("projects")
@@ -299,46 +288,31 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
                 )}
               </Button>
 
-              {/* Botões de ações rápidas - Mobile */}
-              <div className="flex items-center gap-2">
-                <FloatingActionPanelRoot>
-                  {({ mode }) => (
-                    <>
-                      <FloatingActionPanelTrigger title="Ações rápidas" mode="actions" className="text-xs">
-                        Ações Rápidas
-                      </FloatingActionPanelTrigger>
-
-                      <FloatingActionPanelTrigger title="Adicionar nota" mode="note" className="text-xs">
-                        Notas
-                      </FloatingActionPanelTrigger>
+              {/* Botão de notas - Mobile */}
+              <FloatingActionPanelRoot>
+                {({ mode }) => (
+                  <>
+                    <FloatingActionPanelTrigger title="Adicionar nota" mode="note" className="text-xs">
+                      Notas
+                    </FloatingActionPanelTrigger>
 
                     <FloatingActionPanelContent>
-                      {mode === "actions" ? (
-                        <div className="space-y-1 p-2">
-                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "orcamento")}>Orçamento</FloatingActionPanelButton>
-                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "cronograma")}>Cronograma</FloatingActionPanelButton>
-                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "documentos")}>Documentos Técnicos</FloatingActionPanelButton>
-                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "assistente")}>Assistente IA</FloatingActionPanelButton>
+                      <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
+                        <FloatingActionPanelTextarea 
+                          className="mb-3 h-28" 
+                          id={`note-${project.id}`} 
+                          defaultValue={project.notes || ''}
+                        />
+                        <div className="flex justify-end">
+                          <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
+                            Salvar nota
+                          </button>
                         </div>
-                      ) : (
-                        <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
-                          <FloatingActionPanelTextarea 
-                            className="mb-3 h-28" 
-                            id={`note-${project.id}`} 
-                            defaultValue={project.notes || ''}
-                          />
-                          <div className="flex justify-end">
-                            <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
-                              Salvar nota
-                            </button>
-                          </div>
-                        </FloatingActionPanelForm>
-                      )}
+                      </FloatingActionPanelForm>
                     </FloatingActionPanelContent>
-                    </>
-                  )}
-                </FloatingActionPanelRoot>
-              </div>
+                  </>
+                )}
+              </FloatingActionPanelRoot>
             </div>
 
             <Button
@@ -510,46 +484,31 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
           {/* Botões de ação */}
           <div className="flex items-center space-x-3">
-            {/* Botões de ações rápidas - Desktop */}
-            <div className="flex items-center gap-2">
-              <FloatingActionPanelRoot>
-                {({ mode }) => (
-                  <>
-                    <FloatingActionPanelTrigger title="Ações rápidas" mode="actions">
-                      Ações Rápidas
-                    </FloatingActionPanelTrigger>
-
-                    <FloatingActionPanelTrigger title="Adicionar nota" mode="note">
-                      Notas
-                    </FloatingActionPanelTrigger>
+            {/* Botão de notas - Desktop */}
+            <FloatingActionPanelRoot>
+              {({ mode }) => (
+                <>
+                  <FloatingActionPanelTrigger title="Adicionar nota" mode="note">
+                    Notas
+                  </FloatingActionPanelTrigger>
 
                   <FloatingActionPanelContent>
-                    {mode === "actions" ? (
-                      <div className="space-y-1 p-2">
-                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "orcamento")}>Orçamento</FloatingActionPanelButton>
-                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "cronograma")}>Cronograma</FloatingActionPanelButton>
-                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "documentos")}>Documentos Técnicos</FloatingActionPanelButton>
-                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "assistente")}>Assistente IA</FloatingActionPanelButton>
+                    <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
+                      <FloatingActionPanelTextarea 
+                        className="mb-3 h-28" 
+                        id={`note-${project.id}`} 
+                        defaultValue={project.notes || ''}
+                      />
+                      <div className="flex justify-end">
+                        <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
+                          Salvar nota
+                        </button>
                       </div>
-                    ) : (
-                      <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-4">
-                        <FloatingActionPanelTextarea 
-                          className="mb-3 h-28" 
-                          id={`note-${project.id}`} 
-                          defaultValue={project.notes || ''}
-                        />
-                        <div className="flex justify-end">
-                          <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/90">
-                            Salvar nota
-                          </button>
-                        </div>
-                      </FloatingActionPanelForm>
-                    )}
+                    </FloatingActionPanelForm>
                   </FloatingActionPanelContent>
                 </>
               )}
             </FloatingActionPanelRoot>
-            </div>
 
             {/* Menu de três pontinhos */}
             <DropdownMenu>
