@@ -193,6 +193,11 @@ const config: Config = {
           "50%": { backgroundPosition: "100% 50%" },
           "100%": { backgroundPosition: "0% 50%" },
         },
+        slideIn: {
+          '0%': { transform: 'translateX(-100px)', opacity: '0' },
+          '50%': { transform: 'translateX(0)', opacity: '0.8' },
+          '100%': { transform: 'translateX(100px)', opacity: '0' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -218,6 +223,7 @@ const config: Config = {
         "star-movement-bottom": "star-movement-bottom linear infinite alternate",
         "star-movement-top": "star-movement-top linear infinite alternate",
         gradient: "gradient var(--animation-duration, 8s) linear infinite",
+        slideIn: "slideIn 2s ease-in-out infinite",
       },
     },
   },
