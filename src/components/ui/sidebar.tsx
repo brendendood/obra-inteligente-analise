@@ -102,7 +102,7 @@ export function SessionNavBar() {
     userData
   } = useUserData();
   const items = makeItems(location.pathname ?? "");
-  return <motion.aside role="navigation" aria-label="Menu lateral do usuário" className={cn("fixed left-0 top-0 z-40 h-screen shrink-0 border-r", "bg-background text-foreground border-border",
+  return <motion.aside role="navigation" aria-label="Menu lateral do usuário" className={cn("fixed left-0 top-0 z-40 h-screen shrink-0 border-r border-border/30", "bg-background text-foreground",
   // evita sobrepor conteúdo em layouts grid; largura animada
   "flex flex-col")} initial={isCollapsed ? "closed" : "open"} animate={isCollapsed ? "closed" : "open"} variants={sidebarVariants} onMouseEnter={() => setIsCollapsed(false)} onMouseLeave={() => setIsCollapsed(true)}>
       {/* Header com logo MadeAI */}
