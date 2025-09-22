@@ -19,6 +19,7 @@ import { CheckCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Pricing } from "@/components/ui/pricing";
 import { TestPhaseHeading } from "@/components/sections/test-phase-heading";
+import CardFlip from "@/components/ui/flip-card";
 
 // GridItem component for Features section
 interface GridItemProps {
@@ -248,41 +249,55 @@ const LandingPage = () => {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[{
-            icon: <TrendingUp className="h-8 w-8 text-primary" />,
-            title: "De 5 dias para 5 minutos",
-            description: "Economize 90% do tempo em orçamentos. Analise projetos completos instantaneamente e responda clientes no mesmo dia."
-          }, {
-            icon: <Shield className="h-8 w-8 text-primary" />,
-            title: "Confiabilidade técnica comprovada",
-            description: "Dados SINAPI e Sienge atualizados, normas ABNT validadas. Já usado por +450 profissionais com 98% de precisão."
-          }, {
-            icon: <Brain className="h-8 w-8 text-primary" />,
-            title: "Evite erros custosos",
-            description: "Nossa IA detecta falhas construtivas que custam R$ 30.000+ na obra. Previna problemas antes que aconteçam."
-          }].map((item, index) => <motion.div key={index} initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.6,
-            delay: index * 0.1
-          }} viewport={{
-            once: true
-          }} className="text-center p-6 rounded-xl bg-card border border-border hover:shadow-lg transition-shadow">
-                <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  {item.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-muted-foreground">
-                  {item.description}
-                </p>
-              </motion.div>)}
+          {/* Orientação para o usuário */}
+          <div className="text-center mb-8">
+            <p className="text-sm text-muted-foreground">💡 Dica: clique no card para ver os detalhes.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center mb-12">
+            <CardFlip
+              title="De 5 dias para 5 minutos"
+              subtitle="Economia de tempo radical"
+              description="Economize 90% do tempo em orçamentos. Analise projetos completos instantaneamente e responda clientes no mesmo dia."
+              features={[
+                "Análise instantânea de projetos",
+                "Resposta no mesmo dia",
+                "90% menos tempo gasto",
+                "Processamento automático"
+              ]}
+              color="#2563eb"
+            />
+            <CardFlip
+              title="Confiabilidade técnica comprovada"
+              subtitle="Dados oficiais e precisos"
+              description="Dados SINAPI e Sienge atualizados, normas ABNT validadas. Já usado por +450 profissionais com 98% de precisão."
+              features={[
+                "Dados SINAPI atualizados",
+                "Normas ABNT validadas", 
+                "+450 profissionais confiam",
+                "98% de precisão comprovada"
+              ]}
+              color="#2563eb"
+            />
+            <CardFlip
+              title="Evite erros custosos"
+              subtitle="Prevenção inteligente de problemas"
+              description="Nossa IA detecta falhas construtivas que custam R$ 30.000+ na obra. Previna problemas antes que aconteçam."
+              features={[
+                "Detecção de falhas construtivas",
+                "Economia de R$ 30.000+",
+                "Prevenção inteligente",
+                "Análise preditiva de riscos"
+              ]}
+              color="#2563eb"
+            />
+          </div>
+
+          {/* CTA Button */}
+          <div className="text-center">
+            <AppleButton as={Link} to="/cadastro" variant="primary" size="lg">
+              Começar agora
+            </AppleButton>
           </div>
         </div>
       </section>
