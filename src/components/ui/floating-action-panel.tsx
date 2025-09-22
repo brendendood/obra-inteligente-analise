@@ -68,18 +68,20 @@ export function FloatingActionPanelTrigger({
   };
 
   return (
-    <button
+    <motion.button
       ref={triggerRef as React.RefObject<HTMLButtonElement>}
       onClick={handleClick}
       title={title}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       className={cn(
-        'inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors',
-        isOpen && currentMode === mode && 'bg-gray-100 text-gray-900',
+        'h-8 px-3 rounded-full border border-zinc-200 bg-white text-sm font-medium text-zinc-900 shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-800 transition-colors',
+        isOpen && currentMode === mode && 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50',
         className
       )}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
@@ -90,6 +92,13 @@ interface FloatingActionPanelContentProps {
 export function FloatingActionPanelContent({ children }: FloatingActionPanelContentProps) {
   const { isOpen, setIsOpen, triggerRef } = useFloatingActionPanel();
   const contentRef = useRef<HTMLDivElement>(null);
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      setTriggerRect(triggerRef.current.getBoundingClientRect());
+    }
+  }, [isOpen, triggerRef]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -103,28 +112,49 @@ export function FloatingActionPanelContent({ children }: FloatingActionPanelCont
       }
     }
 
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    }
+
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen, setIsOpen, triggerRef]);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          ref={contentRef}
-          initial={{ opacity: 0, scale: 0.95, y: -10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: -10 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
-          className="absolute top-full left-0 z-50 mt-2 min-w-48 rounded-md border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5"
-        >
-          {children}
-        </motion.div>
+        <>
+          <motion.div 
+            className="fixed inset-0 z-40 bg-black/5" 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          />
+          <motion.div
+            ref={contentRef}
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="fixed z-50 min-w-[280px] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xl outline-none dark:border-zinc-800 dark:bg-zinc-950"
+            style={{
+              left: triggerRect ? triggerRect.left + window.scrollX : "50%",
+              top: triggerRect ? triggerRect.bottom + 8 + window.scrollY : "50%",
+              transformOrigin: "top left",
+            }}
+          >
+            {children}
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
@@ -152,7 +182,7 @@ export function FloatingActionPanelButton({
     <button
       onClick={handleClick}
       className={cn(
-        'block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900 transition-colors',
+        'block w-full px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus:bg-zinc-100 focus:text-zinc-900 transition-colors dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 dark:focus:bg-zinc-800',
         className
       )}
     >
@@ -211,7 +241,7 @@ export function FloatingActionPanelTextarea({
       placeholder={placeholder}
       defaultValue={defaultValue}
       className={cn(
-        'w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500',
+        'w-full resize-none rounded-md border border-zinc-200 bg-white text-zinc-900 px-3 py-2 text-sm placeholder-zinc-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:placeholder-zinc-600',
         className
       )}
     />
