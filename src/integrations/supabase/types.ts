@@ -1182,6 +1182,7 @@ export type Database = {
           file_size: number | null
           id: string
           name: string
+          notes: string | null
           pdf_checksum: string | null
           pdf_url: string | null
           project_status: string | null
@@ -1205,6 +1206,7 @@ export type Database = {
           file_size?: number | null
           id?: string
           name: string
+          notes?: string | null
           pdf_checksum?: string | null
           pdf_url?: string | null
           project_status?: string | null
@@ -1228,6 +1230,7 @@ export type Database = {
           file_size?: number | null
           id?: string
           name?: string
+          notes?: string | null
           pdf_checksum?: string | null
           pdf_url?: string | null
           project_status?: string | null

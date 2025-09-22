@@ -17,7 +17,8 @@ import {
   MapPin,
   FileText,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  MessageSquare
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -39,6 +40,14 @@ import { Project } from '@/types/project';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { ProjectEditDialog } from '@/components/projects/ProjectEditDialog';
+import { 
+  FloatingActionPanelRoot,
+  FloatingActionPanelTrigger,
+  FloatingActionPanelContent,
+  FloatingActionPanelButton,
+  FloatingActionPanelForm,
+  FloatingActionPanelTextarea
+} from '@/components/ui/floating-action-panel';
 
 interface SimpleProjectCardProps {
   project: Project;
@@ -158,15 +167,49 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
     }
   };
 
+  // Funções para ações rápidas
+  const navigateTo = (projectId: string, tab: "orcamento"|"cronograma"|"documentos"|"assistente") => {
+    window.location.href = `/projeto/${projectId}#${tab}`;
+  };
+
+  const saveNote = async (projectId: string, note: string) => {
+    const { error } = await supabase
+      .from("projects")
+      .update({ notes: note })
+      .eq("id", projectId);
+    
+    if (error) {
+      console.error(error);
+      toast.error("Falha ao salvar a nota");
+    } else {
+      toast.success("Nota salva");
+      // Atualizar localmente
+      if (onProjectUpdate) {
+        onProjectUpdate({ ...project, notes: note });
+      }
+    }
+  };
+
   if (isMobile) {
     return (
       <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full">
         <CardContent className="p-6 sm:p-4">
           {/* Cabeçalho Mobile: Nome + Status */}
           <div className="flex items-start justify-between gap-3 mb-3">
-            <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight flex-1">
-              {project.name}
-            </h3>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight flex-1">
+                {project.name}
+              </h3>
+              {!!project.notes && (
+                <button
+                  className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted flex-shrink-0"
+                  title={project.notes.length > 120 ? project.notes.slice(0, 120) + "…" : project.notes}
+                  aria-label="Ver nota"
+                >
+                  <MessageSquare className="h-4 w-4 text-primary" />
+                </button>
+              )}
+            </div>
             <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${currentStatus.bgColor} ${currentStatus.color} ${currentStatus.borderColor} border flex-shrink-0`}>
               {currentStatus.label}
             </div>
@@ -231,23 +274,64 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
           {/* Botões de Ação */}
           <div className="flex items-center justify-between gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowMobileDetails(!showMobileDetails);
-              }}
-              className="text-gray-600 hover:text-gray-800 p-1.5 h-auto font-medium"
-            >
-              <span className="text-xs">Ver Detalhes</span>
-              {showMobileDetails ? (
-                <ChevronUp className="h-3 w-3 ml-1" />
-              ) : (
-                <ChevronDown className="h-3 w-3 ml-1" />
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowMobileDetails(!showMobileDetails);
+                }}
+                className="text-gray-600 hover:text-gray-800 p-1.5 h-auto font-medium"
+              >
+                <span className="text-xs">Ver Detalhes</span>
+                {showMobileDetails ? (
+                  <ChevronUp className="h-3 w-3 ml-1" />
+                ) : (
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                )}
+              </Button>
+
+              {/* Botões de ações rápidas - Mobile */}
+              <FloatingActionPanelRoot>
+                {({ mode }) => (
+                  <>
+                    <FloatingActionPanelTrigger title="Ações rápidas" mode="actions" className="h-8 px-2 text-xs">
+                      Ações
+                    </FloatingActionPanelTrigger>
+
+                    <FloatingActionPanelTrigger title="Adicionar nota" mode="note" className="h-8 px-2 text-xs">
+                      Notas
+                    </FloatingActionPanelTrigger>
+
+                    <FloatingActionPanelContent>
+                      {mode === "actions" ? (
+                        <div className="space-y-1 p-2">
+                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "orcamento")}>Orçamento</FloatingActionPanelButton>
+                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "cronograma")}>Cronograma</FloatingActionPanelButton>
+                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "documentos")}>Documentos Técnicos</FloatingActionPanelButton>
+                          <FloatingActionPanelButton onClick={() => navigateTo(project.id, "assistente")}>Assistente IA</FloatingActionPanelButton>
+                        </div>
+                      ) : (
+                        <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-2">
+                          <FloatingActionPanelTextarea 
+                            className="mb-2 h-24" 
+                            id={`note-${project.id}`} 
+                            defaultValue={project.notes || ''}
+                          />
+                          <div className="flex justify-end">
+                            <button type="submit" className="rounded-md px-2 py-1.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                              Salvar nota
+                            </button>
+                          </div>
+                        </FloatingActionPanelForm>
+                      )}
+                    </FloatingActionPanelContent>
+                  </>
+                )}
+              </FloatingActionPanelRoot>
+            </div>
 
             <Button
               onClick={handleOpenProject}
@@ -291,9 +375,20 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
           {/* Coluna Esquerda: Nome + Descrição (60%) */}
           <div className="col-span-7 space-y-3">
             <div className="pr-16">
-              <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 leading-tight">
-                {project.name}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 leading-tight flex-1">
+                  {project.name}
+                </h3>
+                {!!project.notes && (
+                  <button
+                    className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded hover:bg-muted flex-shrink-0"
+                    title={project.notes.length > 120 ? project.notes.slice(0, 120) + "…" : project.notes}
+                    aria-label="Ver nota"
+                  >
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                  </button>
+                )}
+              </div>
             </div>
             
             {/* Descrição se houver */}
@@ -407,6 +502,45 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
 
           {/* Botões de ação */}
           <div className="flex items-center space-x-3">
+            {/* Botões de ações rápidas - Desktop */}
+            <FloatingActionPanelRoot>
+              {({ mode }) => (
+                <>
+                  <FloatingActionPanelTrigger title="Ações rápidas" mode="actions" className="h-8 px-2">
+                    Ações
+                  </FloatingActionPanelTrigger>
+
+                  <FloatingActionPanelTrigger title="Adicionar nota" mode="note" className="h-8 px-2">
+                    Notas
+                  </FloatingActionPanelTrigger>
+
+                  <FloatingActionPanelContent>
+                    {mode === "actions" ? (
+                      <div className="space-y-1 p-2">
+                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "orcamento")}>Orçamento</FloatingActionPanelButton>
+                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "cronograma")}>Cronograma</FloatingActionPanelButton>
+                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "documentos")}>Documentos Técnicos</FloatingActionPanelButton>
+                        <FloatingActionPanelButton onClick={() => navigateTo(project.id, "assistente")}>Assistente IA</FloatingActionPanelButton>
+                      </div>
+                    ) : (
+                      <FloatingActionPanelForm onSubmit={(note) => saveNote(project.id, note)} className="p-2">
+                        <FloatingActionPanelTextarea 
+                          className="mb-2 h-24" 
+                          id={`note-${project.id}`} 
+                          defaultValue={project.notes || ''}
+                        />
+                        <div className="flex justify-end">
+                          <button type="submit" className="rounded-md px-2 py-1.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                            Salvar nota
+                          </button>
+                        </div>
+                      </FloatingActionPanelForm>
+                    )}
+                  </FloatingActionPanelContent>
+                </>
+              )}
+            </FloatingActionPanelRoot>
+
             {/* Menu de três pontinhos */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

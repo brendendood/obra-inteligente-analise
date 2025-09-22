@@ -17,6 +17,7 @@ export interface Project {
   description?: string;
   start_date?: string;
   end_date?: string;
+  notes?: string; // Nova coluna para notas
   created_at: string;
   updated_at: string;
 }
