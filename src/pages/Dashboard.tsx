@@ -9,6 +9,7 @@ import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { ImpersonationBanner } from '@/components/admin/ImpersonationBanner';
 import { useUnifiedProjectRealtime } from '@/hooks/useUnifiedProjectRealtime';
+import ProjectList from '@/components/ui/project-list';
 
 // Memoized components for better performance
 const MemoizedOptimizedDashboard = memo(OptimizedDashboard);
@@ -81,6 +82,9 @@ const Dashboard = memo(() => {
           error={error}
           onRetry={forceRefresh}
         />
+        <div className="mt-8">
+          <ProjectList />
+        </div>
       </AppLayout>
     </div>
   );
