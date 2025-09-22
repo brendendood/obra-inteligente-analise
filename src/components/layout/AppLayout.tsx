@@ -84,7 +84,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   return (
     <div className={cn(
       "user-area min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr] gap-6" : "flex flex-col"
+      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
     )}>
       {/* Sidebar original para mobile */}
       {isMobile && !shouldHideSidebar && <MemoizedSidebar />}

@@ -302,7 +302,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
       {/* Mobile Sidebar */}
       {isMobile && (
         <div className={cn(
-          "fixed inset-y-0 left-0 z-50 shadow-2xl transition-transform duration-300 ease-out",
+          "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-out",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}>
           <SidebarContent />
