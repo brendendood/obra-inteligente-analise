@@ -102,30 +102,27 @@ export const useUploadHandlers = ({
 
       setProgress(45);
 
-      // 4) Webhook N8N temporariamente desabilitado para versão demo
-      console.log('🔄 Webhook N8N desabilitado para demo - projeto processado apenas via edge function');
-      
-      // WEBHOOK DESABILITADO TEMPORARIAMENTE PARA DEMO
-      // try {
-      //   const webhookUrl = 'https://madeai-br.app.n8n.cloud/webhook-test/upload-projeto';
-      //   const payload = {
-      //     project_id: createdProject.id,
-      //     user_id: user.id,
-      //     state: stateUF,
-      //     document_type: 'pdf',
-      //     file_name: file!.name,
-      //   };
-      //   const resp = await fetch(webhookUrl, {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(payload),
-      //   });
-      //   if (!resp.ok) {
-      //     console.warn('⚠️ Webhook N8N retornou status não OK:', resp.status);
-      //   }
-      // } catch (whErr) {
-      //   console.warn('⚠️ Falha ao enviar webhook N8N:', whErr);
-      // }
+      // 4) Enviar webhook ao N8N com ID do projeto, UF e user_id (sem cidade)
+      try {
+        const webhookUrl = 'https://madeai-br.app.n8n.cloud/webhook-test/upload-projeto';
+        const payload = {
+          project_id: createdProject.id,
+          user_id: user.id,
+          state: stateUF,
+          document_type: 'pdf',
+          file_name: file!.name,
+        };
+        const resp = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!resp.ok) {
+          console.warn('⚠️ Webhook N8N retornou status não OK:', resp.status);
+        }
+      } catch (whErr) {
+        console.warn('⚠️ Falha ao enviar webhook N8N:', whErr);
+      }
 
       setProgress(65);
 
