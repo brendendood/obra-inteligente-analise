@@ -1,0 +1,25 @@
+/* Ajuste apenas em desktop */
+@media (min-width: 1024px) {
+  .app-main {
+    padding-left: 2rem;  /* reduzido de 3rem (lg:p-12) para 2rem */
+    padding-right: 2rem; /* reduzido de 3rem (lg:p-12) para 2rem */
+  }
+
+  /* Para páginas de projeto que usam padding menor */
+  .app-main .project-content {
+    padding-left: 1.5rem;  /* reduzido de 1.5rem (lg:p-6) para um pouco menos */
+    padding-right: 1.5rem;
+  }
+
+  /* Garantir que o padding vertical seja mantido */
+  .app-main > div > div {
+    padding-top: var(--original-padding-top, 3rem);
+    padding-bottom: var(--original-padding-bottom, 3rem);
+  }
+
+  /* Para páginas de projeto, manter padding vertical menor */
+  .app-main .project-content > div {
+    padding-top: var(--original-padding-top, 1.5rem);
+    padding-bottom: var(--original-padding-bottom, 1.5rem);
+  }
+}

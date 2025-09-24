@@ -9,6 +9,7 @@ import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import '@/styles/sidebar-adjust.css';
+import '@/styles/page-container.css';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -84,7 +85,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       "flex-1",
       isAIPage ? "overflow-hidden" : "overflow-auto"
     ),
-    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : (isProjectPage ? "h-full p-0 sm:p-4 lg:p-6" : "h-full p-6 sm:p-8 lg:p-12")
+    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : (isProjectPage ? "h-full project-content" : "h-full")
   }), [isMobile, isAIPage, shouldHideSidebar, isProjectPage]);
 
   // Early return for loading state with unified loading
