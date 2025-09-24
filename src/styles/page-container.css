@@ -1,8 +1,8 @@
 /* Ajuste apenas em desktop */
 @media (min-width: 1024px) {
   .app-main {
-    padding-left: 2rem;  /* reduzido de 3rem (lg:p-12) para 2rem */
-    padding-right: 2rem; /* reduzido de 3rem (lg:p-12) para 2rem */
+    padding-left: 1.5rem;  /* reduzido de 2rem para 1.5rem (~25% menor) */
+    padding-right: 1.5rem; /* reduzido de 2rem para 1.5rem (~25% menor) */
   }
 
   /* Para páginas de projeto que usam padding menor */

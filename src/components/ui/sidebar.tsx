@@ -123,9 +123,16 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
       {/* Header com logo MadeAI */}
       <div className="h-14 w-full border-b border-border/70 px-3 flex items-center">
         <div className="flex items-center gap-4 px-2 py-1">
-          {/* LOGO: wrapper fixo, sem scale */}
-          <div className="relative h-8 w-8 shrink-0 select-none pointer-events-none">
-            <img src="/lovable-uploads/4f0d09a9-f699-4cf6-b6b2-f493c19cec77.png" alt="MADE.AI" className="absolute inset-0 h-full w-full object-contain" />
+          {/* LOGO: wrapper fixo, sem scale - tamanho aumentado quando colapsado */}
+          <div className={cn(
+            "relative shrink-0 select-none pointer-events-none transition-all duration-300",
+            isCollapsed ? "h-10 w-10" : "h-8 w-8"
+          )}>
+            <img 
+              src="/lovable-uploads/4f0d09a9-f699-4cf6-b6b2-f493c19cec77.png" 
+              alt="MADE.AI" 
+              className="absolute inset-0 h-full w-full object-contain" 
+            />
           </div>
           {/* Label opcional: pode animar opacidade/translação; NÃO altera o tamanho da logo */}
           <motion.span className="text-sm font-medium text-foreground truncate" variants={labelVariants} animate={isCollapsed ? "closed" : "open"}>MadeAI</motion.span>
