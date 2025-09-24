@@ -123,10 +123,13 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
       {/* Header com logo MadeAI */}
       <div className="h-14 w-full border-b border-border/70 px-3 flex items-center">
         <div className="flex items-center gap-4 px-2 py-1">
-          {/* LOGO: wrapper fixo, sem scale - tamanho aumentado quando colapsado */}
+          {/* LOGO: wrapper fixo, sem scale - tamanho aumentado no desktop */}
           <div className={cn(
             "relative shrink-0 select-none pointer-events-none transition-all duration-300",
-            isCollapsed ? "h-10 w-10" : "h-8 w-8"
+            // Mobile: tamanhos menores (mantém atual)
+            isCollapsed ? "h-8 w-8" : "h-6 w-6",
+            // Desktop: tamanhos maiores (≥1024px)
+            isCollapsed ? "lg:h-14 lg:w-14" : "lg:h-12 lg:w-12"
           )}>
             <img 
               src="/lovable-uploads/4f0d09a9-f699-4cf6-b6b2-f493c19cec77.png" 
