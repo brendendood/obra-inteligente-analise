@@ -82,21 +82,21 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   }
 
   return (
-    <div className={cn(
-      "user-area min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
-    )}>
+    <div className="user-area min-h-screen w-full bg-gray-50 flex">
       {/* Sidebar original para mobile */}
       {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
       
       {/* Novo sidebar colapsável para desktop */}
       {!isMobile && !shouldHideSidebar && (
-        <div className="hidden md:block">
+        <div className="flex-shrink-0">
           <SessionNavBar />
         </div>
       )}
       
-      <main className={layoutClasses.main}>
+      <main className={cn(
+        "flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out",
+        !isMobile && !shouldHideSidebar ? "pl-0" : ""
+      )}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
