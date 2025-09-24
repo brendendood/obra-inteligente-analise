@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
+import '@/styles/sidebar-adjust.css';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -44,6 +45,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   const { setTheme } = useTheme();
   const isMobile = useOptimizedMediaQuery('(max-width: 1023px)');
   const location = useLocation();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
   // Force Light Mode only in user area
   useEffect(() => {
@@ -51,6 +53,20 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       setTheme('light');
     }
   }, [user, setTheme]);
+
+  // Controlar o atributo data-sidebar no body para desktop
+  useEffect(() => {
+    if (typeof document !== "undefined" && !isMobile && user) {
+      const val = sidebarCollapsed ? "collapsed" : "open";
+      document.body.setAttribute("data-sidebar", val);
+    }
+    
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.removeAttribute("data-sidebar");
+      }
+    };
+  }, [sidebarCollapsed, isMobile, user]);
   
   // Verifica se é a página de IA
   const isAIPage = location.pathname === '/ia';
@@ -84,7 +100,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   return (
     <div className={cn(
       "user-area min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "grid grid-cols-[auto_1fr]" : "flex flex-col"
+      !isMobile && !shouldHideSidebar ? "desktop-grid" : "flex flex-col"
     )}>
       {/* Sidebar original para mobile */}
       {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
@@ -92,11 +108,14 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       {/* Novo sidebar colapsável para desktop */}
       {!isMobile && !shouldHideSidebar && (
         <div className="hidden md:block">
-          <SessionNavBar />
+          <SessionNavBar 
+            onCollapseChange={setSidebarCollapsed}
+            isCollapsed={sidebarCollapsed}
+          />
         </div>
       )}
       
-      <main className={layoutClasses.main}>
+      <main className={cn(layoutClasses.main, "app-main")}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
