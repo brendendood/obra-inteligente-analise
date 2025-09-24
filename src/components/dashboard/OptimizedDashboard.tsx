@@ -37,7 +37,7 @@ const OptimizedDashboard = memo(({
 
   // Métricas avançadas baseadas nos projetos
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
-  return <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto sm:px-6 lg:px-8 px-px">
+  return <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto sm:px-6 px-px lg:px-[5px]">
       {/* Header Section */}
       <div className="bg-card border border-border rounded-apple p-6 sm:p-8 w-full">
         <div className="flex items-center justify-between w-full mb-6">
