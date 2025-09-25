@@ -4,13 +4,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw, MoreVertical, MessageSquare, CreditCard, Package } from 'lucide-react';
+import { Edit, LogIn, Trash2, Mail, Phone, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw, MoreVertical, MessageSquare, CreditCard, Package } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { UserLocationDisplay } from './UserLocationDisplay';
+import { EditUserModal } from './EditUserModal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useGeolocationManager } from '@/hooks/useGeolocationManager';
@@ -55,7 +52,7 @@ interface UserTableProps {
 export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, resetUserMessages, addProjectCredit, changeUserPlan }: UserTableProps) => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [editingUser, setEditingUser] = useState<any>(null);
-  const [editFormData, setEditFormData] = useState<any>({});
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
   const { forceUpdateUserGeolocation, isUpdating } = useGeolocationManager();
 
@@ -85,27 +82,6 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
     } catch {
       return 'Data inválida';
     }
-  };
-
-  const formatRealLocation = (realLocation: string, lastLoginIp: string | null) => {
-    if (realLocation === 'Localização não disponível') {
-      return (
-        <span className="text-gray-500 italic">
-          {realLocation}
-          {lastLoginIp && (
-            <div className="text-xs text-gray-400">IP: {lastLoginIp}</div>
-          )}
-        </span>
-      );
-    }
-    return (
-      <span>
-        {realLocation}
-        {lastLoginIp && (
-          <div className="text-xs text-gray-400">IP: {lastLoginIp}</div>
-        )}
-      </span>
-    );
   };
 
   const getAvatarFallback = (user: any) => {
@@ -149,44 +125,22 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
   };
 
   const handleEditUser = (user: any) => {
+    console.log('📝 USERS TABLE: Abrindo modal de edição para:', user);
     setEditingUser(user);
-    setEditFormData({
-      full_name: user.full_name || '',
-      company: user.company || '',
-      phone: user.phone || '',
-      city: user.city || '', 
-      state: user.state || '',
-      cargo: user.cargo || '',
-      plan: user.plan || 'free',
-      status: user.status || 'active'
-    });
+    setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = async () => {
-    if (!editingUser) {
-      console.error('❌ USERS TABLE: Nenhum usuário sendo editado');
-      toast({
-        title: "Erro ao atualizar",
-        description: "Nenhum usuário selecionado para edição",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleCloseEditModal = () => {
+    console.log('🚫 USERS TABLE: Fechando modal de edição');
+    setIsEditModalOpen(false);
+    setEditingUser(null);
+  };
 
-    try {
-      console.log('💾 USERS TABLE: Salvando edição do usuário:', editingUser.user_id, editFormData);
-      
-      await onUpdateUser(editingUser.user_id, editFormData);
-      setEditingUser(null);
-      
-      // Toast será mostrado pela função onUpdateUser, não precisamos duplicar aqui
-    } catch (error) {
-      console.error('❌ USERS TABLE: Erro ao salvar edição:', error);
-      toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar o usuário",
-        variant: "destructive",
-      });
+  const handleEditSuccess = () => {
+    console.log('✅ USERS TABLE: Edição bem-sucedida, recarregando lista');
+    handleCloseEditModal();
+    if (onRefresh) {
+      onRefresh();
     }
   };
 
@@ -214,14 +168,12 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
       }
 
       if (data?.impersonationUrl) {
-        // Store impersonation data for the banner
         localStorage.setItem('impersonation_data', JSON.stringify({
           sessionId: data.sessionId,
           targetUser: data.targetUser,
           adminId: data.adminId || 'current-admin'
         }));
 
-        // Open in new tab
         window.open(data.impersonationUrl, '_blank');
         toast({
           title: "Impersonação iniciada",
@@ -241,7 +193,6 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
   const handleForceGeolocationUpdate = async (userEmail: string) => {
     const result = await forceUpdateUserGeolocation(userEmail);
     if (result.success) {
-      // Refresh da lista após alguns segundos para mostrar a atualização
       setTimeout(() => {
         window.location.reload();
       }, 3000);
@@ -358,14 +309,14 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
 
                 {/* Localização Real */}
                 <TableCell className="max-w-[200px]">
-              <UserLocationDisplay
-                realLocation={user.real_location}
-                lastLoginIp={user.last_login_ip}
-                lastSignInAt={user.last_sign_in_at}
-                userId={user.user_id}
-                compact
-                onLocationUpdate={onRefresh}
-              />
+                  <UserLocationDisplay
+                    realLocation={user.real_location}
+                    lastLoginIp={user.last_login_ip}
+                    lastSignInAt={user.last_sign_in_at}
+                    userId={user.user_id}
+                    compact
+                    onLocationUpdate={onRefresh}
+                  />
                 </TableCell>
 
                 {/* Plano */}
@@ -457,7 +408,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Ações Administrativas</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         
@@ -477,10 +428,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
                             className="cursor-pointer"
                           >
                             <CreditCard className="mr-2 h-4 w-4" />
-                            +1 Crédito Projeto
+                            +1 Crédito de Projeto
                           </DropdownMenuItem>
                         )}
-                        
+
                         {changeUserPlan && (
                           <>
                             <DropdownMenuSeparator />
@@ -509,113 +460,16 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditUser(user)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Editar Usuário - {user.full_name || user.email}</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="full_name">Nome Completo</Label>
-                            <Input
-                              id="full_name"
-                              value={editFormData.full_name || ''}
-                              onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cargo">Cargo</Label>
-                            <Input
-                              id="cargo"
-                              value={editFormData.cargo || ''}
-                              onChange={(e) => setEditFormData({...editFormData, cargo: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="company">Empresa</Label>
-                            <Input
-                              id="company"
-                              value={editFormData.company || ''}
-                              onChange={(e) => setEditFormData({...editFormData, company: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="phone">Telefone</Label>
-                            <Input
-                              id="phone"
-                              value={editFormData.phone || ''}
-                              onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="city">Cidade</Label>
-                            <Input
-                              id="city"
-                              value={editFormData.city || ''}
-                              onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="state">Estado</Label>
-                            <Input
-                              id="state"
-                              value={editFormData.state || ''}
-                              onChange={(e) => setEditFormData({...editFormData, state: e.target.value})}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="plan">Plano</Label>
-                            <Select 
-                              value={editFormData.plan}
-                              onValueChange={(value) => setEditFormData({...editFormData, plan: value})}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="free">Free</SelectItem>
-                                <SelectItem value="basic">Basic</SelectItem>
-                                <SelectItem value="pro">Pro</SelectItem>
-                                <SelectItem value="enterprise">Enterprise</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <Label htmlFor="status">Status</Label>
-                            <Select 
-                              value={editFormData.status}
-                              onValueChange={(value) => setEditFormData({...editFormData, status: value})}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="active">Ativo</SelectItem>
-                                <SelectItem value="inactive">Inativo</SelectItem>
-                                <SelectItem value="suspended">Suspenso</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="flex justify-end gap-2 pt-4">
-                          <Button variant="outline" onClick={() => setEditingUser(null)}>
-                            Cancelar
-                          </Button>
-                          <Button onClick={handleSaveEdit}>
-                            Salvar Alterações
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditUser(user)}
+                      title="Editar usuário"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -642,6 +496,14 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, reset
           </Button>
         </div>
       )}
+
+      {/* Modal de Edição */}
+      <EditUserModal
+        user={editingUser}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 };

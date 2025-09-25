@@ -1927,22 +1927,43 @@ export type Database = {
       }
       users: {
         Row: {
+          city: string | null
+          company: string | null
           created_at: string
           id: string
           lifetime_base_consumed: number
+          name: string | null
+          phone: string | null
           plan_code: string
+          role_title: string | null
+          state: string | null
+          status: string | null
         }
         Insert: {
+          city?: string | null
+          company?: string | null
           created_at?: string
           id: string
           lifetime_base_consumed?: number
+          name?: string | null
+          phone?: string | null
           plan_code?: string
+          role_title?: string | null
+          state?: string | null
+          status?: string | null
         }
         Update: {
+          city?: string | null
+          company?: string | null
           created_at?: string
           id?: string
           lifetime_base_consumed?: number
+          name?: string | null
+          phone?: string | null
           plan_code?: string
+          role_title?: string | null
+          state?: string | null
+          status?: string | null
         }
         Relationships: []
       }
@@ -2064,6 +2085,10 @@ export type Database = {
           subscription_data?: Json
           target_user_id: string
         }
+        Returns: Json
+      }
+      admin_update_user_profile: {
+        Args: { admin_user_id: string; target_user_id: string; user_data: Json }
         Returns: Json
       }
       award_points: {
