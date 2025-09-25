@@ -22,9 +22,9 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      console.log('📊 ADMIN DASHBOARD: Carregando usuários via RPC...');
+      console.log('📊 ADMIN DASHBOARD: Carregando usuários via RPC unificada...');
       
-      const { data: usersData, error: usersError } = await supabase.rpc('get_admin_users_with_quiz_data');
+      const { data: usersData, error: usersError } = await supabase.rpc('get_admin_users_unified');
       
       if (usersError) {
         console.error('❌ ADMIN DASHBOARD: Erro ao buscar usuários:', usersError);
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
         id: user.user_id,
         email: user.email,
         name: user.full_name,
-        plan: user.plan,
+        plan: user.plan_code, // Já vem normalizado da RPC
         createdAt: user.created_at,
         status: user.status?.toUpperCase() || 'INACTIVE'
       }));

@@ -2192,6 +2192,29 @@ export type Database = {
           total_users: number
         }[]
       }
+      get_admin_stats_unified: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          active_users: number
+          basic_users: number
+          enterprise_users: number
+          inactive_users: number
+          pro_users: number
+          total_users: number
+        }[]
+      }
+      get_admin_users_unified: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          plan_code: string
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
       get_admin_users_with_auth_data: {
         Args: Record<PropertyKey, never>
         Returns: {
