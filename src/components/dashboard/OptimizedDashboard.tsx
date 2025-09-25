@@ -37,7 +37,7 @@ const OptimizedDashboard = memo(({
 
   // Métricas avançadas baseadas nos projetos
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
-  return <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto sm:px-6 px-px lg:px-[5px]">
+  return <div className="flex flex-col space-y-8 w-full min-w-0 mx-auto sm:px-6 lg:px-[5px] px-[28px]">
       {/* Breadcrumb Section - sem header grande */}
       <div className="w-full mb-6">
         <EnhancedBreadcrumb />
