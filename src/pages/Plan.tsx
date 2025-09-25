@@ -21,6 +21,8 @@ import {
   formatPlanPrice,
   isMaxPlan
 } from '@/utils/planUtils';
+import { PlanBadge } from '@/components/ui/PlanBadge';
+import { renderProjectQuota } from '@/utils/planQuota';
 
 const Plan = () => {
   const { userData, loading, refetch } = useUserData();
@@ -136,7 +138,7 @@ const Plan = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Uso de Projetos</span>
                   <span className="text-sm text-slate-500">
-                    {userData.projectCount} / {getPlanLimit(userData.plan, userData.credits) === 999 ? '∞' : getPlanLimit(userData.plan, userData.credits)}
+                    {renderProjectQuota(userData.plan, userData.projectCount)}
                   </span>
                 </div>
                 <Progress value={usagePercentage} className="h-2" />

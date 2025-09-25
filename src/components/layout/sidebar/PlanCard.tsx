@@ -76,9 +76,9 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
         
         {userCanUpgrade && nextPlan && (
           <>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
-              Entre em contato para upgrade e desbloqueie recursos premium
-            </p>
+             <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+               Faça upgrade e desbloqueie recursos premium
+             </p>
             <Button
               variant="outline"
               size="sm"
@@ -86,7 +86,7 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
               onClick={() => navigate('/plano')}
             >
               <Zap className="h-3 w-3 mr-1" />
-              Entre em contato
+              Upgrade
             </Button>
           </>
         )}

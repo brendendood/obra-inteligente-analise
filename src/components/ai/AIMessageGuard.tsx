@@ -45,7 +45,7 @@ export default function AIMessageGuard({
         onClose={() => setShowBlock(false)}
         featureName="Limite de mensagens de IA atingido"
         hasPermission={false}
-        onUpgrade={() => alert("Entre em contato para upgrade de plano")}
+        onUpgrade={() => alert("Faça upgrade para aumentar seu limite de mensagens")}
       />
     </>
   );

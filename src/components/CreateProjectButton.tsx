@@ -57,7 +57,7 @@ export default function CreateProjectButton({
         if (error.message?.includes('LIMIT_REACHED')) {
           toast({
             title: "🚫 Limite atingido",
-            description: "Você atingiu seu limite de projetos. Entre em contato para upgrade. Deletar não libera créditos.",
+            description: "Você atingiu seu limite de projetos. Faça upgrade para continuar. Deletar não libera créditos.",
             variant: "destructive"
           });
         } else {
@@ -74,7 +74,7 @@ export default function CreateProjectButton({
         if (data?.error === 'LIMIT_REACHED') {
           toast({
             title: "🚫 Limite atingido",
-            description: "Você atingiu seu limite de projetos. Entre em contato para upgrade. Deletar não libera créditos.",
+            description: "Você atingiu seu limite de projetos. Faça upgrade para continuar. Deletar não libera créditos.",
             variant: "destructive"
           });
         } else {

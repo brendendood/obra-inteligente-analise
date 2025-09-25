@@ -34,7 +34,7 @@ export function PlanGuard({
           featureName={`Este recurso (${feature}) exige plano ${requiredPlan}`}
           hasPermission={false}
           onUpgrade={() => {
-            alert("Entre em contato para upgrade de plano");
+            alert("Faça upgrade de plano para acessar este recurso");
           }}
         />
       </>
