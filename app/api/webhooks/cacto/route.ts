@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    let newPlanCode = 'free';
+    let newPlanCode = 'basic'; // Padrão agora é basic (FREE não existe mais)
 
     // Mapear eventos para plan_code
     switch (eventType) {
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
       case 'subscription_updated':
         switch (planName?.toLowerCase()) {
           case 'basic':
+          case 'basico':
             newPlanCode = 'basic';
             break;
           case 'pro':
@@ -49,14 +50,21 @@ export async function POST(request: NextRequest) {
             newPlanCode = 'enterprise';
             break;
           default:
-            newPlanCode = 'free';
+            newPlanCode = 'basic'; // Fallback para basic
         }
+
+        // Marcar plano como selecionado no onboarding
+        await supabase
+          .from('user_profiles')
+          .update({ plan_selected: true })
+          .eq('user_id', userData.id);
         break;
 
       case 'subscription_canceled':
       case 'subscription_expired':
       case 'payment_failed':
-        newPlanCode = 'free';
+        // Cancelamento mantém no básico (não volta para free)
+        newPlanCode = 'basic';
         break;
 
       default:

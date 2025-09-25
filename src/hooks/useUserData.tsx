@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserData {
-  plan: 'free' | 'basic' | 'pro' | 'enterprise';
+  plan: 'basic' | 'pro' | 'enterprise';
   projectCount: number;
   credits: number;
   subscription: {
@@ -20,7 +20,7 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: 'free', // Padrão correto: free
+    plan: 'basic', // Novo padrão: basic (free não existe mais)
     projectCount: 0,
     credits: 0,
     subscription: null,
@@ -37,7 +37,7 @@ export const useUserData = () => {
     if (!isAuthenticated || !user) {
       console.log('⚠️ useUserData: User not authenticated, setting defaults');
       setUserData({
-        plan: 'free', // Padrão correto: free
+        plan: 'basic', // Novo padrão: basic (free não existe mais)
         projectCount: 0,
         credits: 0,
         subscription: null,
@@ -89,11 +89,11 @@ export const useUserData = () => {
       ]);
 
       // Processar plan_code com fallback para 'free'
-      let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'free';
+  let plan: 'basic' | 'pro' | 'enterprise' = 'basic';
       
       if (userResult.status === 'fulfilled' && userResult.value.data) {
         const planCode = userResult.value.data.plan_code;
-        plan = (planCode === 'basic' || planCode === 'pro' || planCode === 'enterprise') ? planCode : 'free';
+        plan = (planCode === 'basic' || planCode === 'pro' || planCode === 'enterprise') ? planCode : 'basic';
       } else if (userResult.status === 'rejected') {
         console.warn('⚠️ Erro ao buscar plano do usuário:', userResult.reason);
       }
@@ -132,7 +132,7 @@ export const useUserData = () => {
       setError('Erro ao carregar dados do usuário');
       
       setUserData({
-        plan: 'free', // Fallback para 'free'
+        plan: 'basic', // Fallback para 'basic' (free não existe mais)
         projectCount: 0,
         credits: 0,
         subscription: null, // Removido: não mais usado

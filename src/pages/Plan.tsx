@@ -112,8 +112,8 @@ const Plan = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Plano Atual</span>
                   <Badge 
-                    variant={userData.plan === 'free' ? 'secondary' : 'default'}
-                    className={`${userData.plan === 'enterprise' ? 'bg-gradient-to-r from-purple-500 to-purple-600' : userData.plan === 'pro' ? 'bg-blue-600' : ''}`}
+                    variant="default"
+                    className={`${userData.plan === 'enterprise' ? 'bg-gradient-to-r from-purple-500 to-purple-600' : userData.plan === 'pro' ? 'bg-blue-600' : 'bg-green-600'}`}
                   >
                     <Crown className="h-3 w-3 mr-1" />
                     {getPlanDisplayName(userData.plan)}
@@ -157,56 +157,7 @@ const Plan = () => {
         </Card>
 
         {/* Planos Disponíveis */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Plano Free */}
-          <Card className={`${userData.plan === 'free' ? 'border-gray-500 bg-gray-50/50' : 'border-gray-200'}`}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <span className="text-xl">🆓</span>
-                  Free
-                </span>
-                {userData.plan === 'free' && (
-                  <Badge variant="outline" className="bg-gray-100 text-gray-700">
-                    Atual
-                  </Badge>
-                )}
-              </CardTitle>
-              <CardDescription>Para experimentar</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-3xl font-bold text-gray-600">
-                  Grátis
-                </div>
-                <ul className="space-y-2">
-                  {getPlanFeatures('free').map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 text-green-600" />
-                      {feature}
-                    </li>
-                  ))}
-                  {getPlanLimitations('free').map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
-                      <X className="h-4 w-4 text-gray-400" />
-                      <span className="text-gray-400">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                {userData.plan === 'free' ? (
-                  <Button disabled className="w-full bg-gray-100 text-gray-500" variant="outline">
-                    <Crown className="h-4 w-4 mr-2" />
-                    Plano Atual
-                  </Button>
-                ) : (
-                  <Button variant="outline" className="w-full" disabled>
-                    <Crown className="h-4 w-4 mr-2" />
-                    Escolher Free
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Plano Basic */}
           <Card className={`${userData.plan === 'basic' ? 'border-green-500 bg-green-50/50' : 'border-green-200 bg-green-50/20'}`}>
@@ -407,45 +358,32 @@ const Plan = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {userData.plan === 'free' ? (
-                <div className="text-center py-8">
-                  <div className="flex items-center justify-center gap-3 p-4 bg-slate-50 rounded-lg">
-                    <Calendar className="h-8 w-8 text-slate-400" />
-                    <div>
-                      <p className="font-medium text-slate-700">Nenhum pagamento realizado</p>
-                      <p className="text-sm text-slate-500">
-                        Você está no plano gratuito. Faça upgrade para ter acesso a recursos premium.
-                      </p>
+              {/* Histórico de pagamentos */}
+              <div className="space-y-3">
+                {[
+                  { date: '2024-01-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
+                  { date: '2023-12-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
+                  { date: '2023-11-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
+                ].map((payment, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-green-100 p-2 rounded-full">
+                        <Check className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-700">{payment.amount}</p>
+                        <p className="text-sm text-slate-500">{payment.method}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-slate-700">{payment.date}</p>
+                      <Badge variant="secondary" className="text-xs">
+                        {payment.status}
+                      </Badge>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {[
-                    { date: '2024-01-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
-                    { date: '2023-12-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
-                    { date: '2023-11-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
-                  ].map((payment, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-green-100 p-2 rounded-full">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-slate-700">{payment.amount}</p>
-                          <p className="text-sm text-slate-500">{payment.method}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-slate-700">{payment.date}</p>
-                        <Badge variant="secondary" className="text-xs">
-                          {payment.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
               
               <div className="border-t pt-4">
                 <Button 

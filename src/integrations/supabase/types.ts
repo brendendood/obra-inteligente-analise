@@ -1646,6 +1646,8 @@ export type Database = {
           is_active: boolean
           last_login: string | null
           phone: string | null
+          plan_selected: boolean
+          quiz_completed: boolean
           ref_code: string | null
           referred_by: string | null
           referrer: string | null
@@ -1679,6 +1681,8 @@ export type Database = {
           is_active?: boolean
           last_login?: string | null
           phone?: string | null
+          plan_selected?: boolean
+          quiz_completed?: boolean
           ref_code?: string | null
           referred_by?: string | null
           referrer?: string | null
@@ -1712,6 +1716,8 @@ export type Database = {
           is_active?: boolean
           last_login?: string | null
           phone?: string | null
+          plan_selected?: boolean
+          quiz_completed?: boolean
           ref_code?: string | null
           referred_by?: string | null
           referrer?: string | null
@@ -1724,6 +1730,33 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+        }
+        Relationships: []
+      }
+      user_quiz_responses: {
+        Row: {
+          created_at: string
+          id: string
+          step1_context: string
+          step2_role: string
+          step3_challenge: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          step1_context: string
+          step2_role: string
+          step3_challenge: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          step1_context?: string
+          step2_role?: string
+          step3_challenge?: string
+          user_id?: string
         }
         Relationships: []
       }
