@@ -1837,29 +1837,21 @@ export type Database = {
           created_at: string
           id: string
           lifetime_base_consumed: number
-          plan_id: string
+          plan_code: string
         }
         Insert: {
           created_at?: string
           id: string
           lifetime_base_consumed?: number
-          plan_id: string
+          plan_code?: string
         }
         Update: {
           created_at?: string
           id?: string
           lifetime_base_consumed?: number
-          plan_id?: string
+          plan_code?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "users_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "plans"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       webhook_logs: {
         Row: {
@@ -2159,6 +2151,16 @@ export type Database = {
         Returns: {
           engagement_score: number
           user_id: string
+        }[]
+      }
+      get_user_plan_limits: {
+        Args: { user_id: string }
+        Returns: {
+          base_quota: number
+          consumed: number
+          plan_code: string
+          remaining: number
+          total_available: number
         }[]
       }
       increment_ai_usage: {
