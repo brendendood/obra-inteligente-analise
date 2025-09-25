@@ -53,6 +53,9 @@ verify_jwt = false
 [functions.pagarme-webhook]
 verify_jwt = false
 
+[functions.referral-webhook]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54323
