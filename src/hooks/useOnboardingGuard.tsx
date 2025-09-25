@@ -53,9 +53,9 @@ export const useOnboardingGuard = (): OnboardingStatus => {
       }
 
       if (profile && userData) {
-        const hasValidPlan = userData.plan_code && userData.plan_code !== 'free';
+        const hasValidPlan = userData.plan_code && ['basic', 'pro', 'enterprise'].includes(userData.plan_code);
         setQuizCompleted(profile.quiz_completed || false);
-        setPlanSelected(profile.plan_selected || hasValidPlan);
+        setPlanSelected(profile.plan_selected && hasValidPlan);
       }
     } catch (error) {
       console.error('Erro ao carregar dados do onboarding:', error);

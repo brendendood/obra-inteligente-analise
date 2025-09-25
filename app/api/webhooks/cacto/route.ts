@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    let newPlanCode = 'basic'; // Padrão agora é basic (FREE não existe mais)
+    let newPlanCode: string | null = null; // Padrão é null (sem plano)
 
     // Mapear eventos para plan_code
     switch (eventType) {
@@ -50,21 +50,31 @@ export async function POST(request: NextRequest) {
             newPlanCode = 'enterprise';
             break;
           default:
-            newPlanCode = 'basic'; // Fallback para basic
+            newPlanCode = 'basic'; // Fallback para basic se plano não reconhecido
         }
 
         // Marcar plano como selecionado no onboarding
-        await supabase
+        const { error: profileUpdateError } = await supabase
           .from('user_profiles')
           .update({ plan_selected: true })
           .eq('user_id', userData.id);
+
+        if (profileUpdateError) {
+          console.error('❌ Erro ao marcar plano como selecionado:', profileUpdateError);
+        }
         break;
 
       case 'subscription_canceled':
       case 'subscription_expired':
       case 'payment_failed':
-        // Cancelamento mantém no básico (não volta para free)
-        newPlanCode = 'basic';
+        // Cancelamento volta para null (sem plano, volta para paywall)
+        newPlanCode = null;
+        
+        // Marcar plano como não selecionado (volta para paywall)
+        await supabase
+          .from('user_profiles')
+          .update({ plan_selected: false })
+          .eq('user_id', userData.id);
         break;
 
       default:

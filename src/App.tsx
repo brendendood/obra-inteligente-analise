@@ -8,6 +8,7 @@ import { ProjectProvider } from "@/contexts/ProjectContext";
 import { AuthProvider } from "@/contexts/AuthProvider";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import PaywallGuard from "@/components/guards/PaywallGuard";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
@@ -26,6 +27,7 @@ import Dashboard from "./pages/Dashboard";
 import Redirect from "./pages/Redirect";
 import AuthCallback from "./pages/AuthCallback";
 import EmailSucesso from "./pages/EmailSucesso";
+import OnboardingFlow from "./pages/OnboardingFlow";
 
 // Lazy loaded pages with intelligent preloading
 const Upload = lazy(() => import("./pages/Upload"));
@@ -193,6 +195,7 @@ const App = () => {
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/email/sucesso" element={<EmailSucesso />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
+                <Route path="/onboarding" element={<OnboardingFlow />} />
                 <Route path="/cadastro/confirmado" element={<ConfirmEmail />} />
                 <Route path="/cadastro/token-invalido" element={<ConfirmEmail />} />
                 <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
@@ -219,7 +222,9 @@ const App = () => {
                 
                 <Route path="/painel" element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <PaywallGuard>
+                      <Dashboard />
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
@@ -229,43 +234,57 @@ const App = () => {
                 
                 <Route path="/upload" element={
                   <ProtectedRoute>
-                    <LazyWrapper><Upload /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><Upload /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/ia" element={
                   <ProtectedRoute>
-                    <LazyWrapper><Assistant /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><Assistant /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/conta" element={
                   <ProtectedRoute>
-                    <LazyWrapper><Account /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><Account /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/plano" element={
                   <ProtectedRoute>
-                    <LazyWrapper><Plan /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><Plan /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/ajuda" element={
                   <ProtectedRoute>
-                    <LazyWrapper><Help /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><Help /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/contato" element={
                   <ProtectedRoute>
-                    <LazyWrapper><Contact /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><Contact /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/crm" element={
                   <ProtectedRoute>
-                    <LazyWrapper><CRMPage /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><CRMPage /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 } />
                 
@@ -278,7 +297,9 @@ const App = () => {
                 {/* Project specific routes */}
                 <Route path="/projeto/:projectId" element={
                   <ProtectedRoute>
-                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 }>
                   <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
@@ -290,7 +311,9 @@ const App = () => {
                 
                 <Route path="/ia/:projectId" element={
                   <ProtectedRoute>
-                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                    <PaywallGuard>
+                      <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
+                    </PaywallGuard>
                   </ProtectedRoute>
                 }>
                   <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
