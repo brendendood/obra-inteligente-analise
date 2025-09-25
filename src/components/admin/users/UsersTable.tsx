@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
+import { Icon } from '@/components/ui/Icon';
 import { UserLocationDisplay } from './UserLocationDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -287,15 +287,15 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                         </span>
                         {getGenderBadge(user.gender)}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Mail className="h-3 w-3" />
-                        <span>{user.email}</span>
-                        {user.email_confirmed_at ? (
-                          <CheckCircle className="h-3 w-3 text-green-600" />
-                        ) : (
-                          <XCircle className="h-3 w-3 text-red-600" />
-                        )}
-                      </div>
+                       <div className="flex items-center gap-2 text-sm text-gray-600">
+                         <Icon name="Mail" size="sm" />
+                         <span>{user.email}</span>
+                         {user.email_confirmed_at ? (
+                           <Icon name="CheckCircle" size="sm" className="text-green-600" />
+                         ) : (
+                           <Icon name="XCircle" size="sm" className="text-red-600" />
+                         )}
+                       </div>
                     </div>
                   </div>
                 </TableCell>
@@ -307,10 +307,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                       {user.status || 'active'}
                     </Badge>
                     {user.last_sign_in_at && (
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Clock className="h-3 w-3" />
-                        Online recentemente
-                      </div>
+                       <div className="flex items-center gap-2 text-xs text-gray-500">
+                         <Icon name="Clock" size="sm" />
+                         Online recentemente
+                       </div>
                     )}
                   </div>
                 </TableCell>
@@ -322,10 +322,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                       {user.cargo || 'Não informado'}
                     </div>
                     {user.company && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <Building className="h-3 w-3" />
-                        <span>{user.company}</span>
-                      </div>
+                       <div className="flex items-center gap-2 text-xs text-gray-600">
+                         <Icon name="Building" size="sm" />
+                         <span>{user.company}</span>
+                       </div>
                     )}
                   </div>
                 </TableCell>
@@ -334,10 +334,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                 <TableCell>
                   <div className="space-y-1">
                     {user.phone && (
-                      <div className="flex items-center gap-1 text-sm">
-                        <Phone className="h-3 w-3 text-gray-400" />
-                        <span>{user.phone}</span>
-                      </div>
+                       <div className="flex items-center gap-2 text-sm">
+                         <Icon name="Phone" size="sm" className="text-gray-400" />
+                         <span>{user.phone}</span>
+                       </div>
                     )}
                   </div>
                 </TableCell>
@@ -365,10 +365,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                 <TableCell className="min-w-[200px]">
                   {user.quiz_completed_at ? (
                     <div className="space-y-2">
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-600">Completado</span>
-                      </div>
+                       <div className="flex items-center gap-2">
+                         <Icon name="CheckCircle" size="md" className="text-green-600" />
+                         <span className="text-sm font-medium text-green-600">Completado</span>
+                       </div>
                       <div className="text-xs space-y-1">
                         <div><strong>Contexto:</strong> {user.quiz_context || 'N/A'}</div>
                         <div><strong>Função:</strong> {user.quiz_role || 'N/A'}</div>
@@ -379,10 +379,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <XCircle className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm text-gray-500">Não completado</span>
-                    </div>
+                     <div className="flex items-center gap-2">
+                       <Icon name="XCircle" size="md" className="text-gray-400" />
+                       <span className="text-sm text-gray-500">Não completado</span>
+                     </div>
                   )}
                 </TableCell>
 
@@ -409,10 +409,10 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
 
                 {/* Criado em */}
                 <TableCell>
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <Calendar className="h-3 w-3" />
-                    <span>{formatDate(user.created_at)}</span>
-                  </div>
+                   <div className="flex items-center gap-2 text-sm text-gray-600">
+                     <Icon name="Calendar" size="sm" />
+                     <span>{formatDate(user.created_at)}</span>
+                   </div>
                 </TableCell>
 
                 {/* Ações */}
@@ -424,7 +424,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                       onClick={() => handleImpersonateUser(user.id, user.email, user.full_name || user.email)}
                       title="Logar como usuário"
                     >
-                      <LogIn className="h-4 w-4" />
+                      <Icon name="LogIn" size="md" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -433,7 +433,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                       disabled={isUpdating}
                       title="Atualizar localização do IP"
                     >
-                      <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
+                      <Icon name="RefreshCw" size="md" className={isUpdating ? 'animate-spin' : ''} />
                     </Button>
                     <Dialog>
                       <DialogTrigger asChild>
@@ -442,7 +442,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                           size="sm"
                           onClick={() => handleEditUser(user)}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Icon name="Edit" size="md" />
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
@@ -548,7 +548,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                       onClick={() => onDeleteUser(user.id)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Icon name="Trash2" size="md" />
                     </Button>
                   </div>
                 </TableCell>

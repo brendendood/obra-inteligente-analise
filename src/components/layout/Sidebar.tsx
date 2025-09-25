@@ -1,19 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { UnifiedLogo } from '@/components/ui/UnifiedLogo';
-import { 
-  Bot,
-  Home, 
-  User,
-  Users,
-  CreditCard,
-  HelpCircle,
-  MessageCircle,
-  LogOut,
-  Crown,
-  Menu,
-  X
-} from 'lucide-react';
+import { Icon } from '@/components/ui/Icon';
+import { Crown, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -79,48 +68,48 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
   const navigationItems = [
     { 
-      icon: Bot, 
+      icon: 'Bot', 
       label: 'Assistente IA', 
       path: '/ia',
       isActive: location.pathname === '/ia'
     },
     { 
-      icon: Home, 
+      icon: 'Home', 
       label: 'Dashboard', 
       path: '/painel',
       isActive: location.pathname === '/painel' || location.pathname === '/'
     },
     { 
-      icon: Users, 
+      icon: 'Users', 
       label: 'CRM', 
       path: '/crm',
       isActive: location.pathname.startsWith('/crm')
     },
     { 
-      icon: User, 
+      icon: 'User', 
       label: 'Conta & Preferências', 
       path: '/conta',
       isActive: location.pathname.startsWith('/conta')
     },
     { 
-      icon: CreditCard, 
+      icon: 'CreditCard', 
       label: 'Plano e Pagamentos', 
       path: '/plano',
       isActive: location.pathname.startsWith('/plano')
     },
     { 
-      icon: HelpCircle, 
+      icon: 'HelpCircle', 
       label: 'Ajuda e FAQs', 
       path: '/ajuda',
       isActive: location.pathname.startsWith('/ajuda')
     },
     { 
-      icon: MessageCircle, 
+      icon: 'MessageCircle', 
       label: 'Fale com a Gente', 
       path: '/contato',
       isActive: location.pathname.startsWith('/contato')
     }
-  ];
+  ] as const;
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -219,9 +208,8 @@ export const Sidebar = ({ className }: SidebarProps) => {
 
       {/* Navigation */}
       <div className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {navigationItems.map((item) => {
-          const Icon = item.icon;
-          return (
+            {navigationItems.map((item) => {
+              return (
             <button
               key={item.path}
               onClick={() => handleNavigation(item.path)}
@@ -233,10 +221,14 @@ export const Sidebar = ({ className }: SidebarProps) => {
                   : "text-sidebar-foreground hover:text-sidebar-foreground"
               )}
             >
-              <Icon className={cn(
-                "h-4 w-4 mr-3 flex-shrink-0",
-                item.isActive ? "text-primary" : "text-muted-foreground"
-              )} strokeWidth={1.5} />
+              <Icon 
+                name={item.icon}
+                size="md"
+                className={cn(
+                  "mr-3 flex-shrink-0",
+                  item.isActive ? "text-primary" : "text-muted-foreground"
+                )} 
+              />
               
               <span className="text-sm font-medium truncate">
                 {item.label}
@@ -275,7 +267,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               className="w-full h-8 bg-primary hover:bg-primary/90 text-primary-foreground text-xs rounded-apple"
               onClick={() => handleNavigation('/plano')}
             >
-              <Crown className="h-3 w-3 mr-1" strokeWidth={1.5} />
+              <Icon name="Crown" size="sm" className="mr-1" />
               Upgrade
             </Button>
           )}
@@ -286,7 +278,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
           onClick={handleLogout}
           className="w-full flex items-center rounded-apple transition-all duration-200 p-3 hover:bg-destructive/10 text-destructive"
         >
-          <LogOut className="h-4 w-4 mr-3" strokeWidth={1.5} />
+          <Icon name="LogOut" size="md" className="mr-3" />
           <span className="text-sm font-medium">Sair</span>
         </button>
       </div>

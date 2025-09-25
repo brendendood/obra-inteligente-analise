@@ -1,0 +1,35 @@
+/* Utilitárias globais para casos onde o componente Icon não pode ser usado */
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+
+.icon-md {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+
+.icon-lg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.75;
+  flex-shrink: 0;
+}
+
+/* Força alinhamento vertical em containers flex */
+.icon-aligned {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Para casos onde o ícone precisa de alinhamento específico */
+.icon-text-align {
+  vertical-align: middle;
+  display: inline-block;
+}
