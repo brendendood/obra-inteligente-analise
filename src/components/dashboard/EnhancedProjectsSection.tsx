@@ -1,60 +1,36 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
-import { 
-  FolderOpen, 
-  Plus, 
-  Search, 
-  Filter
-} from 'lucide-react';
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { FolderOpen, Plus, Search, Filter } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Project } from '@/types/project';
 import { SimpleProjectCard } from './SimpleProjectCard';
-
 interface EnhancedProjectsSectionProps {
   projects: Project[];
   isLoading: boolean;
   onDeleteProject?: (project: Project) => void;
 }
-
 const PROJECTS_PER_PAGE = 6;
-
-export const EnhancedProjectsSection = ({ 
-  projects, 
-  isLoading, 
-  onDeleteProject 
+export const EnhancedProjectsSection = ({
+  projects,
+  isLoading,
+  onDeleteProject
 }: EnhancedProjectsSectionProps) => {
   const navigate = useNavigate();
-  const { updateProject } = useUnifiedProjectStore();
+  const {
+    updateProject
+  } = useUnifiedProjectStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'area'>('date');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Filtrar e ordenar projetos
   const filteredAndSortedProjects = useMemo(() => {
-    let filtered = projects.filter(project =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
+    let filtered = projects.filter(project => project.name.toLowerCase().includes(searchTerm.toLowerCase()));
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'name':
@@ -66,7 +42,6 @@ export const EnhancedProjectsSection = ({
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
     });
-
     return filtered;
   }, [projects, searchTerm, sortBy]);
 
@@ -79,31 +54,23 @@ export const EnhancedProjectsSection = ({
   useMemo(() => {
     setCurrentPage(1);
   }, [searchTerm, sortBy]);
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
   if (isLoading && projects.length === 0) {
-    return (
-      <Card className="border border-gray-200 bg-white w-full">
+    return <Card className="border border-gray-200 bg-white w-full">
         <CardContent className="p-6">
           <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse">
+            {[...Array(3)].map((_, i) => <div key={i} className="animate-pulse">
                 <div className="h-24 bg-gray-200 rounded-lg"></div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
   if (projects.length === 0) {
-    return (
-      <div className="p-12 text-center">
-        <div className="bg-gray-50 rounded-2xl p-8 border-2 border-dashed border-gray-200">
+    return <div className="p-12 text-center px-[2px] py-[10px]">
+        <div className="bg-gray-50 rounded-2xl p-8 border-2 border-dashed border-gray-200 px-[21px]">
           <FolderOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
             Nenhum projeto ainda
@@ -111,20 +78,14 @@ export const EnhancedProjectsSection = ({
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
             Comece criando seu primeiro projeto. Faça upload de plantas, documentos ou dados do seu projeto.
           </p>
-          <Button 
-            onClick={() => navigate('/upload')}
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-          >
+          <Button onClick={() => navigate('/upload')} className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200">
             <Plus className="h-4 w-4 mr-2" />
             Criar Primeiro Projeto
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <Card className="border border-border bg-card w-full rounded-apple">
+  return <Card className="border border-border bg-card w-full rounded-apple">
       <CardHeader className="pb-4 px-4 sm:px-6">
         <div className="flex flex-col space-y-4">
           {/* Header com título e botão */}
@@ -139,10 +100,7 @@ export const EnhancedProjectsSection = ({
               </span>
             </div>
             
-            <Button
-              onClick={() => navigate('/upload')}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 h-10 px-4 sm:px-6 font-medium rounded-apple"
-            >
+            <Button onClick={() => navigate('/upload')} className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md transition-all duration-200 h-10 px-4 sm:px-6 font-medium rounded-apple">
               <Plus className="h-4 w-4 mr-2 flex-shrink-0" strokeWidth={1.5} />
               <span className="truncate">Novo Projeto</span>
             </Button>
@@ -152,12 +110,7 @@ export const EnhancedProjectsSection = ({
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Buscar projetos..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 transition-all duration-200 h-10"
-              />
+              <Input placeholder="Buscar projetos..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-300 transition-all duration-200 h-10" />
             </div>
             
             <Select value={sortBy} onValueChange={(value: 'date' | 'name' | 'area') => setSortBy(value)}>
@@ -178,62 +131,38 @@ export const EnhancedProjectsSection = ({
       <CardContent className="w-full px-4 sm:px-4 lg:px-6">
         {/* Lista de projetos - Otimizada para mobile */}
         <div className="space-y-3 sm:space-y-4">
-          {paginatedProjects.map((project) => (
-            <SimpleProjectCard
-              key={project.id}
-              project={project}
-              onDeleteProject={onDeleteProject}
-              onProjectUpdate={(updatedProject) => {
-                updateProject(updatedProject.id, updatedProject);
-              }}
-            />
-          ))}
+          {paginatedProjects.map(project => <SimpleProjectCard key={project.id} project={project} onDeleteProject={onDeleteProject} onProjectUpdate={updatedProject => {
+          updateProject(updatedProject.id, updatedProject);
+        }} />)}
         </div>
         
         {/* Paginação */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex justify-center">
+        {totalPages > 1 && <div className="mt-8 flex justify-center">
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                  />
+                  <PaginationPrevious onClick={() => handlePageChange(Math.max(1, currentPage - 1))} className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
                 </PaginationItem>
                 
                 {[...Array(totalPages)].map((_, i) => {
-                  const page = i + 1;
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        onClick={() => handlePageChange(page)}
-                        isActive={currentPage === page}
-                        className="cursor-pointer"
-                      >
+              const page = i + 1;
+              return <PaginationItem key={page}>
+                      <PaginationLink onClick={() => handlePageChange(page)} isActive={currentPage === page} className="cursor-pointer">
                         {page}
                       </PaginationLink>
-                    </PaginationItem>
-                  );
-                })}
+                    </PaginationItem>;
+            })}
                 
                 <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                  />
+                  <PaginationNext onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))} className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'} />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-          </div>
-        )}
+          </div>}
         
-        {filteredAndSortedProjects.length > PROJECTS_PER_PAGE && (
-          <div className="mt-4 text-center text-sm text-gray-500">
+        {filteredAndSortedProjects.length > PROJECTS_PER_PAGE && <div className="mt-4 text-center text-sm text-gray-500">
             Mostrando {startIndex + 1}-{Math.min(startIndex + PROJECTS_PER_PAGE, filteredAndSortedProjects.length)} de {filteredAndSortedProjects.length} projetos
-          </div>
-        )}
+          </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
