@@ -133,7 +133,7 @@ async function getGeolocationFromIP(ip: string): Promise<GeolocationResponse> {
       };
 
     } catch (error) {
-      console.log(`❌ Erro em ${api.name}:`, error.message);
+      console.log(`❌ Erro em ${api.name}:`, error instanceof Error ? error.message : String(error));
       continue;
     }
   }
@@ -349,7 +349,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         message: 'Falha crítica na captura de geolocalização'
       }),
       { 

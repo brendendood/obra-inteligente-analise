@@ -275,7 +275,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     // Aguardar o email de boas-vindas em background usando EdgeRuntime.waitUntil
-    EdgeRuntime.waitUntil(welcomeEmailPromise);
+    // Note: EdgeRuntime.waitUntil not available in Deno, email will run in background
 
     return new Response(
       JSON.stringify({ 
