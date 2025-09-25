@@ -1,4 +1,4 @@
-import { Mail, Phone, Linkedin } from 'lucide-react';
+import { Mail, Phone, Linkedin, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -23,6 +23,9 @@ const Footer = () => {
               </a>
               <a href="tel:+5511999999999" className="text-muted-foreground hover:text-foreground transition-fast hover-scale theme-transition" target="_blank" rel="noopener">
                 <Phone className="h-5 w-5" />
+              </a>
+              <a href="https://instagram.com/madeai.br" className="text-muted-foreground hover:text-foreground transition-fast hover-scale theme-transition" target="_blank" rel="noopener">
+                <Instagram className="h-5 w-5" />
               </a>
               <a href="https://linkedin.com/company/maden-ai" className="text-muted-foreground hover:text-foreground transition-fast hover-scale theme-transition" target="_blank" rel="noopener">
                 <Linkedin className="h-5 w-5" />

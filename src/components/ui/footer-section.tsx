@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Facebook, Instagram, Linkedin, Moon, Send, Sun, Twitter } from "lucide-react";
+import { Instagram, Linkedin, Moon, Send, Sun } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 function Footerdemo() {
   const {
@@ -65,36 +65,6 @@ function Footerdemo() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full h-11 w-11 p-3" asChild>
-                      <a href="#" aria-label="Facebook da MadeAI">
-                        <Facebook className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Siga no Facebook</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" size="icon" className="rounded-full" asChild>
-                      <a href="#" aria-label="Twitter/X da MadeAI">
-                        <Twitter className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Siga no X (Twitter)</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
                     <Button variant="outline" size="icon" className="rounded-full" asChild>
                       <a href="https://instagram.com/madeai.br" aria-label="Instagram da MadeAI" target="_blank">
                         <Instagram className="h-4 w-4" />
@@ -111,7 +81,7 @@ function Footerdemo() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="outline" size="icon" className="rounded-full" asChild>
-                      <a href="#" aria-label="LinkedIn da MadeAI">
+                      <a href="https://linkedin.com/company/maden-ai" aria-label="LinkedIn da MadeAI" target="_blank">
                         <Linkedin className="h-4 w-4" />
                       </a>
                     </Button>

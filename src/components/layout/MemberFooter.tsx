@@ -2,7 +2,7 @@
 import { useUserData } from '@/hooks/useUserData';
 import { getPlanDisplayName } from '@/facades/core';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, ExternalLink } from 'lucide-react';
+import { Instagram, Linkedin, Mail, ExternalLink } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 
 export const MemberFooter = () => {
@@ -24,26 +24,20 @@ export const MemberFooter = () => {
             </p>
             <div className="flex space-x-3">
               <a 
-                href="https://github.com" 
+                href="https://instagram.com/madeai.br" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg transition-all duration-200"
+                aria-label="Instagram MadeAI"
               >
-                <Github className="h-4 w-4" />
+                <Instagram className="h-4 w-4" />
               </a>
               <a 
-                href="https://twitter.com" 
+                href="https://linkedin.com/company/maden-ai" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg transition-all duration-200"
-              >
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a 
-                href="https://linkedin.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded-lg transition-all duration-200"
+                aria-label="LinkedIn MadeAI"
               >
                 <Linkedin className="h-4 w-4" />
               </a>
