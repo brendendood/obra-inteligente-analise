@@ -43,6 +43,23 @@ export const EditUserModal = ({ user, isOpen, onClose, onSuccess }: EditUserModa
   useEffect(() => {
     if (user && isOpen) {
       console.log('🔧 EDIT USER MODAL: Carregando dados do usuário:', user);
+      console.log('🔧 EDIT USER MODAL: Status original:', user.status);
+      
+      // Normalizar status para garantir compatibilidade
+      let normalizedStatus = 'active';
+      if (user.status) {
+        const statusLower = user.status.toLowerCase();
+        if (['active', 'ativo'].includes(statusLower)) {
+          normalizedStatus = 'active';
+        } else if (['blocked', 'bloqueado'].includes(statusLower)) {
+          normalizedStatus = 'blocked';
+        } else if (['pending', 'pendente'].includes(statusLower)) {
+          normalizedStatus = 'pending';
+        }
+      }
+      
+      console.log('🔧 EDIT USER MODAL: Status normalizado:', normalizedStatus);
+      
       setFormData({
         name: user.full_name || '',
         role_title: user.cargo || '',
@@ -51,7 +68,7 @@ export const EditUserModal = ({ user, isOpen, onClose, onSuccess }: EditUserModa
         city: user.city || '',
         state: user.state || '',
         plan_code: user.plan || 'basic',
-        status: user.status || 'active'
+        status: normalizedStatus
       });
     }
   }, [user, isOpen]);
@@ -98,10 +115,13 @@ export const EditUserModal = ({ user, isOpen, onClose, onSuccess }: EditUserModa
       return false;
     }
 
-    if (!['active', 'blocked', 'pending'].includes(formData.status)) {
+    // Validação mais permissiva para status
+    const validStatuses = ['active', 'blocked', 'pending', 'ativo', 'bloqueado', 'pendente'];
+    if (!validStatuses.includes(formData.status.toLowerCase())) {
+      console.error('🚫 EDIT USER MODAL: Status inválido detectado:', formData.status);
       toast({
         title: "Erro de validação",
-        description: "Status inválido",
+        description: `Status inválido: "${formData.status}". Use: ativo, bloqueado ou pendente`,
         variant: "destructive",
       });
       return false;
@@ -114,7 +134,19 @@ export const EditUserModal = ({ user, isOpen, onClose, onSuccess }: EditUserModa
     if (!user || !validateForm()) return;
 
     setIsLoading(true);
-    console.log('💾 EDIT USER MODAL: Salvando alterações para:', user.user_id, formData);
+    
+    // Normalizar dados antes de enviar
+    const normalizedData = {
+      ...formData,
+      status: formData.status.toLowerCase() === 'ativo' ? 'active' : 
+              formData.status.toLowerCase() === 'bloqueado' ? 'blocked' :
+              formData.status.toLowerCase() === 'pendente' ? 'pending' : 
+              formData.status
+    };
+    
+    console.log('💾 EDIT USER MODAL: Salvando alterações para:', user.user_id);
+    console.log('💾 EDIT USER MODAL: Dados originais:', formData);
+    console.log('💾 EDIT USER MODAL: Dados normalizados:', normalizedData);
 
     try {
       // Buscar admin atual
@@ -127,7 +159,7 @@ export const EditUserModal = ({ user, isOpen, onClose, onSuccess }: EditUserModa
       const { data: result, error } = await supabase.rpc('admin_update_user_profile', {
         target_user_id: user.user_id,
         admin_user_id: currentUser.id,
-        user_data: formData as any
+        user_data: normalizedData as any
       });
 
       if (error) {
