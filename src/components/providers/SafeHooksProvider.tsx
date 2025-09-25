@@ -101,7 +101,7 @@ export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }
   }
 
   // Se chegou aqui, React está OK - pode usar hooks normalmente
-  const [isHealthy, setIsHealthy] = React.useState(true);
+  const [isHealthy, setIsHealthy] = useState(true);
 
   useEffect(() => {
     // Simplified monitoring without external dependencies
