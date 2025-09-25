@@ -160,13 +160,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       if (error) {
         console.error('🔴 AUTH: Logout error:', error);
+        throw error;
       } else {
         console.log('✅ AUTH: Logout successful');
-        // Redirect to login page
-        window.location.href = '/login';
+        // Force redirect to landing page and clear session
+        window.location.href = '/';
       }
     } catch (error) {
       console.error('🔴 AUTH: Sign out error:', error);
+      throw error;
     }
   }, []);
 

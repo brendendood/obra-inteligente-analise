@@ -52,7 +52,6 @@ export default function SidebarMadeDesktopOnly(props: SidebarMadeDesktopProps) {
   const handleLogout = async () => {
     try {
       await signOut();
-      navigate('/');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }

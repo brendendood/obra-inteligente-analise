@@ -17,7 +17,7 @@ interface HeaderMobileMenuProps {
 }
 
 export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { projectId } = useParams<{ projectId: string }>();
@@ -28,13 +28,12 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await signOut();
       toast({
         title: "👋 Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
-      navigate('/');
+      onClose();
     } catch (error) {
       console.error('Erro no logout:', error);
       toast({

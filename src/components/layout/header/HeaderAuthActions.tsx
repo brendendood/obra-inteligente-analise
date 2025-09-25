@@ -11,7 +11,7 @@ import { MyAccountDialog } from '@/components/account/MyAccountDialog';
 
 
 export const HeaderAuthActions = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showAccountDialog, setShowAccountDialog] = useState(false);
@@ -71,13 +71,11 @@ export const HeaderAuthActions = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      await signOut();
       toast({
         title: "👋 Logout realizado",
         description: "Você foi desconectado com sucesso."
       });
-      navigate('/');
     } catch (error) {
       console.error('Erro no logout:', error);
       toast({
