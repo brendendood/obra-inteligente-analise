@@ -154,6 +154,8 @@ const PaywallPage: React.FC<PaywallPageProps> = ({ userId }) => {
                     }`}
                     variant={plan.highlighted ? "default" : "outline"}
                     onClick={() => handlePlanSelect(plan.id)}
+                    data-plan-id={plan.id}
+                    data-action="subscribe-plan"
                   >
                     <span>Assinar {plan.name}</span>
                     <ArrowRight className="w-5 h-5 ml-2" />

@@ -45,6 +45,7 @@ const AdminCRMPage = lazy(() => import("./pages/AdminCRMPage"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PricingBlocked = lazy(() => import("./pages/PricingBlocked"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminVerification = lazy(() => import("./pages/AdminVerification"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Project specific pages
@@ -300,6 +301,12 @@ const App = () => {
                  <Route path="/admin/users" element={
                    <ProtectedRoute>
                      <LazyWrapper><AdminUsers /></LazyWrapper>
+                   </ProtectedRoute>
+                 } />
+                 
+                 <Route path="/admin/verification" element={
+                   <ProtectedRoute>
+                     <LazyWrapper><AdminVerification /></LazyWrapper>
                    </ProtectedRoute>
                  } />
                 
