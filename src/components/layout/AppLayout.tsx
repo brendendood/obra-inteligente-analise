@@ -1,7 +1,6 @@
 
 import { ReactNode, memo, useMemo, useState, useEffect } from 'react';
 import { MemberFooter } from './MemberFooter';
-import { Sidebar } from './Sidebar';
 import { SessionNavBar } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -32,10 +31,6 @@ const useOptimizedMediaQuery = (query: string) => {
 
   return matches;
 };
-
-// Memoized sidebar component
-const MemoizedSidebar = memo(Sidebar);
-MemoizedSidebar.displayName = 'MemoizedSidebar';
 
 // Memoized footer component  
 const MemoizedFooter = memo(MemberFooter);
@@ -73,9 +68,6 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   const isAIPage = location.pathname === '/ia';
   const isProjectPage = location.pathname.startsWith('/projeto');
   const shouldHideFooter = hideFooter || isAIPage;
-  
-  // Esconde sidebar apenas na página IA no mobile
-  const shouldHideSidebar = isMobile && isAIPage;
 
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
@@ -85,8 +77,8 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
       "flex-1",
       isAIPage ? "overflow-hidden" : "overflow-auto"
     ),
-    innerContent: isAIPage && !isMobile ? "h-full" : shouldHideSidebar ? "h-full" : (isProjectPage ? "h-full project-content" : "h-full")
-  }), [isMobile, isAIPage, shouldHideSidebar, isProjectPage]);
+    innerContent: isAIPage && !isMobile ? "h-full" : (isProjectPage ? "h-full project-content" : "h-full")
+  }), [isMobile, isAIPage, isProjectPage]);
 
   // Early return for loading state with unified loading
   if (loading) {
@@ -101,13 +93,10 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   return (
     <div className={cn(
       "user-area min-h-screen w-full bg-gray-50",
-      !isMobile && !shouldHideSidebar ? "desktop-grid" : "flex flex-col"
+      !isMobile ? "desktop-grid" : "flex flex-col"
     )}>
-      {/* Sidebar original para mobile */}
-      {isMobile && !shouldHideSidebar && <MemoizedSidebar />}
-      
-      {/* Novo sidebar colapsável para desktop */}
-      {!isMobile && !shouldHideSidebar && (
+      {/* Sidebar colapsável para desktop */}
+      {!isMobile && (
         <div className="hidden md:block">
           <SessionNavBar 
             onCollapseChange={setSidebarCollapsed}

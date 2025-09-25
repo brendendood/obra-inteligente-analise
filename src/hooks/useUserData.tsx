@@ -20,7 +20,7 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: null, // Usuários começam sem plano até assinar
+    plan: 'basic', // Default para basic até carregar dados reais
     projectCount: 0,
     credits: 0,
     subscription: null,
@@ -37,7 +37,7 @@ export const useUserData = () => {
     if (!isAuthenticated || !user) {
       console.log('⚠️ useUserData: User not authenticated, setting defaults');
       setUserData({
-        plan: null, // Usuários não autenticados não têm plano
+        plan: 'basic', // Default para basic para usuários não autenticados
         projectCount: 0,
         credits: 0,
         subscription: null,
@@ -88,12 +88,16 @@ export const useUserData = () => {
         projectCountPromise
       ]);
 
-      // Processar plan_code com fallback para 'free'
-  let plan: 'basic' | 'pro' | 'enterprise' | null = null;
+      // Processar plan_code com fallback para 'basic' e normalização case
+      let plan: 'basic' | 'pro' | 'enterprise' | null = 'basic'; // Default para basic
       
       if (userResult.status === 'fulfilled' && userResult.value.data) {
         const planCode = userResult.value.data.plan_code;
-        plan = (planCode === 'basic' || planCode === 'pro' || planCode === 'enterprise') ? planCode : null;
+        // Normalizar para lowercase e mapear planos válidos
+        if (planCode) {
+          const normalizedPlan = planCode.toLowerCase();
+          plan = (normalizedPlan === 'basic' || normalizedPlan === 'pro' || normalizedPlan === 'enterprise') ? normalizedPlan : 'basic';
+        }
       } else if (userResult.status === 'rejected') {
         console.warn('⚠️ Erro ao buscar plano do usuário:', userResult.reason);
       }
@@ -132,7 +136,7 @@ export const useUserData = () => {
       setError('Erro ao carregar dados do usuário');
       
       setUserData({
-        plan: null, // Fallback para null quando há erro
+        plan: 'basic', // Fallback para basic quando há erro
         projectCount: 0,
         credits: 0,
         subscription: null, // Removido: não mais usado
