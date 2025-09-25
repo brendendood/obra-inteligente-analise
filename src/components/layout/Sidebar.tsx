@@ -271,7 +271,7 @@ export const Sidebar = ({ className }: SidebarProps) => {
               onClick={() => handleNavigation('/plano')}
             >
               <Crown className="h-3 w-3 mr-1" strokeWidth={1.5} />
-              {getUpgradeMessage(userData.plan)}
+              Entre em contato para upgrade
             </Button>
           )}
         </div>

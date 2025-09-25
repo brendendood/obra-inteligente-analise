@@ -58,13 +58,14 @@ export const AdminDashboard = () => {
       const rpcStats = rpcData[0];
       console.log('✅ DASHBOARD: Dados RPC recebidos:', rpcStats);
 
-      // Buscar distribuição de planos separadamente para compatibilidade
-      const { data: subscriptionsData } = await supabase
-        .from('user_subscriptions')
-        .select('plan');
+      // Buscar distribuição de planos diretamente da tabela users
+      const { data: usersData } = await supabase
+        .from('users')
+        .select('plan_code');
 
-      const planDistribution = subscriptionsData?.reduce((acc: any, sub: any) => {
-        acc[sub.plan] = (acc[sub.plan] || 0) + 1;
+      const planDistribution = usersData?.reduce((acc: any, user: any) => {
+        const plan = user.plan_code || 'free';
+        acc[plan] = (acc[plan] || 0) + 1;
         return acc;
       }, {}) || {};
 

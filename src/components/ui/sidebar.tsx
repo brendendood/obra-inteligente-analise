@@ -211,7 +211,7 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
             {/* Upgrade Button */}
             {canUpgrade(userData.plan) && <Button asChild className="w-full h-8 text-xs" variant="default">
                 <Link to="/plano">
-                  {getUpgradeMessage(userData.plan)}
+                  Entre em contato para upgrade
                 </Link>
               </Button>}
           </div>

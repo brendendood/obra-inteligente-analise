@@ -171,7 +171,7 @@ export default function SidebarMadeDesktopOnly(props: SidebarMadeDesktopProps) {
                   "bg-[#00A3FF] hover:bg-[#0595e6] text-white text-sm font-medium"
                 )}
               >
-                Upgrade para Basic
+                Contato para Upgrade
               </a>
             </div>
 

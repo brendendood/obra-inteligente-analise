@@ -46,7 +46,6 @@ export function useAdminPayments() {
         .from('payments')
         .select(`
           *,
-          user_subscriptions(plan, status, user_id),
           user_profiles(full_name, user_id)
         `)
         .order('created_at', { ascending: false });
@@ -70,28 +69,24 @@ export function useAdminPayments() {
       const authUsers = authData?.users || [];
 
       const mappedPayments: AdminPayment[] = (paymentsData || []).map(payment => {
-        const subscription = Array.isArray(payment.user_subscriptions) && payment.user_subscriptions.length > 0
-          ? payment.user_subscriptions[0] 
-          : null;
-        
         const userProfile = Array.isArray(payment.user_profiles) && payment.user_profiles.length > 0
           ? payment.user_profiles[0] 
           : null;
 
-        const authUser = authUsers.find(u => u.id === subscription?.user_id);
+        const authUser = authUsers.find(u => u.id === payment.user_id);
 
         return {
           id: payment.id,
           user_email: authUser?.email || 'Email não encontrado',
           user_name: userProfile?.full_name || null,
-          plan: subscription?.plan || 'free',
+          plan: 'legacy', // Sistema antigo removido
           amount: payment.amount,
           currency: payment.currency || 'BRL',
           status: payment.status,
           payment_method: payment.payment_method,
           invoice_url: payment.invoice_url,
           created_at: payment.created_at,
-          subscription_status: subscription?.status || 'active',
+          subscription_status: 'inactive', // Sistema de billing antigo removido
         };
       });
 
@@ -108,9 +103,7 @@ export function useAdminPayments() {
         })
         .reduce((sum, p) => sum + p.amount, 0);
 
-      const activeSubscriptions = mappedPayments.filter(p => 
-        p.subscription_status === 'active'
-      ).length;
+      const activeSubscriptions = 0; // Sistema de billing antigo removido
 
       const failedPayments = mappedPayments.filter(p => 
         p.status === 'failed' || p.status === 'canceled'

@@ -48,9 +48,9 @@ export const useAdminUsers = () => {
       .on('postgres_changes', {
         event: '*', 
         schema: 'public',
-        table: 'user_subscriptions'
+        table: 'users'
       }, () => {
-        console.log('🔄 ADMIN USERS: Assinatura alterada, atualizando lista...');
+        console.log('🔄 ADMIN USERS: Plano de usuário alterado, atualizando lista...');
         loadUsers();
       })
       .subscribe();

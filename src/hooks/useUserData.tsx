@@ -53,13 +53,13 @@ export const useUserData = () => {
       setError(null);
       console.log('📡 useUserData: Fetching data for user:', user.id);
 
-      const subscriptionPromise = supabase
-        .from('user_subscriptions')
-        .select('plan, status, current_period_end')
-        .eq('user_id', user.id)
+      const userPromise = supabase
+        .from('users')
+        .select('plan_code')
+        .eq('id', user.id)
         .maybeSingle()
         .then(result => {
-          console.log('📋 Subscription result:', result);
+          console.log('🏢 User plan result:', result);
           return result;
         });
 
@@ -82,21 +82,20 @@ export const useUserData = () => {
           return result;
         });
 
-      const [subscriptionResult, profileResult, projectCountResult] = await Promise.allSettled([
-        subscriptionPromise,
+      const [userResult, profileResult, projectCountResult] = await Promise.allSettled([
+        userPromise,
         profilePromise,
         projectCountPromise
       ]);
 
-      // Processar subscription com fallback para 'free'
-      let subscription = null;
+      // Processar plan_code com fallback para 'free'
       let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'free';
       
-      if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.data) {
-        subscription = subscriptionResult.value.data;
-        plan = subscription.plan || 'free';
-      } else if (subscriptionResult.status === 'rejected') {
-        console.warn('⚠️ Erro ao buscar assinatura:', subscriptionResult.reason);
+      if (userResult.status === 'fulfilled' && userResult.value.data) {
+        const planCode = userResult.value.data.plan_code;
+        plan = (planCode === 'basic' || planCode === 'pro' || planCode === 'enterprise') ? planCode : 'free';
+      } else if (userResult.status === 'rejected') {
+        console.warn('⚠️ Erro ao buscar plano do usuário:', userResult.reason);
       }
 
       // Processar profile
@@ -121,7 +120,7 @@ export const useUserData = () => {
         plan,
         projectCount,
         credits,
-        subscription,
+        subscription: null, // Removido: agora usamos apenas plan_code
         profile
       };
 
@@ -136,7 +135,7 @@ export const useUserData = () => {
         plan: 'free', // Fallback para 'free'
         projectCount: 0,
         credits: 0,
-        subscription: null,
+        subscription: null, // Removido: não mais usado
         profile: null
       });
     } finally {
