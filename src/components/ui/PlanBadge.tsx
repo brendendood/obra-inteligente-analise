@@ -36,7 +36,7 @@ export const PlanBadge: React.FC<PlanBadgeProps> = ({ planCode, className = '' }
     case 'enterprise':
       return (
         <span className={`relative inline-flex items-center rounded-full p-[2px] ${className}`} aria-label="Plano: Enterprise">
-          <span className="absolute inset-0 rounded-full bg-[conic-gradient(at_50%_50%,#7c3aed,#0ea5e9,#22c55e,#f59e0b,#ef4444,#7c3aed)] animate-[spin_6s_linear_infinite]"></span>
+          <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-300 animate-pulse"></span>
           <span className="relative rounded-full bg-white text-xs px-3 py-1 font-medium text-gray-900">
             Enterprise
           </span>
