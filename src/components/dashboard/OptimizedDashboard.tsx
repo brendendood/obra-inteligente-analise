@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import { SmartGreeting } from '@/components/dashboard/SmartGreeting';
 import { ArchitectQuote } from '@/components/dashboard/ArchitectQuote';
@@ -9,6 +9,8 @@ import { ProjectDeleteConfirmDialog } from '@/components/projects/ProjectDeleteC
 import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
 import { useDashboardGeolocation } from '@/hooks/useDashboardGeolocation';
+import { DashboardMobileHeader } from '@/components/dashboard/DashboardMobileHeader';
+import { useIsMobile } from '@/hooks/use-mobile';
 interface OptimizedDashboardProps {
   userName: string;
   projects: any[];
@@ -25,6 +27,12 @@ const OptimizedDashboard = memo(({
 }: OptimizedDashboardProps) => {
   // Hook para capturar geolocalização apenas no painel
   useDashboardGeolocation();
+  
+  // Hook para detectar mobile
+  const isMobile = useIsMobile();
+  
+  // Estado para menu mobile
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Hook para gerenciar exclusão de projetos
   const {
@@ -37,7 +45,16 @@ const OptimizedDashboard = memo(({
 
   // Métricas avançadas baseadas nos projetos
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
-  return <div className="flex flex-col space-y-8 w-full min-w-0 sm:px-6 px-[28px] lg:px-[9px] mx-0 my-[2px] py-[8px]">
+  return (
+    <div className="flex flex-col space-y-8 w-full min-w-0 sm:px-6 px-[28px] lg:px-[9px] mx-0 my-[2px] py-[8px]">
+      {/* Header Mobile com botão de menu */}
+      {isMobile && (
+        <DashboardMobileHeader 
+          isMenuOpen={isMobileMenuOpen}
+          onToggleMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        />
+      )}
+      
       {/* Breadcrumb Section - sem header grande */}
       <div className="w-full mb-6">
         <EnhancedBreadcrumb />
@@ -57,7 +74,8 @@ const OptimizedDashboard = memo(({
 
       {/* Dialog de Confirmação de Exclusão */}
       <ProjectDeleteConfirmDialog project={projectToDelete} isOpen={!!projectToDelete} isDeleting={isDeleting} onConfirm={executeDelete} onCancel={cancelDelete} />
-    </div>;
+    </div>
+  );
 });
 OptimizedDashboard.displayName = 'OptimizedDashboard';
 export { OptimizedDashboard };

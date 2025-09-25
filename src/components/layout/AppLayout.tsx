@@ -105,7 +105,12 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
         </div>
       )}
       
-      <main className={cn(layoutClasses.main, "app-main")}>
+      <main className={cn(
+        layoutClasses.main, 
+        "app-main",
+        // Ajuste para mobile quando há header fixo
+        isMobile ? "pt-0" : ""
+      )}>
         <div className={layoutClasses.content}>
           <div className={layoutClasses.innerContent}>
             {children}
