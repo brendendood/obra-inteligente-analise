@@ -1,7 +1,7 @@
 
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, Home, Upload, Brain, FolderOpen, Calculator, Calendar, FileText } from 'lucide-react';
+import { LogOut, User, Home, Upload, Brain, FolderOpen, Calculator, Calendar, FileText, Bot, Users2, CreditCard, CircleHelp, MessageCircle } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,13 +56,25 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
   const avatarUrl = getAvatarUrl(fullName, user?.email);
   const isInProject = Boolean(projectId && currentProject);
 
-  // Navegação principal
+  // Navegação principal - replicando exatamente o menu sidebar desktop
   const mainNavigation = [
+    {
+      title: 'Assistente IA',
+      icon: Bot,
+      path: '/ia',
+      isActive: location.pathname.startsWith('/ia')
+    },
     {
       title: 'Dashboard',
       icon: Home,
       path: '/painel',
-      isActive: location.pathname === '/painel'
+      isActive: location.pathname.startsWith('/painel') || location.pathname === '/'
+    },
+    {
+      title: 'CRM',
+      icon: Users2,
+      path: '/crm',
+      isActive: location.pathname.startsWith('/crm')
     },
     {
       title: 'Meus Projetos',
@@ -77,10 +89,28 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
       isActive: location.pathname === '/upload'
     },
     {
-      title: 'Assistente IA',
-      icon: Brain,
-      path: '/ia',
-      isActive: location.pathname === '/ia'
+      title: 'Conta & Preferências',
+      icon: User,
+      path: '/conta',
+      isActive: location.pathname.startsWith('/conta') || location.pathname.startsWith('/perfil')
+    },
+    {
+      title: 'Plano e Pagamentos',
+      icon: CreditCard,
+      path: '/plano',
+      isActive: location.pathname.startsWith('/plano') || location.pathname.startsWith('/pagamentos')
+    },
+    {
+      title: 'Ajuda e FAQs',
+      icon: CircleHelp,
+      path: '/ajuda',
+      isActive: location.pathname.startsWith('/ajuda') || location.pathname.startsWith('/faq')
+    },
+    {
+      title: 'Fale com a Gente',
+      icon: MessageCircle,
+      path: '/contato',
+      isActive: location.pathname.startsWith('/contato') || location.pathname.startsWith('/suporte')
     }
   ];
 
