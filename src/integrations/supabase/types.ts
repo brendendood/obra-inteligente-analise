@@ -2209,29 +2209,24 @@ export type Database = {
       get_admin_users_with_quiz_data: {
         Args: Record<PropertyKey, never>
         Returns: {
-          avatar_url: string
+          avg_session_duration: number
           cargo: string
-          city: string
           company: string
-          country: string
           created_at: string
+          credits: number
           email: string
-          email_confirmed_at: string
           full_name: string
-          gender: string
-          last_login_ip: string
+          has_created_first_project: boolean
+          last_activity: string
           last_sign_in_at: string
-          phone: string
-          profile_id: string
-          quiz_challenges: string[]
-          quiz_completed_at: string
-          quiz_context: string
-          quiz_role: string
-          real_location: string
-          state: string
-          subscription_plan: string
-          subscription_status: string
+          plan: string
+          plan_selected: boolean
+          quiz_completed: boolean
+          ref_code: string
+          referred_by: string
+          status: string
           tags: string[]
+          total_sessions: number
           user_id: string
         }[]
       }
