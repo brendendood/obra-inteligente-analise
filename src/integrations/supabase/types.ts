@@ -2096,6 +2096,35 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_admin_users_with_quiz_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          cargo: string
+          city: string
+          company: string
+          country: string
+          created_at: string
+          email: string
+          email_confirmed_at: string
+          full_name: string
+          gender: string
+          last_login_ip: string
+          last_sign_in_at: string
+          phone: string
+          profile_id: string
+          quiz_challenges: string[]
+          quiz_completed_at: string
+          quiz_context: string
+          quiz_role: string
+          real_location: string
+          state: string
+          subscription_plan: string
+          subscription_status: string
+          tags: string[]
+          user_id: string
+        }[]
+      }
       get_admin_users_with_real_location: {
         Args: Record<PropertyKey, never>
         Returns: {
