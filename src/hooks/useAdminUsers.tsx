@@ -206,7 +206,10 @@ export const useAdminUsers = () => {
         subscription_data: subscriptionData
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ ADMIN USERS: Erro na RPC:', error);
+        throw error;
+      }
 
       const result = updateResult as any;
       if (!result?.success) {
@@ -214,23 +217,6 @@ export const useAdminUsers = () => {
       }
 
       console.log('✅ ADMIN USERS: Atualização bem-sucedida:', result);
-
-      // Atualizar estado local imediatamente
-      setUsers(prev => prev.map(user => 
-        user.user_id === userId 
-          ? { 
-              ...user,
-              full_name: data.full_name || user.full_name,
-              company: data.company || user.company,
-              phone: data.phone || user.phone,
-              city: data.city || user.city,
-              state: data.state || user.state,
-              cargo: data.cargo || user.cargo,
-              plan: data.plan || user.plan,
-              status: data.status || user.status
-            } 
-          : user
-      ));
 
       // Toast específico baseado no que foi atualizado
       let description = "Perfil atualizado com sucesso";
@@ -245,10 +231,8 @@ export const useAdminUsers = () => {
         description,
       });
 
-      // Refresh automático para garantir sincronização
-      setTimeout(() => {
-        loadUsers();
-      }, 1000);
+      // Recarregar dados imediatamente para garantir sincronização
+      await loadUsers();
 
     } catch (error) {
       console.error('❌ ADMIN USERS: Erro ao atualizar perfil:', error);
@@ -257,6 +241,7 @@ export const useAdminUsers = () => {
         description: error instanceof Error ? error.message : "Não foi possível atualizar o perfil do usuário",
         variant: "destructive",
       });
+      throw error; // Re-throw para que o componente possa tratar
     }
   };
 
