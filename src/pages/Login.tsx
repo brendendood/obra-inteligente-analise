@@ -97,11 +97,28 @@ export default function Login() {
       }, 5000);
 
       try {
-        // Se já estiver autenticado, redirecionar
+        // Se já estiver autenticado, verificar plano antes de redirecionar
         if (isAuthenticated && user) {
           logAuthEvent('auth_check_success', { user: user.email });
           clearTimeout(timeoutRef.current);
-          navigate('/painel');
+          
+          // Verificar se usuário tem plano
+          try {
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select('plan_code')
+              .eq('id', user.id)
+              .single();
+            
+            if (error || !userData?.plan_code) {
+              navigate('/pricing-blocked');
+            } else {
+              navigate('/painel');
+            }
+          } catch (error) {
+            console.error('Error checking user plan:', error);
+            navigate('/pricing-blocked');
+          }
           return;
         }
 
@@ -114,7 +131,24 @@ export default function Login() {
           logAuthEvent('auth_check_error', { error: error.message });
         } else if (session?.user) {
           logAuthEvent('auth_check_success', { user: session.user.email });
-          navigate('/painel');
+          
+          // Verificar se usuário tem plano
+          try {
+            const { data: userData, error } = await supabase
+              .from('users')
+              .select('plan_code')
+              .eq('id', session.user.id)
+              .single();
+            
+            if (error || !userData?.plan_code) {
+              navigate('/pricing-blocked');
+            } else {
+              navigate('/painel');
+            }
+          } catch (error) {
+            console.error('Error checking user plan:', error);
+            navigate('/pricing-blocked');
+          }
           return;
         }
         

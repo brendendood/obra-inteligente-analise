@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import OnboardingQuiz from '@/components/onboarding/OnboardingQuiz';
-import PaywallPage from '@/components/paywall/PaywallPage';
 import { PageConstructionLoading } from '@/components/ui/construction-loading';
 import { Navigate } from 'react-router-dom';
 
@@ -71,7 +70,7 @@ const OnboardingFlow: React.FC = () => {
 
   // Se completou o quiz mas não selecionou plano
   if (quizCompleted && !planSelected) {
-    return <PaywallPage userId={user?.id || ''} />;
+    return <Navigate to="/pricing-blocked" replace />;
   }
 
   return <PageConstructionLoading />;

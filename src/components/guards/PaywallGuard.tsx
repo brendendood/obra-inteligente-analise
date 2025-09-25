@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom';
 import { useUserData } from '@/hooks/useUserData';
 import { useAuth } from '@/hooks/useAuth';
 import { PageConstructionLoading } from '@/components/ui/construction-loading';
-import PaywallPage from '@/components/paywall/PaywallPage';
 
 interface PaywallGuardProps {
   children: React.ReactNode;
@@ -25,9 +24,9 @@ const PaywallGuard: React.FC<PaywallGuardProps> = ({ children }) => {
     );
   }
 
-  // Se não tem plano (plan_code = null), mostrar paywall
+  // Se não tem plano (plan_code = null), redirecionar para paywall
   if (!userData.plan) {
-    return <PaywallPage userId={user?.id || ''} />;
+    return <Navigate to="/pricing-blocked" replace />;
   }
 
   // Se tem plano, permitir acesso
