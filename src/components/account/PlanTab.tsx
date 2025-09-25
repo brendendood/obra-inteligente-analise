@@ -10,31 +10,28 @@ export const PlanTab = () => {
 
   const getPlanDisplayName = (plan: string) => {
     switch (plan) {
-      case 'free': return 'Free';
       case 'basic': return 'Basic';
       case 'pro': return 'Pro';
       case 'enterprise': return 'Enterprise';
-      default: return 'Free';
+      default: return 'Basic';
     }
   };
 
   const getPlanDescription = (plan: string) => {
     switch (plan) {
-      case 'free': return 'Você está no plano Free do MadeAI';
       case 'basic': return 'Você está no plano Basic do MadeAI';
       case 'pro': return 'Você está no plano Pro do MadeAI';
       case 'enterprise': return 'Você está no plano Enterprise do MadeAI';
-      default: return 'Você está no plano Free do MadeAI';
+      default: return 'Você está no plano Basic do MadeAI';
     }
   };
 
   const getPlanLimit = (plan: string) => {
     switch (plan) {
-      case 'free': return 'Até 2 projetos';
       case 'basic': return 'Até 5 projetos';
-      case 'pro': return 'Até 25 projetos';
+      case 'pro': return 'Até 20 projetos';
       case 'enterprise': return 'Projetos ilimitados';
-      default: return 'Até 2 projetos';
+      default: return 'Até 5 projetos';
     }
   };
 

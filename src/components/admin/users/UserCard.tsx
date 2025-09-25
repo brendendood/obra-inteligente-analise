@@ -35,7 +35,7 @@ export const UserCard = ({ user, onUpdateTags, onUpdatePlan }: UserCardProps) =>
 
   const getPlanColor = (plan: string) => {
     switch (plan) {
-      case 'free': return 'bg-gray-100 text-gray-800';
+      case 'basic': return 'bg-green-100 text-green-800';
       case 'pro': return 'bg-blue-100 text-blue-800';
       case 'enterprise': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
@@ -60,7 +60,7 @@ export const UserCard = ({ user, onUpdateTags, onUpdatePlan }: UserCardProps) =>
   };
 
   const handlePlanChange = (newPlan: string) => {
-    if (newPlan === 'free' || newPlan === 'pro' || newPlan === 'enterprise') {
+    if (newPlan === 'basic' || newPlan === 'pro' || newPlan === 'enterprise') {
       onUpdatePlan(user.user_id, newPlan);
     }
   };
@@ -77,8 +77,8 @@ export const UserCard = ({ user, onUpdateTags, onUpdatePlan }: UserCardProps) =>
             </div>
           </div>
           <div className="flex gap-2">
-            <Badge className={getPlanColor(user.subscription?.plan || 'free')}>
-              {user.subscription?.plan?.toUpperCase() || 'FREE'}
+            <Badge className={getPlanColor(user.subscription?.plan || 'basic')}>
+              {user.subscription?.plan?.toUpperCase() || 'BASIC'}
             </Badge>
             <Badge className={getStatusColor(user.subscription?.status || 'active')}>
               {user.subscription?.status || 'active'}
@@ -171,14 +171,14 @@ export const UserCard = ({ user, onUpdateTags, onUpdatePlan }: UserCardProps) =>
             </Dialog>
             
             <Select 
-              value={user.subscription?.plan || 'free'}
+              value={user.subscription?.plan || 'basic'}
               onValueChange={handlePlanChange}
             >
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="enterprise">Enterprise</SelectItem>
               </SelectContent>

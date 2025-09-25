@@ -31,7 +31,7 @@ export function useFeatureAccess() {
       .eq("period_ym", period)
       .maybeSingle();
 
-    const tier = plan?.plan_tier ?? "FREE";
+    const tier = plan?.plan_tier ?? "BASIC";
     const limit = AI_LIMITS[tier];
     const count = data?.count ?? 0;
     const numericLimit = limit === "unlimited" ? Infinity : limit;

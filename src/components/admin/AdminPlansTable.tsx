@@ -25,7 +25,7 @@ export function AdminPlansTable({
       return {
         userId: u.id,
         email: u.email ?? "",
-        planTier: (p?.plan_tier ?? "FREE") as PlanTier,
+        planTier: (p?.plan_tier ?? "BASIC") as PlanTier,
         billingCycle: (p?.billing_cycle ?? "mensal") as BillingCycle,
         seats: p?.seats ?? 1,
         messages_quota: p?.messages_quota ?? 500,
@@ -116,7 +116,7 @@ export function AdminPlansTable({
                   }
                   className="rounded-md border bg-background px-2 py-1"
                 >
-                  <option value="FREE">FREE</option>
+                  
                   <option value="BASIC">BASIC</option>
                   <option value="PRO">PRO</option>
                   <option value="ENTERPRISE">ENTERPRISE</option>

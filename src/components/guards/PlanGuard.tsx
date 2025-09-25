@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import PremiumBlocker from "@/components/modals/premium-blocker";
 
-type RequiredPlan = "FREE" | "BASIC" | "PRO" | "ENTERPRISE";
+type RequiredPlan = "BASIC" | "PRO" | "ENTERPRISE";
 
 export function PlanGuard({
   requiredPlan,

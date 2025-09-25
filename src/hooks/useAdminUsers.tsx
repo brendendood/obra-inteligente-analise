@@ -57,6 +57,14 @@ export const useAdminUsers = () => {
         console.log('🔄 ADMIN USERS: Plano de usuário alterado, atualizando lista...');
         loadUsers();
       })
+      .on('postgres_changes', {
+        event: '*', 
+        schema: 'public',
+        table: 'user_plans'
+      }, () => {
+        console.log('🔄 ADMIN USERS: user_plans alterado, atualizando lista...');
+        loadUsers();
+      })
       .subscribe();
 
     return () => {

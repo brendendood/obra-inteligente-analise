@@ -11,7 +11,7 @@ export const supabase = createClient(url, anon, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-export type PlanTier = "FREE" | "BASIC" | "PRO" | "ENTERPRISE";
+export type PlanTier = "BASIC" | "PRO" | "ENTERPRISE";
 export type BillingCycle = "mensal" | "anual";
 
 export interface UserPlanRow {

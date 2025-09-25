@@ -110,8 +110,8 @@ const Help = () => {
     
     // Seção: Planos e Limites
     {
-      question: "Qual a diferença entre os planos Free, Pro e Enterprise?",
-      answer: "Free: 3 projetos + IA básica (grátis). Pro: 25 projetos + cronogramas + orçamentos detalhados + exportação avançada (R$ 99/mês). Enterprise: projetos ilimitados + IA personalizada + colaboração em equipe + suporte 24/7 (R$ 199/mês)."
+      question: "Qual a diferença entre os planos Basic, Pro e Enterprise?",
+      answer: "Basic: 5 projetos + 500 mensagens IA/mês (R$ 29,90/mês). Pro: 20 projetos + 2000 mensagens IA/mês + cronogramas avançados + até 3 usuários (R$ 79,90/mês). Enterprise: projetos ilimitados + IA ilimitada + até 10 usuários + suporte dedicado (R$ 199,90/mês)."
     },
     {
       question: "O que acontece quando atinjo o limite de projetos do meu plano?",

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserData {
-  plan: 'basic' | 'pro' | 'enterprise' | null;
+  plan: 'basic' | 'pro' | 'enterprise';
   projectCount: number;
   credits: number;
   subscription: {
@@ -89,14 +89,14 @@ export const useUserData = () => {
       ]);
 
       // Processar plan_code com fallback para 'basic' e normalização case
-      let plan: 'basic' | 'pro' | 'enterprise' | null = 'basic'; // Default para basic
+      let plan: 'basic' | 'pro' | 'enterprise' = 'basic'; // Default para basic
       
       if (userResult.status === 'fulfilled' && userResult.value.data) {
         const planCode = userResult.value.data.plan_code;
         // Normalizar para lowercase e mapear planos válidos
         if (planCode) {
           const normalizedPlan = planCode.toLowerCase();
-          plan = (normalizedPlan === 'basic' || normalizedPlan === 'pro' || normalizedPlan === 'enterprise') ? normalizedPlan : 'basic';
+          plan = (normalizedPlan === 'basic' || normalizedPlan === 'pro' || normalizedPlan === 'enterprise') ? normalizedPlan as 'basic' | 'pro' | 'enterprise' : 'basic';
         }
       } else if (userResult.status === 'rejected') {
         console.warn('⚠️ Erro ao buscar plano do usuário:', userResult.reason);
@@ -162,8 +162,38 @@ export const useUserData = () => {
       channelRef.current = null;
     }
 
-    console.log('⚠️ useUserData: Realtime DESABILITADO para evitar múltiplas subscrições');
-    console.log('💡 useUserData: Dados serão atualizados apenas no reload da página');
+    // Habilitar realtime para atualizações de planos
+    if (!isAuthenticated || !user) return;
+
+    console.log('🔄 useUserData: Configurando realtime para atualizações de planos');
+
+    try {
+      channelRef.current = supabase
+        .channel('user-plan-updates')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'users',
+          filter: `id=eq.${user.id}`
+        }, () => {
+          console.log('📱 useUserData: Plano do usuário alterado, recarregando dados...');
+          loadUserData();
+        })
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'user_profiles',
+          filter: `user_id=eq.${user.id}`
+        }, () => {
+          console.log('📱 useUserData: Perfil do usuário alterado, recarregando dados...');
+          loadUserData();
+        })
+        .subscribe();
+
+      console.log('✅ useUserData: Realtime configurado com sucesso');
+    } catch (error) {
+      console.warn('⚠️ useUserData: Erro ao configurar realtime:', error);
+    }
     
     return () => {
       if (channelRef.current) {

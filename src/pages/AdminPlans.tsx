@@ -60,7 +60,8 @@ export default function AdminPlansPage() {
           .from('user_plans')
           .select('user_id, plan_tier, billing_cycle, seats, messages_quota');
 
-        setPlans(plansData || []);
+        const validPlans = (plansData || []).filter((p: any) => p.plan_tier !== 'FREE') as UserPlanRow[];
+        setPlans(validPlans);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
       } finally {

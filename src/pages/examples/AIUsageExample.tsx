@@ -140,7 +140,6 @@ export default function AIUsageExamplePage() {
           <CardTitle>Como funciona o controle de mensagens</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>• <strong>Plano FREE:</strong> 50 mensagens por mês</p>
           <p>• <strong>Plano BASIC:</strong> 500 mensagens por mês</p>
           <p>• <strong>Plano PRO:</strong> 2.000 mensagens por mês</p>
           <p>• <strong>Plano ENTERPRISE:</strong> Mensagens ilimitadas</p>

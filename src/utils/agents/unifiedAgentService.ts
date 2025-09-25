@@ -20,7 +20,7 @@ const buildUserContext = (user?: User | null): UserContext | undefined => {
   const metadata = user.user_metadata || {};
   return {
     id: user.id,
-    plan: metadata.plan || 'free',
+    plan: metadata.plan || 'basic',
     location: [metadata.city, metadata.state, metadata.country].filter(Boolean).join(', ') || undefined,
     specialization: metadata.cargo || undefined,
     preferences: metadata.preferences || {},

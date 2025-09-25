@@ -84,7 +84,7 @@ export const sendDirectToN8N = async (
       user_data: {
         id: userId,
         email: authUser?.user?.email,
-        plan: 'free',
+        plan: 'basic',
       },
       conversation_history: conversationHistory.slice(-10),
       context: { source: 'general_chat', chat_type: 'tira_duvidas' },

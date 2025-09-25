@@ -24,7 +24,7 @@ interface DashboardStats {
   new_users_this_month: number;
   ai_usage_this_month: number;
   planDistribution?: {
-    free: number;
+    sem_plano: number;
     basic: number;
     pro: number;
     enterprise: number;
@@ -65,12 +65,16 @@ export const AdminDashboard = () => {
         .select('plan_tier');
 
       const planDistribution = plansData?.reduce((acc: any, plan: any) => {
-        const planKey = plan.plan_tier?.toLowerCase() || 'free';
-        acc[planKey] = (acc[planKey] || 0) + 1;
+        const planKey = plan.plan_tier?.toLowerCase();
+        if (planKey && ['basic', 'pro', 'enterprise'].includes(planKey)) {
+          acc[planKey] = (acc[planKey] || 0) + 1;
+        } else {
+          acc.sem_plano = (acc.sem_plano || 0) + 1;
+        }
         return acc;
-      }, {}) || {};
+      }, { sem_plano: 0, basic: 0, pro: 0, enterprise: 0 }) || { sem_plano: 0, basic: 0, pro: 0, enterprise: 0 };
 
-      // Contar usuários sem plano (considerar como free)
+      // Contar usuários sem plano
       const { data: allUsers } = await supabase
         .from('user_profiles')
         .select('user_id');
@@ -79,8 +83,8 @@ export const AdminDashboard = () => {
       const totalUsers = allUsers?.length || 0;
       const usersWithoutPlan = Math.max(0, totalUsers - totalUsersWithPlans);
       
-      // Adicionar usuários sem plano como 'free'
-      planDistribution.free = (planDistribution.free || 0) + usersWithoutPlan;
+      // Adicionar usuários sem plano
+      planDistribution.sem_plano = (planDistribution.sem_plano || 0) + usersWithoutPlan;
 
       const dashboardStats: DashboardStats = {
         total_users: Number(rpcStats.total_users) || 0,
@@ -90,7 +94,7 @@ export const AdminDashboard = () => {
         new_users_this_month: Number(rpcStats.new_users_this_month) || 0,
         ai_usage_this_month: Number(rpcStats.ai_usage_this_month) || 0,
         planDistribution: {
-          free: planDistribution.free || 0,
+          sem_plano: planDistribution.sem_plano || 0,
           basic: planDistribution.basic || 0,
           pro: planDistribution.pro || 0,
           enterprise: planDistribution.enterprise || 0
@@ -118,7 +122,7 @@ export const AdminDashboard = () => {
         monthly_revenue: 0,
         new_users_this_month: 0,
         ai_usage_this_month: 0,
-        planDistribution: { free: 0, basic: 0, pro: 0, enterprise: 0 }
+        planDistribution: { sem_plano: 0, basic: 0, pro: 0, enterprise: 0 }
       });
     } finally {
       setLoading(false);
@@ -317,16 +321,16 @@ export const AdminDashboard = () => {
               </div>
             </div>
 
-            {(stats.planDistribution?.free || 0) > 0 && (
+            {(stats.planDistribution?.sem_plano || 0) > 0 && (
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Sem plano</span>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="border-gray-200 text-gray-700">
-                    {stats.planDistribution?.free || 0} usuários
+                    {stats.planDistribution?.sem_plano || 0} usuários
                   </Badge>
                   <span className="text-sm text-gray-500">
                     {stats.total_users > 0 
-                      ? ((stats.planDistribution?.free || 0) / stats.total_users * 100).toFixed(1)
+                      ? ((stats.planDistribution?.sem_plano || 0) / stats.total_users * 100).toFixed(1)
                       : '0'
                     }%
                   </span>

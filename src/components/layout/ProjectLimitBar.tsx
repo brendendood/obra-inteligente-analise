@@ -8,7 +8,7 @@ import { GamificationModal } from '@/components/gamification/GamificationModal';
 
 interface ProjectLimitBarProps {
   currentProjects: number;
-  plan: 'free' | 'basic' | 'pro' | 'enterprise';
+  plan: 'basic' | 'pro' | 'enterprise';
   extraCredits?: number;
 }
 
