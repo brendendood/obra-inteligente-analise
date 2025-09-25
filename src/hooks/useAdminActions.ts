@@ -33,6 +33,21 @@ export const useAdminActions = () => {
   const updateUserPlan = async (userId: string, planCode: string, resetMessages = false) => {
     setLoading(true);
     try {
+      // Verificar se é o usuário supremo
+      const { data: usersList } = await supabase.auth.admin.listUsers();
+      const targetUser = usersList?.users?.find((u: any) => u.id === userId);
+      if (targetUser?.email === 'brendendood2014@gmail.com') {
+        // Log da tentativa bloqueada
+        await logAction('SUPREME_PROTECTION_TRIGGERED', userId, {
+          attempted_change: 'plan_code',
+          attempted_value: planCode,
+          blocked_at: new Date().toISOString(),
+          reason: 'Supreme user protection - admin attempted plan change'
+        });
+        
+        throw new Error('Cannot modify supreme user plan - protection active');
+      }
+
       // Atualizar plano do usuário
       const { error: updateError } = await supabase
         .from('users')

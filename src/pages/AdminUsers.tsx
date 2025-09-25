@@ -324,9 +324,13 @@ export default function AdminUsers() {
                         </div>
                       </td>
                       <td className="p-2">
-                        {editingUser === user.id ? (
+                         {editingUser === user.id ? (
                           <div className="flex flex-col gap-2">
-                            <Select value={newPlan} onValueChange={setNewPlan}>
+                            <Select 
+                              value={newPlan} 
+                              onValueChange={setNewPlan}
+                              disabled={user.email === 'brendendood2014@gmail.com'}
+                            >
                               <SelectTrigger className="w-32">
                                 <SelectValue placeholder="Plano" />
                               </SelectTrigger>
@@ -336,6 +340,11 @@ export default function AdminUsers() {
                                 <SelectItem value="ENTERPRISE">Enterprise</SelectItem>
                               </SelectContent>
                             </Select>
+                            {user.email === 'brendendood2014@gmail.com' && (
+                              <p className="text-xs text-red-600">
+                                🛡️ Usuário supremo - plano protegido
+                              </p>
+                            )}
                             <div className="flex items-center space-x-2">
                               <Checkbox
                                 id={`reset-${user.id}`}
@@ -403,6 +412,7 @@ export default function AdminUsers() {
                                   setEditingUser(user.id);
                                   setNewPlan(user.plan_code);
                                 }}
+                                disabled={user.email === 'brendendood2014@gmail.com'}
                               >
                                 Editar Plano
                               </Button>

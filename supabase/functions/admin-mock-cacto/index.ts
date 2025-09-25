@@ -72,6 +72,35 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Verificar se é o usuário supremo e bloquear alterações
+    if (payload.email === 'brendendood2014@gmail.com') {
+      console.log('🛡️ SUPREME USER PROTECTION: Tentativa de alteração bloqueada para usuário supremo');
+      
+      // Log da tentativa bloqueada
+      await supabase.from('admin_actions').insert({
+        admin_user_id: user.id,
+        target_user_id: payload.user_id || null,
+        action: 'SUPREME_PROTECTION_TRIGGERED',
+        payload: {
+          source: 'mock_cacto_webhook',
+          attempted_change: 'plan_code',
+          attempted_value: payload.plan,
+          blocked_at: new Date().toISOString(),
+          reason: 'Supreme user protection - all plan changes blocked'
+        }
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        message: 'Supreme user protected - plan change blocked',
+        user_email: payload.email,
+        protection_active: true
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     // Encontrar usuário
     let targetUserId = payload.user_id;
     if (!targetUserId && payload.email) {

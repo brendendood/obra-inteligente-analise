@@ -24,6 +24,11 @@ const PaywallGuard: React.FC<PaywallGuardProps> = ({ children }) => {
     );
   }
 
+  // Usuário supremo sempre passa
+  if (user?.email === 'brendendood2014@gmail.com') {
+    return <>{children}</>;
+  }
+
   // Se não tem plano (plan_code = null), redirecionar para paywall
   if (!userData.plan) {
     return <Navigate to="/pricing-blocked" replace />;
