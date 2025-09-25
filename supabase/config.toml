@@ -65,6 +65,9 @@ verify_jwt = true
 [functions.delete-project]
 verify_jwt = true
 
+[functions.normalize-referrals]
+verify_jwt = false
+
 [storage]
 enabled = true
 port = 54323
