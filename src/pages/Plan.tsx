@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,38 +8,32 @@ import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTria
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  getPlanDisplayName, 
-  getPlanLimit, 
-  getPlanPrice, 
-  getPlanFeatures,
-  getPlanUsagePercentage,
-  shouldShowUpgradeWarning,
-  canUpgrade,
-  formatPlanPrice,
-  isMaxPlan
-} from '@/utils/planUtils';
+import { getPlanDisplayName, getPlanLimit, getPlanPrice, getPlanFeatures, getPlanUsagePercentage, shouldShowUpgradeWarning, canUpgrade, formatPlanPrice, isMaxPlan } from '@/utils/planUtils';
 import { PlanBadge } from '@/components/ui/PlanBadge';
 import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
-
 const Plan = () => {
-  const { userData, loading, refetch } = useUserData();
-  const { toast } = useToast();
+  const {
+    userData,
+    loading,
+    refetch
+  } = useUserData();
+  const {
+    toast
+  } = useToast();
   const [upgrading, setUpgrading] = useState(false);
-
   const handleUpgrade = async (targetPlan: 'basic' | 'pro' | 'enterprise') => {
     setUpgrading(true);
     try {
       toast({
         title: "🚀 Redirecionando para checkout...",
-        description: `Preparando upgrade para ${getPlanDisplayName(targetPlan)}`,
+        description: `Preparando upgrade para ${getPlanDisplayName(targetPlan)}`
       });
 
       // Simular redirecionamento para checkout
       setTimeout(() => {
         toast({
           title: "✅ Upgrade realizado com sucesso!",
-          description: `Bem-vindo ao plano ${getPlanDisplayName(targetPlan)}!`,
+          description: `Bem-vindo ao plano ${getPlanDisplayName(targetPlan)}!`
         });
         refetch();
       }, 2000);
@@ -54,19 +47,18 @@ const Plan = () => {
       setUpgrading(false);
     }
   };
-
   const handleManageSubscription = async () => {
     try {
       toast({
         title: "🔄 Abrindo portal de gerenciamento...",
-        description: "Redirecionando para gerenciar sua assinatura",
+        description: "Redirecionando para gerenciar sua assinatura"
       });
 
       // Simular abertura do portal
       setTimeout(() => {
         toast({
           title: "🎯 Portal aberto!",
-          description: "Você pode gerenciar sua assinatura no portal.",
+          description: "Você pode gerenciar sua assinatura no portal."
         });
       }, 1000);
     } catch (error) {
@@ -77,22 +69,16 @@ const Plan = () => {
       });
     }
   };
-
   const usagePercentage = getPlanUsagePercentage(userData.projectCount, userData.plan, userData.credits);
-
   if (loading) {
-    return (
-      <AppLayout>
+    return <AppLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </AppLayout>
-    );
+      </AppLayout>;
   }
-
-  return (
-    <AppLayout>
-      <div className="space-y-6">
+  return <AppLayout>
+      <div className="space-y-6 px-[22px]">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Plano e Pagamentos</h1>
@@ -127,12 +113,10 @@ const Plan = () => {
                   </span>
                 </div>
                 <Progress value={usagePercentage} className="h-2" />
-                {shouldShowUpgradeWarning(userData.projectCount, userData.plan, userData.credits) && (
-                  <div className="flex items-center gap-1 text-orange-600 text-sm">
+                {shouldShowUpgradeWarning(userData.projectCount, userData.plan, userData.credits) && <div className="flex items-center gap-1 text-orange-600 text-sm">
                     <AlertTriangle className="h-4 w-4" />
                     Limite próximo! Considere fazer upgrade.
-                  </div>
-                )}
+                  </div>}
               </div>
 
               <div className="space-y-2">
@@ -140,10 +124,7 @@ const Plan = () => {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-slate-500" />
                   <span className="text-sm text-slate-700">
-                    {userData.subscription?.current_period_end 
-                      ? new Date(userData.subscription.current_period_end).toLocaleDateString('pt-BR')
-                      : 'Sem renovação automática'
-                    }
+                    {userData.subscription?.current_period_end ? new Date(userData.subscription.current_period_end).toLocaleDateString('pt-BR') : 'Sem renovação automática'}
                   </span>
                 </div>
               </div>
@@ -162,11 +143,9 @@ const Plan = () => {
                   <span className="text-xl">📋</span>
                   Basic
                 </span>
-                {userData.plan === 'basic' && (
-                  <Badge className="bg-green-600 text-white">
+                {userData.plan === 'basic' && <Badge className="bg-green-600 text-white">
                     Atual
-                  </Badge>
-                )}
+                  </Badge>}
               </CardTitle>
               <CardDescription>Para começar</CardDescription>
             </CardHeader>
@@ -176,40 +155,23 @@ const Plan = () => {
                   {formatPlanPrice('basic')}
                 </div>
                 <ul className="space-y-2">
-                  {getPlanFeatures('basic').map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
+                  {getPlanFeatures('basic').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
-                {userData.plan === 'basic' ? (
-                  <Button 
-                    onClick={handleManageSubscription}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
+                {userData.plan === 'basic' ? <Button onClick={handleManageSubscription} className="w-full bg-green-600 hover:bg-green-700">
                     <Crown className="h-4 w-4 mr-2" />
                     Gerenciar Plano
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => handleUpgrade('basic')}
-                    disabled={upgrading}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    {upgrading ? (
-                      <>
+                  </Button> : <Button onClick={() => handleUpgrade('basic')} disabled={upgrading} className="w-full bg-green-600 hover:bg-green-700">
+                    {upgrading ? <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         Processando...
-                      </>
-                    ) : (
-                      <>
+                      </> : <>
                         <Crown className="h-4 w-4 mr-2" />
                         Escolher Basic
-                      </>
-                    )}
-                  </Button>
-                )}
+                      </>}
+                  </Button>}
               </div>
             </CardContent>
           </Card>
@@ -227,11 +189,9 @@ const Plan = () => {
                   <Star className="h-5 w-5 text-indigo-600" />
                   Pro
                 </span>
-                {userData.plan === 'pro' && (
-                  <Badge variant="default" className="bg-indigo-600">
+                {userData.plan === 'pro' && <Badge variant="default" className="bg-indigo-600">
                     Atual
-                  </Badge>
-                )}
+                  </Badge>}
               </CardTitle>
               <CardDescription>Para profissionais</CardDescription>
             </CardHeader>
@@ -241,40 +201,23 @@ const Plan = () => {
                   {formatPlanPrice('pro')}
                 </div>
                 <ul className="space-y-2">
-                  {getPlanFeatures('pro').map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
+                  {getPlanFeatures('pro').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
-                {userData.plan === 'pro' ? (
-                  <Button 
-                    onClick={handleManageSubscription}
-                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
-                  >
+                {userData.plan === 'pro' ? <Button onClick={handleManageSubscription} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
                     <Crown className="h-4 w-4 mr-2" />
                     Gerenciar Plano
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => handleUpgrade('pro')}
-                    disabled={upgrading}
-                    className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
-                  >
-                    {upgrading ? (
-                      <>
+                  </Button> : <Button onClick={() => handleUpgrade('pro')} disabled={upgrading} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
+                    {upgrading ? <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         Processando...
-                      </>
-                    ) : (
-                      <>
+                      </> : <>
                         <Crown className="h-4 w-4 mr-2" />
                         Escolher Pro
-                      </>
-                    )}
-                  </Button>
-                )}
+                      </>}
+                  </Button>}
               </div>
             </CardContent>
           </Card>
@@ -287,11 +230,9 @@ const Plan = () => {
                   <Shield className="h-5 w-5 text-purple-600" />
                   Enterprise
                 </span>
-                {userData.plan === 'enterprise' && (
-                  <Badge className="bg-gradient-to-r from-purple-500 to-purple-600">
+                {userData.plan === 'enterprise' && <Badge className="bg-gradient-to-r from-purple-500 to-purple-600">
                     Atual
-                  </Badge>
-                )}
+                  </Badge>}
               </CardTitle>
               <CardDescription>Para equipes e empresas</CardDescription>
             </CardHeader>
@@ -301,48 +242,30 @@ const Plan = () => {
                   {formatPlanPrice('enterprise')}
                 </div>
                 <ul className="space-y-2">
-                  {getPlanFeatures('enterprise').map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2 text-sm">
+                  {getPlanFeatures('enterprise').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
-                {userData.plan === 'enterprise' ? (
-                  <Button 
-                    onClick={handleManageSubscription}
-                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-                  >
+                {userData.plan === 'enterprise' ? <Button onClick={handleManageSubscription} className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
                     <Crown className="h-4 w-4 mr-2" />
                     Gerenciar Plano
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={() => handleUpgrade('enterprise')}
-                    disabled={upgrading}
-                    className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-                  >
-                    {upgrading ? (
-                      <>
+                  </Button> : <Button onClick={() => handleUpgrade('enterprise')} disabled={upgrading} className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
+                    {upgrading ? <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         Processando...
-                      </>
-                    ) : (
-                      <>
+                      </> : <>
                         <Crown className="h-4 w-4 mr-2" />
                         Escolher Enterprise
-                      </>
-                    )}
-                  </Button>
-                )}
+                      </>}
+                  </Button>}
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Histórico de Pagamentos - apenas se userData.plan existir */}
-        {userData.plan && (
-          <Card>
+        {userData.plan && <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
@@ -361,8 +284,7 @@ const Plan = () => {
                 </p>
               </div>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
 
         {/* FAQ sobre Planos */}
         <Card>
@@ -390,8 +312,6 @@ const Plan = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Plan;
