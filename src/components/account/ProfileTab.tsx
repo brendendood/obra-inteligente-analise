@@ -120,6 +120,20 @@ export const ProfileTab = ({ isLoading, setIsLoading }: ProfileTabProps) => {
       {/* Informações Básicas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          <Label htmlFor="email">E-mail</Label>
+          <Input
+            id="email"
+            value={user?.email || ''}
+            disabled
+            className="bg-muted text-muted-foreground cursor-not-allowed"
+            placeholder="Seu e-mail"
+          />
+          <p className="text-sm text-muted-foreground mt-1">
+            Para alterar seu e-mail, entre em contato com o suporte
+          </p>
+        </div>
+
+        <div>
           <Label htmlFor="full_name">Nome Completo *</Label>
           <Input
             id="full_name"
