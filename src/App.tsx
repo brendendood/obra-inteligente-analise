@@ -34,6 +34,7 @@ const Upload = lazy(() => import("./pages/Upload"));
 const Assistant = lazy(() => import("./pages/Assistant"));
 const Account = lazy(() => import("./pages/Account"));
 const Plan = lazy(() => import("./pages/Plan"));
+const Billing = lazy(() => import("./pages/Billing"));
 const Help = lazy(() => import("./pages/Help"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -262,9 +263,15 @@ const App = () => {
                 
                 <Route path="/plano" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><Plan /></LazyWrapper>
-                    </PaywallGuard>
+                    {/* Remover PaywallGuard - página de planos deve ser sempre acessível */}
+                    <LazyWrapper><Plan /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/account/billing" element={
+                  <ProtectedRoute>
+                    {/* Página de billing sempre acessível - nunca redireciona para pricing-blocked */}
+                    <LazyWrapper><Billing /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 

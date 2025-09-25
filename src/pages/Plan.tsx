@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle, X, Loader2 } from 'lucide-react';
+import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle, Loader2 } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,6 @@ import {
   getPlanLimit, 
   getPlanPrice, 
   getPlanFeatures,
-  getPlanLimitations,
   getPlanUsagePercentage,
   shouldShowUpgradeWarning,
   canUpgrade,
@@ -22,7 +21,7 @@ import {
   isMaxPlan
 } from '@/utils/planUtils';
 import { PlanBadge } from '@/components/ui/PlanBadge';
-import { renderProjectQuota } from '@/utils/planQuota';
+import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
 
 const Plan = () => {
   const { userData, loading, refetch } = useUserData();
@@ -113,21 +112,7 @@ const Plan = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Plano Atual</span>
-                  <Badge 
-                    variant="default"
-                    className={`${
-                      userData.plan === 'enterprise' 
-                        ? 'bg-gradient-to-r from-purple-500 to-purple-600' 
-                        : userData.plan === 'pro' 
-                        ? 'bg-blue-600' 
-                        : userData.plan === 'basic'
-                        ? 'bg-green-600'
-                        : 'bg-gray-500'
-                    }`}
-                  >
-                    <Crown className="h-3 w-3 mr-1" />
-                    {getPlanDisplayName(userData.plan)}
-                  </Badge>
+                  <PlanBadge planCode={userData.plan} />
                 </div>
                 <p className="text-2xl font-bold text-slate-900">
                   {formatPlanPrice(userData.plan)}
@@ -355,59 +340,29 @@ const Plan = () => {
           </Card>
         </div>
 
-        {/* Histórico de Pagamentos */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Histórico de Pagamentos
-            </CardTitle>
-            <CardDescription>
-              Suas transações e faturas recentes
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Histórico de pagamentos */}
-              <div className="space-y-3">
-                {[
-                  { date: '2024-01-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
-                  { date: '2023-12-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
-                  { date: '2023-11-15', amount: formatPlanPrice(userData.plan), status: 'Pago', method: 'Cartão •••• 4532' },
-                ].map((payment, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-green-100 p-2 rounded-full">
-                        <Check className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-700">{payment.amount}</p>
-                        <p className="text-sm text-slate-500">{payment.method}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-slate-700">{payment.date}</p>
-                      <Badge variant="secondary" className="text-xs">
-                        {payment.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
+        {/* Histórico de Pagamentos - apenas se userData.plan existir */}
+        {userData.plan && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Histórico de Pagamentos
+              </CardTitle>
+              <CardDescription>
+                Suas transações e faturas recentes (se disponível)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Nenhum histórico disponível no momento</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  O histórico será exibido quando integração com gateway estiver ativa
+                </p>
               </div>
-              
-              <div className="border-t pt-4">
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={handleManageSubscription}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  Ver Histórico Completo
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* FAQ sobre Planos */}
         <Card>
