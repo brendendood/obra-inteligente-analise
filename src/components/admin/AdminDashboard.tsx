@@ -25,6 +25,7 @@ interface DashboardStats {
   ai_usage_this_month: number;
   planDistribution?: {
     free: number;
+    basic: number;
     pro: number;
     enterprise: number;
   };
@@ -90,6 +91,7 @@ export const AdminDashboard = () => {
         ai_usage_this_month: Number(rpcStats.ai_usage_this_month) || 0,
         planDistribution: {
           free: planDistribution.free || 0,
+          basic: planDistribution.basic || 0,
           pro: planDistribution.pro || 0,
           enterprise: planDistribution.enterprise || 0
         }
@@ -116,7 +118,7 @@ export const AdminDashboard = () => {
         monthly_revenue: 0,
         new_users_this_month: 0,
         ai_usage_this_month: 0,
-        planDistribution: { free: 0, pro: 0, enterprise: 0 }
+        planDistribution: { free: 0, basic: 0, pro: 0, enterprise: 0 }
       });
     } finally {
       setLoading(false);
@@ -273,12 +275,12 @@ export const AdminDashboard = () => {
         <CardContent>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-sm font-medium">Free</span>
+              <span className="text-sm font-medium">Basic</span>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">{stats.planDistribution?.free || 0} usuários</Badge>
+                <Badge variant="outline">{stats.planDistribution?.basic || 0} usuários</Badge>
                 <span className="text-sm text-gray-500">
                   {stats.total_users > 0 
-                    ? ((stats.planDistribution?.free || 0) / stats.total_users * 100).toFixed(1)
+                    ? ((stats.planDistribution?.basic || 0) / stats.total_users * 100).toFixed(1)
                     : '0'
                   }%
                 </span>
@@ -314,6 +316,23 @@ export const AdminDashboard = () => {
                 </span>
               </div>
             </div>
+
+            {(stats.planDistribution?.free || 0) > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Sem plano</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="border-gray-200 text-gray-700">
+                    {stats.planDistribution?.free || 0} usuários
+                  </Badge>
+                  <span className="text-sm text-gray-500">
+                    {stats.total_users > 0 
+                      ? ((stats.planDistribution?.free || 0) / stats.total_users * 100).toFixed(1)
+                      : '0'
+                    }%
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -27,6 +27,7 @@ import { ReferralSystemTest } from '@/components/admin/ReferralSystemTest';
 import { GeolocationManager } from '@/components/admin/GeolocationManager';
 import { AdminEmailTemplates } from '@/components/admin/AdminEmailTemplates';
 import { AdminCRMManagement } from '@/components/admin/AdminCRMManagement';
+import { SystemVerification } from '@/components/admin/SystemVerification';
 import { useUnifiedAdmin } from '@/hooks/useUnifiedAdmin';
 
 
@@ -205,6 +206,12 @@ const AdminPanel = () => {
       label: 'Limpeza',
       icon: Trash2,
       component: <CompleteDataCleanup />
+    },
+    {
+      id: 'verification',
+      label: 'Verificação',
+      icon: Shield,
+      component: <SystemVerification />
     }
   ];
 
