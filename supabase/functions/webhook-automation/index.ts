@@ -135,13 +135,13 @@ serve(async (req) => {
               event_type,
               payload: webhookPayload,
               status_code: 0,
-              response_body: `Error: ${error instanceof Error ? error.message : String(error)}`
+              response_body: `Error: ${error.message}`
             });
 
           return {
             url,
             success: false,
-            error: error instanceof Error ? error.message : String(error)
+            error: error.message
           };
         }
       })
@@ -159,7 +159,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('💥 WEBHOOK: Erro crítico:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : String(error) 
+      error: error.message 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

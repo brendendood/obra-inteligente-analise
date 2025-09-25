@@ -34,7 +34,8 @@ export function PlanGuard({
           featureName={`Este recurso (${feature}) exige plano ${requiredPlan}`}
           hasPermission={false}
           onUpgrade={() => {
-            alert("Faça upgrade de plano para acessar este recurso");
+            // redirecionar para página de planos
+            window.location.href = "/pricing";
           }}
         />
       </>

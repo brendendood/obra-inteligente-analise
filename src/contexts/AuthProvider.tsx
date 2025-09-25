@@ -211,32 +211,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
         }
 
-        // Redirect logic - verificar se usuário tem plano
+        // Simple redirect logic
         if (event === 'SIGNED_IN' && isAuthenticated && window.location.pathname === '/login') {
-          console.log('✅ AUTH: Redirecting after SIGNED_IN, checking user plan...');
-          
-          // Verificar se usuário tem plano antes de redirecionar
-          setTimeout(async () => {
-            try {
-              const { data: userData, error } = await supabase
-                .from('users')
-                .select('plan_code')
-                .eq('id', user.id)
-                .single();
-              
-              if (error || !userData?.plan_code) {
-                console.log('🚫 AUTH: User without plan, redirecting to pricing-blocked');
-                window.location.href = '/pricing-blocked';
-              } else {
-                console.log('✅ AUTH: User has plan, redirecting to dashboard');
-                window.location.href = '/painel';
-              }
-            } catch (error) {
-              console.error('Error checking user plan:', error);
-              // Em caso de erro, redirecionar para pricing-blocked por segurança
-              window.location.href = '/pricing-blocked';
-            }
-          }, 500);
+          console.log('✅ AUTH: Redirecting after SIGNED_IN');
+          window.location.href = '/painel';
         }
 
         // Background IP capture

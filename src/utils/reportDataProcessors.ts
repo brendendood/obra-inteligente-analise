@@ -50,8 +50,11 @@ export const calculateMetrics = (revenueData: any[], usersData: any[], aiData: a
   const revenueGrowth = Math.random() * 20 - 10; // -10% a +10%
   const userGrowth = Math.random() * 15; // 0% a +15%
 
-  // Taxa de conversão - agora buscar de users.plan_code
-  const paidUsers = 0; // Será calculado via query separada se necessário
+  // Taxa de conversão
+  const paidUsers = (usersData || []).filter(u => {
+    const subscription = u.user_subscriptions as any;
+    return subscription && Array.isArray(subscription) && subscription[0]?.plan !== 'free';
+  }).length;
   const conversionRate = activeUsers > 0 ? (paidUsers / activeUsers) * 100 : 0;
 
   return {

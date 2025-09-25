@@ -208,7 +208,6 @@ const config: Config = {
         "scale-out": "scale-out 0.2s ease-out",
         "slide-in-right": "slide-in-right 0.3s ease-out",
         "slide-out-right": "slide-out-right 0.3s ease-out",
-        "spin-slow": "spin 6s linear infinite",
         "enter": "fade-in 0.3s ease-out, scale-in 0.2s ease-out",
         "exit": "fade-out 0.3s ease-out, scale-out 0.2s ease-out",
         shimmer: "shimmer 2s linear infinite",

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface UserData {
-  plan: 'basic' | 'pro' | 'enterprise' | null;
+  plan: 'free' | 'basic' | 'pro' | 'enterprise';
   projectCount: number;
   credits: number;
   subscription: {
@@ -20,7 +20,7 @@ export interface UserData {
 export const useUserData = () => {
   const { user, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState<UserData>({
-    plan: null, // Usuários começam sem plano até assinar
+    plan: 'free', // Padrão correto: free
     projectCount: 0,
     credits: 0,
     subscription: null,
@@ -37,7 +37,7 @@ export const useUserData = () => {
     if (!isAuthenticated || !user) {
       console.log('⚠️ useUserData: User not authenticated, setting defaults');
       setUserData({
-        plan: null, // Usuários não autenticados não têm plano
+        plan: 'free', // Padrão correto: free
         projectCount: 0,
         credits: 0,
         subscription: null,
@@ -53,13 +53,13 @@ export const useUserData = () => {
       setError(null);
       console.log('📡 useUserData: Fetching data for user:', user.id);
 
-      const userPromise = supabase
-        .from('users')
-        .select('plan_code')
-        .eq('id', user.id)
+      const subscriptionPromise = supabase
+        .from('user_subscriptions')
+        .select('plan, status, current_period_end')
+        .eq('user_id', user.id)
         .maybeSingle()
         .then(result => {
-          console.log('🏢 User plan result:', result);
+          console.log('📋 Subscription result:', result);
           return result;
         });
 
@@ -82,20 +82,21 @@ export const useUserData = () => {
           return result;
         });
 
-      const [userResult, profileResult, projectCountResult] = await Promise.allSettled([
-        userPromise,
+      const [subscriptionResult, profileResult, projectCountResult] = await Promise.allSettled([
+        subscriptionPromise,
         profilePromise,
         projectCountPromise
       ]);
 
-      // Processar plan_code com fallback para 'free'
-  let plan: 'basic' | 'pro' | 'enterprise' | null = null;
+      // Processar subscription com fallback para 'free'
+      let subscription = null;
+      let plan: 'free' | 'basic' | 'pro' | 'enterprise' = 'free';
       
-      if (userResult.status === 'fulfilled' && userResult.value.data) {
-        const planCode = userResult.value.data.plan_code;
-        plan = (planCode === 'basic' || planCode === 'pro' || planCode === 'enterprise') ? planCode : null;
-      } else if (userResult.status === 'rejected') {
-        console.warn('⚠️ Erro ao buscar plano do usuário:', userResult.reason);
+      if (subscriptionResult.status === 'fulfilled' && subscriptionResult.value.data) {
+        subscription = subscriptionResult.value.data;
+        plan = subscription.plan || 'free';
+      } else if (subscriptionResult.status === 'rejected') {
+        console.warn('⚠️ Erro ao buscar assinatura:', subscriptionResult.reason);
       }
 
       // Processar profile
@@ -120,7 +121,7 @@ export const useUserData = () => {
         plan,
         projectCount,
         credits,
-        subscription: null, // Removido: agora usamos apenas plan_code
+        subscription,
         profile
       };
 
@@ -132,10 +133,10 @@ export const useUserData = () => {
       setError('Erro ao carregar dados do usuário');
       
       setUserData({
-        plan: null, // Fallback para null quando há erro
+        plan: 'free', // Fallback para 'free'
         projectCount: 0,
         credits: 0,
-        subscription: null, // Removido: não mais usado
+        subscription: null,
         profile: null
       });
     } finally {

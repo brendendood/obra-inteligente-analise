@@ -8,7 +8,6 @@ import { ProjectProvider } from "@/contexts/ProjectContext";
 import { AuthProvider } from "@/contexts/AuthProvider";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import PaywallGuard from "@/components/guards/PaywallGuard";
 import { ErrorFallback } from "@/components/error/ErrorFallback";
 import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
@@ -27,14 +26,12 @@ import Dashboard from "./pages/Dashboard";
 import Redirect from "./pages/Redirect";
 import AuthCallback from "./pages/AuthCallback";
 import EmailSucesso from "./pages/EmailSucesso";
-import OnboardingFlow from "./pages/OnboardingFlow";
 
 // Lazy loaded pages with intelligent preloading
 const Upload = lazy(() => import("./pages/Upload"));
 const Assistant = lazy(() => import("./pages/Assistant"));
 const Account = lazy(() => import("./pages/Account"));
 const Plan = lazy(() => import("./pages/Plan"));
-const Billing = lazy(() => import("./pages/Billing"));
 const Help = lazy(() => import("./pages/Help"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
@@ -44,9 +41,6 @@ const AdminUserCRMView = lazy(() => import("./pages/AdminUserCRMView"));
 const CRMPage = lazy(() => import("./pages/CRMPage"));
 const AdminCRMPage = lazy(() => import("./pages/AdminCRMPage"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const PricingBlocked = lazy(() => import("./pages/PricingBlocked"));
-const AdminUsers = lazy(() => import("./pages/AdminUsers"));
-const AdminVerification = lazy(() => import("./pages/AdminVerification"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Project specific pages
@@ -199,9 +193,7 @@ const App = () => {
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/email/sucesso" element={<EmailSucesso />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
-                 <Route path="/onboarding" element={<OnboardingFlow />} />
-                 <Route path="/pricing-blocked" element={<LazyWrapper><PricingBlocked /></LazyWrapper>} />
-                 <Route path="/cadastro/confirmado" element={<ConfirmEmail />} />
+                <Route path="/cadastro/confirmado" element={<ConfirmEmail />} />
                 <Route path="/cadastro/token-invalido" element={<ConfirmEmail />} />
                 <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
                 <Route path="/terms" element={<LazyWrapper><Terms /></LazyWrapper>} />
@@ -227,9 +219,7 @@ const App = () => {
                 
                 <Route path="/painel" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <Dashboard />
-                    </PaywallGuard>
+                    <Dashboard />
                   </ProtectedRoute>
                 } />
                 
@@ -239,90 +229,56 @@ const App = () => {
                 
                 <Route path="/upload" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><Upload /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><Upload /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/ia" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><Assistant /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><Assistant /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/conta" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><Account /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><Account /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/plano" element={
                   <ProtectedRoute>
-                    {/* Remover PaywallGuard - página de planos deve ser sempre acessível */}
                     <LazyWrapper><Plan /></LazyWrapper>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/account/billing" element={
-                  <ProtectedRoute>
-                    {/* Página de billing sempre acessível - nunca redireciona para pricing-blocked */}
-                    <LazyWrapper><Billing /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/ajuda" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><Help /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><Help /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/contato" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><Contact /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><Contact /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
                 <Route path="/crm" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><CRMPage /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><CRMPage /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 
-                 <Route path="/admin/crm" element={
-                   <ProtectedRoute>
-                     <LazyWrapper><AdminCRMPage /></LazyWrapper>
-                   </ProtectedRoute>
-                 } />
-                 
-                 <Route path="/admin/users" element={
-                   <ProtectedRoute>
-                     <LazyWrapper><AdminUsers /></LazyWrapper>
-                   </ProtectedRoute>
-                 } />
-                 
-                 <Route path="/admin/verification" element={
-                   <ProtectedRoute>
-                     <LazyWrapper><AdminVerification /></LazyWrapper>
-                   </ProtectedRoute>
-                 } />
+                <Route path="/admin/crm" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><AdminCRMPage /></LazyWrapper>
+                  </ProtectedRoute>
+                } />
                 
                 {/* Project specific routes */}
                 <Route path="/projeto/:projectId" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
                   </ProtectedRoute>
                 }>
                   <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
@@ -334,9 +290,7 @@ const App = () => {
                 
                 <Route path="/ia/:projectId" element={
                   <ProtectedRoute>
-                    <PaywallGuard>
-                      <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
-                    </PaywallGuard>
+                    <LazyWrapper><ProjectSpecificLayout /></LazyWrapper>
                   </ProtectedRoute>
                 }>
                   <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />

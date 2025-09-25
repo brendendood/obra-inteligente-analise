@@ -57,11 +57,11 @@ export default function AuthCallback() {
         clearTimeout(timeoutId);
 
         // SEMPRE redirecionar para sucesso, independente do resultado
-        navigate('/onboarding', { replace: true }); // Redirecionar para onboarding após confirmação
+        navigate('/email/sucesso', { replace: true });
 
       } catch (error) {
-        console.log('Erro geral no callback, redirecionando para onboarding:', error);
-        navigate('/onboarding', { replace: true });
+        console.log('Erro geral no callback, redirecionando para sucesso:', error);
+        navigate('/email/sucesso', { replace: true });
       }
     };
 

@@ -34,22 +34,11 @@ const Account = () => {
             </div>
             <div className="text-right">
               <Badge 
-                variant="default"
-                className={`${
-                  userData.plan === 'enterprise' 
-                    ? 'bg-gradient-to-r from-purple-500 to-purple-600' 
-                    : userData.plan === 'pro' 
-                    ? 'bg-blue-600' 
-                    : userData.plan === 'basic'
-                    ? 'bg-green-600'
-                    : 'bg-gray-500'
-                }`}
+                variant={userData.plan === 'free' ? 'secondary' : 'default'}
+                className={`${userData.plan === 'enterprise' ? 'bg-gradient-to-r from-purple-500 to-purple-600' : userData.plan === 'pro' ? 'bg-blue-600' : ''}`}
               >
                 <Crown className="h-3 w-3 mr-1" />
-                {userData.plan === 'basic' ? 'BÁSICO' 
-                  : userData.plan === 'pro' ? 'PRO' 
-                  : userData.plan === 'enterprise' ? 'ENTERPRISE'
-                  : 'SEM PLANO'}
+                {userData.plan === 'free' ? 'FREE' : userData.plan === 'pro' ? 'Pro' : 'Enterprise'}
               </Badge>
             </div>
           </div>

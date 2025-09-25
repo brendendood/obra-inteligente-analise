@@ -46,7 +46,7 @@ async function getRealUserIP(): Promise<IPResult> {
         return { ip, source: api.name };
       }
     } catch (error) {
-      console.log(`❌ Falha em ${api.name}:`, error instanceof Error ? error.message : String(error));
+      console.log(`❌ Falha em ${api.name}:`, error.message);
       continue;
     }
   }
@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error instanceof Error ? error.message : String(error) 
+        error: error.message 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

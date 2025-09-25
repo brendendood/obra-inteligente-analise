@@ -50,25 +50,6 @@ verify_jwt = true
 [functions.send-confirmation-email]
 verify_jwt = false
 
-
-[functions.referral-webhook]
-verify_jwt = false
-
-[functions.user-limits]
-verify_jwt = true
-
-[functions.create-project]
-verify_jwt = true
-
-[functions.delete-project]
-verify_jwt = true
-
-[functions.normalize-referrals]
-verify_jwt = false
-
-[functions.dev-seed-basic]
-verify_jwt = false
-
 [storage]
 enabled = true
 port = 54323

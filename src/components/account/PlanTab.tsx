@@ -1,9 +1,8 @@
 
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Crown } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
-import { PlanBadge } from '@/components/ui/PlanBadge';
-import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
 
 export const PlanTab = () => {
   const { userData } = useUserData();
@@ -45,19 +44,19 @@ export const PlanTab = () => {
           <Crown className="h-12 w-12 text-yellow-500" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
-            Plano Atual: <PlanBadge planCode={userData.plan} />
+          <h3 className="text-lg font-semibold">
+            Plano Atual: {getPlanDisplayName(userData.plan)}
           </h3>
           <p className="text-gray-600">
             {getPlanDescription(userData.plan)}
           </p>
         </div>
-        <div className="text-sm text-muted-foreground">
-          Projetos: {renderProjectQuota(userData.plan, userData.projectCount)}
-        </div>
+        <Badge variant="secondary" className="text-sm">
+          {getPlanLimit(userData.plan)}
+        </Badge>
       </div>
 
-      {canShowUpgradeButton(userData.plan) && (
+      {userData.plan !== 'enterprise' && (
         <div className="border rounded-lg p-6 space-y-4">
           <h4 className="font-semibold text-blue-600">Melhorar Plano</h4>
           <p className="text-sm text-gray-600">
@@ -65,7 +64,9 @@ export const PlanTab = () => {
           </p>
           <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600">
             <Crown className="h-4 w-4 mr-2" />
-            Upgrade
+            {userData.plan === 'free' ? 'Upgrade para Basic' : 
+             userData.plan === 'basic' ? 'Upgrade para Pro' : 
+             'Upgrade para Enterprise'}
           </Button>
         </div>
       )}

@@ -27,7 +27,7 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
             variant="ghost"
             size="sm"
             className="w-full h-8 p-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 dark:border-blue-800 transition-all duration-200"
-            onClick={() => navigate('/account/billing')}
+            onClick={() => navigate('/plano')}
           >
             <Crown className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </Button>
@@ -76,17 +76,17 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
         
         {userCanUpgrade && nextPlan && (
           <>
-             <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
-               Faça upgrade e desbloqueie recursos premium
-             </p>
+            <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+              Upgrade para {getPlanDisplayName(nextPlan)} e desbloqueie recursos premium
+            </p>
             <Button
               variant="outline"
               size="sm"
               className="w-full h-8 text-xs bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 transition-all duration-200 hover:shadow-sm"
-              onClick={() => navigate('/account/billing')}
+              onClick={() => navigate('/plano')}
             >
               <Zap className="h-3 w-3 mr-1" />
-              Upgrade
+              Upgrade para {getPlanDisplayName(nextPlan)}
             </Button>
           </>
         )}
@@ -100,7 +100,7 @@ export const PlanCard = ({ isCollapsed, onUpgrade }: PlanCardProps) => {
               variant="outline"
               size="sm"
               className="w-full h-8 text-xs bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700 transition-all duration-200"
-              onClick={() => navigate('/account/billing')}
+              onClick={() => navigate('/plano')}
             >
               <ExternalLink className="h-3 w-3 mr-1" />
               Gerenciar Plano

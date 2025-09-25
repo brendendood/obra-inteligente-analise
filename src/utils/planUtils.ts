@@ -1,39 +1,58 @@
 
 // Utilitários centralizados para planos de usuário
 
-export type PlanType = 'basic' | 'pro' | 'enterprise';
+export type PlanType = 'free' | 'basic' | 'pro' | 'enterprise';
 
 export interface PlanInfo {
   name: string;
   displayName: string;
   price: number;
   projectLimit: number;
-  messageLimit: number;
-  userLimit: number;
   icon: string;
   color: string;
   badgeStyle: string;
   features: string[];
+  limitations?: string[];
 }
 
 export const PLANS: Record<PlanType, PlanInfo> = {
+  free: {
+    name: 'free',
+    displayName: 'Free',
+    price: 0,
+    projectLimit: 2,
+    icon: '🆓',
+    color: '#6B7280',
+    badgeStyle: 'bg-gray-100 text-gray-600 border-gray-300',
+    features: [
+      'Até 2 projetos',
+      '50 mensagens de IA/mês',
+      'Análise básica de plantas',
+      'Visualização simples',
+      'Suporte por email (até 72h)'
+    ],
+    limitations: [
+      'Sem orçamentos automáticos',
+      'Sem cronogramas',
+      'Sem exportação',
+      'Sem documentação técnica'
+    ]
+  },
   basic: {
     name: 'basic',
     displayName: 'Basic',
     price: 29.90,
     projectLimit: 5,
-    messageLimit: 500,
-    userLimit: 1,
     icon: '📋',
     color: '#059669',
     badgeStyle: 'bg-green-600 text-white border-green-600',
     features: [
-      'Análise Geral de projetos (normas ABNT)',
-      'Uso individual (1 usuário)',
-      'Até 5 projetos ativos (fixo, não renovável)',
+      'Agente Geral (normas brasileiras – ABNT)',
+      'Uso individual',
+      'Até 5 projetos',
       '500 mensagens de IA/mês',
-      'Cronograma e orçamento básicos',
-      'Exportação simples em PDF',
+      'Cronograma, orçamento e documentos básicos',
+      'Exportação simples',
       '1 automação via webhook',
       'Suporte em até 48h'
     ]
@@ -42,21 +61,19 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'pro',
     displayName: 'Pro',
     price: 79.90,
-    projectLimit: 20,
-    messageLimit: 2000,
-    userLimit: 3,
+    projectLimit: 25,
     icon: '⭐',
     color: '#2563EB',
     badgeStyle: 'bg-blue-600 text-white border-blue-600',
     features: [
-      'Tudo do Basic +',
-      'Até 3 usuários inclusos',
-      'Até 20 projetos ativos (fixo, não renovável)',
+      'Agente Geral (normas brasileiras – ABNT)',
+      'Colaboração com até 3 usuários inclusos',
+      'Até 25 projetos',
       '2.000 mensagens de IA/mês',
       'Cronograma, orçamento e documentos avançados',
-      'Controle de permissões por papel (admin e colaborador)',
-      'Até 5 automações integradas (Zapier, n8n etc.)',
-      'Exportações avançadas (cronogramas detalhados, relatórios completos)',
+      'Permissões por papel',
+      'Até 5 automações integradas',
+      'Exportações avançadas',
       'Suporte prioritário (<24h)'
     ]
   },
@@ -64,30 +81,29 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'enterprise',
     displayName: 'Enterprise',
     price: 199.90,
-    projectLimit: -1, // ilimitado
-    messageLimit: -1, // ilimitado
-    userLimit: 10,
+    projectLimit: 999,
     icon: '👑',
     color: '#8B5CF6',
     badgeStyle: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-600',
     features: [
-      'Tudo do Pro +',
+      'Agente Geral (normas brasileiras – ABNT)',
       'Até 10 usuários inclusos',
       'Projetos ilimitados',
       'Mensagens de IA ilimitadas',
-      '50 GB para anexos de projetos',
-      'Auditoria técnica e relatórios completos',
-      'Histórico completo de projetos e exportações avançadas',
-      'Suporte dedicado com gerente de conta',
-      'Onboarding e treinamento personalizados',
-      'Contrato customizado para empresas',
-      'Integrações avançadas com ERPs (em breve)'
+      '50 GB de anexos',
+      'SSO (Single Sign-On)',
+      'Auditoria completa',
+      'Integrações avançadas',
+      'SLA 99,9%',
+      'Gerente de conta dedicado',
+      'Contrato customizado',
+      'Onboarding e treinamento'
     ]
   }
 };
 
 export const getPlanInfo = (plan: string | PlanType): PlanInfo => {
-  return PLANS[plan as PlanType] || PLANS.basic;
+  return PLANS[plan as PlanType] || PLANS.free;
 };
 
 export const getPlanDisplayName = (plan: string | PlanType): string => {
@@ -124,11 +140,12 @@ export const getPlanFeatures = (plan: string | PlanType): string[] => {
 };
 
 export const getPlanLimitations = (plan: string | PlanType): string[] => {
-  return [];
+  return getPlanInfo(plan).limitations || [];
 };
 
 export const getNextPlan = (currentPlan: string | PlanType): PlanType | null => {
   switch (currentPlan) {
+    case 'free': return 'basic';
     case 'basic': return 'pro';
     case 'pro': return 'enterprise';
     case 'enterprise': return null; // Já é o plano máximo
@@ -153,7 +170,7 @@ export const getUpgradeMessage = (currentPlan: string | PlanType): string => {
 
 export const formatPlanPrice = (plan: string | PlanType): string => {
   const price = getPlanPrice(plan);
-  return `R$ ${price}/mês`;
+  return price === 0 ? 'Grátis' : `R$ ${price}/mês`;
 };
 
 export const getPlanUsagePercentage = (projectCount: number, plan: string | PlanType, extraCredits: number = 0): number => {

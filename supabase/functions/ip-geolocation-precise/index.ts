@@ -103,7 +103,7 @@ function isDataCenterIP(isp: string, org: string = ''): boolean {
 function validateGeolocationData(data: GeolocationData): boolean {
   const genericTerms = ['unknown', 'test', 'local', 'private', 'n/a', '-'];
   
-  return !!(
+  return (
     data.city && !genericTerms.includes(data.city.toLowerCase()) &&
     data.region && !genericTerms.includes(data.region.toLowerCase()) &&
     data.country && !genericTerms.includes(data.country.toLowerCase()) &&
@@ -158,7 +158,7 @@ async function getGeolocationFromIP(ip: string): Promise<GeolocationResponse> {
       }
 
       const isDataCenter = isDataCenterIP(location.isp);
-      const confidence: 'high' | 'medium' | 'low' = isDataCenter ? 'low' : 'high';
+      const confidence = isDataCenter ? 'low' : 'high';
 
       console.log(`✅ ${provider.name}: ${location.city}, ${location.region}, ${location.country} (${confidence})`);
 

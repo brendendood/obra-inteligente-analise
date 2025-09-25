@@ -28,12 +28,12 @@ export function useReportDataLoader() {
         .lte('created_at', filters.dateRange.to.toISOString())
         .eq('status', 'completed');
 
-      // Carregar dados de usuários com plan_code
+      // Carregar dados de usuários com subscriptions
       const { data: usersData } = await supabase
         .from('user_profiles')
         .select(`
           created_at,
-          user_id
+          user_subscriptions!inner(plan)
         `);
 
       // Carregar dados de IA

@@ -1,4 +1,4 @@
-import { Icon } from '@/components/ui/Icon';
+import { MapPin, Globe, Clock, RefreshCw, AlertTriangle, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -141,13 +141,13 @@ export const UserLocationDisplay = ({
           <TooltipTrigger>
             <div className="flex items-center gap-2 text-sm">
               {isLocationAvailable ? (
-                <div className="flex items-center gap-2">
-                  <Icon name="MapPin" size="sm" className="text-green-600" />
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3 text-green-600" />
                   <span className="truncate max-w-[120px]">{realLocation}</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Icon name="Globe" size="sm" />
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Globe className="h-3 w-3" />
                   <span>Sem localização</span>
                 </div>
               )}
@@ -186,7 +186,7 @@ export const UserLocationDisplay = ({
       <div className="flex items-center gap-2">
         {isLocationAvailable ? (
           <>
-            <Icon name="MapPin" size="md" className="text-green-600" />
+            <MapPin className="h-4 w-4 text-green-600" />
             <span className="text-sm font-medium">{realLocation}</span>
             <Badge variant={isLikelyDataCenter ? "destructive" : "outline"} className="text-xs">
               {isLikelyDataCenter ? "Data Center" : "Rastreado"}
@@ -194,7 +194,7 @@ export const UserLocationDisplay = ({
             {isLikelyDataCenter && (
               <Tooltip>
                 <TooltipTrigger>
-                  <Icon name="AlertTriangle" size="md" className="text-yellow-600" />
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Possível IP de data center - localização imprecisa</p>
@@ -204,7 +204,7 @@ export const UserLocationDisplay = ({
           </>
         ) : (
           <>
-            <Icon name="Globe" size="md" className="text-muted-foreground" />
+            <Globe className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Localização não disponível</span>
             <Badge variant="secondary" className="text-xs">
               Sem dados
@@ -221,7 +221,7 @@ export const UserLocationDisplay = ({
           </span>
           <span>·</span>
           <div className="flex items-center gap-1">
-            <Icon name="Clock" size="sm" />
+            <Clock className="h-3 w-3" />
             <span>{formatLastSeen(lastSignInAt)}</span>
           </div>
         </div>
@@ -247,7 +247,7 @@ export const UserLocationDisplay = ({
             disabled={isUpdating}
             className="h-6 px-2 text-xs"
           >
-            <Icon name="RefreshCw" size="sm" className={`mr-1 ${isUpdating ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3 w-3 mr-1 ${isUpdating ? 'animate-spin' : ''}`} />
             {isUpdating ? 'Atualizando...' : 'Atualizar'}
           </Button>
           
@@ -257,7 +257,7 @@ export const UserLocationDisplay = ({
             isDataCenter={isLikelyDataCenter}
             trigger={
               <Button size="sm" variant="outline" className="h-6 px-2">
-                <Icon name="Edit" size="sm" />
+                <Edit className="h-3 w-3" />
               </Button>
             }
           />
