@@ -23,6 +23,10 @@ interface AdminUser {
   status: string;
   real_location: string;
   last_login_ip: string | null;
+  quiz_context: string | null;
+  quiz_role: string | null;
+  quiz_challenges: string[] | null;
+  quiz_completed_at: string | null;
 }
 
 export const useAdminUsers = () => {
@@ -48,9 +52,9 @@ export const useAdminUsers = () => {
       .on('postgres_changes', {
         event: '*', 
         schema: 'public',
-        table: 'user_subscriptions'
+        table: 'users'
       }, () => {
-        console.log('🔄 ADMIN USERS: Assinatura alterada, atualizando lista...');
+        console.log('🔄 ADMIN USERS: Plano de usuário alterado, atualizando lista...');
         loadUsers();
       })
       .subscribe();
@@ -67,7 +71,7 @@ export const useAdminUsers = () => {
     try {
       // Carregar total de usuários e dados dos usuários em paralelo
       const [usersResponse, totalResponse] = await Promise.all([
-        supabase.rpc('get_admin_users_with_real_location'),
+        supabase.rpc('get_admin_users_with_quiz_data'),
         supabase.rpc('get_total_users_count')
       ]);
       
@@ -116,7 +120,11 @@ export const useAdminUsers = () => {
         gender: user.gender,
         real_location: user.real_location,
         last_login_ip: user.last_login_ip,
-        email_confirmed_at: user.email_confirmed_at
+        email_confirmed_at: user.email_confirmed_at,
+        quiz_context: user.quiz_context,
+        quiz_role: user.quiz_role,
+        quiz_challenges: user.quiz_challenges,
+        quiz_completed_at: user.quiz_completed_at
       }));
 
       console.log('✅ ADMIN USERS: Usuários mapeados:', mappedUsers.length);

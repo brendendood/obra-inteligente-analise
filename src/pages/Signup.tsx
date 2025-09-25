@@ -242,7 +242,7 @@ function Signup() {
           description: "Verifique sua caixa de entrada e spam para confirmar seu email.",
           duration: 6000
         });
-        navigate('/login');
+        navigate('/onboarding'); // Redirecionar para onboarding após confirmação
       }, 4000);
     } catch (error: any) {
       console.error('Erro no cadastro:', error);

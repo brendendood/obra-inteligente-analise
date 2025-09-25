@@ -38,6 +38,10 @@ interface UserTableProps {
     status: string;
     real_location: string;
     last_login_ip: string | null;
+    quiz_context: string | null;
+    quiz_role: string | null;
+    quiz_challenges: string[] | null;
+    quiz_completed_at: string | null;
   }>;
   onUpdateUser: (userId: string, data: any) => void;
   onDeleteUser: (userId: string) => void;
@@ -248,6 +252,7 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
               <TableHead>Contato</TableHead>
               <TableHead>Última Localização (IP)</TableHead>
               <TableHead>Plano</TableHead>
+              <TableHead>Quiz</TableHead>
               <TableHead>Último Login</TableHead>
               <TableHead>Criado em</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -354,6 +359,31 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                   <Badge className={getPlanColor(user.plan || 'free')}>
                     {(user.plan || 'free').toUpperCase()}
                   </Badge>
+                </TableCell>
+
+                {/* Quiz */}
+                <TableCell className="min-w-[200px]">
+                  {user.quiz_completed_at ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-600">Completado</span>
+                      </div>
+                      <div className="text-xs space-y-1">
+                        <div><strong>Contexto:</strong> {user.quiz_context || 'N/A'}</div>
+                        <div><strong>Função:</strong> {user.quiz_role || 'N/A'}</div>
+                        {user.quiz_challenges && user.quiz_challenges.length > 0 && (
+                          <div><strong>Desafios:</strong> {user.quiz_challenges.join(', ')}</div>
+                        )}
+                        <div className="text-gray-500">{formatDate(user.quiz_completed_at)}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <XCircle className="h-4 w-4 text-gray-400" />
+                      <span className="text-sm text-gray-500">Não completado</span>
+                    </div>
+                  )}
                 </TableCell>
 
                 {/* Último Login */}

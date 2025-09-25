@@ -13,6 +13,8 @@ import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { canUpgrade, getUpgradeMessage } from "@/utils/planUtils";
+import { PlanBadge } from "@/components/ui/PlanBadge";
+import { canShowUpgradeButton, renderProjectQuota } from "@/utils/planQuota";
 
 /**
  * IMPORTANTE
@@ -202,16 +204,19 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
                 <div className="text-sm font-medium text-foreground truncate">
                   {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
                 </div>
-                <div className="text-xs text-muted-foreground truncate">
-                  {user?.email}
+                <div className="flex items-center gap-2">
+                  <div className="text-xs text-muted-foreground">
+                    Projetos: {renderProjectQuota(userData.plan, userData.projectCount)}
+                  </div>
+                  <PlanBadge planCode={userData.plan} />
                 </div>
               </div>
             </div>
 
             {/* Upgrade Button */}
-            {canUpgrade(userData.plan) && <Button asChild className="w-full h-8 text-xs" variant="default">
+            {canShowUpgradeButton(userData.plan) && <Button asChild className="w-full h-8 text-xs" variant="default">
                 <Link to="/plano">
-                  {getUpgradeMessage(userData.plan)}
+                  Upgrade
                 </Link>
               </Button>}
           </div>

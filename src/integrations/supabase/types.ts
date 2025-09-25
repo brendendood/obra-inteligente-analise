@@ -53,6 +53,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_actions: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          payload: Json | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          payload?: Json | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          payload?: Json | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action_type: string
@@ -544,6 +574,55 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_ledger: {
+        Row: {
+          created_at: string
+          id: string
+          period_key: string
+          project_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_key: string
+          project_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_key?: string
+          project_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_ledger_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_ledger_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "credit_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_clients: {
         Row: {
           avatar: string | null
@@ -826,6 +905,36 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages_used: number | null
+          period_ym: string
+          projects_used: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages_used?: number | null
+          period_ym: string
+          projects_used?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages_used?: number | null
+          period_ym?: string
+          projects_used?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       n8n_chat_histories: {
         Row: {
           id: number
@@ -893,6 +1002,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plans: {
+        Row: {
+          base_quota: number | null
+          code: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          base_quota?: number | null
+          code: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          base_quota?: number | null
+          code?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
       }
       project_analyses: {
         Row: {
@@ -1243,6 +1373,51 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          period_key: string
+          qualified_at: string | null
+          referred_user_id: string | null
+          referrer_user_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_key: string
+          qualified_at?: string | null
+          referred_user_id?: string | null
+          referrer_user_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_key?: string
+          qualified_at?: string | null
+          referred_user_id?: string | null
+          referrer_user_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_analytics: {
         Row: {
           created_at: string
@@ -1531,6 +1706,8 @@ export type Database = {
           is_active: boolean
           last_login: string | null
           phone: string | null
+          plan_selected: boolean
+          quiz_completed: boolean
           ref_code: string | null
           referred_by: string | null
           referrer: string | null
@@ -1564,6 +1741,8 @@ export type Database = {
           is_active?: boolean
           last_login?: string | null
           phone?: string | null
+          plan_selected?: boolean
+          quiz_completed?: boolean
           ref_code?: string | null
           referred_by?: string | null
           referrer?: string | null
@@ -1597,6 +1776,8 @@ export type Database = {
           is_active?: boolean
           last_login?: string | null
           phone?: string | null
+          plan_selected?: boolean
+          quiz_completed?: boolean
           ref_code?: string | null
           referred_by?: string | null
           referrer?: string | null
@@ -1609,6 +1790,33 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+        }
+        Relationships: []
+      }
+      user_quiz_responses: {
+        Row: {
+          created_at: string
+          id: string
+          step1_context: string
+          step2_role: string
+          step3_challenge: string[]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          step1_context: string
+          step2_role: string
+          step3_challenge: string[]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          step1_context?: string
+          step2_role?: string
+          step3_challenge?: string[]
+          user_id?: string
         }
         Relationships: []
       }
@@ -1714,6 +1922,27 @@ export type Database = {
           trial_end?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          lifetime_base_consumed: number
+          plan_code: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          lifetime_base_consumed?: number
+          plan_code?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifetime_base_consumed?: number
+          plan_code?: string
         }
         Relationships: []
       }
@@ -1844,6 +2073,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      check_user_limits: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       cleanup_expired_impersonation_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1927,6 +2160,35 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_admin_users_with_quiz_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          cargo: string
+          city: string
+          company: string
+          country: string
+          created_at: string
+          email: string
+          email_confirmed_at: string
+          full_name: string
+          gender: string
+          last_login_ip: string
+          last_sign_in_at: string
+          phone: string
+          profile_id: string
+          quiz_challenges: string[]
+          quiz_completed_at: string
+          quiz_context: string
+          quiz_role: string
+          real_location: string
+          state: string
+          subscription_plan: string
+          subscription_status: string
+          tags: string[]
+          user_id: string
+        }[]
+      }
       get_admin_users_with_real_location: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1983,6 +2245,10 @@ export type Database = {
           total_value: number
         }[]
       }
+      get_current_period: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_geolocation_quality_report: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2017,11 +2283,29 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_user_plan_limits: {
+        Args: { user_id: string }
+        Returns: {
+          base_quota: number
+          consumed: number
+          plan_code: string
+          remaining: number
+          total_available: number
+        }[]
+      }
       increment_ai_usage: {
         Args: { p_period: string; p_user: string }
         Returns: {
           count: number
         }[]
+      }
+      increment_message_usage: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      increment_project_usage: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       insert_crm_client: {
         Args: {

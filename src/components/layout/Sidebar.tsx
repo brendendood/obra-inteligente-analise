@@ -24,6 +24,8 @@ import { ProjectLimitBar } from './ProjectLimitBar';
 import { useUserData } from '@/hooks/useUserData';
 import { cn } from '@/lib/utils';
 import { getPlanDisplayName, getUpgradeMessage, canUpgrade } from '@/utils/planUtils';
+import { PlanBadge } from '@/components/ui/PlanBadge';
+import { canShowUpgradeButton, renderProjectQuota } from '@/utils/planQuota';
 
 
 interface SidebarProps {
@@ -259,19 +261,22 @@ export const Sidebar = ({ className }: SidebarProps) => {
               <p className="text-sm font-medium text-sidebar-foreground truncate">
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuário'}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
-                Plano {getPlanDisplayName(userData.plan)}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-muted-foreground">
+                  Projetos: {renderProjectQuota(userData.plan, userData.projectCount)}
+                </p>
+                <PlanBadge planCode={userData.plan} />
+              </div>
             </div>
           </div>
-          {canUpgrade(userData.plan) && (
+          {canShowUpgradeButton(userData.plan) && (
             <Button 
               size="sm" 
               className="w-full h-8 bg-primary hover:bg-primary/90 text-primary-foreground text-xs rounded-apple"
               onClick={() => handleNavigation('/plano')}
             >
               <Crown className="h-3 w-3 mr-1" strokeWidth={1.5} />
-              {getUpgradeMessage(userData.plan)}
+              Upgrade
             </Button>
           )}
         </div>

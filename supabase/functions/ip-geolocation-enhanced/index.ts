@@ -244,7 +244,7 @@ async function getGeolocationFromIP(ip: string): Promise<GeolocationResponse> {
       };
       
     } catch (error) {
-      console.log(`❌ Erro no ${provider.name}:`, error.message);
+      console.log(`❌ Erro no ${provider.name}:`, error instanceof Error ? error.message : String(error));
       continue;
     }
   }
@@ -390,7 +390,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString()
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

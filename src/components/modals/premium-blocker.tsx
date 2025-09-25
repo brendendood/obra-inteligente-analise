@@ -51,7 +51,7 @@ const PremiumBlocker: React.FC<PremiumBlockerProps> = ({
                     Acesso Restrito
                   </h2>
                   <p className="mb-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {featureName} requer upgrade de plano.
+                    {featureName} requer plano pago. Faça upgrade.
                   </p>
                   <div className="space-y-2">
                     <Button
