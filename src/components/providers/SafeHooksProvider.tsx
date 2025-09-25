@@ -101,15 +101,7 @@ export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }
   }
 
   // Se chegou aqui, React está OK - pode usar hooks normalmente
-  let isHealthy: boolean;
-  let setIsHealthy: any;
-  
-  try {
-    [isHealthy, setIsHealthy] = useState(true);
-  } catch (error) {
-    console.error('🔴 CRITICAL: useState failed in SafeHooksProvider:', error);
-    return <div>Erro crítico no sistema React</div>;
-  }
+  const [isHealthy, setIsHealthy] = React.useState(true);
 
   useEffect(() => {
     // Simplified monitoring without external dependencies
