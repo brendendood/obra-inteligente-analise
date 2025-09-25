@@ -1,34 +1,52 @@
 // /lib/user-context.ts
-// Carrega plano do usuário e dados essenciais do Supabase.
-
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 export type UserContext = {
   userId: string;
-  planCode: 'BASIC'|'PRO'|'ENTERPRISE';
-  planId: string;
-  baseQuota: number|null; // null = ilimitado
+  planCode: 'BASIC' | 'PRO' | 'ENTERPRISE';
+  baseQuota: number | null; // null = unlimited
   lifetimeBaseConsumed: number;
-}
+};
 
-export async function getUserContext(serverSupabase: SupabaseClient, userId: string): Promise<UserContext> {
-  const { data: userRow, error: userErr } = await serverSupabase
-    .from('users')
-    .select('id, plan_id, lifetime_base_consumed, plans:plan_id (id, code, base_quota)')
-    .eq('id', userId)
+export async function getUserContext(
+  serverSupabase: ReturnType<typeof createClient>,
+  userId: string
+): Promise<UserContext> {
+  // Get user's current plan
+  const { data: planData, error: planError } = await serverSupabase
+    .from('plans')
+    .select('code, base_quota')
     .single();
 
-  if (userErr || !userRow) {
-    throw new Error('USER_NOT_FOUND_OR_NO_PLAN');
+  if (planError) {
+    throw new Error(`Failed to get user plan: ${planError.message}`);
   }
 
-  const plans = userRow.plans as any;
-  
+  // Count total base consumption (lifetime projects created)
+  const { count: projectCount, error: projectError } = await serverSupabase
+    .from('projects')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+
+  if (projectError) {
+    throw new Error(`Failed to get project count: ${projectError.message}`);
+  }
+
+  // Count credit ledger base usage
+  const { count: baseUsed, error: ledgerError } = await serverSupabase
+    .from('credit_ledger')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('type', 'BASE');
+
+  if (ledgerError) {
+    throw new Error(`Failed to get credit ledger: ${ledgerError.message}`);
+  }
+
   return {
-    userId: userRow.id,
-    planId: plans.id,
-    planCode: plans.code,
-    baseQuota: plans.base_quota,
-    lifetimeBaseConsumed: userRow.lifetime_base_consumed
+    userId,
+    planCode: (planData.code as 'BASIC' | 'PRO' | 'ENTERPRISE') || 'BASIC',
+    baseQuota: planData.base_quota as number | null,
+    lifetimeBaseConsumed: (projectCount as number || 0) + (baseUsed as number || 0)
   };
 }
