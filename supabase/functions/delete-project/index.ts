@@ -43,9 +43,8 @@ Deno.serve(async (req) => {
     }
 
     // Verify JWT and get user
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
       console.log('❌ Auth error:', authError);
