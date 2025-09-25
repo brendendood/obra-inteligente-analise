@@ -1739,7 +1739,7 @@ export type Database = {
           id: string
           step1_context: string
           step2_role: string
-          step3_challenge: string
+          step3_challenge: string[]
           user_id: string
         }
         Insert: {
@@ -1747,7 +1747,7 @@ export type Database = {
           id?: string
           step1_context: string
           step2_role: string
-          step3_challenge: string
+          step3_challenge: string[]
           user_id: string
         }
         Update: {
@@ -1755,7 +1755,7 @@ export type Database = {
           id?: string
           step1_context?: string
           step2_role?: string
-          step3_challenge?: string
+          step3_challenge?: string[]
           user_id?: string
         }
         Relationships: []

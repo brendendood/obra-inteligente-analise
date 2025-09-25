@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 interface QuizData {
   step1_context: string;
   step2_role: string;
-  step3_challenge: string;
+  step3_challenge: string[];
 }
 
 interface OnboardingQuizProps {
@@ -24,7 +24,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, userId }) =
   const [quizData, setQuizData] = useState<QuizData>({
     step1_context: '',
     step2_role: '',
-    step3_challenge: ''
+    step3_challenge: []
   });
 
   const contextOptions = [
@@ -38,6 +38,12 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, userId }) =
     { value: 'orcamento', label: 'Controle de orçamento' },
     { value: 'equipe', label: 'Gestão de equipe' },
     { value: 'documentos', label: 'Organização de documentos' },
+    { value: 'qualidade', label: 'Controle de qualidade' },
+    { value: 'materiais', label: 'Gestão de materiais' },
+    { value: 'comunicacao', label: 'Comunicação com clientes' },
+    { value: 'normas', label: 'Conformidade com normas' },
+    { value: 'tecnologia', label: 'Adoção de novas tecnologias' },
+    { value: 'sustentabilidade', label: 'Sustentabilidade' },
     { value: 'outro', label: 'Outro' }
   ];
 
@@ -56,7 +62,7 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, userId }) =
   };
 
   const handleSubmit = async () => {
-    if (!quizData.step1_context || !quizData.step2_role || !quizData.step3_challenge) {
+    if (!quizData.step1_context || !quizData.step2_role || quizData.step3_challenge.length === 0) {
       toast.error('Por favor, preencha todas as etapas');
       return;
     }
@@ -100,10 +106,19 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, userId }) =
       case 2:
         return quizData.step2_role.trim() !== '';
       case 3:
-        return quizData.step3_challenge !== '';
+        return quizData.step3_challenge.length > 0;
       default:
         return false;
     }
+  };
+
+  const toggleChallenge = (value: string) => {
+    setQuizData(prev => ({
+      ...prev,
+      step3_challenge: prev.step3_challenge.includes(value)
+        ? prev.step3_challenge.filter(item => item !== value)
+        : [...prev.step3_challenge, value]
+    }));
   };
 
   return (
@@ -195,18 +210,19 @@ const OnboardingQuiz: React.FC<OnboardingQuizProps> = ({ onComplete, userId }) =
                   className="space-y-4"
                 >
                   <h3 className="text-lg font-semibold text-foreground">
-                    Qual é o seu maior desafio hoje em projetos de arquitetura/engenharia?
+                    Quais são os seus principais desafios hoje em projetos de arquitetura/engenharia?
                   </h3>
+                  <p className="text-sm text-muted-foreground">Selecione uma ou mais opções</p>
                   <div className="grid gap-3">
                     {challengeOptions.map((option) => (
                       <Button
                         key={option.value}
-                        variant={quizData.step3_challenge === option.value ? "default" : "outline"}
+                        variant={quizData.step3_challenge.includes(option.value) ? "default" : "outline"}
                         className="justify-start h-auto p-4 text-left"
-                        onClick={() => setQuizData(prev => ({ ...prev, step3_challenge: option.value }))}
+                        onClick={() => toggleChallenge(option.value)}
                       >
                         <div className="flex items-center space-x-3">
-                          {quizData.step3_challenge === option.value && (
+                          {quizData.step3_challenge.includes(option.value) && (
                             <CheckCircle className="w-5 h-5 text-primary-foreground" />
                           )}
                           <span>{option.label}</span>
