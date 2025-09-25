@@ -205,7 +205,7 @@ export const useUserData = () => {
         channelRef.current = null;
       }
     };
-  }, []);
+  }, [isAuthenticated, user?.id]); // Add dependencies to re-run when user changes
 
   return {
     userData,

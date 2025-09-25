@@ -59,13 +59,13 @@ export const AdminDashboard = () => {
       const rpcStats = rpcData[0];
       console.log('✅ DASHBOARD: Dados RPC recebidos:', rpcStats);
 
-      // Buscar distribuição de planos da tabela user_plans
+      // Buscar distribuição de planos da tabela users correta
       const { data: plansData } = await supabase
-        .from('user_plans')
-        .select('plan_tier');
+        .from('users')
+        .select('plan_code');
 
-      const planDistribution = plansData?.reduce((acc: any, plan: any) => {
-        const planKey = plan.plan_tier?.toLowerCase();
+      const planDistribution = plansData?.reduce((acc: any, user: any) => {
+        const planKey = user.plan_code?.toLowerCase();
         if (planKey && ['basic', 'pro', 'enterprise'].includes(planKey)) {
           acc[planKey] = (acc[planKey] || 0) + 1;
         } else {
@@ -73,18 +73,6 @@ export const AdminDashboard = () => {
         }
         return acc;
       }, { sem_plano: 0, basic: 0, pro: 0, enterprise: 0 }) || { sem_plano: 0, basic: 0, pro: 0, enterprise: 0 };
-
-      // Contar usuários sem plano
-      const { data: allUsers } = await supabase
-        .from('user_profiles')
-        .select('user_id');
-      
-      const totalUsersWithPlans = plansData?.length || 0;
-      const totalUsers = allUsers?.length || 0;
-      const usersWithoutPlan = Math.max(0, totalUsers - totalUsersWithPlans);
-      
-      // Adicionar usuários sem plano
-      planDistribution.sem_plano = (planDistribution.sem_plano || 0) + usersWithoutPlan;
 
       const dashboardStats: DashboardStats = {
         total_users: Number(rpcStats.total_users) || 0,
