@@ -53,6 +53,36 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_actions: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          payload: Json | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          payload?: Json | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          payload?: Json | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_audit_logs: {
         Row: {
           action_type: string
@@ -872,6 +902,36 @@ export type Database = {
         Update: {
           key?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      monthly_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          messages_used: number | null
+          period_ym: string
+          projects_used: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          messages_used?: number | null
+          period_ym: string
+          projects_used?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          messages_used?: number | null
+          period_ym?: string
+          projects_used?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2013,6 +2073,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      check_user_limits: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       cleanup_expired_impersonation_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2181,6 +2245,10 @@ export type Database = {
           total_value: number
         }[]
       }
+      get_current_period: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_geolocation_quality_report: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2230,6 +2298,14 @@ export type Database = {
         Returns: {
           count: number
         }[]
+      }
+      increment_message_usage: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      increment_project_usage: {
+        Args: { p_user_id: string }
+        Returns: number
       }
       insert_crm_client: {
         Args: {
