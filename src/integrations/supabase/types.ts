@@ -544,6 +544,55 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_ledger: {
+        Row: {
+          created_at: string
+          id: string
+          period_key: string
+          project_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_key: string
+          project_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_key?: string
+          project_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_ledger_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_ledger_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "v_project_summary"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "credit_ledger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_clients: {
         Row: {
           avatar: string | null
@@ -894,6 +943,27 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          base_quota: number | null
+          code: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          base_quota?: number | null
+          code: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          base_quota?: number | null
+          code?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       project_analyses: {
         Row: {
           analysis_type: string
@@ -1242,6 +1312,51 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          period_key: string
+          qualified_at: string | null
+          referred_user_id: string | null
+          referrer_user_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_key: string
+          qualified_at?: string | null
+          referred_user_id?: string | null
+          referrer_user_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_key?: string
+          qualified_at?: string | null
+          referred_user_id?: string | null
+          referrer_user_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_analytics: {
         Row: {
@@ -1716,6 +1831,35 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          lifetime_base_consumed: number
+          plan_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          lifetime_base_consumed?: number
+          plan_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifetime_base_consumed?: number
+          plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_logs: {
         Row: {
