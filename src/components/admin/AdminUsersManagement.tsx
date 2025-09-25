@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { UsersHeader } from './users/UsersHeader';
 import { UsersFilters } from './users/UsersFilters';
 import { UsersTable } from './users/UsersTable';
+import { AdminStatusPanel } from './AdminStatusPanel';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { Button } from '@/components/ui/button';
 import { MapPin, RefreshCw } from 'lucide-react';
@@ -31,6 +32,9 @@ export const AdminUsersManagement = () => {
     updateUserTags,
     updateUserProfile,
     updateUserPlan,
+    resetUserMessages,
+    addProjectCredit,
+    changeUserPlan,
     deleteUser,
     refreshUsers,
     totalUsers,
@@ -157,6 +161,9 @@ export const AdminUsersManagement = () => {
         </Button>
       </div>
       
+      {/* Painel de Status da API */}
+      <AdminStatusPanel />
+      
       <UsersHeader 
         totalUsers={totalUsers}
         filteredCount={users.length}
@@ -174,12 +181,15 @@ export const AdminUsersManagement = () => {
         onClearFilters={clearFilters}
       />
 
-      {/* Users Table */}
+      {/* Users Table com novas funcionalidades */}
       <UsersTable
         users={users}
         onUpdateUser={updateUserProfile}
         onDeleteUser={deleteUser}
         onRefresh={refreshUsers}
+        resetUserMessages={resetUserMessages}
+        addProjectCredit={addProjectCredit}
+        changeUserPlan={changeUserPlan}
       />
 
       {users.length === 0 && (

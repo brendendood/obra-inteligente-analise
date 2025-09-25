@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
+import { Edit, LogIn, Trash2, Mail, Phone, MapPin, Building, Calendar, CheckCircle, XCircle, Clock, RefreshCw, MoreVertical, MessageSquare, CreditCard, Package } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { UserLocationDisplay } from './UserLocationDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,9 +47,12 @@ interface UserTableProps {
   onUpdateUser: (userId: string, data: any) => void;
   onDeleteUser: (userId: string) => void;
   onRefresh?: () => void;
+  resetUserMessages?: (userId: string) => Promise<void>;
+  addProjectCredit?: (userId: string, credits?: number) => Promise<void>;
+  changeUserPlan?: (userId: string, plan: string, resetMessages?: boolean) => Promise<any>;
 }
 
-export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: UserTableProps) => {
+export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh, resetUserMessages, addProjectCredit, changeUserPlan }: UserTableProps) => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editFormData, setEditFormData] = useState<any>({});
@@ -445,6 +449,66 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
                     >
                       <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
                     </Button>
+                    
+                    {/* Dropdown para ações administrativas adicionais */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>Ações Administrativas</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        
+                        {resetUserMessages && (
+                          <DropdownMenuItem 
+                            onClick={() => resetUserMessages(user.user_id)}
+                            className="cursor-pointer"
+                          >
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Resetar Mensagens
+                          </DropdownMenuItem>
+                        )}
+                        
+                        {addProjectCredit && (
+                          <DropdownMenuItem 
+                            onClick={() => addProjectCredit(user.user_id, 1)}
+                            className="cursor-pointer"
+                          >
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            +1 Crédito Projeto
+                          </DropdownMenuItem>
+                        )}
+                        
+                        {changeUserPlan && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => changeUserPlan(user.user_id, 'basic', false)}
+                              className="cursor-pointer"
+                            >
+                              <Package className="mr-2 h-4 w-4" />
+                              Alterar para Basic
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => changeUserPlan(user.user_id, 'pro', false)}
+                              className="cursor-pointer"
+                            >
+                              <Package className="mr-2 h-4 w-4" />
+                              Alterar para Pro
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => changeUserPlan(user.user_id, 'enterprise', false)}
+                              className="cursor-pointer"
+                            >
+                              <Package className="mr-2 h-4 w-4" />
+                              Alterar para Enterprise
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button

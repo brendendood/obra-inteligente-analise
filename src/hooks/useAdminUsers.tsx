@@ -249,6 +249,155 @@ export const useAdminUsers = () => {
     await updateUserProfile(userId, { plan });
   };
 
+  const resetUserMessages = async (userId: string) => {
+    try {
+      console.log('🔄 ADMIN USERS: Resetando mensagens do usuário:', userId);
+
+      const { data: { user: adminUser } } = await supabase.auth.getUser();
+      if (!adminUser) {
+        throw new Error('Admin não autenticado');
+      }
+
+      const { data: result, error } = await supabase.rpc('admin_reset_user_messages', {
+        target_user_id: userId,
+        admin_user_id: adminUser.id
+      });
+
+      if (error) {
+        console.error('❌ ADMIN USERS: Erro na RPC resetar mensagens:', error);
+        throw error;
+      }
+
+      const typedResult = result as any;
+      if (!typedResult?.success) {
+        throw new Error(typedResult?.error || 'Falha ao resetar mensagens');
+      }
+
+      console.log('✅ ADMIN USERS: Mensagens resetadas com sucesso');
+
+      toast({
+        title: "Mensagens resetadas",
+        description: `Contador de mensagens zerado para o período ${typedResult.period}`,
+      });
+
+      await loadUsers(); // Recarregar dados
+
+    } catch (error) {
+      console.error('❌ ADMIN USERS: Erro ao resetar mensagens:', error);
+      toast({
+        title: "Erro ao resetar mensagens",
+        description: error instanceof Error ? error.message : "Não foi possível resetar as mensagens do usuário",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const addProjectCredit = async (userId: string, credits: number = 1) => {
+    try {
+      console.log('🏗️ ADMIN USERS: Adicionando créditos de projeto:', userId, credits);
+
+      const { data: { user: adminUser } } = await supabase.auth.getUser();
+      if (!adminUser) {
+        throw new Error('Admin não autenticado');
+      }
+
+      const { data: result, error } = await supabase.rpc('admin_add_project_credit', {
+        target_user_id: userId,
+        admin_user_id: adminUser.id,
+        credits_to_add: credits
+      });
+
+      if (error) {
+        console.error('❌ ADMIN USERS: Erro na RPC adicionar créditos:', error);
+        throw error;
+      }
+
+      const typedResult = result as any;
+      if (!typedResult?.success) {
+        throw new Error(typedResult?.error || 'Falha ao adicionar créditos');
+      }
+
+      console.log('✅ ADMIN USERS: Créditos adicionados com sucesso');
+
+      toast({
+        title: "Créditos adicionados",
+        description: `${typedResult.credits_added} crédito(s) adicionado(s). Total: ${typedResult.new_total}`,
+      });
+
+      await loadUsers(); // Recarregar dados
+
+    } catch (error) {
+      console.error('❌ ADMIN USERS: Erro ao adicionar créditos:', error);
+      toast({
+        title: "Erro ao adicionar créditos",
+        description: error instanceof Error ? error.message : "Não foi possível adicionar créditos ao usuário",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const changeUserPlan = async (userId: string, plan: string, resetMessages: boolean = false) => {
+    try {
+      console.log('📊 ADMIN USERS: Alterando plano do usuário:', userId, plan, resetMessages);
+
+      const { data: { user: adminUser } } = await supabase.auth.getUser();
+      if (!adminUser) {
+        throw new Error('Admin não autenticado');
+      }
+
+      const { data: result, error } = await supabase.rpc('admin_change_user_plan', {
+        target_user_id: userId,
+        admin_user_id: adminUser.id,
+        new_plan: plan,
+        reset_monthly_messages: resetMessages
+      });
+
+      if (error) {
+        console.error('❌ ADMIN USERS: Erro na RPC alterar plano:', error);
+        throw error;
+      }
+
+      const typedResult = result as any;
+      if (!typedResult?.success) {
+        if (typedResult?.error === 'SUPREME_PROTECTION_TRIGGERED') {
+          toast({
+            title: "Proteção de usuário supremo",
+            description: typedResult.message || "Usuário supremo não pode ter o plano reduzido",
+            variant: "destructive",
+          });
+          return typedResult;
+        }
+        throw new Error(typedResult?.error || 'Falha ao alterar plano');
+      }
+
+      console.log('✅ ADMIN USERS: Plano alterado com sucesso');
+
+      let description = `Plano alterado de ${typedResult.original_plan} para ${typedResult.new_plan}`;
+      if (typedResult.reset_messages) {
+        description += ' (mensagens resetadas)';
+      }
+
+      toast({
+        title: "Plano alterado",
+        description,
+      });
+
+      await loadUsers(); // Recarregar dados
+      return typedResult;
+
+    } catch (error) {
+      console.error('❌ ADMIN USERS: Erro ao alterar plano:', error);
+      toast({
+        title: "Erro ao alterar plano",
+        description: error instanceof Error ? error.message : "Não foi possível alterar o plano do usuário",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   const deleteUser = async (userId: string) => {
     try {
       console.log('🗑️ ADMIN USERS: Deletando usuário:', userId);
@@ -305,6 +454,9 @@ export const useAdminUsers = () => {
     updateUserTags,
     updateUserProfile,
     updateUserPlan,
+    resetUserMessages,
+    addProjectCredit,
+    changeUserPlan,
     deleteUser,
     refreshUsers,
     totalUsers,

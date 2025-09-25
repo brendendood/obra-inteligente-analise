@@ -2036,6 +2036,27 @@ export type Database = {
       }
     }
     Functions: {
+      admin_add_project_credit: {
+        Args: {
+          admin_user_id: string
+          credits_to_add?: number
+          target_user_id: string
+        }
+        Returns: Json
+      }
+      admin_change_user_plan: {
+        Args: {
+          admin_user_id: string
+          new_plan: string
+          reset_monthly_messages?: boolean
+          target_user_id: string
+        }
+        Returns: Json
+      }
+      admin_reset_user_messages: {
+        Args: { admin_user_id: string; target_user_id: string }
+        Returns: Json
+      }
       admin_update_user_complete: {
         Args: {
           admin_user_id: string
