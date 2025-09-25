@@ -113,11 +113,22 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
   };
 
   const {
-    user
+    user,
+    signOut
   } = useAuth();
   const {
     userData
   } = useUserData();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Erro no logout:', error);
+      // Fallback para redirecionamento direto se o contexto falhar
+      window.location.href = '/';
+    }
+  };
   const items = makeItems(location.pathname ?? "");
   return <motion.aside role="navigation" aria-label="Menu lateral do usuário" className={cn("fixed left-0 top-0 z-40 h-screen shrink-0 border-r border-border/30", "bg-background text-foreground",
   // evita sobrepor conteúdo em layouts grid; largura animada
@@ -236,9 +247,7 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
 
         {/* Logout Button */}
         <div className="mt-2">
-          <button onClick={() => {
-          window.location.href = '/login';
-        }} className={cn("group flex items-center gap-3 rounded-md px-2 py-2 transition-colors w-full text-left", "text-muted-foreground hover:text-foreground", "hover:bg-accent")} title="Sair">
+          <button onClick={handleLogout} className={cn("group flex items-center gap-3 rounded-md px-2 py-2 transition-colors w-full text-left", "text-muted-foreground hover:text-foreground", "hover:bg-accent")} title="Sair">
             <span className="grid place-items-center w-5 h-5 flex-shrink-0">
               <LogOut className="h-5 w-5" />
             </span>
