@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useMemo } from 'react';
 import { ThemeProvider } from "next-themes";
 import SafeToasters from "@/components/ui/SafeToasters";
 
@@ -162,7 +162,7 @@ class CriticalErrorBoundary extends React.Component<
 // Clean Providers Component - Create QueryClient safely inside component
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Create QueryClient after React is confirmed working
-  const queryClient = React.useMemo(() => createQueryClient(), []);
+  const queryClient = useMemo(() => createQueryClient(), []);
   
   return (
     <SafeHooksProvider>
