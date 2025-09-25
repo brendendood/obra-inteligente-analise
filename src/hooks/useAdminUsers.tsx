@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface AdminUser {
+export interface AdminUser {
   id: string;
   user_id: string;
   email: string;

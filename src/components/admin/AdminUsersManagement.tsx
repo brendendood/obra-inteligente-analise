@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { UsersHeader } from './users/UsersHeader';
 import { UsersFilters } from './users/UsersFilters';
 import { UsersTable } from './users/UsersTable';
+import UserTable from './UserTable';
 import { AdminStatusPanel } from './AdminStatusPanel';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { Button } from '@/components/ui/button';

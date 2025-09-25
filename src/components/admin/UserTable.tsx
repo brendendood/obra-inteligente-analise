@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Plan, normalizePlan } from "@/lib/plan";
 import { PlanBadge } from "./PlanBadge";
 import { motion } from "framer-motion";
+import { UserDetailsModal } from "./UserDetailsModal";
+import { AdminUser as AdminUserInterface } from "@/hooks/useAdminUsers";
 
 export type AdminUser = {
   id: string;
@@ -18,9 +20,56 @@ type Props = {
   users: AdminUser[];
   filterPlan: "ALL" | Plan;
   onFilterPlanChange: (value: "ALL" | Plan) => void;
+  onUpdatePlan?: (userId: string, newPlan: string, resetMessages?: boolean) => Promise<boolean>;
+  onResetMessages?: (userId: string) => Promise<boolean>;
+  onAddCredit?: (userId: string, credits?: number) => Promise<boolean>;
+  onDeleteUser?: (userId: string) => Promise<boolean>;
 };
 
-export default function UserTable({ users, filterPlan, onFilterPlanChange }: Props) {
+export default function UserTable({ 
+  users, 
+  filterPlan, 
+  onFilterPlanChange, 
+  onUpdatePlan = () => Promise.resolve(false),
+  onResetMessages = () => Promise.resolve(false),
+  onAddCredit = () => Promise.resolve(false),
+  onDeleteUser = () => Promise.resolve(false)
+}: Props) {
+  const [selectedUser, setSelectedUser] = useState<AdminUserInterface | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewUser = (user: AdminUser) => {
+    // Converter AdminUser para AdminUserInterface
+    const userForModal: AdminUserInterface = {
+      id: user.id,
+      user_id: user.id, // Assumindo que id é o mesmo que user_id
+      email: user.email,
+      email_confirmed_at: null,
+      full_name: user.name,
+      company: null,
+      phone: null,
+      city: null,
+      state: null,
+      country: null,
+      cargo: null,
+      avatar_url: null,
+      gender: null,
+      tags: null,
+      created_at: user.createdAt || new Date().toISOString(),
+      last_sign_in_at: null,
+      plan: user.plan || 'BASIC',
+      status: user.status || 'ACTIVE',
+      real_location: '',
+      last_login_ip: null,
+      quiz_context: null,
+      quiz_role: null,
+      quiz_challenges: null,
+      quiz_completed_at: null,
+    };
+    
+    setSelectedUser(userForModal);
+    setIsModalOpen(true);
+  };
   const rows = useMemo(() => {
     const normalized = users.map((u) => ({
       ...u,
@@ -121,7 +170,12 @@ export default function UserTable({ users, filterPlan, onFilterPlanChange }: Pro
                       : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <button className="text-indigo-700 hover:underline">Ver</button>
+                    <button 
+                      onClick={() => handleViewUser(u)}
+                      className="text-indigo-700 hover:underline font-medium"
+                    >
+                      Ver
+                    </button>
                   </td>
                 </motion.tr>
               ))
@@ -129,6 +183,16 @@ export default function UserTable({ users, filterPlan, onFilterPlanChange }: Pro
           </tbody>
         </table>
       </div>
+
+      <UserDetailsModal
+        user={selectedUser}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onUpdatePlan={onUpdatePlan}
+        onResetMessages={onResetMessages}
+        onAddCredit={onAddCredit}
+        onDeleteUser={onDeleteUser}
+      />
     </div>
   );
 }
