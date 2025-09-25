@@ -1930,6 +1930,8 @@ export type Database = {
           city: string | null
           company: string | null
           created_at: string
+          email: string | null
+          full_name: string | null
           id: string
           lifetime_base_consumed: number
           name: string | null
@@ -1938,11 +1940,14 @@ export type Database = {
           role_title: string | null
           state: string | null
           status: string | null
+          updated_at: string | null
         }
         Insert: {
           city?: string | null
           company?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string | null
           id: string
           lifetime_base_consumed?: number
           name?: string | null
@@ -1951,11 +1956,14 @@ export type Database = {
           role_title?: string | null
           state?: string | null
           status?: string | null
+          updated_at?: string | null
         }
         Update: {
           city?: string | null
           company?: string | null
           created_at?: string
+          email?: string | null
+          full_name?: string | null
           id?: string
           lifetime_base_consumed?: number
           name?: string | null
@@ -1964,6 +1972,7 @@ export type Database = {
           role_title?: string | null
           state?: string | null
           status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
