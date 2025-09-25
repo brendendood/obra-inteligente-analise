@@ -58,16 +58,28 @@ export const AdminDashboard = () => {
       const rpcStats = rpcData[0];
       console.log('✅ DASHBOARD: Dados RPC recebidos:', rpcStats);
 
-      // Buscar distribuição de planos diretamente da tabela users
-      const { data: usersData } = await supabase
-        .from('users')
-        .select('plan_code');
+      // Buscar distribuição de planos da tabela user_plans
+      const { data: plansData } = await supabase
+        .from('user_plans')
+        .select('plan_tier');
 
-      const planDistribution = usersData?.reduce((acc: any, user: any) => {
-        const plan = user.plan_code || 'free';
-        acc[plan] = (acc[plan] || 0) + 1;
+      const planDistribution = plansData?.reduce((acc: any, plan: any) => {
+        const planKey = plan.plan_tier?.toLowerCase() || 'free';
+        acc[planKey] = (acc[planKey] || 0) + 1;
         return acc;
       }, {}) || {};
+
+      // Contar usuários sem plano (considerar como free)
+      const { data: allUsers } = await supabase
+        .from('user_profiles')
+        .select('user_id');
+      
+      const totalUsersWithPlans = plansData?.length || 0;
+      const totalUsers = allUsers?.length || 0;
+      const usersWithoutPlan = Math.max(0, totalUsers - totalUsersWithPlans);
+      
+      // Adicionar usuários sem plano como 'free'
+      planDistribution.free = (planDistribution.free || 0) + usersWithoutPlan;
 
       const dashboardStats: DashboardStats = {
         total_users: Number(rpcStats.total_users) || 0,
