@@ -25,7 +25,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { UserPageLayout } from '@/components/layout/UserPageLayout';
 import { NavigationBreadcrumb } from '@/components/layout/NavigationBreadcrumb';
 import { AdvancedGanttChart } from '@/components/schedule/AdvancedGanttChart';
 
@@ -208,21 +208,21 @@ const ProjectDetail = () => {
   // Loading state
   if (authLoading || loading) {
     return (
-      <AppLayout>
+      <UserPageLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Carregando projeto...</p>
           </div>
         </div>
-      </AppLayout>
+      </UserPageLayout>
     );
   }
 
   // Error states
   if (error || !project) {
     return (
-      <AppLayout>
+      <UserPageLayout>
         <NavigationBreadcrumb />
         <Card className="border-0 shadow-lg text-center">
           <CardContent className="py-12">
@@ -256,7 +256,7 @@ const ProjectDetail = () => {
             </div>
           </CardContent>
         </Card>
-      </AppLayout>
+      </UserPageLayout>
     );
   }
 
@@ -265,7 +265,7 @@ const ProjectDetail = () => {
   }
 
   return (
-    <AppLayout>
+    <UserPageLayout>
       <div className="space-y-6">
         {/* Breadcrumb */}
         <NavigationBreadcrumb projectName={project.name} />
@@ -740,7 +740,7 @@ const ProjectDetail = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </UserPageLayout>
   );
 };
 

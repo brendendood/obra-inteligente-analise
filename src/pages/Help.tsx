@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { UserPageLayout } from '@/components/layout/UserPageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -182,7 +182,7 @@ const Help = () => {
   );
 
   return (
-    <AppLayout>
+    <UserPageLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
@@ -374,7 +374,7 @@ const Help = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </UserPageLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { UserPageLayout } from '@/components/layout/UserPageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -71,13 +71,13 @@ const Plan = () => {
   };
   const usagePercentage = getPlanUsagePercentage(userData.projectCount, userData.plan, userData.credits);
   if (loading) {
-    return <AppLayout>
+    return <UserPageLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </AppLayout>;
+      </UserPageLayout>;
   }
-  return <AppLayout>
+  return <UserPageLayout>
       <div className="space-y-6 px-[22px]">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
@@ -312,6 +312,6 @@ const Plan = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>;
+    </UserPageLayout>;
 };
 export default Plan;

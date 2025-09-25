@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { UserPageLayout } from '@/components/layout/UserPageLayout';
 import { ProfileTab } from '@/components/account/ProfileTab';
 import { SecurityTab } from '@/components/account/SecurityTab';
 import { Badge } from '@/components/ui/badge';
@@ -14,16 +14,16 @@ const Account = () => {
 
   if (loading) {
     return (
-      <AppLayout>
+      <UserPageLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </AppLayout>
+      </UserPageLayout>
     );
   }
 
   return (
-    <AppLayout>
+    <UserPageLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
@@ -70,7 +70,7 @@ const Account = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </UserPageLayout>
   );
 };
 

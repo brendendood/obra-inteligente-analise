@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload as UploadIcon, Zap } from 'lucide-react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { UserPageLayout } from '@/components/layout/UserPageLayout';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import ProjectNameField from '@/components/upload/ProjectNameField';
 import FileDropzone from '@/components/upload/FileDropzone';
@@ -38,14 +38,14 @@ const Upload = () => {
 
   if (authLoading) {
     return (
-      <AppLayout>
+      <UserPageLayout>
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-700 font-medium">Carregando...</p>
           </div>
         </div>
-      </AppLayout>
+      </UserPageLayout>
     );
   }
 
@@ -54,7 +54,7 @@ const Upload = () => {
   }
 
   return (
-    <AppLayout>
+    <UserPageLayout>
       <div className="space-y-8">
         <EnhancedBreadcrumb />
         
@@ -176,7 +176,7 @@ const Upload = () => {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </UserPageLayout>
   );
 };
 
