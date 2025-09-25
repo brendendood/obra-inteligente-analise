@@ -890,21 +890,6 @@ export type Database = {
         }
         Relationships: []
       }
-      kv_store_40b370d9: {
-        Row: {
-          key: string
-          value: Json
-        }
-        Insert: {
-          key: string
-          value: Json
-        }
-        Update: {
-          key?: string
-          value?: Json
-        }
-        Relationships: []
-      }
       monthly_usage: {
         Row: {
           created_at: string | null
@@ -959,11 +944,19 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          billing_period: string | null
+          cakto_transaction_id: string | null
+          card_brand: string | null
+          card_last_digits: string | null
           created_at: string
           currency: string | null
           id: string
           invoice_url: string | null
+          is_recurring: boolean | null
+          next_payment_date: string | null
           payment_method: string | null
+          payment_source: string | null
+          plan_purchased: string | null
           status: string
           stripe_payment_intent_id: string | null
           subscription_id: string | null
@@ -971,11 +964,19 @@ export type Database = {
         }
         Insert: {
           amount: number
+          billing_period?: string | null
+          cakto_transaction_id?: string | null
+          card_brand?: string | null
+          card_last_digits?: string | null
           created_at?: string
           currency?: string | null
           id?: string
           invoice_url?: string | null
+          is_recurring?: boolean | null
+          next_payment_date?: string | null
           payment_method?: string | null
+          payment_source?: string | null
+          plan_purchased?: string | null
           status: string
           stripe_payment_intent_id?: string | null
           subscription_id?: string | null
@@ -983,11 +984,19 @@ export type Database = {
         }
         Update: {
           amount?: number
+          billing_period?: string | null
+          cakto_transaction_id?: string | null
+          card_brand?: string | null
+          card_last_digits?: string | null
           created_at?: string
           currency?: string | null
           id?: string
           invoice_url?: string | null
+          is_recurring?: boolean | null
+          next_payment_date?: string | null
           payment_method?: string | null
+          payment_source?: string | null
+          plan_purchased?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           subscription_id?: string | null
@@ -2345,6 +2354,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_plan_info: {
+        Args: { plan_code: string }
+        Returns: {
+          base_quota: number
+          code: string
+          description: string
+          display_name: string
+        }[]
+      }
       get_total_users_count: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -2436,6 +2454,20 @@ export type Database = {
       mark_email_sent: {
         Args: { p_queue_id: string; p_resend_id?: string }
         Returns: boolean
+      }
+      process_cakto_payment: {
+        Args: {
+          p_amount: number
+          p_billing_period?: string
+          p_cakto_transaction_id: string
+          p_card_brand?: string
+          p_card_last_digits?: string
+          p_is_recurring?: boolean
+          p_plan_purchased: string
+          p_status: string
+          p_user_email: string
+        }
+        Returns: Json
       }
       process_pending_welcome_emails: {
         Args: Record<PropertyKey, never>
