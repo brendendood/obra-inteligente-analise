@@ -182,15 +182,50 @@ export const AdminUsersManagement = () => {
         onClearFilters={clearFilters}
       />
 
-      {/* Users Table com novas funcionalidades */}
-      <UsersTable
-        users={users}
-        onUpdateUser={updateUserProfile}
-        onDeleteUser={deleteUser}
-        onRefresh={refreshUsers}
-        resetUserMessages={resetUserMessages}
-        addProjectCredit={addProjectCredit}
-        changeUserPlan={changeUserPlan}
+      {/* UserTable simples para dashboard geral */}
+      <UserTable
+        users={users.map(u => ({
+          id: u.id,
+          email: u.email,
+          name: u.full_name,
+          plan: u.plan,
+          createdAt: u.created_at,
+          status: u.status
+        }))}
+        filterPlan={filterPlan as any}
+        onFilterPlanChange={setFilterPlan as any}
+        onUpdatePlan={async (userId: string, newPlan: string, resetMessages?: boolean) => {
+          try {
+            await changeUserPlan(userId, newPlan, resetMessages || false);
+            return true;
+          } catch {
+            return false;
+          }
+        }}
+        onResetMessages={async (userId: string) => {
+          try {
+            await resetUserMessages(userId);
+            return true;
+          } catch {
+            return false;
+          }
+        }}
+        onAddCredit={async (userId: string, credits?: number) => {
+          try {
+            await addProjectCredit(userId, credits || 1);
+            return true;
+          } catch {
+            return false;
+          }
+        }}
+        onDeleteUser={async (userId: string) => {
+          try {
+            await deleteUser(userId);
+            return true;
+          } catch {
+            return false;
+          }
+        }}
       />
 
       {users.length === 0 && (
