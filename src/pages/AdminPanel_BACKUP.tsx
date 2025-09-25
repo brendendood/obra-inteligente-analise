@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import AdminDashboard from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
 import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
 import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';

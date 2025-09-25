@@ -18,7 +18,7 @@ import {
   Mail,
   Building2,
 } from 'lucide-react';
-import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import AdminDashboard from '@/components/admin/AdminDashboard';
 import { AdminUsersManagement } from '@/components/admin/AdminUsersManagement';
 import { AdminProjectsManagement } from '@/components/admin/AdminProjectsManagement';
 import { CompleteDataCleanup } from '@/components/admin/CompleteDataCleanup';
