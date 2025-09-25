@@ -159,6 +159,16 @@ export const UsersTable = ({ users, onUpdateUser, onDeleteUser, onRefresh }: Use
   };
 
   const handleSaveEdit = async () => {
+    if (!editingUser) {
+      console.error('❌ USERS TABLE: Nenhum usuário sendo editado');
+      toast({
+        title: "Erro ao atualizar",
+        description: "Nenhum usuário selecionado para edição",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log('💾 USERS TABLE: Salvando edição do usuário:', editingUser.user_id, editFormData);
       
