@@ -1,7 +1,6 @@
 import { memo, useState } from 'react';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
-import { SmartGreeting } from '@/components/dashboard/SmartGreeting';
-import { ArchitectQuote } from '@/components/dashboard/ArchitectQuote';
+import { WelcomeSection } from '@/components/dashboard/WelcomeSection';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EnhancedProjectsSection } from '@/components/dashboard/EnhancedProjectsSection';
 import { DashboardStatsGrid } from '@/components/dashboard/DashboardStatsGrid';
@@ -55,10 +54,13 @@ const OptimizedDashboard = memo(({
         />
       )}
       
-      {/* Breadcrumb Section - sem header grande */}
+      {/* Breadcrumb Section */}
       <div className="w-full mb-6">
         <EnhancedBreadcrumb />
       </div>
+
+      {/* Welcome Section com frases de arquitetos e sistema de indicação */}
+      <WelcomeSection userName={userName} onRefresh={onRetry} isLoading={isLoadingProjects} />
 
       {/* Content Sections */}
       <div className="w-full space-y-8">

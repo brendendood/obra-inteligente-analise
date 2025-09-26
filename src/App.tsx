@@ -47,6 +47,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PricingBlocked = lazy(() => import("./pages/PricingBlocked"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminVerification = lazy(() => import("./pages/AdminVerification"));
+const ReferralPage = lazy(() => import("./pages/ReferralPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Project specific pages
@@ -296,6 +297,12 @@ const App = () => {
                     <PaywallGuard>
                       <LazyWrapper><CRMPage /></LazyWrapper>
                     </PaywallGuard>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/indicacoes" element={
+                  <ProtectedRoute>
+                    <LazyWrapper><ReferralPage /></LazyWrapper>
                   </ProtectedRoute>
                 } />
                 

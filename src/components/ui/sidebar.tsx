@@ -84,6 +84,11 @@ const makeItems = (pathname: string): NavItem[] => [{
   icon: <CreditCard className="h-5 w-5" />,
   activeMatch: p => p.startsWith("/plano") || p.startsWith("/pagamentos")
 }, {
+  label: "Indique e Ganhe",
+  href: "/indicacoes",
+  icon: <Gift className="h-5 w-5" />,
+  activeMatch: p => p.startsWith("/indicacoes")
+}, {
   label: "Ajuda e FAQs",
   href: "/ajuda",
   icon: <CircleHelp className="h-5 w-5" />,
