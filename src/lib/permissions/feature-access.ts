@@ -9,7 +9,7 @@ const atLeast = (cur?: PlanTier, req?: PlanTier) => indexOf(cur) >= indexOf(req)
 export const FEATURE_MIN_TIER: Record<string, PlanTier> = {
   budget: "BASIC",    // Budget disponível a partir do Basic
   schedule: "BASIC",  // Schedule disponível a partir do Basic
-  export: "BASIC",    // Export disponível a partir do Basic
+  export: "PRO",      // Export disponível apenas a partir do PRO
   ai_assistant: "BASIC", // AI acessível a partir do Basic
 };
 
@@ -20,7 +20,7 @@ export function canAccessFeature(plan: PlanTier | undefined, featureId: string):
 
 /** Limites de mensagens de IA por plano */
 export const AI_LIMITS: Partial<Record<PlanTier, number | "unlimited">> = {
-  BASIC: 500,
-  PRO: 2000,
-  ENTERPRISE: "unlimited",
+  BASIC: 150,
+  PRO: 400,
+  ENTERPRISE: 1000,
 };
