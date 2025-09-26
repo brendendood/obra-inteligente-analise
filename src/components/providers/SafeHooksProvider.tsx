@@ -80,7 +80,7 @@ export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }
               } catch (e) {
                 console.warn('Storage clear failed:', e);
               }
-              window.location.href = window.location.href;
+              window.location.reload();
             }}
             style={{
               backgroundColor: '#dc2626',
@@ -97,6 +97,26 @@ export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }
           </button>
         </div>
       </div>
+    );
+  }
+
+  // Verificação adicional de segurança antes de usar hooks
+  let safeToUseHooks = false;
+  try {
+    if (React && React.useState && React.useEffect && typeof React.useState === 'function') {
+      safeToUseHooks = true;
+    }
+  } catch (error) {
+    console.error('🔴 SafeHooksProvider: Hook safety check failed:', error);
+    safeToUseHooks = false;
+  }
+
+  if (!safeToUseHooks) {
+    // Fallback sem hooks se React não está seguro
+    return (
+      <SafeHooksContext.Provider value={{ isReactHealthy: false, error: 'React hooks não seguros' }}>
+        {children}
+      </SafeHooksContext.Provider>
     );
   }
 
