@@ -174,7 +174,7 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
         opacity: isCollapsed ? 1 : 0,
         height: isCollapsed ? "auto" : 0
       }} className="overflow-hidden flex justify-center">
-          <Link to="/indique" className="p-2 rounded-md hover:bg-accent transition-colors" title="Indique e ganhe projetos grátis">
+          <Link to="/indicacoes" className="p-2 rounded-md hover:bg-accent transition-colors" title="Indique e ganhe projetos grátis">
             <Gift className="h-5 w-5 text-muted-foreground" />
           </Link>
         </motion.div>
