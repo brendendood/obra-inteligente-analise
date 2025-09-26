@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Crown, Gift } from 'lucide-react';
 import { getPlanDisplayName, getPlanLimit, getPlanIcon, getPlanBadgeStyle } from '@/facades/core';
 import { useState } from 'react';
-import { GamificationModal } from '@/components/gamification/GamificationModal';
+import { ReferralModal } from '@/components/modals/ReferralModal';
 
 interface ProjectLimitBarProps {
   currentProjects: number;
@@ -13,7 +13,7 @@ interface ProjectLimitBarProps {
 }
 
 export const ProjectLimitBar = ({ currentProjects, plan, extraCredits = 0 }: ProjectLimitBarProps) => {
-  const [showGamificationModal, setShowGamificationModal] = useState(false);
+  const [showReferralModal, setShowReferralModal] = useState(false);
   const maxProjects = getPlanLimit(plan, extraCredits); // Limite total (inclui extras)
   const planDisplayName = getPlanDisplayName(plan);
   const planIcon = getPlanIcon(plan);
@@ -36,7 +36,7 @@ export const ProjectLimitBar = ({ currentProjects, plan, extraCredits = 0 }: Pro
           ✨ Projetos ilimitados
         </div>
         <button
-          onClick={() => setShowGamificationModal(true)}
+          onClick={() => setShowReferralModal(true)}
           className="text-xs text-primary hover:text-primary/80 transition-colors mt-2 flex items-center gap-1"
         >
           <Gift className="h-3 w-3" />
@@ -77,16 +77,16 @@ export const ProjectLimitBar = ({ currentProjects, plan, extraCredits = 0 }: Pro
       )}
       
       <button
-        onClick={() => setShowGamificationModal(true)}
+        onClick={() => setShowReferralModal(true)}
         className="text-xs text-primary hover:text-primary/80 transition-colors mt-2 flex items-center gap-1 w-full"
       >
         <Gift className="h-3 w-3" />
         Indique e ganhe projetos grátis
       </button>
       
-      <GamificationModal 
-        isOpen={showGamificationModal} 
-        onClose={() => setShowGamificationModal(false)} 
+      <ReferralModal 
+        isOpen={showReferralModal} 
+        onClose={() => setShowReferralModal(false)} 
       />
     </div>
   );
