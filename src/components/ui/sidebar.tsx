@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { canUpgrade, getUpgradeMessage } from "@/utils/planUtils";
 import { PlanBadge } from "@/components/ui/PlanBadge";
 import { canShowUpgradeButton, renderProjectQuota } from "@/utils/planQuota";
+import { ReferralModal } from "@/components/modals/ReferralModal";
 
 /**
  * IMPORTANTE
@@ -84,11 +85,6 @@ const makeItems = (pathname: string): NavItem[] => [{
   icon: <CreditCard className="h-5 w-5" />,
   activeMatch: p => p.startsWith("/plano") || p.startsWith("/pagamentos")
 }, {
-  label: "Indique e Ganhe",
-  href: "/indicacoes",
-  icon: <Gift className="h-5 w-5" />,
-  activeMatch: p => p.startsWith("/indicacoes")
-}, {
   label: "Ajuda e FAQs",
   href: "/ajuda",
   icon: <CircleHelp className="h-5 w-5" />,
@@ -106,6 +102,7 @@ interface SessionNavBarProps {
 
 export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed }: SessionNavBarProps = {}) {
   const location = useLocation();
+  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [internalCollapsed, setInternalCollapsed] = useState(true);
   const isCollapsed = externalCollapsed ?? internalCollapsed;
   
@@ -169,14 +166,18 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
           <ProjectLimitBar currentProjects={userData.projectCount} plan={userData.plan} extraCredits={userData.credits} />
         </motion.div>
         
-        {/* Link "Indique e ganhe" visível quando colapsado */}
+        {/* Botão "Indique e ganhe" visível quando colapsado */}
         <motion.div animate={{
         opacity: isCollapsed ? 1 : 0,
         height: isCollapsed ? "auto" : 0
       }} className="overflow-hidden flex justify-center">
-          <Link to="/indicacoes" className="p-2 rounded-md hover:bg-accent transition-colors" title="Indique e ganhe projetos grátis">
+          <button 
+            onClick={() => setIsReferralModalOpen(true)}
+            className="p-2 rounded-md hover:bg-accent transition-colors" 
+            title="Indique e ganhe projetos grátis"
+          >
             <Gift className="h-5 w-5 text-muted-foreground" />
-          </Link>
+          </button>
         </motion.div>
       </div>
 
@@ -197,7 +198,30 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
                     </motion.span>
                   </Link>
                 </li>;
-          })}
+          })
+            
+            /* Adicionar item "Indique e Ganhe" manualmente quando expandido */}
+            <li>
+              <button 
+                onClick={() => setIsReferralModalOpen(true)}
+                className={cn(
+                  "group flex items-center gap-3 rounded-md px-2 py-2 transition-colors w-full text-left",
+                  "text-muted-foreground hover:text-foreground",
+                  "hover:bg-accent"
+                )}
+              >
+                <span className="grid place-items-center w-5 h-5 flex-shrink-0">
+                  <Gift className="h-5 w-5" />
+                </span>
+                <motion.span 
+                  className="text-sm truncate" 
+                  variants={labelVariants} 
+                  animate={isCollapsed ? "closed" : "open"}
+                >
+                  Indique e Ganhe
+                </motion.span>
+              </button>
+            </li>
           </ul>
         </nav>
       </ScrollArea>
@@ -262,6 +286,12 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
           </button>
         </div>
       </div>
+      
+      {/* Modal de Indicações */}
+      <ReferralModal 
+        isOpen={isReferralModalOpen} 
+        onClose={() => setIsReferralModalOpen(false)} 
+      />
     </motion.aside>;
 }
 
