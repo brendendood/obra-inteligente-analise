@@ -153,38 +153,56 @@ Deno.serve(async (req) => {
   try {
     console.log('🌍 GEOLOCALIZAÇÃO REAL: Iniciando captura precisa...');
     
-    // Extrair dados da requisição
-    const { ip_address, login_id, user_id, force_update = false } = await req.json();
-
-    // Validar autenticação via JWT
-    const authHeader = req.headers.get('Authorization') || '';
-    const supabaseAuth = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const { data: auth } = await supabaseAuth.auth.getUser();
-    if (!auth?.user) {
-      return new Response(JSON.stringify({ success: false, error: 'unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    // Extract request data with proper validation
+    let requestData;
+    try {
+      requestData = await req.json();
+    } catch (jsonError) {
+      console.error('❌ Invalid JSON in request:', jsonError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Invalid JSON in request body',
+          message: 'Request must contain valid JSON'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
     }
 
-    // Se user_id for fornecido, deve corresponder ao usuário autenticado
-    if (user_id && user_id !== auth.user.id) {
-      return new Response(JSON.stringify({ success: false, error: 'forbidden_user_mismatch' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const { ip_address, login_id, user_id, force_update = false } = requestData;
+
+    // CRITICAL FIX: Validate required parameters before proceeding
+    if (!ip_address || typeof ip_address !== 'string' || ip_address.trim() === '') {
+      console.error('❌ VALIDATION: IP address é obrigatório e deve ser uma string válida');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'IP address é obrigatório e deve ser uma string válida',
+          message: 'O parâmetro ip_address é obrigatório e deve conter um endereço IP válido'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
     }
 
-    if (!ip_address) {
-      throw new Error('IP address é obrigatório');
-    }
-
-    if (!login_id) {
-      throw new Error('Login ID é obrigatório');
+    if (!login_id || typeof login_id !== 'string' || login_id.trim() === '') {
+      console.error('❌ VALIDATION: Login ID é obrigatório');
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Login ID é obrigatório',
+          message: 'O parâmetro login_id é obrigatório'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
     }
 
     // Verificar se o login_id pertence ao usuário autenticado

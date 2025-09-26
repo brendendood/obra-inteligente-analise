@@ -58,10 +58,10 @@ export const AdminAIMetrics = () => {
 
       {/* Métricas principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {aiMetrics.map((metric, index) => {
+        {aiMetrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={index}>
+            <Card key={`ai-metric-${metric.title}-${metric.value}`}>
               <CardHeader className="flex flex-row items-center justify-between pb-3">
                 <div className="flex-1">
                   <CardTitle className="text-sm font-medium text-gray-600">{metric.title}</CardTitle>
@@ -175,8 +175,8 @@ export const AdminAIMetrics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {aiFeatures.map((feature, index) => (
-              <div key={index} className="space-y-2">
+            {aiFeatures.map((feature) => (
+              <div key={`ai-feature-${feature.name}`} className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium text-gray-900">{feature.name}</span>
                   <div className="flex items-center gap-3">

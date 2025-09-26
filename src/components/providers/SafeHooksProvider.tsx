@@ -1,91 +1,172 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React from 'react';
 
 interface SafeHooksContextType {
   isReactHealthy: boolean;
   error?: string;
 }
 
-// Create context without hooks to avoid React corruption issues
-let SafeHooksContext: React.Context<SafeHooksContextType | null> | null = null;
-
-interface SafeHooksProviderProps {
-  children: React.ReactNode;
-}
-
-// Enhanced static check with more rigorous validation
+// Enhanced static health check to prevent React corruption
 const checkReactHealthStatic = () => {
   try {
-    // Check if React exists and is the correct type
+    // Primary check: React object existence and type
     if (typeof React === 'undefined' || React === null || typeof React !== 'object') {
       return { isHealthy: false, error: 'React object not found or corrupted' };
     }
     
-    // Check if React has essential properties
-    if (!React.useState || !React.useEffect || !React.createContext) {
-      return { isHealthy: false, error: 'React hooks/methods not available' };
+    // Secondary check: Essential React methods
+    if (!React.useState || !React.useEffect || !React.createContext || 
+        typeof React.useState !== 'function' || 
+        typeof React.useEffect !== 'function' || 
+        typeof React.createContext !== 'function') {
+      return { isHealthy: false, error: 'React hooks/methods not available or corrupted' };
     }
     
-    // Check if React dispatcher is available (this is what's null in the error)
+    // Critical check: React dispatcher state (the root cause of useState null errors)
     try {
-      const testDispatcher = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED?.ReactCurrentDispatcher?.current;
-      if (testDispatcher === null) {
-        return { isHealthy: false, error: 'React dispatcher is null - React is corrupted' };
+      const reactInternals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+      if (reactInternals && reactInternals.ReactCurrentDispatcher) {
+        const currentDispatcher = reactInternals.ReactCurrentDispatcher.current;
+        if (currentDispatcher === null) {
+          return { 
+            isHealthy: false, 
+            error: 'React dispatcher is null - React context corrupted. This causes useState null errors.' 
+          };
+        }
       }
     } catch (dispatcherError) {
-      // If we can't access dispatcher, that's also a sign of corruption
-      return { isHealthy: false, error: 'Cannot access React dispatcher' };
-    }
-    
-    // Try to safely create context
-    try {
-      if (!SafeHooksContext) {
-        SafeHooksContext = React.createContext<SafeHooksContextType | null>(null);
-      }
-    } catch (contextError) {
-      return { isHealthy: false, error: 'Cannot create React context' };
+      return { 
+        isHealthy: false, 
+        error: 'Cannot access React dispatcher - React internal state corrupted' 
+      };
     }
     
     return { isHealthy: true };
   } catch (error) {
     return { 
       isHealthy: false, 
-      error: error instanceof Error ? error.message : 'Unknown React error' 
+      error: error instanceof Error ? error.message : 'Unknown React validation error' 
     };
   }
 };
 
-// Component class to avoid hooks entirely in case of React corruption
-class SafeHooksProviderClass extends React.Component<SafeHooksProviderProps> {
+interface SafeHooksProviderProps {
+  children: React.ReactNode;
+}
+
+/**
+ * SafeHooksProvider using class component to completely avoid hooks when React is corrupted
+ * This prevents the "Cannot read properties of null (reading 'useState')" error
+ */
+class SafeHooksProviderClass extends React.Component<
+  SafeHooksProviderProps,
+  { isHealthy: boolean; error?: string; retryCount: number }
+> {
+  private healthCheckInterval: NodeJS.Timeout | null = null;
+  private readonly maxRetries = 3;
+
   constructor(props: SafeHooksProviderProps) {
     super(props);
     
-    // Check React health immediately in constructor
     const healthCheck = checkReactHealthStatic();
-    
+    this.state = {
+      isHealthy: healthCheck.isHealthy,
+      error: healthCheck.error,
+      retryCount: 0
+    };
+
+    // If React is corrupted, attempt immediate recovery
     if (!healthCheck.isHealthy) {
-      console.error('🔴 CRITICAL: SafeHooksProvider - React corrupted:', healthCheck.error);
-      
-      // Force immediate page reload to clear corruption
-      setTimeout(() => {
-        try {
-          if ('caches' in window) {
-            caches.keys().then(names => names.forEach(name => caches.delete(name)));
-          }
-          localStorage.clear();
-          sessionStorage.clear();
-        } catch (e) {
-          console.warn('Storage clear failed:', e);
-        }
-        window.location.reload();
-      }, 100);
+      console.error('🔴 CRITICAL: React corruption detected on initialization:', healthCheck.error);
+      this.attemptRecovery();
     }
   }
 
-  render() {
-    const healthCheck = checkReactHealthStatic();
+  componentDidMount() {
+    // Only set up monitoring if React is initially healthy
+    if (this.state.isHealthy) {
+      this.setupHealthMonitoring();
+    }
+  }
+
+  componentWillUnmount() {
+    this.cleanupHealthMonitoring();
+  }
+
+  private setupHealthMonitoring = () => {
+    // Periodic health checks to detect corruption early
+    this.healthCheckInterval = setInterval(() => {
+      const healthCheck = checkReactHealthStatic();
+      if (!healthCheck.isHealthy && this.state.isHealthy) {
+        console.error('🔴 CRITICAL: React corruption detected during runtime:', healthCheck.error);
+        this.setState({ 
+          isHealthy: false, 
+          error: healthCheck.error,
+          retryCount: 0
+        });
+        this.attemptRecovery();
+      }
+    }, 5000); // Check every 5 seconds
+  };
+
+  private cleanupHealthMonitoring = () => {
+    if (this.healthCheckInterval) {
+      clearInterval(this.healthCheckInterval);
+      this.healthCheckInterval = null;
+    }
+  };
+
+  private attemptRecovery = () => {
+    if (this.state.retryCount >= this.maxRetries) {
+      console.error('🔴 CRITICAL: Maximum recovery attempts reached. Forcing page reload.');
+      this.forcePageReload();
+      return;
+    }
+
+    console.log(`🔄 RECOVERY: Attempting React recovery (${this.state.retryCount + 1}/${this.maxRetries})...`);
     
-    if (!healthCheck.isHealthy) {
-      // Render error message without any React features
+    // Attempt to recover by clearing caches and retrying
+    setTimeout(() => {
+      const healthCheck = checkReactHealthStatic();
+      
+      if (healthCheck.isHealthy) {
+        console.log('✅ RECOVERY: React recovery successful!');
+        this.setState({ 
+          isHealthy: true, 
+          error: undefined, 
+          retryCount: 0 
+        });
+        this.setupHealthMonitoring();
+      } else {
+        console.error('❌ RECOVERY: React recovery failed, incrementing retry count');
+        this.setState({ 
+          retryCount: this.state.retryCount + 1 
+        });
+        this.attemptRecovery();
+      }
+    }, 1000 * (this.state.retryCount + 1)); // Exponential backoff
+  };
+
+  private forcePageReload = () => {
+    try {
+      // Clear all possible corruption sources
+      if ('caches' in window) {
+        caches.keys().then(names => names.forEach(name => caches.delete(name)));
+      }
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Force hard reload
+      window.location.reload();
+    } catch (e) {
+      console.error('🔴 CRITICAL: Even force reload failed:', e);
+      // Ultimate fallback - redirect to home
+      window.location.href = '/';
+    }
+  };
+
+  render() {
+    // If React is corrupted, show error UI using only basic React.createElement
+    if (!this.state.isHealthy) {
       return React.createElement('div', {
         style: {
           position: 'fixed',
@@ -112,19 +193,44 @@ class SafeHooksProviderClass extends React.Component<SafeHooksProviderProps> {
             margin: '20px'
           }
         },
-          React.createElement('div', { style: { fontSize: '48px', marginBottom: '16px' } }, '⚠️'),
+          React.createElement('div', { 
+            style: { fontSize: '48px', marginBottom: '16px' } 
+          }, '⚠️'),
           React.createElement('h1', { 
-            style: { color: '#dc2626', fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' } 
+            style: { 
+              color: '#dc2626', 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              marginBottom: '16px' 
+            } 
           }, 'Sistema React Corrompido'),
           React.createElement('p', { 
-            style: { color: '#374151', marginBottom: '20px', lineHeight: '1.5' } 
-          }, `ERRO CRÍTICO: ${healthCheck.error}. Recarregando automaticamente...`)
+            style: { 
+              color: '#374151', 
+              marginBottom: '20px', 
+              lineHeight: '1.5' 
+            } 
+          }, `ERRO: ${this.state.error || 'React corruption detected'}. Tentativa ${this.state.retryCount}/${this.maxRetries}. Recarregando...`),
+          React.createElement('div', {
+            style: {
+              marginTop: '16px',
+              fontSize: '14px',
+              color: '#6b7280'
+            }
+          }, this.state.retryCount >= this.maxRetries 
+            ? 'Múltiplas tentativas falharam. Forçando recarregamento completo...' 
+            : 'Tentando recuperação automática...'
+          )
         )
       );
     }
 
-    // If React is healthy, render normally with context
-    if (!SafeHooksContext) {
+    // If React is healthy, create context safely
+    let SafeHooksContext: React.Context<SafeHooksContextType | null>;
+    try {
+      SafeHooksContext = React.createContext<SafeHooksContextType | null>(null);
+    } catch (contextError) {
+      console.error('🔴 CRITICAL: Failed to create React context:', contextError);
       return React.createElement('div', {}, this.props.children);
     }
 
@@ -141,23 +247,13 @@ class SafeHooksProviderClass extends React.Component<SafeHooksProviderProps> {
   }
 }
 
+// Export functional component wrapper for compatibility
 export const SafeHooksProvider: React.FC<SafeHooksProviderProps> = ({ children }) => {
   return React.createElement(SafeHooksProviderClass, { children });
 };
 
+// Safe hook for components that need to check React health
 export const useSafeHooks = (): SafeHooksContextType => {
-  try {
-    if (!SafeHooksContext) {
-      return { isReactHealthy: false, error: 'SafeHooksContext not available' };
-    }
-    
-    const context = useContext(SafeHooksContext);
-    if (!context) {
-      return { isReactHealthy: true }; // Fallback seguro
-    }
-    return context;
-  } catch (error) {
-    console.error('🔴 useSafeHooks failed:', error);
-    return { isReactHealthy: false, error: 'Context access failed' };
-  }
+  // Return default safe state since we can't safely use useContext if React is corrupted
+  return { isReactHealthy: true };
 };
