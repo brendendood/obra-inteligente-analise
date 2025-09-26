@@ -42,6 +42,11 @@ export const ProjectLimitBar = ({ currentProjects, plan, extraCredits = 0 }: Pro
           <Gift className="h-3 w-3" />
           Indique e ganhe projetos grátis
         </button>
+        
+        <ReferralModal 
+          isOpen={showReferralModal} 
+          onClose={() => setShowReferralModal(false)} 
+        />
       </div>
     );
   }
