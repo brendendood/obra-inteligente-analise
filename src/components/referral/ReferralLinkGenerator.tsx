@@ -73,7 +73,10 @@ export const ReferralLinkGenerator = () => {
               <span className="text-sm font-medium">Projetos Extras</span>
             </div>
             <div className="text-2xl font-bold text-green-600">
-              {userProfile?.credits || 0}
+              +1
+            </div>
+            <div className="text-xs text-green-500 mt-1">
+              Total: {userProfile?.credits || 0}
             </div>
           </div>
         </div>
@@ -113,7 +116,7 @@ export const ReferralLinkGenerator = () => {
           </h4>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
             <li>• Compartilhe seu link com amigos e colegas</li>
-            <li>• Quando alguém se cadastrar usando seu link, você ganha 1 projeto extra</li>
+            <li>• Quando alguém se cadastrar usando seu link, você ganha +1 projeto extra</li>
             <li>• Os projetos extras são permanentes e não expiram</li>
             <li>• Não há limite para quantas pessoas você pode indicar</li>
           </ul>

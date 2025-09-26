@@ -51,8 +51,7 @@ export function useReferralSystem() {
 
       // Generate referral link
       if (data.ref_code) {
-        const baseUrl = window.location.origin;
-        setReferralLink(`${baseUrl}/cadastro?ref=${data.ref_code}`);
+        setReferralLink(`https://madeai.com.br/${data.ref_code}`);
       }
 
       // Fetch referral count
