@@ -61,7 +61,7 @@ const OptimizedDashboard = memo(({
   // Métricas avançadas baseadas nos projetos
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
   return (
-    <div className="flex flex-col space-y-8 w-full min-w-0 px-6 mx-0 my-2 py-2">
+    <div className="flex flex-col space-y-8 w-full max-w-7xl mx-auto px-6 py-2" style={{ paddingLeft: '23px', paddingRight: '23px' }}>
       {/* Header Mobile com botão de menu */}
       {isMobile && (
         <DashboardMobileHeader 
