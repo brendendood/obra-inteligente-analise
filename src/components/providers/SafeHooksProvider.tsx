@@ -59,10 +59,9 @@ interface SafeHooksProviderProps {
  */
 class SafeHooksProviderClass extends React.Component<
   SafeHooksProviderProps,
-  { isHealthy: boolean; error?: string; retryCount: number }
+  { isHealthy: boolean; error?: string }
 > {
   private healthCheckInterval: NodeJS.Timeout | null = null;
-  private readonly maxRetries = 3;
 
   constructor(props: SafeHooksProviderProps) {
     super(props);
@@ -70,14 +69,16 @@ class SafeHooksProviderClass extends React.Component<
     const healthCheck = checkReactHealthStatic();
     this.state = {
       isHealthy: healthCheck.isHealthy,
-      error: healthCheck.error,
-      retryCount: 0
+      error: healthCheck.error
     };
 
-    // If React is corrupted, attempt immediate recovery
+    // If React is corrupted, force immediate reload
     if (!healthCheck.isHealthy) {
       console.error('🔴 CRITICAL: React corruption detected on initialization:', healthCheck.error);
-      this.attemptRecovery();
+      // Don't attempt recovery for dispatcher corruption - immediate reload
+      if (healthCheck.error?.includes('dispatcher is null')) {
+        this.forcePageReload();
+      }
     }
   }
 
@@ -100,8 +101,7 @@ class SafeHooksProviderClass extends React.Component<
         console.error('🔴 CRITICAL: React corruption detected during runtime:', healthCheck.error);
         this.setState({ 
           isHealthy: false, 
-          error: healthCheck.error,
-          retryCount: 0
+          error: healthCheck.error
         });
         this.attemptRecovery();
       }
@@ -116,34 +116,9 @@ class SafeHooksProviderClass extends React.Component<
   };
 
   private attemptRecovery = () => {
-    if (this.state.retryCount >= this.maxRetries) {
-      console.error('🔴 CRITICAL: Maximum recovery attempts reached. Forcing page reload.');
-      this.forcePageReload();
-      return;
-    }
-
-    console.log(`🔄 RECOVERY: Attempting React recovery (${this.state.retryCount + 1}/${this.maxRetries})...`);
-    
-    // Attempt to recover by clearing caches and retrying
-    setTimeout(() => {
-      const healthCheck = checkReactHealthStatic();
-      
-      if (healthCheck.isHealthy) {
-        console.log('✅ RECOVERY: React recovery successful!');
-        this.setState({ 
-          isHealthy: true, 
-          error: undefined, 
-          retryCount: 0 
-        });
-        this.setupHealthMonitoring();
-      } else {
-        console.error('❌ RECOVERY: React recovery failed, incrementing retry count');
-        this.setState({ 
-          retryCount: this.state.retryCount + 1 
-        });
-        this.attemptRecovery();
-      }
-    }, 1000 * (this.state.retryCount + 1)); // Exponential backoff
+    // When React dispatcher is null, immediate reload is the only solution
+    console.error('🔴 CRITICAL: React dispatcher corruption detected. Forcing immediate page reload.');
+    this.forcePageReload();
   };
 
   private forcePageReload = () => {
@@ -210,16 +185,14 @@ class SafeHooksProviderClass extends React.Component<
               marginBottom: '20px', 
               lineHeight: '1.5' 
             } 
-          }, `ERRO: ${this.state.error || 'React corruption detected'}. Tentativa ${this.state.retryCount}/${this.maxRetries}. Recarregando...`),
+          }, `ERRO: ${this.state.error || 'React corruption detected'}. Forçando recarregamento...`),
           React.createElement('div', {
             style: {
               marginTop: '16px',
               fontSize: '14px',
               color: '#6b7280'
             }
-          }, this.state.retryCount >= this.maxRetries 
-            ? 'Múltiplas tentativas falharam. Forçando recarregamento completo...' 
-            : 'Tentando recuperação automática...'
+          }, 'Recarregando página para resolver corrupção do React...'
           )
         )
       );
