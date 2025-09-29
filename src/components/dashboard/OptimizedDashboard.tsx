@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { EnhancedBreadcrumb } from '@/components/navigation/EnhancedBreadcrumb';
 import { WelcomeSection } from '@/components/dashboard/WelcomeSection';
 import { QuickActions } from '@/components/dashboard/QuickActions';
@@ -9,6 +9,7 @@ import { useProjectDeletion } from '@/hooks/useProjectDeletion';
 import { useAdvancedDashboardMetrics } from '@/hooks/useAdvancedDashboardMetrics';
 import { useDashboardGeolocation } from '@/hooks/useDashboardGeolocation';
 import { DashboardMobileHeader } from '@/components/dashboard/DashboardMobileHeader';
+import { DashboardTabletHeader } from '@/components/dashboard/DashboardTabletHeader';
 import { useIsMobile } from '@/hooks/use-mobile';
 interface OptimizedDashboardProps {
   userName: string;
@@ -30,8 +31,23 @@ const OptimizedDashboard = memo(({
   // Hook para detectar mobile
   const isMobile = useIsMobile();
   
+  // Detectar tablet (telas entre 768px e 1024px)
+  const [isTablet, setIsTablet] = useState(false);
+  
   // Estado para menu mobile
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Detectar tablet na montagem do componente
+  useEffect(() => {
+    const checkTablet = () => {
+      const width = window.innerWidth;
+      setIsTablet(width >= 768 && width <= 1024);
+    };
+    
+    checkTablet();
+    window.addEventListener('resize', checkTablet);
+    return () => window.removeEventListener('resize', checkTablet);
+  }, []);
 
   // Hook para gerenciar exclusão de projetos
   const {
@@ -45,13 +61,18 @@ const OptimizedDashboard = memo(({
   // Métricas avançadas baseadas nos projetos
   const advancedMetrics = useAdvancedDashboardMetrics(projects);
   return (
-    <div className="flex flex-col space-y-8 w-full min-w-0 sm:px-6 px-[28px] lg:px-[9px] mx-0 my-[2px] py-[8px]">
+    <div className="flex flex-col space-y-8 w-full min-w-0 px-6 mx-0 my-2 py-2">
       {/* Header Mobile com botão de menu */}
       {isMobile && (
         <DashboardMobileHeader 
           isMenuOpen={isMobileMenuOpen}
           onToggleMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         />
+      )}
+      
+      {/* Header Tablet */}
+      {isTablet && !isMobile && (
+        <DashboardTabletHeader userName={userName} />
       )}
       
       {/* Breadcrumb Section */}
