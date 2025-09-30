@@ -279,12 +279,6 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
           <div className="absolute bottom-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium uppercase shadow-sm">
             PDF
           </div>
-          {/* Indicador de fallback se necessário */}
-          {usingFallback && (
-            <div className="absolute top-2 left-2 bg-yellow-500 text-white px-1.5 py-0.5 rounded text-xs font-medium">
-              Cache
-            </div>
-          )}
         </div>
       );
     }
