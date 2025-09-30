@@ -48,7 +48,6 @@ import {
   FloatingActionPanelForm,
   FloatingActionPanelTextarea
 } from '@/components/ui/floating-action-panel';
-import { DocumentPreview } from '@/components/projects/DocumentPreview';
 
 interface SimpleProjectCardProps {
   project: Project;
@@ -231,12 +230,6 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
             </div>
           </div>
 
-          {/* Preview do Documento */}
-          {project.file_path && (
-            <div className="mb-3">
-              <DocumentPreview fileName={project.file_path} className="bg-blue-50 border-blue-200" />
-            </div>
-          )}
           {/* Detalhes Expandíveis */}
           {showMobileDetails && (
             <div className="space-y-3 text-sm mb-4 animate-accordion-down">
@@ -420,10 +413,6 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
               </div>
             </div>
             
-            {/* Preview do Documento */}
-            {project.file_path && (
-              <DocumentPreview fileName={project.file_path} className="bg-blue-50 border-blue-200" />
-            )}
             {/* Descrição se houver */}
             {project.description && project.description.trim() !== '' && (
               <div className="space-y-2">
