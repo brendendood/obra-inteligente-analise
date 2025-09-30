@@ -149,7 +149,7 @@ export const HeaderMobileMenu = ({ isOpen, onClose }: HeaderMobileMenuProps) => 
 
   return (
     <>
-      <div className="md:hidden border-t border-slate-200 py-4 animate-fade-in">
+      <div className="lg:hidden border-t border-slate-200 py-4 animate-fade-in">
         <div className="space-y-1">
           {/* Navegação Principal */}
           <div className="mb-4">
