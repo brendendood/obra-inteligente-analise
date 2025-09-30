@@ -90,24 +90,35 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
 
   const generatePDFThumbnail = async (file: Blob): Promise<Blob | null> => {
     try {
-      // Importar PDF.js dinamicamente
+      // Verificar se pdfjs-dist está disponível
+      if (typeof window === 'undefined') {
+        return null;
+      }
+
+      // Importar PDF.js dinamicamente apenas no browser
       const pdfjsLib = await import('pdfjs-dist');
       
-      // Configurar worker
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 
-        '//mozilla.github.io/pdf.js/build/pdf.worker.min.mjs';
+      // Configurar worker com fallback
+      if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 
+          'https://mozilla.github.io/pdf.js/build/pdf.worker.min.mjs';
+      }
 
       // Converter blob para array buffer
       const arrayBuffer = await file.arrayBuffer();
       
       // Carregar PDF
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pdf = await pdfjsLib.getDocument({ 
+        data: arrayBuffer,
+        standardFontDataUrl: undefined
+      }).promise;
       
       // Pegar primeira página
       const page = await pdf.getPage(1);
       
       // Configurar viewport para thumbnail (300px de largura)
-      const viewport = page.getViewport({ scale: 300 / page.getViewport({ scale: 1 }).width });
+      const scale = 1.5;
+      const viewport = page.getViewport({ scale });
       
       // Criar canvas
       const canvas = document.createElement('canvas');
