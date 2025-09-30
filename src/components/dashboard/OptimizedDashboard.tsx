@@ -71,7 +71,7 @@ const OptimizedDashboard = memo(({
       )}
       
       {/* Header Tablet */}
-      {isTablet && !isMobile && (
+      {isTablet && (
         <DashboardTabletHeader userName={userName} />
       )}
       
