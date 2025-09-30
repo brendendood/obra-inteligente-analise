@@ -15,6 +15,7 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   const getFileExtension = (filePath: string) => {
     return filePath.split('.').pop()?.toLowerCase() || '';
@@ -32,19 +33,35 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
       try {
         setIsLoading(true);
         
-        // Verificar se já existe thumbnail no storage
-        const thumbnailPath = `thumbnails/${project.id}.jpg`;
+        // Verificar se já existe thumbnail no storage - primeiro no bucket thumbnails
+        const thumbnailPath = `${project.id}.jpg`;
         
-        // Tentar buscar thumbnail existente primeiro
-        const { data: existingThumbnail, error: downloadError } = await supabase.storage
-          .from('project-files')
-          .download(thumbnailPath);
+        // Tentar buscar thumbnail existente primeiro no bucket dedicado
+        let existingThumbnail = null;
+        let downloadError = null;
+        
+        try {
+          const { data, error } = await supabase.storage
+            .from('thumbnails')
+            .download(thumbnailPath);
+          existingThumbnail = data;
+          downloadError = error;
+        } catch (err) {
+          console.log('Bucket thumbnails não disponível, tentando project-files:', err);
+          // Fallback para bucket project-files
+          const { data, error } = await supabase.storage
+            .from('project-files')
+            .download(`thumbnails/${thumbnailPath}`);
+          existingThumbnail = data;
+          downloadError = error;
+        }
 
         if (existingThumbnail && !downloadError) {
           // Thumbnail já existe, criar URL do blob
           const thumbnailBlob = URL.createObjectURL(existingThumbnail);
           setThumbnailUrl(thumbnailBlob);
           setIsLoading(false);
+          console.log('Thumbnail carregado do storage:', thumbnailPath);
           return;
         }
 
@@ -64,21 +81,42 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
 
         const pdfThumbnail = await generatePDFThumbnail(fileData);
         if (pdfThumbnail) {
-          // Upload thumbnail para storage
-          const { error: uploadError } = await supabase.storage
-            .from('project-files')
-            .upload(thumbnailPath, pdfThumbnail, {
-              contentType: 'image/jpeg',
-              upsert: true
-            });
+          // Criar URL do blob para exibição imediata (sempre funciona)
+          const thumbnailBlob = URL.createObjectURL(pdfThumbnail);
+          setThumbnailUrl(thumbnailBlob);
+          
+          // Tentar upload para storage (não bloquear se falhar)
+          try {
+            // Primeiro tentar bucket dedicado
+            const { error: uploadError } = await supabase.storage
+              .from('thumbnails')
+              .upload(thumbnailPath, pdfThumbnail, {
+                contentType: 'image/jpeg',
+                upsert: true
+              });
 
-          if (!uploadError) {
-            // Criar URL do blob para exibição imediata
-            const thumbnailBlob = URL.createObjectURL(pdfThumbnail);
-            setThumbnailUrl(thumbnailBlob);
-          } else {
-            console.error('Erro ao fazer upload do thumbnail:', uploadError);
-            setError(true);
+            if (uploadError) {
+              console.log('Falha no upload para bucket thumbnails, tentando project-files:', uploadError);
+              // Fallback para bucket project-files
+              const { error: fallbackError } = await supabase.storage
+                .from('project-files')
+                .upload(`thumbnails/${thumbnailPath}`, pdfThumbnail, {
+                  contentType: 'image/jpeg',
+                  upsert: true
+                });
+              
+              if (fallbackError) {
+                console.warn('Upload de thumbnail falhou em ambos buckets:', fallbackError);
+                setUsingFallback(true);
+              } else {
+                console.log('Thumbnail salvo no fallback project-files');
+              }
+            } else {
+              console.log('Thumbnail salvo no bucket thumbnails');
+            }
+          } catch (uploadErr) {
+            console.warn('Erro ao fazer upload do thumbnail (usando fallback em memória):', uploadErr);
+            setUsingFallback(true);
           }
         } else {
           setError(true);
@@ -241,6 +279,12 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
           <div className="absolute bottom-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium uppercase shadow-sm">
             PDF
           </div>
+          {/* Indicador de fallback se necessário */}
+          {usingFallback && (
+            <div className="absolute top-2 left-2 bg-yellow-500 text-white px-1.5 py-0.5 rounded text-xs font-medium">
+              Cache
+            </div>
+          )}
         </div>
       );
     }
