@@ -129,11 +129,62 @@ export const EnhancedProjectsSection = ({
       </CardHeader>
       
       <CardContent className="w-full px-4 sm:px-4 lg:px-6">
-        {/* Lista de projetos - Otimizada para mobile */}
-        <div className="space-y-3 sm:space-y-4">
-          {paginatedProjects.map(project => <SimpleProjectCard key={project.id} project={project} onDeleteProject={onDeleteProject} onProjectUpdate={updatedProject => {
-          updateProject(updatedProject.id, updatedProject);
-        }} />)}
+        {/* Grid de projetos com visual cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {paginatedProjects.map(project => (
+            <div key={project.id} className="relative group">
+              <div className="rounded-2xl bg-white/90 dark:bg-zinc-900/80 shadow-sm ring-1 ring-black/5 dark:ring-white/5 p-3 hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+                   onClick={() => navigate(`/project/${project.id}`)}>
+                
+                {/* Área do preview */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                  <div className="absolute inset-0 p-2">
+                    <div className="h-full w-full rounded-xl overflow-hidden shadow-sm bg-gradient-to-br from-blue-50 to-blue-100 dark:from-zinc-700 dark:to-zinc-800 flex items-center justify-center">
+                      <div className="text-center p-4">
+                        <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+                          <FolderOpen className="h-6 w-6 text-white" />
+                        </div>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400 font-medium">
+                          {project.file_path?.split('.').pop()?.toUpperCase() || 'PROJETO'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rodapé: ícone + título + menu */}
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-600 text-white">
+                    <FolderOpen className="h-4 w-4" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                      {project.name}
+                    </p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {project.city && project.state ? `${project.city}, ${project.state}` : 'Localização não definida'}
+                    </p>
+                  </div>
+                  
+                  {/* Menu de ações - só ícone */}
+                  <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" 
+                       onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Implementar menu de contexto aqui
+                      }}
+                    >
+                      <Filter className="h-4 w-4 text-zinc-500" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         
         {/* Paginação */}
