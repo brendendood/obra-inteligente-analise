@@ -72,7 +72,7 @@ export const AppLayout = memo<AppLayoutProps>(({ children, hideFooter }) => {
   // Memoize layout classes to prevent recalculation
   const layoutClasses = useMemo(() => ({
     container: "min-h-screen flex flex-col w-full bg-gray-50",
-    main: "flex-1 flex flex-col min-h-screen transition-none pr-2",
+    main: "flex-1 flex flex-col min-h-screen transition-none",
     content: cn(
       "flex-1",
       isAIPage ? "overflow-hidden" : "overflow-auto"
