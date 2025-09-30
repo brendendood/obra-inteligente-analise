@@ -249,13 +249,17 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
   if (fileExtension === 'pdf') {
     if (isLoading) {
       return (
-        <div className={`flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg ${className} min-h-[120px] relative border border-blue-100`}>
-          <div className="animate-pulse flex flex-col items-center">
-            <div className="w-12 h-16 bg-blue-200 rounded-sm mb-2 animate-bounce"></div>
-            <div className="text-xs text-blue-600 font-medium">Carregando preview...</div>
-            <div className="text-xs text-blue-500 mt-1">Gerando thumbnail do PDF</div>
+        <div className={`flex flex-col items-center justify-center bg-white rounded-lg ${className} min-h-[120px] relative border border-gray-100 shadow-sm`}>
+          {/* Animação minimalista de 3 pontos */}
+          <div className="flex space-x-1 mb-3">
+            <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '0ms', animationDuration: '1.5s' }}></div>
+            <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '150ms', animationDuration: '1.5s' }}></div>
+            <div className="w-2 h-2 bg-gray-300 rounded-full animate-pulse" style={{ animationDelay: '300ms', animationDuration: '1.5s' }}></div>
           </div>
-          <div className="absolute bottom-2 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium uppercase">
+          {/* Texto minimalista */}
+          <div className="text-xs text-gray-400 font-medium">Gerando preview</div>
+          {/* Badge discreto */}
+          <div className="absolute bottom-2 right-2 bg-gray-50 text-gray-400 px-2 py-1 rounded text-xs font-medium uppercase">
             PDF
           </div>
         </div>
