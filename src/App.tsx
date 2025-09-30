@@ -14,8 +14,6 @@ import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ReactHealthCheck } from "@/components/error/ReactHealthCheck";
-import { SafeHooksProvider } from "@/components/providers/SafeHooksProvider";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -166,27 +164,24 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const queryClient = useMemo(() => createQueryClient(), []);
   
   return (
-    <SafeHooksProvider>
-      <AuthProvider>
-        <ImpersonationProvider>
-          <QueryClientProvider client={queryClient}>
-            <ProjectProvider>
-              <TooltipProvider delayDuration={200}>
-                {children}
-              </TooltipProvider>
-            </ProjectProvider>
-          </QueryClientProvider>
-        </ImpersonationProvider>
-      </AuthProvider>
-    </SafeHooksProvider>
+    <AuthProvider>
+      <ImpersonationProvider>
+        <QueryClientProvider client={queryClient}>
+          <ProjectProvider>
+            <TooltipProvider delayDuration={200}>
+              {children}
+            </TooltipProvider>
+          </ProjectProvider>
+        </QueryClientProvider>
+      </ImpersonationProvider>
+    </AuthProvider>
   );
 };
 
 const App = () => {
   return (
     <CriticalErrorBoundary>
-      <ReactHealthCheck>
-        <AppProviders>
+      <AppProviders>
           <BrowserRouter>
             <Suspense fallback={<UnifiedLoading />}>
               <Routes>
@@ -351,7 +346,6 @@ const App = () => {
             <SafeToasters />
           </BrowserRouter>
         </AppProviders>
-      </ReactHealthCheck>
     </CriticalErrorBoundary>
   );
 };
