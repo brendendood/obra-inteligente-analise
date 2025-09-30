@@ -114,10 +114,10 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
       // Importar PDF.js dinamicamente apenas no browser
       const pdfjsLib = await import('pdfjs-dist');
       
-      // Configurar worker com URL absoluta
+      // Configurar worker com URL absoluta da versão correta
       if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
         pdfjsLib.GlobalWorkerOptions.workerSrc = 
-          'https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
+          'https://unpkg.com/pdfjs-dist@5.4.149/build/pdf.worker.min.mjs';
       }
 
       // Converter blob para array buffer
