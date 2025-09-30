@@ -149,7 +149,7 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
   };
 
   const renderIcon = () => {
-    const iconClass = `h-12 w-12 ${className}`;
+    const iconClass = `h-8 w-8 ${className}`;
     
     switch (fileExtension) {
       case 'pdf':
@@ -168,35 +168,61 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
     }
   };
 
-  if (isLoading && fileExtension === 'pdf') {
+  // Para arquivos PDF, sempre tentar mostrar thumbnail
+  if (fileExtension === 'pdf') {
+    if (isLoading) {
+      return (
+        <div className={`flex flex-col items-center justify-center bg-gray-100 rounded-lg ${className} min-h-[120px] relative`}>
+          <div className="animate-pulse flex flex-col items-center">
+            <FileText className="h-8 w-8 text-gray-400 mb-2" />
+            <div className="text-xs text-gray-500">Gerando preview...</div>
+          </div>
+          <div className="absolute bottom-2 right-2 bg-white/90 px-1.5 py-0.5 rounded text-xs font-medium text-gray-600 uppercase">
+            PDF
+          </div>
+        </div>
+      );
+    }
+
+    if (thumbnailUrl && !error) {
+      return (
+        <div className={`overflow-hidden rounded-lg ${className} relative`}>
+          <img
+            src={thumbnailUrl}
+            alt={`Preview do projeto ${project.name}`}
+            className="w-full h-full object-cover"
+            onError={() => setError(true)}
+          />
+          <div className="absolute bottom-2 right-2 bg-black/70 px-1.5 py-0.5 rounded text-xs font-medium text-white uppercase">
+            PDF
+          </div>
+        </div>
+      );
+    }
+
+    // Se houve erro ou não conseguiu gerar thumbnail, mostrar ícone PDF mais elaborado
     return (
-      <div className={`flex items-center justify-center bg-gray-100 rounded-lg ${className}`}>
-        <div className="animate-pulse">
-          <FileText className="h-12 w-12 text-gray-400" />
+      <div className={`flex flex-col items-center justify-center bg-red-50 rounded-lg ${className} min-h-[120px] relative border-2 border-dashed border-red-200`}>
+        <FileText className="h-12 w-12 text-red-500 mb-2" />
+        <div className="text-xs text-red-600 font-medium">PDF</div>
+        <div className="text-xs text-gray-500 mt-1 text-center px-2">
+          Preview não disponível
+        </div>
+        <div className="absolute bottom-2 right-2 bg-red-100 px-1.5 py-0.5 rounded text-xs font-medium text-red-600 uppercase">
+          PDF
         </div>
       </div>
     );
   }
 
-  // Para arquivos PDF com thumbnail gerado
-  if (thumbnailUrl && fileExtension === 'pdf' && !error) {
-    return (
-      <div className={`overflow-hidden rounded-lg ${className}`}>
-        <img
-          src={thumbnailUrl}
-          alt={`Thumbnail do projeto ${project.name}`}
-          className="w-full h-full object-cover"
-          onError={() => setError(true)}
-        />
-      </div>
-    );
-  }
-
-  // Para todos os outros casos ou quando há erro, mostrar ícone
+  // Para todos os outros arquivos, mostrar ícone apropriado
   return (
-    <div className={`flex items-center justify-center bg-gray-50 rounded-lg ${className}`}>
+    <div className={`flex flex-col items-center justify-center bg-gray-50 rounded-lg ${className} min-h-[120px] relative`}>
       {renderIcon()}
-      <div className="absolute bottom-1 right-1 bg-white/90 px-1.5 py-0.5 rounded text-xs font-medium text-gray-600 uppercase">
+      <div className="text-xs text-gray-600 font-medium mt-2 uppercase">
+        {fileExtension}
+      </div>
+      <div className="absolute bottom-2 right-2 bg-white/90 px-1.5 py-0.5 rounded text-xs font-medium text-gray-600 uppercase">
         {fileExtension}
       </div>
     </div>
