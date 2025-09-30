@@ -48,6 +48,7 @@ import {
   FloatingActionPanelForm,
   FloatingActionPanelTextarea
 } from '@/components/ui/floating-action-panel';
+import { ProjectThumbnail } from '@/components/ui/project-thumbnail';
 
 interface SimpleProjectCardProps {
   project: Project;
@@ -189,6 +190,14 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
     return (
       <Card className="group hover:shadow-lg transition-all duration-300 border-gray-200 hover:border-blue-300 w-full">
         <CardContent className="p-6 sm:p-4">
+          {/* Thumbnail Mobile */}
+          <div className="mb-4">
+            <ProjectThumbnail 
+              project={project} 
+              className="w-full h-32 relative"
+            />
+          </div>
+          
           {/* Cabeçalho Mobile: Nome + Status */}
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -372,10 +381,18 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
           </div>
         </div>
 
-        {/* Layout Desktop: Duas Colunas */}
+        {/* Layout Desktop: Três Colunas */}
         <div className="grid grid-cols-12 gap-6 mb-4">
-          {/* Coluna Esquerda: Nome + Descrição (60%) */}
-          <div className="col-span-7 space-y-3">
+          {/* Coluna Esquerda: Thumbnail (25%) */}
+          <div className="col-span-3">
+            <ProjectThumbnail 
+              project={project} 
+              className="w-full h-32 relative"
+            />
+          </div>
+          
+          {/* Coluna Centro: Nome + Descrição (40%) */}
+          <div className="col-span-5 space-y-3">
             <div className="pr-16">
               <div className="flex items-center gap-2">
                 <h3 className="text-xl font-semibold text-gray-900 line-clamp-2 leading-tight flex-1">
@@ -444,8 +461,8 @@ export const SimpleProjectCard = ({ project, onDeleteProject, onProjectUpdate }:
             )}
           </div>
 
-          {/* Coluna Direita: Detalhes Técnicos em Grid 2x2 (40%) */}
-          <div className="col-span-5">
+          {/* Coluna Direita: Detalhes Técnicos em Grid 2x2 (35%) */}
+          <div className="col-span-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               {/* Tipo de projeto */}
               {formatProjectType(project.project_type) ? (
