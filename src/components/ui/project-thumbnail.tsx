@@ -202,13 +202,13 @@ export const ProjectThumbnail = ({ project, className = "" }: ProjectThumbnailPr
 
     // Se houve erro ou não conseguiu gerar thumbnail, mostrar ícone PDF mais elaborado
     return (
-      <div className={`flex flex-col items-center justify-center bg-red-50 rounded-lg ${className} min-h-[120px] relative border-2 border-dashed border-red-200`}>
-        <FileText className="h-12 w-12 text-red-500 mb-2" />
-        <div className="text-xs text-red-600 font-medium">PDF</div>
-        <div className="text-xs text-gray-500 mt-1 text-center px-2">
+      <div className={`flex flex-col items-center justify-center bg-gray-50 rounded-lg ${className} min-h-[120px] relative border-2 border-dashed border-gray-200`}>
+        <FileText className="h-12 w-12 text-gray-400 mb-2" />
+        <div className="text-xs text-gray-500 font-medium">PDF</div>
+        <div className="text-xs text-gray-400 mt-1 text-center px-2">
           Preview não disponível
         </div>
-        <div className="absolute bottom-2 right-2 bg-red-100 px-1.5 py-0.5 rounded text-xs font-medium text-red-600 uppercase">
+        <div className="absolute bottom-2 right-2 bg-gray-100 px-1.5 py-0.5 rounded text-xs font-medium text-gray-500 uppercase">
           PDF
         </div>
       </div>
