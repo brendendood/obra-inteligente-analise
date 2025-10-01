@@ -30,18 +30,8 @@ const SelectPlan = () => {
 
   const userName = getUserName();
 
-  const handleTrialSelect = async (plan: string) => {
-    try {
-      const planKey = plan.toLowerCase() as 'basic' | 'pro' | 'enterprise';
-      await createTrialCheckout(planKey);
-    } catch (error) {
-      console.error('Error creating trial checkout:', error);
-      toast({
-        title: 'Erro ao iniciar trial',
-        description: 'Tente novamente mais tarde',
-        variant: 'destructive',
-      });
-    }
+  const handleTrialSelect = (trialHref: string) => {
+    window.open(trialHref, '_blank');
   };
 
   const plans = [
@@ -60,6 +50,7 @@ const SelectPlan = () => {
       buttonText: "Assinar Mensal",
       href: "https://buy.stripe.com/cNi7sL4mE0JUatVf9N2B200",
       yearlyHref: "https://buy.stripe.com/3cI6oH4mEcsCatVgdR2B201",
+      trialHref: "https://buy.stripe.com/00w28raL2eAK1Xpe5J2B206",
       isPopular: false
     },
     {
@@ -80,6 +71,7 @@ const SelectPlan = () => {
       buttonText: "Assinar Mensal",
       href: "https://buy.stripe.com/3cIdR93iAcsC7hJ7Hl2B202",
       yearlyHref: "https://buy.stripe.com/3cI5kD06oeAK7hJ6Dh2B203",
+      trialHref: "https://buy.stripe.com/aFa7sL06ogIS59B7Hl2B207",
       isPopular: true
     },
     {
@@ -99,6 +91,7 @@ const SelectPlan = () => {
       buttonText: "Assinar Mensal",
       href: "https://buy.stripe.com/aFa8wPdXeeAK31t4v92B204",
       yearlyHref: "https://buy.stripe.com/aFa3cv06ogIS8lN0eT2B205",
+      trialHref: "https://buy.stripe.com/9B6cN506o8cm6dF8Lp2B208",
       isPopular: false
     }
   ];
@@ -143,7 +136,12 @@ const SelectPlan = () => {
               title="Escolha seu plano"
               description="Teste grátis por 7 dias com cartão — cancele quando quiser!"
               showTrialButton={true}
-              onTrialSelect={handleTrialSelect}
+              onTrialSelect={async (plan) => {
+                const selectedPlan = plans.find(p => p.name === plan);
+                if (selectedPlan?.trialHref) {
+                  handleTrialSelect(selectedPlan.trialHref);
+                }
+              }}
             />
           </section>
         </motion.div>
