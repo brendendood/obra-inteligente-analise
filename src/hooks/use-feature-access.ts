@@ -15,8 +15,12 @@ export function useFeatureAccess() {
   const { plan, loading, error, refetch } = useUserPlan();
 
   const hasAccess = useMemo(() => {
-    return (featureId: string) => canAccessFeature(plan?.plan_tier, featureId);
-  }, [plan?.plan_tier]);
+    return (featureId: string) => {
+      // Debug log para rastrear acesso
+      console.log(`[useFeatureAccess] Checking "${featureId}" - Plan:`, plan);
+      return canAccessFeature(plan?.plan_tier, featureId);
+    };
+  }, [plan?.plan_tier, plan]);
 
   const getAiUsage = async () => {
     const period = currentPeriodYM();
@@ -31,8 +35,9 @@ export function useFeatureAccess() {
       .eq("period_ym", period)
       .maybeSingle();
 
-    const tier = plan?.plan_tier ?? "BASIC";
-    const limit = AI_LIMITS[tier];
+    // CRÍTICO: Não usar fallback para plano, usar o plano real ou FREE
+    const tier = plan?.plan_tier ?? "FREE";
+    const limit = AI_LIMITS[tier] ?? 50; // Limite mínimo se não definido
     const count = data?.count ?? 0;
     const numericLimit = limit === "unlimited" ? Infinity : limit;
     const remaining = Math.max(0, numericLimit - count);

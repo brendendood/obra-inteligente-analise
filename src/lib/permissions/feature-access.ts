@@ -1,7 +1,7 @@
-import type { PlanTier } from "@/lib/supabase/client";
+import type { PlanTier } from "@/lib/supabase/admin";
 
-/** Ordem de poder do plano */
-const POWER: PlanTier[] = ["BASIC", "PRO", "ENTERPRISE"];
+/** Ordem de poder do plano (do menor para o maior) */
+const POWER: PlanTier[] = ["FREE", "BASIC", "PRO", "ENTERPRISE"];
 const indexOf = (t?: PlanTier) => (t ? POWER.indexOf(t) : -1);
 const atLeast = (cur?: PlanTier, req?: PlanTier) => indexOf(cur) >= indexOf(req);
 
@@ -21,12 +21,22 @@ export const FEATURE_MIN_TIER: Record<string, PlanTier> = {
 };
 
 export function canAccessFeature(plan: PlanTier | undefined, featureId: string): boolean {
+  // CRÍTICO: Sem plano = Sem acesso
+  if (!plan) {
+    console.warn(`[ACCESS DENIED] Feature "${featureId}" blocked - No plan defined`);
+    return false;
+  }
+  
   const req = FEATURE_MIN_TIER[featureId] ?? "BASIC";
-  return atLeast(plan, req);
+  const hasAccess = atLeast(plan, req);
+  
+  console.log(`[ACCESS CHECK] Feature "${featureId}" - Plan: ${plan}, Required: ${req}, Access: ${hasAccess}`);
+  return hasAccess;
 }
 
 /** Limites de mensagens de IA por plano */
 export const AI_LIMITS: Partial<Record<PlanTier, number | "unlimited">> = {
+  FREE: 50,
   BASIC: 300,
   PRO: 800,
   ENTERPRISE: 1500,

@@ -14,7 +14,7 @@ export const supabaseAdmin = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-export type PlanTier = "SOLO" | "STUDIO" | "ENTERPRISE";
+export type PlanTier = "FREE" | "BASIC" | "PRO" | "ENTERPRISE";
 export type BillingCycle = "mensal" | "anual";
 
 export interface UserPlanRow {
