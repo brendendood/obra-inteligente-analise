@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { UserPageLayout } from '@/components/layout/UserPageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle, Loader2 } from 'lucide-react';
+import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useStripeSubscription } from '@/hooks/useStripeSubscription';
 import { getPlanDisplayName, getPlanLimit, getPlanPrice, getPlanFeatures, getPlanUsagePercentage, shouldShowUpgradeWarning, canUpgrade, formatPlanPrice, isMaxPlan } from '@/utils/planUtils';
 import { PlanBadge } from '@/components/ui/PlanBadge';
 import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
@@ -20,7 +20,27 @@ const Plan = () => {
   const {
     toast
   } = useToast();
+  const { status, currentPlan, checkSubscription, createCheckout, openCustomerPortal } = useStripeSubscription();
   const [upgrading, setUpgrading] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      toast({
+        title: "✅ Pagamento confirmado!",
+        description: "Sua assinatura foi ativada com sucesso.",
+      });
+      checkSubscription();
+      window.history.replaceState({}, '', '/plano');
+    } else if (urlParams.get('canceled') === 'true') {
+      toast({
+        title: "❌ Pagamento cancelado",
+        description: "Você pode tentar novamente quando quiser.",
+        variant: "destructive",
+      });
+      window.history.replaceState({}, '', '/plano');
+    }
+  }, []);
   const handleUpgrade = async (targetPlan: 'basic' | 'pro' | 'enterprise') => {
     setUpgrading(true);
     try {
@@ -29,14 +49,7 @@ const Plan = () => {
         description: `Preparando upgrade para ${getPlanDisplayName(targetPlan)}`
       });
 
-      // Simular redirecionamento para checkout
-      setTimeout(() => {
-        toast({
-          title: "✅ Upgrade realizado com sucesso!",
-          description: `Bem-vindo ao plano ${getPlanDisplayName(targetPlan)}!`
-        });
-        refetch();
-      }, 2000);
+      await createCheckout(targetPlan);
     } catch (error) {
       toast({
         title: "❌ Erro no upgrade",
@@ -54,13 +67,7 @@ const Plan = () => {
         description: "Redirecionando para gerenciar sua assinatura"
       });
 
-      // Simular abertura do portal
-      setTimeout(() => {
-        toast({
-          title: "🎯 Portal aberto!",
-          description: "Você pode gerenciar sua assinatura no portal."
-        });
-      }, 1000);
+      await openCustomerPortal();
     } catch (error) {
       toast({
         title: "❌ Erro ao abrir portal",
@@ -81,8 +88,22 @@ const Plan = () => {
       <div className="space-y-6 px-[22px]">
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Plano e Pagamentos</h1>
-          <p className="text-slate-600">Gerencie sua assinatura e explore recursos premium</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Plano e Pagamentos</h1>
+              <p className="text-slate-600">Gerencie sua assinatura e explore recursos premium</p>
+            </div>
+            <Button
+              onClick={checkSubscription}
+              disabled={status.loading}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className={`h-4 w-4 ${status.loading ? 'animate-spin' : ''}`} />
+              Atualizar Status
+            </Button>
+          </div>
         </div>
 
         {/* Status Atual */}
@@ -98,11 +119,17 @@ const Plan = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Plano Atual</span>
-                  <PlanBadge planCode={userData.plan} />
+                  <PlanBadge planCode={currentPlan || userData.plan} />
                 </div>
                 <p className="text-2xl font-bold text-slate-900">
-                  {formatPlanPrice(userData.plan)}
+                  {formatPlanPrice(currentPlan || userData.plan)}
                 </p>
+                {status.subscribed && (
+                  <div className="flex items-center gap-1 text-green-600 text-xs">
+                    <Check className="h-3 w-3" />
+                    Assinatura ativa via Stripe
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -124,7 +151,11 @@ const Plan = () => {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-slate-500" />
                   <span className="text-sm text-slate-700">
-                    {userData.subscription?.current_period_end ? new Date(userData.subscription.current_period_end).toLocaleDateString('pt-BR') : 'Sem renovação automática'}
+                    {status.subscription_end 
+                      ? new Date(status.subscription_end).toLocaleDateString('pt-BR')
+                      : userData.subscription?.current_period_end 
+                      ? new Date(userData.subscription.current_period_end).toLocaleDateString('pt-BR')
+                      : 'Sem renovação automática'}
                   </span>
                 </div>
               </div>
@@ -136,7 +167,7 @@ const Plan = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Plano Basic */}
-          <Card className={`${userData.plan === 'basic' ? 'border-green-500 bg-green-50/50' : 'border-green-200 bg-green-50/20'}`}>
+          <Card className={`${currentPlan === 'basic' || userData.plan === 'basic' ? 'border-green-500 bg-green-50/50' : 'border-green-200 bg-green-50/20'}`}>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
@@ -160,7 +191,7 @@ const Plan = () => {
                       {feature}
                     </li>)}
                 </ul>
-                {userData.plan === 'basic' ? <Button onClick={handleManageSubscription} className="w-full bg-green-600 hover:bg-green-700">
+                {(currentPlan === 'basic' || userData.plan === 'basic') ? <Button onClick={handleManageSubscription} className="w-full bg-green-600 hover:bg-green-700">
                     <Crown className="h-4 w-4 mr-2" />
                     Gerenciar Plano
                   </Button> : <Button onClick={() => handleUpgrade('basic')} disabled={upgrading} className="w-full bg-green-600 hover:bg-green-700">
@@ -177,7 +208,7 @@ const Plan = () => {
           </Card>
 
           {/* Plano Pro */}
-          <Card className={`${userData.plan === 'pro' ? 'border-indigo-500 bg-indigo-50/50' : 'border-indigo-200 bg-indigo-50/20'} relative`}>
+          <Card className={`${currentPlan === 'pro' || userData.plan === 'pro' ? 'border-indigo-500 bg-indigo-50/50' : 'border-indigo-200 bg-indigo-50/20'} relative`}>
             <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <Badge className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
                 Mais Popular
@@ -206,7 +237,7 @@ const Plan = () => {
                       {feature}
                     </li>)}
                 </ul>
-                {userData.plan === 'pro' ? <Button onClick={handleManageSubscription} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
+                {(currentPlan === 'pro' || userData.plan === 'pro') ? <Button onClick={handleManageSubscription} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
                     <Crown className="h-4 w-4 mr-2" />
                     Gerenciar Plano
                   </Button> : <Button onClick={() => handleUpgrade('pro')} disabled={upgrading} className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600">
@@ -223,7 +254,7 @@ const Plan = () => {
           </Card>
 
           {/* Plano Enterprise */}
-          <Card className={`${userData.plan === 'enterprise' ? 'border-purple-500 bg-purple-50/50' : 'border-purple-200 bg-purple-50/20'}`}>
+          <Card className={`${currentPlan === 'enterprise' || userData.plan === 'enterprise' ? 'border-purple-500 bg-purple-50/50' : 'border-purple-200 bg-purple-50/20'}`}>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center gap-2">
@@ -247,7 +278,7 @@ const Plan = () => {
                       {feature}
                     </li>)}
                 </ul>
-                {userData.plan === 'enterprise' ? <Button onClick={handleManageSubscription} className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
+                {(currentPlan === 'enterprise' || userData.plan === 'enterprise') ? <Button onClick={handleManageSubscription} className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
                     <Crown className="h-4 w-4 mr-2" />
                     Gerenciar Plano
                   </Button> : <Button onClick={() => handleUpgrade('enterprise')} disabled={upgrading} className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
