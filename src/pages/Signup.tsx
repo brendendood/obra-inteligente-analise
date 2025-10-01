@@ -8,6 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { SignUpPage, type Testimonial } from '@/components/ui/sign-up';
 import { passo1Schema, passo2Schema, passo3Schema } from '@/schemas/cadastro';
+import loginBackground from '@/assets/login-background.jpeg';
+import testimonialMateus from '@/assets/testimonial-mateus.jpeg';
+import testimonialAna from '@/assets/testimonial-ana.jpeg';
 
 type SignupStep = 1 | 2 | 3;
 
@@ -253,22 +256,16 @@ function Signup() {
 
   const testimonials: Testimonial[] = [
     {
-      avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-      name: "Ana Souza",
-      handle: "@ana.dev",
-      text: "O cadastro foi super rápido e fácil, já comecei a usar a plataforma na mesma hora."
+      avatarSrc: testimonialMateus,
+      name: "Mateus Rossi",
+      handle: "@matrssx",
+      text: "A MadenAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
     },
     {
-      avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-      name: "Carlos Lima",
-      handle: "@carlos.tech",
-      text: "Adorei a experiência de cadastro em passos. Simples e intuitivo!"
-    },
-    {
-      avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-      name: "Bruno Ferreira",
-      handle: "@bruno.design",
-      text: "Nunca vi um signup tão bonito e funcional como o da MadeAI."
+      avatarSrc: testimonialAna,
+      name: "Ana Viletti",
+      handle: "@ana.vilt",
+      text: "Incrível como a plataforma organiza cronogramas e documentos. A IA sugere otimizações que eu nunca pensaria sozinha. Indispensável para arquitetos!"
     },
   ];
 
@@ -285,9 +282,9 @@ function Signup() {
         Voltar
       </Button>
       <SignUpPage
-        title={<span className="font-light tracking-tighter">Crie sua conta MadeAI</span>}
-        description="Comece agora sua jornada com a MadeAI em apenas 3 passos."
-        heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
+        title={<span className="font-light tracking-tighter">Crie sua conta MadenAI</span>}
+        description="Comece agora sua jornada com a MadenAI em apenas 3 passos."
+        heroImageSrc={loginBackground}
         testimonials={testimonials}
         onSubmitStep={handleStepSubmit}
         onGoogleSignUp={signInWithGoogle}
