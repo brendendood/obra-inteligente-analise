@@ -24,8 +24,9 @@ const SelectPlan = () => {
         "Suporte padrão"
       ],
       description: "Ideal para profissionais autônomos que querem economizar tempo e aumentar a precisão dos orçamentos.",
-      buttonText: "Assinar Basic",
-      href: "https://buy.stripe.com/basic_monthly_link", // Substitua pelo link real
+      buttonText: "Assinar Mensal",
+      href: "https://buy.stripe.com/BASIC_MONTHLY_LINK",
+      yearlyHref: "https://buy.stripe.com/BASIC_YEARLY_LINK",
       isPopular: false
     },
     {
@@ -43,8 +44,9 @@ const SelectPlan = () => {
         "Suporte prioritário"
       ],
       description: "Perfeito para escritórios que querem mais recursos e análises avançadas.",
-      buttonText: "Assinar Pro",
-      href: "https://buy.stripe.com/pro_monthly_link", // Substitua pelo link real
+      buttonText: "Assinar Mensal",
+      href: "https://buy.stripe.com/PRO_MONTHLY_LINK",
+      yearlyHref: "https://buy.stripe.com/PRO_YEARLY_LINK",
       isPopular: true
     },
     {

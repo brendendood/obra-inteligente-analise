@@ -403,8 +403,9 @@ const LandingPage = () => {
           "Suporte padrão"
         ],
         description: "Ideal para profissionais autônomos que querem economizar tempo e aumentar a precisão dos orçamentos.",
-        buttonText: "Teste Grátis",
-        href: "/cadastro",
+        buttonText: "Assinar Mensal",
+        href: "https://buy.stripe.com/BASIC_MONTHLY_LINK",
+        yearlyHref: "https://buy.stripe.com/BASIC_YEARLY_LINK",
         isPopular: false
       }, {
         name: "PRO",
@@ -421,8 +422,9 @@ const LandingPage = () => {
           "Suporte prioritário"
         ],
         description: "Perfeito para escritórios que querem mais recursos e análises avançadas.",
-        buttonText: "Começar Pro",
-        href: "/cadastro",
+        buttonText: "Assinar Mensal",
+        href: "https://buy.stripe.com/PRO_MONTHLY_LINK",
+        yearlyHref: "https://buy.stripe.com/PRO_YEARLY_LINK",
         isPopular: true
       }, {
         name: "ENTERPRISE",

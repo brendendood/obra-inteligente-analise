@@ -18,6 +18,7 @@ interface PricingPlan {
   description: string;
   buttonText: string;
   href: string;
+  yearlyHref?: string;
   isPopular: boolean;
 }
 interface PricingProps {
@@ -134,12 +135,12 @@ export function Pricing({
 
               {plan.href.startsWith('http') ? (
                 <a
-                  href={plan.href}
+                  href={isMonthly ? plan.href : (plan.yearlyHref || plan.href)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(buttonVariants({
                     variant: "outline"
-                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter", "transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:bg-primary hover:text-primary-foreground", plan.isPopular ? "bg-primary text-primary-foreground" : "bg-background text-foreground")}
+                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}
                 >
                   {plan.name === "ENTERPRISE" 
                     ? plan.buttonText 
@@ -148,10 +149,8 @@ export function Pricing({
               ) : (
                 <Link to={plan.href} className={cn(buttonVariants({
                   variant: "outline"
-                }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter", "transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:bg-primary hover:text-primary-foreground", plan.isPopular ? "bg-primary text-primary-foreground" : "bg-background text-foreground")}>
-                  {plan.name === "ENTERPRISE" 
-                    ? plan.buttonText 
-                    : isMonthly ? "Assinar Mensal" : "Assinar Anual"}
+                }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1", plan.name === "ENTERPRISE" ? "bg-secondary text-secondary-foreground hover:bg-secondary/90" : "bg-primary text-primary-foreground hover:bg-primary/90")}>
+                  {plan.buttonText}
                 </Link>
               )}
               <p className="mt-6 text-xs leading-5 text-muted-foreground">
