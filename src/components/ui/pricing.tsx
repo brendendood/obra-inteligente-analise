@@ -142,14 +142,12 @@ export function Pricing({
                     variant: "outline"
                   }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}
                 >
-                  {plan.name === "ENTERPRISE" 
-                    ? plan.buttonText 
-                    : isMonthly ? "Assinar Mensal" : "Assinar Anual"}
+                  {isMonthly ? "Assinar Mensal" : "Assinar Anual"}
                 </a>
               ) : (
                 <Link to={plan.href} className={cn(buttonVariants({
                   variant: "outline"
-                }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1", plan.name === "ENTERPRISE" ? "bg-secondary text-secondary-foreground hover:bg-secondary/90" : "bg-primary text-primary-foreground hover:bg-primary/90")}>
+                }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}>
                   {plan.buttonText}
                 </Link>
               )}

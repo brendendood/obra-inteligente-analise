@@ -25,8 +25,8 @@ const SelectPlan = () => {
       ],
       description: "Ideal para profissionais autônomos que querem economizar tempo e aumentar a precisão dos orçamentos.",
       buttonText: "Assinar Mensal",
-      href: "https://buy.stripe.com/BASIC_MONTHLY_LINK",
-      yearlyHref: "https://buy.stripe.com/BASIC_YEARLY_LINK",
+      href: "https://buy.stripe.com/cNi7sL4mE0JUatVf9N2B200",
+      yearlyHref: "https://buy.stripe.com/3cI6oH4mEcsCatVgdR2B201",
       isPopular: false
     },
     {
@@ -45,8 +45,8 @@ const SelectPlan = () => {
       ],
       description: "Perfeito para escritórios que querem mais recursos e análises avançadas.",
       buttonText: "Assinar Mensal",
-      href: "https://buy.stripe.com/PRO_MONTHLY_LINK",
-      yearlyHref: "https://buy.stripe.com/PRO_YEARLY_LINK",
+      href: "https://buy.stripe.com/3cIdR93iAcsC7hJ7Hl2B202",
+      yearlyHref: "https://buy.stripe.com/3cI5kD06oeAK7hJ6Dh2B203",
       isPopular: true
     },
     {
@@ -63,8 +63,9 @@ const SelectPlan = () => {
         "Suporte dedicado com gerente de conta"
       ],
       description: "Para construtoras e empresas que precisam de volumes altos e integrações personalizadas.",
-      buttonText: "Falar com Vendas",
-      href: "/contato",
+      buttonText: "Assinar Mensal",
+      href: "https://buy.stripe.com/aFa8wPdXeeAK31t4v92B204",
+      yearlyHref: "https://buy.stripe.com/aFa3cv06ogIS8lN0eT2B205",
       isPopular: false
     }
   ];
