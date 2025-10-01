@@ -90,40 +90,30 @@ class CriticalErrorBoundary extends React.Component<
   }
 
   static getDerivedStateFromError(error: Error) {
-    console.error('🔴 CRITICAL ERROR BOUNDARY:', error.message);
+    console.error('🔴 ERROR BOUNDARY CAUGHT:', error.message);
     
-    // Detect critical React errors (incl. useRef null from broken libs)
+    // Detect ONLY truly critical React hook errors
     const msg = error?.message || '';
-    const isCritical = msg.includes('useState') || 
-                      msg.includes('Invalid hook call') ||
-                      msg.includes('multiple copies of React') ||
-                      msg.includes("reading 'useRef'") ||
-                      msg.includes('useRef') ||
-                      msg.includes('useContext') ||
-                      msg.includes('Cannot read properties of null');
+    const isCritical = 
+      msg.includes('Invalid hook call') ||
+      msg.includes('multiple copies of React') ||
+      (msg.includes('Cannot read properties of null') && 
+       (msg.includes('useState') || msg.includes('useEffect') || msg.includes('useContext')));
     
     return { hasError: true, error, isCritical };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('🔴 ERROR BOUNDARY DETAILS:', {
+    console.error('🔴 ERROR DETAILS:', {
       error: error.message,
       stack: error.stack,
-      componentStack: errorInfo.componentStack
+      componentStack: errorInfo.componentStack,
+      isCritical: this.state.isCritical
     });
 
-    // For critical React errors, force reload after showing message
+    // Log critical errors but let user decide to reload via UI button
     if (this.state.isCritical) {
-      console.error('🔴 CRITICAL REACT ERROR DETECTED - FORCING RELOAD');
-      setTimeout(() => {
-        // Clear all caches
-        if ('caches' in window) {
-          caches.keys().then(names => {
-            names.forEach(name => caches.delete(name));
-          });
-        }
-        window.location.reload();
-      }, 3000);
+      console.error('⚠️ CRITICAL REACT ERROR - User can reload via UI');
     }
 
     this.setState({ errorInfo });
