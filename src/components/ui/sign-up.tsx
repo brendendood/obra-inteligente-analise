@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // --- TYPE DEFINITIONS ---
@@ -450,16 +450,39 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
 
                   <div className="animate-element animate-delay-400">
                     <div className="flex items-start gap-3">
-                      <input
-                        type="checkbox"
-                        id="acceptTerms"
-                        name="acceptTerms"
-                        checked={localFormData.acceptTerms || false}
-                        onChange={handleChange}
-                        className="mt-1 w-4 h-4 text-primary bg-transparent border-2 border-border rounded focus:ring-primary focus:ring-2 cursor-pointer"
-                        required
-                      />
-                      <label htmlFor="acceptTerms" className="text-sm text-muted-foreground cursor-pointer">
+                      <div 
+                        onClick={() => {
+                          const event = {
+                            target: {
+                              name: 'acceptTerms',
+                              type: 'checkbox',
+                              checked: !localFormData.acceptTerms
+                            }
+                          } as any;
+                          handleChange(event);
+                        }}
+                        className="mt-1 w-4 h-4 flex items-center justify-center border-2 border-border rounded cursor-pointer transition-all hover:border-primary focus:ring-primary focus:ring-2"
+                        style={{
+                          backgroundColor: localFormData.acceptTerms ? 'hsl(var(--primary))' : 'transparent'
+                        }}
+                      >
+                        {localFormData.acceptTerms && (
+                          <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                        )}
+                      </div>
+                      <label 
+                        onClick={() => {
+                          const event = {
+                            target: {
+                              name: 'acceptTerms',
+                              type: 'checkbox',
+                              checked: !localFormData.acceptTerms
+                            }
+                          } as any;
+                          handleChange(event);
+                        }}
+                        className="text-sm text-muted-foreground cursor-pointer"
+                      >
                         Li e aceito os{' '}
                         <Link 
                           to="/terms" 
