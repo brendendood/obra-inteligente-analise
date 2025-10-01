@@ -7,6 +7,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
+import logoDark from '@/assets/logo-dark.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +27,7 @@ const Header = () => {
         <div className="absolute left-6 top-2 w-10 h-10">
           {/* Dark mode image */}
           <img 
-            src="/lovable-uploads/33f8fff7-3935-48f9-9e17-262b4bf237a9.png" 
+            src={logoDark} 
             alt="Decorative element dark" 
             className={`absolute left-0 top-0 w-10 h-10 object-contain transition-opacity duration-500 ease-in-out ${
               theme === 'dark' ? 'opacity-100' : 'opacity-0'
