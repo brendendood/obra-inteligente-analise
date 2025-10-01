@@ -116,7 +116,7 @@ export function Pricing({
               }} willChange className="font-variant-numeric: tabular-nums" />
                 </span>
                 {plan.period !== "Próximos 3 meses" && <span className="text-sm font-semibold leading-6 tracking-wide text-muted-foreground">
-                    / {plan.period}
+                    / {isMonthly ? "mês" : "ano"}
                   </span>}
               </div>
 
