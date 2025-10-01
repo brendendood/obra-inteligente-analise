@@ -1,8 +1,6 @@
-"use client";
-
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 interface LogoProps {
   className?: string;
   width?: number;
@@ -13,16 +11,27 @@ export function Logo({
   width = 120,
   height = 40
 }: LogoProps) {
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  
+  useEffect(() => {
+    setMounted(true);
+    console.log('🎨 Logo mounted with theme:', theme);
+  }, []);
+
+  useEffect(() => {
+    console.log('🎨 Logo theme changed to:', theme);
+  }, [theme]);
+  
   if (!mounted) {
     return <div className={cn("animate-pulse bg-muted rounded", className)} style={{
       width,
       height
     }} />;
   }
-  return;
+  
+  // Placeholder - você pode adicionar a implementação real do logo aqui
+  return <div className={cn("font-bold", className)} style={{ width, height }}>
+    MadenAI
+  </div>;
 }

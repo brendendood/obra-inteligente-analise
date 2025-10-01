@@ -3,15 +3,14 @@ import { useState, useEffect } from 'react';
 export type Theme = 'light' | 'dark';
 
 export const useTheme = () => {
-  const [theme, setTheme] = useState<Theme>('light');
-
-  useEffect(() => {
-    // Recuperar tema salvo ou usar 'light' como padrão
+  // Inicialização síncrona do tema para evitar flash
+  const getInitialTheme = (): Theme => {
+    if (typeof window === 'undefined') return 'light';
     const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      setTheme(savedTheme);
-    }
-  }, []);
+    return (savedTheme === 'light' || savedTheme === 'dark') ? savedTheme : 'light';
+  };
+
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
     const root = document.documentElement;
