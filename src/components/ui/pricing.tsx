@@ -135,7 +135,9 @@ export function Pricing({
               <Link to={plan.href} className={cn(buttonVariants({
             variant: "outline"
           }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter", "transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:bg-primary hover:text-primary-foreground", plan.isPopular ? "bg-primary text-primary-foreground" : "bg-background text-foreground")}>
-                {plan.buttonText}
+                {plan.name === "ENTERPRISE" 
+                  ? plan.buttonText 
+                  : isMonthly ? "Assinar Mensal" : "Assinar Anual"}
               </Link>
               <p className="mt-6 text-xs leading-5 text-muted-foreground">
                 {plan.description}
