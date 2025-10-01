@@ -26,7 +26,6 @@ import Redirect from "./pages/Redirect";
 import AuthCallback from "./pages/AuthCallback";
 import EmailSucesso from "./pages/EmailSucesso";
 import OnboardingFlow from "./pages/OnboardingFlow";
-import Quiz from "./pages/Quiz";
 import SelectPlan from "./pages/SelectPlan";
 
 // Lazy loaded pages with intelligent preloading
@@ -44,7 +43,6 @@ const AdminUserCRMView = lazy(() => import("./pages/AdminUserCRMView"));
 const CRMPage = lazy(() => import("./pages/CRMPage"));
 const AdminCRMPage = lazy(() => import("./pages/AdminCRMPage"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const PricingBlocked = lazy(() => import("./pages/PricingBlocked"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminVerification = lazy(() => import("./pages/AdminVerification"));
 
@@ -182,16 +180,14 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
                 <Route path="/signup" element={<Navigate to="/cadastro" replace />} />
-                <Route path="/quiz" element={<Quiz />} />
                 <Route path="/selecionar-plano" element={<SelectPlan />} />
                 <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
                 <Route path="/v/*" element={<Redirect />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/email/sucesso" element={<EmailSucesso />} />
                 <Route path="/confirm-email" element={<ConfirmEmail />} />
-                 <Route path="/onboarding" element={<OnboardingFlow />} />
-                 <Route path="/pricing-blocked" element={<LazyWrapper><PricingBlocked /></LazyWrapper>} />
-                 <Route path="/cadastro/confirmado" element={<ConfirmEmail />} />
+                <Route path="/onboarding" element={<OnboardingFlow />} />
+                <Route path="/cadastro/confirmado" element={<ConfirmEmail />} />
                 <Route path="/cadastro/token-invalido" element={<ConfirmEmail />} />
                 <Route path="/termos" element={<LazyWrapper><Terms /></LazyWrapper>} />
                 <Route path="/terms" element={<LazyWrapper><Terms /></LazyWrapper>} />

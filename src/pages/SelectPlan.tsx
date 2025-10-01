@@ -3,7 +3,7 @@ import { Pricing } from "@/components/ui/pricing";
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { useUserData } from '@/hooks/useUserData';
-import { Sparkles, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -98,22 +98,21 @@ const SelectPlan = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center max-w-4xl mx-auto mb-12"
         >
-          <div className="flex justify-center mb-6">
-            <div className="bg-primary/10 p-4 rounded-full">
-              <Sparkles className="w-12 h-12 text-primary" />
-            </div>
-          </div>
+          <div className="text-6xl mb-6">🚀</div>
           
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Bem-vindo, {userName}!
+            Olá, {userName}!
           </h1>
           
-          <div className="text-lg text-muted-foreground space-y-2">
+          <div className="text-lg text-muted-foreground space-y-2 mb-8">
             <p>
-              Agora que te conhecemos melhor, escolha o plano ideal para você.
+              Seu cadastro <span className="font-medium text-foreground">({user?.email})</span> foi concluído com sucesso.
+            </p>
+            <p>
+              Agora escolha um dos planos abaixo para liberar acesso total à MadeAI.
             </p>
             <p className="text-base">
-              Comece hoje mesmo e transforme a forma como você gerencia projetos.
+              Sem taxas escondidas, sem surpresas — apenas os planos transparentes que você já viu na nossa página inicial.
             </p>
           </div>
         </motion.div>

@@ -70,7 +70,7 @@ const OnboardingFlow: React.FC = () => {
 
   // Se completou o quiz mas não selecionou plano
   if (quizCompleted && !planSelected) {
-    return <Navigate to="/pricing-blocked" replace />;
+    return <Navigate to="/selecionar-plano" replace />;
   }
 
   return <PageConstructionLoading />;

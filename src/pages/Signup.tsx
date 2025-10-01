@@ -235,14 +235,14 @@ function Signup() {
         duration: 8000
       });
 
-      // Show success message and redirect to quiz
+      // Show success message and redirect to onboarding
       setTimeout(() => {
         toast({
           title: "✨ Cadastro concluído!",
           description: "Agora responda algumas perguntas para conhecermos você melhor.",
           duration: 6000
         });
-        navigate('/quiz');
+        navigate('/onboarding');
       }, 4000);
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
