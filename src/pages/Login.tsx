@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import loginBackground from '@/assets/login-background.jpeg';
 
 const testimonials: Testimonial[] = [
   {
@@ -364,7 +365,7 @@ export default function Login() {
       <SignInPage
         title={<span className="font-light tracking-tighter">Bem-vindo</span>}
         description="Acesse sua conta para continuar sua jornada com a MadeAI."
-        heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
+        heroImageSrc={loginBackground}
         testimonials={testimonials}
         onSignIn={handleSubmit}
         onGoogleSignIn={signInWithGoogle}
