@@ -28,13 +28,13 @@ const Header = () => {
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
       <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
         {/* Decorative image in left corner - responsive to theme */}
-        <div className="absolute left-6 top-2 w-10 h-10">
+        <div className="absolute left-6 top-2 w-16 h-16">
           {/* Dark mode image */}
           <img 
             key={`logo-dark-${theme}`}
             src={logoDark} 
             alt="Decorative element dark" 
-            className={`absolute left-0 top-0 w-10 h-10 object-contain transition-opacity duration-500 ease-in-out ${
+            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out ${
               theme === 'dark' ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => console.log('✅ Dark logo loaded')}
@@ -45,7 +45,7 @@ const Header = () => {
             key={`logo-light-${theme}`}
             src="/lovable-uploads/7941e5b3-cadc-4cba-ad71-21d8d88f9e7e.png" 
             alt="Decorative element light" 
-            className={`absolute left-0 top-0 w-10 h-10 object-contain transition-opacity duration-500 ease-in-out ${
+            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out ${
               theme === 'light' ? 'opacity-100' : 'opacity-0'
             }`}
             onLoad={() => console.log('✅ Light logo loaded')}
