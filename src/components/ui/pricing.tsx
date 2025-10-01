@@ -25,11 +25,15 @@ interface PricingProps {
   plans: PricingPlan[];
   title?: string;
   description?: string;
+  onPlanSelect?: (plan: PricingPlan, isMonthly: boolean) => void;
+  loading?: boolean;
 }
 export function Pricing({
   plans,
   title = "Simple, Transparent Pricing",
-  description = "Choose the plan that works for you\nAll plans include access to our platform, lead generation tools, and dedicated support."
+  description = "Choose the plan that works for you\nAll plans include access to our platform, lead generation tools, and dedicated support.",
+  onPlanSelect,
+  loading = false
 }: PricingProps) {
   const [isMonthly, setIsMonthly] = useState(true);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -133,7 +137,17 @@ export function Pricing({
 
               <hr className="w-full my-4" />
 
-              {plan.href.startsWith('http') ? (
+              {onPlanSelect ? (
+                <button
+                  onClick={() => onPlanSelect(plan, isMonthly)}
+                  disabled={loading}
+                  className={cn(buttonVariants({
+                    variant: "outline"
+                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}
+                >
+                  {loading ? 'Processando...' : (isMonthly ? "Assinar Mensal" : "Assinar Anual")}
+                </button>
+              ) : plan.href.startsWith('http') ? (
                 <a
                   href={isMonthly ? plan.href : (plan.yearlyHref || plan.href)}
                   target="_blank"
