@@ -8,17 +8,12 @@ import { useToast } from '@/hooks/use-toast';
 
 const SelectPlan = () => {
   const { user } = useAuth();
-  const { userData, loading: userDataLoading } = useUserData();
+  const { userData, loading } = useUserData();
   const { createTrialCheckout } = useStripeSubscription();
   const { toast } = useToast();
 
   // Buscar o nome do usuário com múltiplos fallbacks
   const getUserName = () => {
-    // Se ainda está carregando, mostrar indicador
-    if (userDataLoading) {
-      return '...';
-    }
-    
     // 1. Tentar pegar do perfil
     if (userData?.profile?.full_name) {
       return userData.profile.full_name;
@@ -26,9 +21,7 @@ const SelectPlan = () => {
     
     // 2. Tentar pegar do email (parte antes do @)
     if (user?.email) {
-      const emailName = user.email.split('@')[0];
-      // Capitalizar primeira letra
-      return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      return user.email.split('@')[0];
     }
     
     // 3. Fallback padrão
@@ -126,15 +119,9 @@ const SelectPlan = () => {
           </h1>
           
           <div className="text-lg text-muted-foreground space-y-2 mb-8">
-            {user?.email ? (
-              <p>
-                Seu cadastro <span className="font-medium text-foreground">({user.email})</span> foi concluído com sucesso.
-              </p>
-            ) : (
-              <p>
-                Bem-vindo à MadeAI!
-              </p>
-            )}
+            <p>
+              Seu cadastro <span className="font-medium text-foreground">({user?.email})</span> foi concluído com sucesso.
+            </p>
             <p>
               Agora escolha um dos planos abaixo para liberar acesso total à MadeAI.
             </p>

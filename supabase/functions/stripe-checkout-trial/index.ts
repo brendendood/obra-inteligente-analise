@@ -18,19 +18,14 @@ serve(async (req) => {
   );
 
   try {
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get("Authorization")!;
+    const token = authHeader.replace("Bearer ", "");
+    const { data } = await supabaseClient.auth.getUser(token);
+    const user = data.user;
     
-    let userEmail = null;
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data, error } = await supabaseClient.auth.getUser(token);
-      if (!error && data.user?.email) {
-        userEmail = data.user.email;
-      }
+    if (!user?.email) {
+      throw new Error("User not authenticated or email not available");
     }
-    
-    // If no authenticated user, proceed with guest checkout
-    console.log("User email:", userEmail || "Guest checkout");
 
     const { priceId } = await req.json();
     
@@ -42,23 +37,23 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Check if customer exists (only if user is authenticated)
+    // Check if customer exists
+    const customers = await stripe.customers.list({ 
+      email: user.email, 
+      limit: 1 
+    });
+    
     let customerId;
-    if (userEmail) {
-      const customers = await stripe.customers.list({ 
-        email: userEmail, 
-        limit: 1 
-      });
-      
-      if (customers.data.length > 0) {
-        customerId = customers.data[0].id;
-      }
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
     }
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
     // Create checkout session with 7 day trial
-    const sessionConfig: any = {
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      customer_email: customerId ? undefined : user.email,
       line_items: [
         {
           price: priceId,
@@ -69,20 +64,9 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: 7,
       },
-      success_url: `${origin}/dashboard`,
-      cancel_url: `${origin}/selecionar-plano`,
-    };
-    
-    // Add customer info if available
-    if (customerId) {
-      sessionConfig.customer = customerId;
-    } else if (userEmail) {
-      sessionConfig.customer_email = userEmail;
-    }
-    // If neither, Stripe will collect email in checkout form
-    
-    console.log("Creating checkout session with config:", JSON.stringify(sessionConfig));
-    const session = await stripe.checkout.sessions.create(sessionConfig);
+      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/select-plan`,
+    });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
