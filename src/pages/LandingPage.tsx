@@ -396,7 +396,16 @@ const LandingPage = () => {
         price: "29.90",
         yearlyPrice: "23.92",
         period: "mês",
-        features: ["Análise Geral (normas ABNT)", "Uso individual", "Até 5 projetos", "500 mensagens de IA/mês", "Cronograma, orçamento e documentos básicos", "Exportação simples", "1 automação via webhook", "Suporte em até 48h"],
+        features: [
+          "Análise Geral (normas ABNT)", 
+          "Uso individual", 
+          "Até 5 projetos", 
+          "300 mensagens de IA/mês", 
+          "Cronograma, orçamento e documentos básicos", 
+          "Exportação simples", 
+          "1 automação via webhook", 
+          "Suporte em até 48h"
+        ],
         description: "Ideal para profissionais autônomos que querem economizar tempo e aumentar a precisão dos orçamentos.",
         buttonText: "Teste Grátis",
         href: "/cadastro",
@@ -406,7 +415,17 @@ const LandingPage = () => {
         price: "79.90",
         yearlyPrice: "63.92",
         period: "mês",
-        features: ["Análise Geral (normas ABNT)", "Colaboração com até 3 usuários inclusos", "Até 25 projetos", "2.000 mensagens de IA/mês", "Cronograma, orçamento e documentos avançados", "Permissões por papel", "Até 5 automações integradas", "Exportações avançadas", "Suporte prioritário (<24h)"],
+        features: [
+          "Análise Geral (normas ABNT)", 
+          "Colaboração com até 3 usuários inclusos", 
+          "Até 10 projetos", 
+          "800 mensagens de IA/mês", 
+          "Cronograma, orçamento e documentos avançados", 
+          "Permissões por papel", 
+          "Até 5 automações integradas", 
+          "Exportações avançadas", 
+          "Suporte prioritário (<24h)"
+        ],
         description: "Perfeito para escritórios que querem colaboração em equipe e análises mais avançadas.",
         buttonText: "Começar Pro",
         href: "/cadastro",
@@ -416,10 +435,24 @@ const LandingPage = () => {
         price: "199.90",
         yearlyPrice: "159.92",
         period: "mês",
-        features: ["Análise Geral (normas ABNT)", "Até 10 usuários inclusos", "Projetos ilimitados", "Mensagens de IA ilimitadas", "50 GB de anexos", "SSO (Single Sign-On)", "Auditoria completa", "Integração nativa com Sienge/ERP", "Auditoria técnica completa", "SLA 99,9%", "Gerente de conta dedicado", "Contrato customizado", "Onboarding e treinamento"],
+        features: [
+          "Análise Geral (normas ABNT)", 
+          "Até 10 usuários inclusos", 
+          "50 projetos", 
+          "1.500 mensagens de IA/mês", 
+          "50 GB de anexos", 
+          "SSO (Single Sign-On)", 
+          "Auditoria completa", 
+          "Integração nativa com Sienge/ERP", 
+          "Auditoria técnica completa", 
+          "SLA 99,9%", 
+          "Gerente de conta dedicado", 
+          "Contrato customizado", 
+          "Onboarding e treinamento"
+        ],
         description: "Para construtoras e empresas que precisam de volumes altos, integrações e suporte dedicado.",
         buttonText: "Agendar Demo",
-        href: "/contact",
+        href: "/contato",
         isPopular: false
       }]} title="Preços transparentes. Sem surpresas." description="Comece grátis hoje. Aumente de plano quando precisar de mais recursos. Cancele quando quiser, sem taxa ou burocracia." />
       </section>

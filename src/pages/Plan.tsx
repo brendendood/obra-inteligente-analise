@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTriangle, Loader2, RefreshCw } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +24,7 @@ const Plan = () => {
   } = useToast();
   const { status, currentPlan, checkSubscription, createCheckout, openCustomerPortal } = useStripeSubscription();
   const [upgrading, setUpgrading] = useState(false);
+  const [isYearly, setIsYearly] = useState(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -44,12 +47,13 @@ const Plan = () => {
   const handleUpgrade = async (targetPlan: 'basic' | 'pro' | 'enterprise') => {
     setUpgrading(true);
     try {
+      const billingType = isYearly ? 'anual' : 'mensal';
       toast({
         title: "🚀 Redirecionando para checkout...",
-        description: `Preparando upgrade para ${getPlanDisplayName(targetPlan)}`
+        description: `Preparando upgrade para ${getPlanDisplayName(targetPlan)} (cobrança ${billingType})`
       });
 
-      await createCheckout(targetPlan);
+      await createCheckout(targetPlan, isYearly);
     } catch (error) {
       toast({
         title: "❌ Erro no upgrade",
@@ -59,6 +63,15 @@ const Plan = () => {
     } finally {
       setUpgrading(false);
     }
+  };
+  
+  const getPlanPriceDisplay = (plan: 'basic' | 'pro' | 'enterprise') => {
+    const prices = {
+      basic: { monthly: 'R$ 29,90', yearly: 'R$ 287,00' },
+      pro: { monthly: 'R$ 79,90', yearly: 'R$ 767,00' },
+      enterprise: { monthly: 'R$ 199,90', yearly: 'R$ 1.919,00' }
+    };
+    return isYearly ? prices[plan].yearly : prices[plan].monthly;
   };
   const handleManageSubscription = async () => {
     try {
@@ -103,6 +116,21 @@ const Plan = () => {
               <RefreshCw className={`h-4 w-4 ${status.loading ? 'animate-spin' : ''}`} />
               Atualizar Status
             </Button>
+          </div>
+          
+          {/* Toggle Mensal/Anual */}
+          <div className="flex justify-center mt-6">
+            <div className="flex items-center gap-3 bg-white rounded-lg px-4 py-2 border border-blue-200">
+              <span className={`text-sm font-medium ${!isYearly ? 'text-blue-600' : 'text-slate-500'}`}>
+                Mensal
+              </span>
+              <Label>
+                <Switch checked={isYearly} onCheckedChange={setIsYearly} />
+              </Label>
+              <span className={`text-sm font-medium ${isYearly ? 'text-blue-600' : 'text-slate-500'}`}>
+                Anual <span className="text-green-600">(Economize 20%)</span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -182,8 +210,13 @@ const Plan = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-bold text-green-600">
-                  {formatPlanPrice('basic')}
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-green-600">
+                    {getPlanPriceDisplay('basic')}
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {isYearly ? 'cobrança anual' : 'por mês'}
+                  </p>
                 </div>
                 <ul className="space-y-2">
                   {getPlanFeatures('basic').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
@@ -228,8 +261,13 @@ const Plan = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-bold text-indigo-600">
-                  {formatPlanPrice('pro')}
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-indigo-600">
+                    {getPlanPriceDisplay('pro')}
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {isYearly ? 'cobrança anual' : 'por mês'}
+                  </p>
                 </div>
                 <ul className="space-y-2">
                   {getPlanFeatures('pro').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
@@ -269,8 +307,13 @@ const Plan = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="text-3xl font-bold text-purple-600">
-                  {formatPlanPrice('enterprise')}
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-purple-600">
+                    {getPlanPriceDisplay('enterprise')}
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    {isYearly ? 'cobrança anual' : 'por mês'}
+                  </p>
                 </div>
                 <ul className="space-y-2">
                   {getPlanFeatures('enterprise').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">

@@ -10,15 +10,18 @@ export interface SubscriptionStatus {
 
 const PLAN_MAPPING = {
   basic: {
-    price_id: 'price_1SDN8fDEqBbry6TZAN7xmxJC',
+    monthly_price_id: 'price_1SDN8fDEqBbry6TZAN7xmxJC',
+    yearly_price_id: 'price_1SDNrnDEqBbry6TZmyd7LEMV',
     product_id: 'prod_T9gVntY2x6gnIE',
   },
   pro: {
-    price_id: 'price_1SDN8xDEqBbry6TZx69L8X4E',
+    monthly_price_id: 'price_1SDN8xDEqBbry6TZx69L8X4E',
+    yearly_price_id: 'price_1SDNwNDEqBbry6TZyUKfeTfb',
     product_id: 'prod_T9gVdwQyOMqXJf',
   },
   enterprise: {
-    price_id: 'price_1SDN9IDEqBbry6TZWwyynoUf',
+    monthly_price_id: 'price_1SDN9IDEqBbry6TZWwyynoUf',
+    yearly_price_id: 'price_1SDNweDEqBbry6TZcUqjwORi',
     product_id: 'prod_T9gWDhyOO3PIbk',
   },
 } as const;
@@ -56,9 +59,11 @@ export const useStripeSubscription = () => {
     }
   };
 
-  const createCheckout = async (plan: 'basic' | 'pro' | 'enterprise') => {
+  const createCheckout = async (plan: 'basic' | 'pro' | 'enterprise', isYearly: boolean = false) => {
     try {
-      const priceId = PLAN_MAPPING[plan].price_id;
+      const priceId = isYearly 
+        ? PLAN_MAPPING[plan].yearly_price_id 
+        : PLAN_MAPPING[plan].monthly_price_id;
       
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId },
