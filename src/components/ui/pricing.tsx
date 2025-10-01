@@ -56,8 +56,8 @@ export function Pricing({
       });
     }
   };
-  return <div className="container py-[69px]">
-      <div className="text-center space-y-4 mb-12">
+  return <div className="w-full py-[69px] px-4">
+      <div className="text-center space-y-4 mb-12 max-w-4xl mx-auto">
         <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
           {title}
         </h2>
@@ -77,7 +77,7 @@ export function Pricing({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 px-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 px-0 max-w-7xl mx-auto">
         {plans.map((plan, index) => <motion.div key={index} initial={{
         y: 50,
         opacity: 1
