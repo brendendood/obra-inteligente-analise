@@ -22,19 +22,17 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     displayName: 'Basic',
     price: 29.90,
     projectLimit: 5,
-    messageLimit: 150,
+    messageLimit: 300,
     userLimit: 1,
     icon: '📋',
     color: '#059669',
     badgeStyle: 'bg-green-600 text-white border-green-600',
     features: [
-      'Análise Geral de projetos (normas ABNT)',
-      'Uso individual (1 usuário)',
-      'Até 5 projetos ativos (fixo, não renovável)',
-      '150 mensagens de IA/mês',
-      'Cronograma e orçamento básicos',
-      'Visualização de documentos',
-      '1 automação via webhook',
+      '300 mensagens de IA/mês',
+      'Até 5 projetos ativos',
+      'Orçamento (sem exportação)',
+      'Cronograma (sem exportação)',
+      'IA geral (/ia)',
       'Suporte em até 48h'
     ]
   },
@@ -42,21 +40,20 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'pro',
     displayName: 'Pro',
     price: 79.90,
-    projectLimit: 20,
-    messageLimit: 400,
+    projectLimit: 10,
+    messageLimit: 800,
     userLimit: 3,
     icon: '⭐',
     color: '#2563EB',
     badgeStyle: 'bg-blue-600 text-white border-blue-600',
     features: [
       'Tudo do Basic +',
-      'Até 3 usuários inclusos',
-      'Até 20 projetos ativos (fixo, não renovável)',
-      '400 mensagens de IA/mês',
-      'Cronograma, orçamento e documentos avançados',
-      'Controle de permissões por papel (admin e colaborador)',
-      'Até 5 automações integradas (Zapier, n8n etc.)',
-      'Exportações avançadas (cronogramas detalhados, relatórios completos)',
+      '800 mensagens de IA/mês',
+      'Até 10 projetos ativos',
+      'Orçamento (com exportação do documento)',
+      'Cronograma (com exportação do documento)',
+      'Assistente IA específica do projeto',
+      'Documentos de análise técnica (com exportação)',
       'Suporte prioritário (<24h)'
     ]
   },
@@ -64,24 +61,20 @@ export const PLANS: Record<PlanType, PlanInfo> = {
     name: 'enterprise',
     displayName: 'Enterprise',
     price: 199.90,
-    projectLimit: -1, // ilimitado
-    messageLimit: 1000,
+    projectLimit: 50,
+    messageLimit: 1500,
     userLimit: 10,
     icon: '👑',
     color: '#8B5CF6',
     badgeStyle: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-600',
     features: [
       'Tudo do Pro +',
-      'Até 10 usuários inclusos',
-      'Projetos ilimitados',
-      '1.000 mensagens de IA/mês',
-      '50 GB para anexos de projetos',
-      'Auditoria técnica e relatórios completos',
-      'Histórico completo de projetos e exportações avançadas',
+      '1.500 mensagens de IA/mês',
+      'Até 50 projetos ativos',
+      'CRM (com exportação da planilha em Excel)',
+      'Integrações externas via API (em desenvolvimento)',
       'Suporte dedicado com gerente de conta',
-      'Onboarding e treinamento personalizados',
-      'Contrato customizado para empresas',
-      'Integrações avançadas com ERPs (em breve)'
+      'Onboarding e treinamento personalizados'
     ]
   }
 };
@@ -112,9 +105,6 @@ export const getPlanPrice = (plan: string | PlanType): number => {
 
 export const getPlanLimit = (plan: string | PlanType, extraCredits: number = 0): number => {
   const planInfo = getPlanInfo(plan);
-  if (plan === 'enterprise') {
-    return 999999; // Ilimitado para enterprise
-  }
   // Retorna o limite total (base + projetos extras)
   return planInfo.projectLimit + extraCredits;
 };
