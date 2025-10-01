@@ -28,7 +28,7 @@ const Header = () => {
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
       <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
         {/* Decorative image in left corner - responsive to theme */}
-        <div className="absolute left-6 top-2 w-16 h-16">
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-16 h-16">
           {/* Dark mode image */}
           <img 
             key={`logo-dark-${theme}`}
