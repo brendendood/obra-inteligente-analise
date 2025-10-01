@@ -19,7 +19,6 @@ interface PricingPlan {
   buttonText: string;
   href: string;
   yearlyHref?: string;
-  trialHref?: string;
   isPopular: boolean;
 }
 interface PricingProps {
@@ -29,7 +28,7 @@ interface PricingProps {
   onPlanSelect?: (plan: PricingPlan, isMonthly: boolean) => void;
   loading?: boolean;
   showTrialButton?: boolean;
-  onTrialSelect?: (planName: string) => void;
+  onTrialSelect?: (planName: string) => Promise<void>;
 }
 export function Pricing({
   plans,
@@ -154,17 +153,22 @@ export function Pricing({
                     {loading ? 'Processando...' : (isMonthly ? "Assinar Mensal" : "Assinar Anual")}
                   </button>
                   
-                  {showTrialButton && plan.trialHref && (
-                    <a
-                      href={plan.trialHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {showTrialButton && onTrialSelect && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await onTrialSelect(plan.name);
+                        } catch (error) {
+                          console.error('Error starting trial:', error);
+                        }
+                      }}
+                      disabled={loading}
                       className={cn(buttonVariants({
                         variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2")}
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
                     >
                       Teste Grátis (7 dias)
-                    </a>
+                    </button>
                   )}
                 </>
               ) : plan.href.startsWith('http') ? (
@@ -180,17 +184,22 @@ export function Pricing({
                     {isMonthly ? "Assinar Mensal" : "Assinar Anual"}
                   </a>
                   
-                  {showTrialButton && plan.trialHref && (
-                    <a
-                      href={plan.trialHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {showTrialButton && onTrialSelect && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await onTrialSelect(plan.name);
+                        } catch (error) {
+                          console.error('Error starting trial:', error);
+                        }
+                      }}
+                      disabled={loading}
                       className={cn(buttonVariants({
                         variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2")}
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
                     >
                       Teste Grátis (7 dias)
-                    </a>
+                    </button>
                   )}
                 </>
               ) : (
@@ -201,17 +210,22 @@ export function Pricing({
                     {plan.buttonText}
                   </Link>
                   
-                  {showTrialButton && plan.trialHref && (
-                    <a
-                      href={plan.trialHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {showTrialButton && onTrialSelect && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await onTrialSelect(plan.name);
+                        } catch (error) {
+                          console.error('Error starting trial:', error);
+                        }
+                      }}
+                      disabled={loading}
                       className={cn(buttonVariants({
                         variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2")}
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
                     >
                       Teste Grátis (7 dias)
-                    </a>
+                    </button>
                   )}
                 </>
               )}

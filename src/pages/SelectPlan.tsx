@@ -60,7 +60,6 @@ const SelectPlan = () => {
       buttonText: "Assinar Mensal",
       href: "https://buy.stripe.com/cNi7sL4mE0JUatVf9N2B200",
       yearlyHref: "https://buy.stripe.com/3cI6oH4mEcsCatVgdR2B201",
-      trialHref: "https://buy.stripe.com/test_trial_basic",
       isPopular: false
     },
     {
@@ -81,7 +80,6 @@ const SelectPlan = () => {
       buttonText: "Assinar Mensal",
       href: "https://buy.stripe.com/3cIdR93iAcsC7hJ7Hl2B202",
       yearlyHref: "https://buy.stripe.com/3cI5kD06oeAK7hJ6Dh2B203",
-      trialHref: "https://buy.stripe.com/test_trial_pro",
       isPopular: true
     },
     {
@@ -101,7 +99,6 @@ const SelectPlan = () => {
       buttonText: "Assinar Mensal",
       href: "https://buy.stripe.com/aFa8wPdXeeAK31t4v92B204",
       yearlyHref: "https://buy.stripe.com/aFa3cv06ogIS8lN0eT2B205",
-      trialHref: "https://buy.stripe.com/test_trial_enterprise",
       isPopular: false
     }
   ];
