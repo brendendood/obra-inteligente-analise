@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          account_status: Database["public"]["Enums"]["account_status"]
+          account_type: Database["public"]["Enums"]["account_type"]
+          created_at: string | null
+          deactivated_at: string | null
+          id: string
+          plan_name: string | null
+          plan_price_id: string | null
+          plan_renews_at: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"]
+          account_type?: Database["public"]["Enums"]["account_type"]
+          created_at?: string | null
+          deactivated_at?: string | null
+          id?: string
+          plan_name?: string | null
+          plan_price_id?: string | null
+          plan_renews_at?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_status?: Database["public"]["Enums"]["account_status"]
+          account_type?: Database["public"]["Enums"]["account_type"]
+          created_at?: string | null
+          deactivated_at?: string | null
+          id?: string
+          plan_name?: string | null
+          plan_price_id?: string | null
+          plan_renews_at?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           action_count_required: number | null
@@ -2533,6 +2578,8 @@ export type Database = {
       }
     }
     Enums: {
+      account_status: "active" | "deactivated_permanently"
+      account_type: "trial" | "paid"
       admin_role: "super_admin" | "marketing" | "financial" | "support"
       billing_cycle: "mensal" | "anual"
       plan_tier: "SOLO" | "STUDIO" | "ENTERPRISE"
@@ -2679,6 +2726,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_status: ["active", "deactivated_permanently"],
+      account_type: ["trial", "paid"],
       admin_role: ["super_admin", "marketing", "financial", "support"],
       billing_cycle: ["mensal", "anual"],
       plan_tier: ["SOLO", "STUDIO", "ENTERPRISE"],
