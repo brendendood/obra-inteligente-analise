@@ -27,6 +27,7 @@ import AuthCallback from "./pages/AuthCallback";
 import EmailSucesso from "./pages/EmailSucesso";
 import OnboardingFlow from "./pages/OnboardingFlow";
 import SelectPlan from "./pages/SelectPlan";
+import VerifyEmail from "./pages/VerifyEmail";
 
 // Lazy loaded pages with intelligent preloading
 const Upload = lazy(() => import("./pages/Upload"));
@@ -180,6 +181,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
                 <Route path="/signup" element={<Navigate to="/cadastro" replace />} />
+                <Route path="/verificar-email" element={<VerifyEmail />} />
                 <Route path="/selecionar-plano" element={<SelectPlan />} />
                 <Route path="/reset-password" element={<LazyWrapper><ResetPassword /></LazyWrapper>} />
                 <Route path="/v/*" element={<Redirect />} />

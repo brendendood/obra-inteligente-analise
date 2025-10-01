@@ -231,19 +231,14 @@ function Signup() {
       // Cadastro realizado com sucesso - aguardando confirmação
       toast({
         title: "📧 Confirme seu email",
-        description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta e receber o email de boas-vindas automaticamente!",
+        description: "Enviamos um link de confirmação para seu email. Clique no link para ativar sua conta!",
         duration: 8000
       });
 
-      // Show success message and redirect to onboarding
+      // Redirecionar para página de verificação de email
       setTimeout(() => {
-        toast({
-          title: "✨ Cadastro concluído!",
-          description: "Agora responda algumas perguntas para conhecermos você melhor.",
-          duration: 6000
-        });
-        navigate('/onboarding');
-      }, 4000);
+        navigate(`/verificar-email?email=${encodeURIComponent(finalData.email)}`);
+      }, 2000);
     } catch (error: any) {
       console.error('Erro no cadastro:', error);
       toast({

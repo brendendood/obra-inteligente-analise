@@ -74,7 +74,7 @@ export default function ConfirmEmail() {
             setCountdown((prev) => {
               if (prev <= 1) {
                 clearInterval(timer);
-                navigate('/login');
+                navigate('/onboarding');
                 return 0;
               }
               return prev - 1;
@@ -300,11 +300,11 @@ export default function ConfirmEmail() {
                 <div className="text-center space-y-2">
                   <p className="text-green-600 font-medium">{message}</p>
                   <p className="text-sm text-muted-foreground">
-                    Redirecionando para login em {countdown} segundos...
+                    Redirecionando para completar seu perfil em {countdown} segundos...
                   </p>
                 </div>
-                <Button onClick={handleGoToLogin} className="w-full">
-                  Ir para Login
+                <Button onClick={() => navigate('/onboarding')} className="w-full">
+                  Completar Perfil
                 </Button>
               </>
             )}
