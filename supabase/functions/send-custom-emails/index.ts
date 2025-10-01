@@ -46,7 +46,7 @@ const getEmailTemplateWithVariables = async (supabaseClient: any, emailType: str
     }
 
     // Substituir variáveis no subject e HTML
-    let processedSubject = template.subject || 'Notificação MadenAI';
+    let processedSubject = template.subject || 'Notificação MadeAI';
     let processedHtml = template.html || '<p>Conteúdo não disponível</p>';
 
     // Variáveis básicas do usuário
@@ -86,10 +86,10 @@ const generateFallbackEmailContent = (emailType: string, userData: any, resetDat
   switch (emailType) {
     case 'welcome_user':
       return {
-        subject: `🎉 Bem-vindo à MadenAI, ${userName}!`,
+        subject: `🎉 Bem-vindo à MadeAI, ${userName}!`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #2563eb;">MadenAI</h1>
+            <h1 style="color: #2563eb;">MadeAI</h1>
             <h2>Bem-vindo, ${userName}!</h2>
             <p>Sua conta foi criada com sucesso. Acesse a plataforma e comece a usar nossos recursos de IA.</p>
             <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.vercel.app') || 'https://madenai.vercel.app'}/dashboard" 
@@ -105,7 +105,7 @@ const generateFallbackEmailContent = (emailType: string, userData: any, resetDat
         subject: `🎉 Parabéns! Você completou ${userData?.project_count} projetos!`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #2563eb;">MadenAI</h1>
+            <h1 style="color: #2563eb;">MadeAI</h1>
             <h2>🏆 Parabéns, ${userName}!</h2>
             <p>Você completou <strong>${userData?.project_count} projetos</strong> na plataforma!</p>
             <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.vercel.app') || 'https://madenai.vercel.app'}/dashboard" 
@@ -118,10 +118,10 @@ const generateFallbackEmailContent = (emailType: string, userData: any, resetDat
 
     default:
       return {
-        subject: `Notificação MadenAI - ${userName}`,
+        subject: `Notificação MadeAI - ${userName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h1 style="color: #2563eb;">MadenAI</h1>
+            <h1 style="color: #2563eb;">MadeAI</h1>
             <h2>Olá, ${userName}!</h2>
             <p>Você tem uma nova notificação. Acesse sua conta para mais detalhes.</p>
             <a href="${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.vercel.app') || 'https://madenai.vercel.app'}/dashboard" 
@@ -229,7 +229,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Enviar email via Resend usando domínio verificado
     const emailResponse = await resend.emails.send({
-      from: "MadenAI <suporte@madeai.com.br>",
+      from: "MadeAI <suporte@madeai.com.br>",
       to: [emailRequest.recipient_email],
       subject: emailContent.subject,
       html: emailContent.html,

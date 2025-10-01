@@ -99,7 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
           '{{site_url}}': Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.vercel.app') || 'https://madenai.vercel.app'
         };
 
-        let processedSubject = template.subject || 'Notificação MadenAI';
+        let processedSubject = template.subject || 'Notificação MadeAI';
         let processedHtml = template.html || '<p>Conteúdo não disponível</p>';
 
         // Aplicar substituições
@@ -110,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
 
         // Enviar email via Resend
         const emailResponse = await resend.emails.send({
-          from: "MadenAI <suporte@madeai.com.br>",
+          from: "MadeAI <suporte@madeai.com.br>",
           to: [emailItem.recipient_email],
           subject: processedSubject,
           html: processedHtml,

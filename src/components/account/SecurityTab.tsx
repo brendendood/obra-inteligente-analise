@@ -20,7 +20,7 @@ export const SecurityTab = ({ isLoading, setIsLoading }: SecurityTabProps) => {
 
   const handleWhatsAppContact = () => {
     const message = encodeURIComponent(
-      `Olá! Preciso alterar meu e-mail da conta MadenAI.\n\nE-mail atual: ${user?.email}\nNovo e-mail: \n\nObrigado!`
+      `Olá! Preciso alterar meu e-mail da conta MadeAI.\n\nE-mail atual: ${user?.email}\nNovo e-mail: \n\nObrigado!`
     );
     window.open(`https://wa.me/5511999999999?text=${message}`, '_blank');
   };

@@ -32,7 +32,7 @@ function stripHtmlToText(html: string): string {
 
 function getAlertSender(alertType: string): { from: string; name: string } {
   // Usar apenas suporte@madeai.com.br para unificar remetente
-  return { from: 'suporte@madeai.com.br', name: 'MadenAI' };
+  return { from: 'suporte@madeai.com.br', name: 'MadeAI' };
 }
 
 serve(async (req) => {
@@ -219,7 +219,7 @@ function generateEmailContent(
   projectData: any, 
   metadata: any
 ) {
-  const baseSubject = 'MadenAI - Alerta do Sistema';
+  const baseSubject = 'MadeAI - Alerta do Sistema';
   const severityEmoji = {
     low: '🔵',
     medium: '🟡', 
@@ -232,11 +232,11 @@ function generateEmailContent(
       subject: `${severityEmoji[severity as keyof typeof severityEmoji]} Que tal voltar aos seus projetos?`,
       html: `
         <h2>Olá ${userData?.name || 'Usuário'}!</h2>
-        <p>Notamos que você não acessa a MadenAI há alguns dias.</p>
+        <p>Notamos que você não acessa a MadeAI há alguns dias.</p>
         <p>Seus projetos estão te esperando! Que tal continuar de onde parou?</p>
         <p><strong>Mensagem:</strong> ${message}</p>
         <p><a href="https://app.madenai.com/painel" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Acessar Meus Projetos</a></p>
-        <p>Equipe MadenAI</p>
+        <p>Equipe MadeAI</p>
       `
     },
     project_stalled: {
@@ -247,13 +247,13 @@ function generateEmailContent(
         <p>Que tal gerar o cronograma de execução?</p>
         <p><strong>Detalhes:</strong> ${message}</p>
         <p><a href="https://app.madenai.com/projetos" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Gerar Cronograma</a></p>
-        <p>Equipe MadenAI</p>
+        <p>Equipe MadeAI</p>
       `
     },
     ai_cost_spike: {
       subject: `${severityEmoji[severity as keyof typeof severityEmoji]} Alerta: Pico de Custo IA`,
       html: `
-        <h2>Alerta Administrativo - MadenAI</h2>
+        <h2>Alerta Administrativo - MadeAI</h2>
         <p><strong>Tipo:</strong> Pico de Custo de IA</p>
         <p><strong>Severidade:</strong> ${severity.toUpperCase()}</p>
         <p><strong>Mensagem:</strong> ${message}</p>
@@ -266,14 +266,14 @@ function generateEmailContent(
       `
     },
     subscription_expiring: {
-      subject: `${severityEmoji[severity as keyof typeof severityEmoji]} Seu plano MadenAI está expirando`,
+      subject: `${severityEmoji[severity as keyof typeof severityEmoji]} Seu plano MadeAI está expirando`,
       html: `
         <h2>Olá ${userData?.name || 'Usuário'}!</h2>
         <p>Seu plano <strong>${metadata?.plan_name || 'atual'}</strong> expira em breve.</p>
         <p><strong>Detalhes:</strong> ${message}</p>
-        <p>Para continuar aproveitando todos os recursos da MadenAI, renove seu plano:</p>
+        <p>Para continuar aproveitando todos os recursos da MadeAI, renove seu plano:</p>
         <p><a href="https://app.madenai.com/conta" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Renovar Plano</a></p>
-        <p>Equipe MadenAI</p>
+        <p>Equipe MadeAI</p>
       `
     }
   };
@@ -281,11 +281,11 @@ function generateEmailContent(
   return templates[alertType] || {
     subject: `${baseSubject} - ${alertType}`,
     html: `
-      <h2>Alerta do Sistema MadenAI</h2>
+      <h2>Alerta do Sistema MadeAI</h2>
       <p><strong>Tipo:</strong> ${alertType}</p>
       <p><strong>Severidade:</strong> ${severity}</p>
       <p><strong>Mensagem:</strong> ${message}</p>
-      <p>Equipe MadenAI</p>
+      <p>Equipe MadeAI</p>
     `
   };
 }
