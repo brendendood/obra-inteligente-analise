@@ -19,6 +19,7 @@ interface PricingPlan {
   buttonText: string;
   href: string;
   yearlyHref?: string;
+  trialHref?: string;
   isPopular: boolean;
 }
 interface PricingProps {
@@ -148,21 +149,22 @@ export function Pricing({
                     disabled={loading}
                     className={cn(buttonVariants({
                       variant: "outline"
-                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}
+                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}
                   >
                     {loading ? 'Processando...' : (isMonthly ? "Assinar Mensal" : "Assinar Anual")}
                   </button>
                   
-                  {showTrialButton && onTrialSelect && (
-                    <button
-                      onClick={() => onTrialSelect(plan.name)}
-                      disabled={loading}
+                  {showTrialButton && plan.trialHref && (
+                    <a
+                      href={plan.trialHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={cn(buttonVariants({
                         variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-1 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2")}
                     >
                       Teste Grátis (7 dias)
-                    </button>
+                    </a>
                   )}
                 </>
               ) : plan.href.startsWith('http') ? (
@@ -173,39 +175,43 @@ export function Pricing({
                     rel="noopener noreferrer"
                     className={cn(buttonVariants({
                       variant: "outline"
-                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}
+                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90")}
                   >
                     {isMonthly ? "Assinar Mensal" : "Assinar Anual"}
                   </a>
                   
-                  {showTrialButton && onTrialSelect && (
-                    <button
-                      onClick={() => onTrialSelect(plan.name)}
+                  {showTrialButton && plan.trialHref && (
+                    <a
+                      href={plan.trialHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={cn(buttonVariants({
                         variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-1 mt-2")}
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2")}
                     >
                       Teste Grátis (7 dias)
-                    </button>
+                    </a>
                   )}
                 </>
               ) : (
                 <>
                   <Link to={plan.href} className={cn(buttonVariants({
                     variant: "outline"
-                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}>
+                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90")}>
                     {plan.buttonText}
                   </Link>
                   
-                  {showTrialButton && onTrialSelect && (
-                    <button
-                      onClick={() => onTrialSelect(plan.name)}
+                  {showTrialButton && plan.trialHref && (
+                    <a
+                      href={plan.trialHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={cn(buttonVariants({
                         variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-1 mt-2")}
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2")}
                     >
                       Teste Grátis (7 dias)
-                    </button>
+                    </a>
                   )}
                 </>
               )}
