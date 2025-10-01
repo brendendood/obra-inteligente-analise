@@ -8,6 +8,7 @@ import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
 import logoDark from '@/assets/logo-dark.png';
+import logoLight from '@/assets/logo-light.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,7 +44,7 @@ const Header = () => {
           {/* Light mode image */}
           <img 
             key={`logo-light-${theme}`}
-            src="/lovable-uploads/7941e5b3-cadc-4cba-ad71-21d8d88f9e7e.png" 
+            src={logoLight} 
             alt="Decorative element light" 
             className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out ${
               theme === 'light' ? 'opacity-100' : 'opacity-0'
