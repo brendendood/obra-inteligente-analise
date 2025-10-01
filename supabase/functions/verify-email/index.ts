@@ -28,13 +28,16 @@ const handler = async (req: Request): Promise<Response> => {
     const url = new URL(req.url);
     const token = url.searchParams.get("token");
     const type = url.searchParams.get("type");
+    
+    // Usar sempre o domínio de produção
+    const baseUrl = "https://madeai.com.br";
 
     if (!token || !type) {
       // Redirect to error page
       return new Response(null, {
         status: 302,
         headers: {
-          "Location": "https://madeai.com.br/cadastro/confirmado?error=token-ausente",
+          "Location": `${baseUrl}/cadastro/confirmado?error=token-ausente`,
           ...corsHeaders
         }
       });
@@ -51,7 +54,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(null, {
         status: 302,
         headers: {
-          "Location": "https://madeai.com.br/cadastro/confirmado?error=token-invalido",
+          "Location": `${baseUrl}/cadastro/confirmado?error=token-invalido`,
           ...corsHeaders
         }
       });
@@ -77,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(null, {
         status: 302,
         headers: {
-          "Location": "https://madeai.com.br/cadastro/confirmado?success=verificado",
+          "Location": `${baseUrl}/cadastro/confirmado?success=verificado`,
           ...corsHeaders
         }
       });
@@ -86,7 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, {
       status: 302,
       headers: {
-        "Location": "https://madeai.com.br/cadastro/confirmado?error=token-invalido",
+        "Location": `${baseUrl}/cadastro/confirmado?error=token-invalido`,
         ...corsHeaders
       }
     });
@@ -96,7 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, {
       status: 302,
       headers: {
-        "Location": "https://madeai.com.br/cadastro/confirmado?error=erro-interno",
+        "Location": `${baseUrl}/cadastro/confirmado?error=erro-interno`,
         ...corsHeaders
       }
     });
