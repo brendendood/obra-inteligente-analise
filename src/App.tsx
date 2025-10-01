@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useMemo } from 'react';
-import { ThemeProvider } from "next-themes";
 import SafeToasters from "@/components/ui/SafeToasters";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";

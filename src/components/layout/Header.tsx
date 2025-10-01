@@ -31,29 +31,22 @@ const Header = () => {
     <header className="fixed top-4 left-4 right-4 z-50 transition-colors duration-300 bg-white/70 supports-[backdrop-filter]:backdrop-blur-md shadow-none border border-black/5 dark:bg-transparent dark:shadow-none dark:border-gray-500 rounded-2xl">
       <div className="max-w-7xl mx-auto px-6 md:px-8 rounded-xl transition-colors duration-300 dark:bg-transparent relative">
         {/* Decorative image in left corner - responsive to theme */}
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-16 h-16">
-          {/* Dark mode image */}
-          <img 
-            key={`logo-dark-${theme}`}
-            src={logoDark} 
-            alt="Logo Dark Mode" 
-            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out pointer-events-none ${
-              theme === 'dark' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-            onLoad={() => console.log('✅ Dark logo loaded from:', logoDark)}
-            onError={(e) => console.error('❌ Dark logo error:', e)}
-          />
-          {/* Light mode image */}
-          <img 
-            key={`logo-light-${theme}`}
-            src={logoLight} 
-            alt="Logo Light Mode" 
-            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out pointer-events-none ${
-              theme === 'light' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-            onLoad={() => console.log('✅ Light logo loaded from:', logoLight)}
-            onError={(e) => console.error('❌ Light logo error:', e)}
-          />
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 w-16 h-16 pointer-events-none">
+          {theme === 'dark' ? (
+            <img 
+              src={logoDark} 
+              alt="Logo Dark Mode" 
+              className="w-16 h-16 object-contain"
+              onLoad={() => console.log('✅ Dark logo loaded')}
+            />
+          ) : (
+            <img 
+              src={logoLight} 
+              alt="Logo Light Mode" 
+              className="w-16 h-16 object-contain"
+              onLoad={() => console.log('✅ Light logo loaded')}
+            />
+          )}
         </div>
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
