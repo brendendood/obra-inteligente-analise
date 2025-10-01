@@ -23,6 +23,8 @@ const Header = () => {
 
   useEffect(() => {
     console.log('🎨 Theme changed in Header:', theme);
+    console.log('🖼️ Dark logo should be visible:', theme === 'dark');
+    console.log('🖼️ Light logo should be visible:', theme === 'light');
   }, [theme]);
 
   return (
@@ -34,22 +36,22 @@ const Header = () => {
           <img 
             key={`logo-dark-${theme}`}
             src={logoDark} 
-            alt="Decorative element dark" 
-            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out ${
-              theme === 'dark' ? 'opacity-100' : 'opacity-0'
+            alt="Logo Dark Mode" 
+            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out pointer-events-none ${
+              theme === 'dark' ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
-            onLoad={() => console.log('✅ Dark logo loaded')}
+            onLoad={() => console.log('✅ Dark logo loaded from:', logoDark)}
             onError={(e) => console.error('❌ Dark logo error:', e)}
           />
           {/* Light mode image */}
           <img 
             key={`logo-light-${theme}`}
             src={logoLight} 
-            alt="Decorative element light" 
-            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out ${
-              theme === 'light' ? 'opacity-100' : 'opacity-0'
+            alt="Logo Light Mode" 
+            className={`absolute left-0 top-0 w-16 h-16 object-contain transition-opacity duration-500 ease-in-out pointer-events-none ${
+              theme === 'light' ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
-            onLoad={() => console.log('✅ Light logo loaded')}
+            onLoad={() => console.log('✅ Light logo loaded from:', logoLight)}
             onError={(e) => console.error('❌ Light logo error:', e)}
           />
         </div>
