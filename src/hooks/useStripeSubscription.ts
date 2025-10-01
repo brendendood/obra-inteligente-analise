@@ -12,16 +12,19 @@ const PLAN_MAPPING = {
   basic: {
     monthly_price_id: 'price_1SDN8fDEqBbry6TZAN7xmxJC',
     yearly_price_id: 'price_1SDNrnDEqBbry6TZmyd7LEMV',
+    trial_price_id: 'price_1SDSNUDEqBbry6TZ3n6pa0e4',
     product_id: 'prod_T9gVntY2x6gnIE',
   },
   pro: {
     monthly_price_id: 'price_1SDN8xDEqBbry6TZx69L8X4E',
     yearly_price_id: 'price_1SDNwNDEqBbry6TZyUKfeTfb',
+    trial_price_id: 'price_1SDSP9DEqBbry6TZ7naV6NC5',
     product_id: 'prod_T9gVdwQyOMqXJf',
   },
   enterprise: {
     monthly_price_id: 'price_1SDN9IDEqBbry6TZWwyynoUf',
     yearly_price_id: 'price_1SDNweDEqBbry6TZcUqjwORi',
+    trial_price_id: 'price_1SDSQjDEqBbry6TZ0bvoUkfa',
     product_id: 'prod_T9gWDhyOO3PIbk',
   },
 } as const;
@@ -80,6 +83,25 @@ export const useStripeSubscription = () => {
     }
   };
 
+  const createTrialCheckout = async (plan: 'basic' | 'pro' | 'enterprise') => {
+    try {
+      const priceId = PLAN_MAPPING[plan].trial_price_id;
+      
+      const { data, error } = await supabase.functions.invoke('stripe-checkout-trial', {
+        body: { priceId },
+      });
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating trial checkout:', error);
+      throw error;
+    }
+  };
+
   const openCustomerPortal = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
@@ -121,6 +143,7 @@ export const useStripeSubscription = () => {
     currentPlan: getCurrentPlan(),
     checkSubscription,
     createCheckout,
+    createTrialCheckout,
     openCustomerPortal,
   };
 };

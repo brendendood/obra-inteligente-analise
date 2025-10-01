@@ -3,14 +3,14 @@ import { Pricing } from "@/components/ui/pricing";
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { useUserData } from '@/hooks/useUserData';
-import { Clock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useStripeSubscription } from '@/hooks/useStripeSubscription';
+import { useToast } from '@/hooks/use-toast';
 
 const SelectPlan = () => {
   const { user } = useAuth();
   const { userData, loading } = useUserData();
-  const navigate = useNavigate();
+  const { createTrialCheckout } = useStripeSubscription();
+  const { toast } = useToast();
 
   // Buscar o nome do usuário com múltiplos fallbacks
   const getUserName = () => {
@@ -29,6 +29,20 @@ const SelectPlan = () => {
   };
 
   const userName = getUserName();
+
+  const handleTrialSelect = async (plan: string) => {
+    try {
+      const planKey = plan.toLowerCase() as 'basic' | 'pro' | 'enterprise';
+      await createTrialCheckout(planKey);
+    } catch (error) {
+      console.error('Error creating trial checkout:', error);
+      toast({
+        title: 'Erro ao iniciar trial',
+        description: 'Tente novamente mais tarde',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const plans = [
     {
@@ -117,44 +131,6 @@ const SelectPlan = () => {
           </div>
         </motion.div>
 
-        {/* Botão de Trial Gratuito */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="max-w-4xl mx-auto mb-8"
-        >
-          <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-2 border-primary/20 rounded-2xl p-6 md:p-8">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-                  <Clock className="w-5 h-5 text-primary" />
-                  <h3 className="text-xl font-bold text-foreground">
-                    Experimente Grátis por 7 Dias
-                  </h3>
-                </div>
-                <p className="text-muted-foreground mb-3">
-                  Sem cartão de crédito. Acesso completo ao módulo de orçamento.
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>✓ 1 projeto ativo</li>
-                  <li>✓ Orçamento básico completo</li>
-                  <li>✓ Sem compromisso</li>
-                </ul>
-              </div>
-              <div className="flex-shrink-0">
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/cadastro?trial=true')}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  Começar Trial Grátis
-                </Button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Seção de Preços */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -165,7 +141,9 @@ const SelectPlan = () => {
             <Pricing 
               plans={plans}
               title="Escolha seu plano"
-              description="Todos os planos incluem acesso completo à plataforma e suporte dedicado."
+              description="Teste grátis por 7 dias com cartão — cancele quando quiser!"
+              showTrialButton={true}
+              onTrialSelect={handleTrialSelect}
             />
           </section>
         </motion.div>

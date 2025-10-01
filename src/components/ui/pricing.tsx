@@ -27,13 +27,17 @@ interface PricingProps {
   description?: string;
   onPlanSelect?: (plan: PricingPlan, isMonthly: boolean) => void;
   loading?: boolean;
+  showTrialButton?: boolean;
+  onTrialSelect?: (planName: string) => void;
 }
 export function Pricing({
   plans,
   title = "Simple, Transparent Pricing",
   description = "Choose the plan that works for you\nAll plans include access to our platform, lead generation tools, and dedicated support.",
   onPlanSelect,
-  loading = false
+  loading = false,
+  showTrialButton = false,
+  onTrialSelect
 }: PricingProps) {
   const [isMonthly, setIsMonthly] = useState(true);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -138,32 +142,72 @@ export function Pricing({
               <hr className="w-full my-4" />
 
               {onPlanSelect ? (
-                <button
-                  onClick={() => onPlanSelect(plan, isMonthly)}
-                  disabled={loading}
-                  className={cn(buttonVariants({
-                    variant: "outline"
-                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}
-                >
-                  {loading ? 'Processando...' : (isMonthly ? "Assinar Mensal" : "Assinar Anual")}
-                </button>
+                <>
+                  <button
+                    onClick={() => onPlanSelect(plan, isMonthly)}
+                    disabled={loading}
+                    className={cn(buttonVariants({
+                      variant: "outline"
+                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}
+                  >
+                    {loading ? 'Processando...' : (isMonthly ? "Assinar Mensal" : "Assinar Anual")}
+                  </button>
+                  
+                  {showTrialButton && onTrialSelect && (
+                    <button
+                      onClick={() => onTrialSelect(plan.name)}
+                      disabled={loading}
+                      className={cn(buttonVariants({
+                        variant: "outline"
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-1 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
+                    >
+                      Teste Grátis (7 dias)
+                    </button>
+                  )}
+                </>
               ) : plan.href.startsWith('http') ? (
-                <a
-                  href={isMonthly ? plan.href : (plan.yearlyHref || plan.href)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(buttonVariants({
-                    variant: "outline"
-                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}
-                >
-                  {isMonthly ? "Assinar Mensal" : "Assinar Anual"}
-                </a>
+                <>
+                  <a
+                    href={isMonthly ? plan.href : (plan.yearlyHref || plan.href)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(buttonVariants({
+                      variant: "outline"
+                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}
+                  >
+                    {isMonthly ? "Assinar Mensal" : "Assinar Anual"}
+                  </a>
+                  
+                  {showTrialButton && onTrialSelect && (
+                    <button
+                      onClick={() => onTrialSelect(plan.name)}
+                      className={cn(buttonVariants({
+                        variant: "outline"
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-1 mt-2")}
+                    >
+                      Teste Grátis (7 dias)
+                    </button>
+                  )}
+                </>
               ) : (
-                <Link to={plan.href} className={cn(buttonVariants({
-                  variant: "outline"
-                }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}>
-                  {plan.buttonText}
-                </Link>
+                <>
+                  <Link to={plan.href} className={cn(buttonVariants({
+                    variant: "outline"
+                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-1 bg-primary text-primary-foreground hover:bg-primary/90")}>
+                    {plan.buttonText}
+                  </Link>
+                  
+                  {showTrialButton && onTrialSelect && (
+                    <button
+                      onClick={() => onTrialSelect(plan.name)}
+                      className={cn(buttonVariants({
+                        variant: "outline"
+                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-1 mt-2")}
+                    >
+                      Teste Grátis (7 dias)
+                    </button>
+                  )}
+                </>
               )}
               <p className="mt-6 text-xs leading-5 text-muted-foreground">
                 {plan.description}
