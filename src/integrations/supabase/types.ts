@@ -1472,6 +1472,27 @@ export type Database = {
           },
         ]
       }
+      stripe_events: {
+        Row: {
+          id: string
+          payload: Json
+          received_at: string | null
+          type: string
+        }
+        Insert: {
+          id: string
+          payload: Json
+          received_at?: string | null
+          type: string
+        }
+        Update: {
+          id?: string
+          payload?: Json
+          received_at?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       user_analytics: {
         Row: {
           created_at: string
@@ -2187,6 +2208,10 @@ export type Database = {
         Returns: Json
       }
       cleanup_expired_impersonation_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      deactivate_expired_trials: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

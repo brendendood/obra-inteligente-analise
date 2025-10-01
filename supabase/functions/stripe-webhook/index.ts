@@ -45,6 +45,29 @@ serve(async (req) => {
 
     console.log(`Webhook received: ${event.type}`);
 
+    // Check for duplicate events (idempotency)
+    const { data: existingEvent } = await supabase
+      .from("stripe_events")
+      .select("id")
+      .eq("id", event.id)
+      .single();
+
+    if (existingEvent) {
+      console.log(`Event ${event.id} already processed, skipping`);
+      return new Response(JSON.stringify({ received: true, duplicate: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Store event for idempotency
+    await supabase
+      .from("stripe_events")
+      .insert({
+        id: event.id,
+        type: event.type,
+        payload: event,
+      });
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;

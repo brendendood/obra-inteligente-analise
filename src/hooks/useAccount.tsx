@@ -72,12 +72,12 @@ export const useAccount = () => {
     if (!account || !user) return 0;
     if (account.account_type !== 'trial') return 0;
 
-    const createdAt = new Date(user.created_at);
+    const createdAt = new Date(account.created_at);
     const now = new Date();
-    const daysPassed = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-    const trialDays = parseInt(import.meta.env.VITE_TRIAL_DAYS || '7');
+    const trialExpiresAt = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    const daysRemaining = Math.ceil((trialExpiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-    return Math.max(0, trialDays - daysPassed);
+    return Math.max(0, daysRemaining);
   };
 
   const isPaid = () => {
