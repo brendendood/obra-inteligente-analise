@@ -19,14 +19,10 @@ const PricingBlocked = () => {
       yearlyPrice: "23.92",
       period: "mês",
       features: [
-        "Análise Geral de projetos (normas ABNT)",
-        "Uso individual (1 usuário)",
-        "Até 5 projetos ativos (fixo, não renovável)",
-        "500 mensagens de IA/mês",
-        "Cronograma e orçamento básicos",
-        "Exportação simples em PDF",
-        "1 automação via webhook",
-        "Suporte em até 48h"
+        "Até 5 projetos ativos",
+        "300 mensagens de IA/mês",
+        "Orçamento e Cronograma básicos",
+        "Suporte padrão"
       ],
       description: "Ideal para profissionais autônomos que querem economizar tempo e aumentar a precisão dos orçamentos.",
       buttonText: "Assinar Basic",
@@ -40,16 +36,14 @@ const PricingBlocked = () => {
       period: "mês",
       features: [
         "Tudo do Basic +",
-        "Até 3 usuários inclusos",
-        "Até 20 projetos ativos (fixo, não renovável)",
-        "2.000 mensagens de IA/mês",
-        "Cronograma, orçamento e documentos avançados",
-        "Controle de permissões por papel (admin e colaborador)",
-        "Até 5 automações integradas (Zapier, n8n etc.)",
-        "Exportações avançadas (cronogramas detalhados, relatórios completos)",
-        "Suporte prioritário (<24h)"
+        "Até 10 projetos ativos",
+        "800 mensagens de IA/mês",
+        "Exportações avançadas (orçamento e cronograma)",
+        "Análise técnica de documentos",
+        "Assistente IA do projeto",
+        "Suporte prioritário"
       ],
-      description: "Perfeito para escritórios que querem colaboração em equipe e análises mais avançadas.",
+      description: "Perfeito para escritórios que querem mais recursos e análises avançadas.",
       buttonText: "Assinar Pro",
       href: `https://checkout.cacto.com.br/plan/pro?metadata=${encodeURIComponent(JSON.stringify({ user_id: user?.id }))}`,
       isPopular: true
@@ -61,20 +55,15 @@ const PricingBlocked = () => {
       period: "mês",
       features: [
         "Tudo do Pro +",
-        "Até 10 usuários inclusos",
-        "Projetos ilimitados",
-        "Mensagens de IA ilimitadas",
-        "50 GB para anexos de projetos",
-        "Auditoria técnica e relatórios completos",
-        "Histórico completo de projetos e exportações avançadas",
-        "Suporte dedicado com gerente de conta",
-        "Onboarding e treinamento personalizados",
-        "Contrato customizado para empresas",
-        "Integrações avançadas com ERPs (em breve)"
+        "Até 50 projetos ativos",
+        "1.500 mensagens de IA/mês",
+        "CRM integrado",
+        "Integrações via API (em desenvolvimento)",
+        "Suporte dedicado com gerente de conta"
       ],
-      description: "Para construtoras e empresas que precisam de volumes altos, integrações e suporte dedicado.",
+      description: "Para construtoras e empresas que precisam de volumes altos e integrações personalizadas.",
       buttonText: "Agendar Demo",
-      href: "/contact",
+      href: "/contato",
       isPopular: false
     }
   ];
