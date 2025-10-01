@@ -30,8 +30,5 @@ export function Logo({
     }} />;
   }
   
-  // Placeholder - você pode adicionar a implementação real do logo aqui
-  return <div className={cn("font-bold", className)} style={{ width, height }}>
-    MadeAI
-  </div>;
+  return null;
 }
