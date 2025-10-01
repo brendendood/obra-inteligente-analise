@@ -13,25 +13,21 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import loginBackground from '@/assets/login-background.jpeg';
+import testimonialMateus from '@/assets/testimonial-mateus.jpeg';
+import testimonialAna from '@/assets/testimonial-ana.jpeg';
 
 const testimonials: Testimonial[] = [
   {
-    avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg",
-    name: "Ana Souza",
-    handle: "@ana.madeai",
-    text: "A MadeAI simplificou nosso onboarding e acelerou o dia a dia do time. Design limpo e fluxo intuitivo."
+    avatarSrc: testimonialMateus,
+    name: "Mateus Rossi",
+    handle: "@matrssx",
+    text: "A MadenAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
   },
   {
-    avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg",
-    name: "Bruno Almeida",
-    handle: "@bruno.data",
-    text: "Excelente experiência! Login rápido, recursos claros e tudo funcionando muito bem no desktop e mobile."
-  },
-  {
-    avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg",
-    name: "Diego Martins",
-    handle: "@diegomartins",
-    text: "O acesso é estável e o visual é moderno. A MadeAI acertou em cheio no fluxo de autenticação."
+    avatarSrc: testimonialAna,
+    name: "Ana Viletti",
+    handle: "@ana.vilt",
+    text: "Incrível como a plataforma organiza cronogramas e documentos. A IA sugere otimizações que eu nunca pensaria sozinha. Indispensável para arquitetos!"
   },
 ];
 
