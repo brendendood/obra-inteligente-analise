@@ -7,9 +7,25 @@ import { Sparkles } from 'lucide-react';
 
 const SelectPlan = () => {
   const { user } = useAuth();
-  const { userData } = useUserData();
+  const { userData, loading } = useUserData();
 
-  const userName = userData?.profile?.full_name || user?.email?.split('@')[0] || 'Usuário';
+  // Buscar o nome do usuário com múltiplos fallbacks
+  const getUserName = () => {
+    // 1. Tentar pegar do perfil
+    if (userData?.profile?.full_name) {
+      return userData.profile.full_name;
+    }
+    
+    // 2. Tentar pegar do email (parte antes do @)
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    
+    // 3. Fallback padrão
+    return 'Usuário';
+  };
+
+  const userName = getUserName();
 
   const plans = [
     {
