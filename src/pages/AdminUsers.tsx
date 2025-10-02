@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Search, Users, Filter } from 'lucide-react';
-import { getPlanDisplayName, getPlanBadgeStyle } from '@/utils/planUtils';
+import { getPlanDisplayName, getPlanBadgeStyle } from '@/lib/domain/plans';
 
 interface AdminUser {
   id: string;

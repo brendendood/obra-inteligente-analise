@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useUserPlan } from "@/hooks/use-user-plan";
-import { canAccessFeature, AI_LIMITS } from "@/lib/permissions/feature-access";
+import { canAccessFeature, FEATURE_REQUIREMENTS, PLAN_FEATURES, type PlanTier } from "@/lib/domain/plans";
 import { supabase } from "@/lib/supabase/client";
 
 function currentPeriodYM(date = new Date()) {
@@ -65,7 +65,7 @@ export function useFeatureAccess() {
 
     // CRÍTICO: Não usar fallback para plano, usar o plano real ou FREE
     const tier = plan?.plan_tier ?? "FREE";
-    const limit = AI_LIMITS[tier] ?? 50; // Limite mínimo se não definido
+    const limit = PLAN_FEATURES[tier].aiMessageLimit;
     const count = data?.count ?? 0;
     const numericLimit = limit === "unlimited" ? Infinity : limit;
     const remaining = Math.max(0, numericLimit - count);

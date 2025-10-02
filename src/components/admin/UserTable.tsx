@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Plan, normalizePlan } from "@/lib/plan";
+import { normalizePlanTier, type Plan } from "@/lib/domain/plans";
 import { PlanBadge } from "./PlanBadge";
 import { motion } from "framer-motion";
 import { UserDetailsModal } from "./UserDetailsModal";
@@ -73,7 +73,7 @@ export default function UserTable({
   const rows = useMemo(() => {
     const normalized = users.map((u) => ({
       ...u,
-      _normalizedPlan: normalizePlan(u.plan),
+      _normalizedPlan: normalizePlanTier(u.plan),
     }));
 
     return filterPlan === "ALL"
@@ -142,9 +142,9 @@ export default function UserTable({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <PlanBadge plan={normalizePlan(u.plan)} />
+                      <PlanBadge plan={normalizePlanTier(u.plan)} />
                       {u.plan &&
-                        normalizePlan(u.plan) !== normalizePlan(u.plan) && (
+                        normalizePlanTier(u.plan) !== normalizePlanTier(u.plan) && (
                           <span className="text-xs text-amber-600">
                             corrigido
                           </span>

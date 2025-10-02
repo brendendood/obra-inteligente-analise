@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AdminUser } from '@/hooks/useAdminUsers';
 import { PlanBadge } from './PlanBadge';
-import { normalizePlan } from '@/lib/plan';
+import { normalizePlanTier } from '@/lib/domain/plans';
 import { 
   User, 
   Mail, 
@@ -197,7 +197,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                     <div>
                       <label className="text-sm font-medium text-gray-500">Plano Atual</label>
                       <div className="flex items-center gap-2 mt-1">
-                        <PlanBadge plan={normalizePlan(user.plan)} />
+                        <PlanBadge plan={normalizePlanTier(user.plan)} />
                         <Badge variant={user.status === 'ACTIVE' ? 'default' : 'secondary'}>
                           {user.status}
                         </Badge>
@@ -222,7 +222,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                         <Card 
                           key={plan.id}
                           className={`cursor-pointer transition-all border-2 ${
-                            normalizePlan(user.plan) === plan.id 
+                            normalizePlanTier(user.plan) === plan.id 
                               ? 'border-blue-500 bg-blue-50' 
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
@@ -232,7 +232,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                             <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${plan.color}`}>
                               {plan.name}
                             </div>
-                            {normalizePlan(user.plan) === plan.id && (
+                            {normalizePlanTier(user.plan) === plan.id && (
                               <div className="mt-2">
                                 <Badge variant="outline" className="text-xs">Atual</Badge>
                               </div>

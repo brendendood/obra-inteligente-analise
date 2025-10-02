@@ -15,7 +15,7 @@ export { validateEmail, validatePassword, formatAuthError } from '@/utils/authVa
 // Sanitização de conteúdo
 export { sanitizeAIContent } from '@/utils/contentSanitizer';
 
-// Utilitários de planos
+// Utilitários de planos (agora do domain unificado)
 export { 
   getPlanDisplayName, 
   getPlanLimit, 
@@ -23,8 +23,16 @@ export {
   getPlanBadgeStyle,
   getUpgradeMessage,
   canUpgrade,
-  getNextPlan
-} from '@/utils/planUtils';
+  getNextPlan,
+  getPlanPrice,
+  formatPlanPrice,
+  getPlanUsagePercentage,
+  shouldShowUpgradeWarning,
+  isMaxPlan,
+  getPlanFeatures,
+  type PlanTier,
+  type FeatureKey,
+} from '@/lib/domain/plans';
 
 // Validação e segurança
 export { validateUserInput, sanitizeFileName } from '@/utils/securityValidation';

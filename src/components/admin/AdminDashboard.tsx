@@ -3,7 +3,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import UserTable, { AdminUser } from "./UserTable";
-import { Plan, normalizePlan } from "@/lib/plan";
+import { normalizePlanTier, type Plan } from "@/lib/domain/plans";
 import { motion } from "framer-motion";
 import { supabase } from '@/integrations/supabase/client';
 
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
   const { total, perPlan } = useMemo(() => {
     const byPlan: Record<Plan, number> = { BASIC: 0, PRO: 0, ENTERPRISE: 0 };
     for (const u of users) {
-      byPlan[normalizePlan(u.plan)]++;
+      byPlan[normalizePlanTier(u.plan)]++;
     }
     return {
       total: users.length,

@@ -1,6 +1,6 @@
 import { useUserData } from '@/hooks/useUserData';
 import { useReferralSystem } from '@/hooks/useReferralSystem';
-import { getPlanLimit } from '@/utils/planUtils';
+import { getPlanLimit } from '@/lib/domain/plans';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';

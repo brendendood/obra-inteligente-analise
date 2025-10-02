@@ -1,13 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type PlanTier = "FREE" | "BASIC" | "PRO" | "ENTERPRISE";
-
-const AI_LIMITS: Record<PlanTier, number | "unlimited"> = {
-  FREE: 50,
-  BASIC: 500,
-  PRO: 2000,
-  ENTERPRISE: "unlimited",
-};
+import { type PlanTier, PLAN_FEATURES } from "@/lib/domain/plans";
 
 function currentPeriodYM(date = new Date()) {
   const y = date.getFullYear();

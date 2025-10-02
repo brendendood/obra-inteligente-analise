@@ -3,19 +3,23 @@
  * Facilita importação com @/hooks ao invés de caminhos específicos
  */
 
-// Hook de toast (50+ componentes conforme docs/inventory)
+// ============= UI Hooks =============
 export { useToast } from '@/hooks/use-toast';
 
-// Hooks de autenticação (quando disponíveis)
-// export { useAuth } from '@/hooks/useAuth';
-// export { useUserData } from '@/hooks/useUserData';
-// export { useDefaultAvatar } from '@/hooks/useDefaultAvatar';
-// export { useEmailSystem } from '@/hooks/useEmailSystem';
+// ============= Auth Hooks =============
+export { useAuth } from '@/hooks/useAuth';
+export { useUserData } from '@/hooks/useUserData';
 
-// Hooks de projeto (Dashboard, Projects conforme docs/inventory)
-// export { useProjects } from '@/hooks/useProjects';
-// export { useProjectDetail } from '@/hooks/useProjectDetail';
+// ============= Plan & Feature Hooks =============
+export { useFeatureAccess } from '@/hooks/use-feature-access';
+export { useUserPlan } from '@/hooks/use-user-plan';
+
+// ============= Project Hooks =============
+export { useProjects, useProjectById, useProjectCount, useProjectsLoading } from '@/hooks/useProjects';
 export { useProjectNavigation } from '@/hooks/useProjectNavigation';
+
+// ============= Admin Hooks =============
+// export { useAdminAnalytics } from '@/hooks/useAdminAnalytics';
 
 // Hooks utilitários (quando disponíveis)
 // export { useCRM } from '@/hooks/useCRM';

@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { canUpgrade, getUpgradeMessage } from "@/utils/planUtils";
+import { canUpgrade, getUpgradeMessage } from "@/lib/domain/plans";
 import { PlanBadge } from "@/components/ui/PlanBadge";
 import { canShowUpgradeButton, renderProjectQuota } from "@/utils/planQuota";
 import { ReferralModal } from "@/components/modals/ReferralModal";

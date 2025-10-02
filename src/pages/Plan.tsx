@@ -10,7 +10,7 @@ import { Crown, Check, CreditCard, Calendar, Star, Zap, Shield, Users, AlertTria
 import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
 import { useStripeSubscription } from '@/hooks/useStripeSubscription';
-import { getPlanDisplayName, getPlanLimit, getPlanPrice, getPlanFeatures, getPlanUsagePercentage, shouldShowUpgradeWarning, canUpgrade, formatPlanPrice, isMaxPlan } from '@/utils/planUtils';
+import { getPlanDisplayName, getPlanLimit, getPlanPrice, getPlanFeatures, getPlanUsagePercentage, shouldShowUpgradeWarning, canUpgrade, formatPlanPrice, isMaxPlan } from '@/lib/domain/plans';
 import { PlanBadge } from '@/components/ui/PlanBadge';
 import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
 const Plan = () => {
@@ -219,7 +219,7 @@ const Plan = () => {
                   </p>
                 </div>
                 <ul className="space-y-2">
-                  {getPlanFeatures('basic').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
+                  {getPlanFeatures('BASIC').features.map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
                     </li>)}
@@ -270,7 +270,7 @@ const Plan = () => {
                   </p>
                 </div>
                 <ul className="space-y-2">
-                  {getPlanFeatures('pro').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
+                  {getPlanFeatures('PRO').features.map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
                     </li>)}
@@ -316,7 +316,7 @@ const Plan = () => {
                   </p>
                 </div>
                 <ul className="space-y-2">
-                  {getPlanFeatures('enterprise').map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
+                  {getPlanFeatures('ENTERPRISE').features.map((feature, index) => <li key={index} className="flex items-center gap-2 text-sm">
                       <Check className="h-4 w-4 text-green-600" />
                       {feature}
                     </li>)}
