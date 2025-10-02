@@ -569,7 +569,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
             className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImageSrc})` }}
             role="img"
-            aria-label="Ilustração da MadenAI"
+            aria-label="Ilustração da MadeAI"
           />
           {testimonials.length > 0 && (
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
