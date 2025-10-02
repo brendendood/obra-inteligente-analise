@@ -34,9 +34,9 @@ export function TestimonialCard({
       className={cn(
         "flex flex-col rounded-lg border-t",
         "bg-gradient-to-b from-muted/50 to-muted/10",
-        "p-4 text-start sm:p-6",
+        "p-3 text-start sm:p-4",
         "hover:from-muted/60 hover:to-muted/20",
-        "max-w-[380px] sm:max-w-[380px]",
+        "max-w-[430px] sm:max-w-[430px]",
         "transition-colors duration-300",
         className
       )}
