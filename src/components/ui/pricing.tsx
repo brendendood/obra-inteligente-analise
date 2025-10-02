@@ -85,7 +85,7 @@ export function Pricing({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 px-0 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 sm:2 gap-4 py-0 max-w-7xl mx-auto px-[13px]">
         {plans.map((plan, index) => <motion.div key={index} initial={{
         y: 50,
         opacity: 1
@@ -141,94 +141,61 @@ export function Pricing({
 
               <hr className="w-full my-4" />
 
-              {onPlanSelect ? (
-                <>
-                  <button
-                    onClick={() => onPlanSelect(plan, isMonthly)}
-                    disabled={loading}
-                    className={cn(buttonVariants({
-                      variant: "outline"
-                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}
-                  >
-                    {loading ? 'Processando...' : (isMonthly ? "Assinar Mensal" : "Assinar Anual")}
+              {onPlanSelect ? <>
+                  <button onClick={() => onPlanSelect(plan, isMonthly)} disabled={loading} className={cn(buttonVariants({
+              variant: "outline"
+            }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed")}>
+                    {loading ? 'Processando...' : isMonthly ? "Assinar Mensal" : "Assinar Anual"}
                   </button>
                   
-                  {showTrialButton && onTrialSelect && (
-                    <button
-                      onClick={async () => {
-                        try {
-                          await onTrialSelect(plan.name);
-                        } catch (error) {
-                          console.error('Error starting trial:', error);
-                        }
-                      }}
-                      disabled={loading}
-                      className={cn(buttonVariants({
-                        variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
-                    >
+                  {showTrialButton && onTrialSelect && <button onClick={async () => {
+              try {
+                await onTrialSelect(plan.name);
+              } catch (error) {
+                console.error('Error starting trial:', error);
+              }
+            }} disabled={loading} className={cn(buttonVariants({
+              variant: "outline"
+            }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}>
                       Teste Grátis (7 dias)
-                    </button>
-                  )}
-                </>
-              ) : plan.href.startsWith('http') ? (
-                <>
-                  <a
-                    href={isMonthly ? plan.href : (plan.yearlyHref || plan.href)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(buttonVariants({
-                      variant: "outline"
-                    }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90")}
-                  >
+                    </button>}
+                </> : plan.href.startsWith('http') ? <>
+                  <a href={isMonthly ? plan.href : plan.yearlyHref || plan.href} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({
+              variant: "outline"
+            }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90")}>
                     {isMonthly ? "Assinar Mensal" : "Assinar Anual"}
                   </a>
                   
-                  {showTrialButton && onTrialSelect && (
-                    <button
-                      onClick={async () => {
-                        try {
-                          await onTrialSelect(plan.name);
-                        } catch (error) {
-                          console.error('Error starting trial:', error);
-                        }
-                      }}
-                      disabled={loading}
-                      className={cn(buttonVariants({
-                        variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
-                    >
+                  {showTrialButton && onTrialSelect && <button onClick={async () => {
+              try {
+                await onTrialSelect(plan.name);
+              } catch (error) {
+                console.error('Error starting trial:', error);
+              }
+            }} disabled={loading} className={cn(buttonVariants({
+              variant: "outline"
+            }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}>
                       Teste Grátis (7 dias)
-                    </button>
-                  )}
-                </>
-              ) : (
-                <>
+                    </button>}
+                </> : <>
                   <Link to={plan.href} className={cn(buttonVariants({
-                    variant: "outline"
-                  }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90")}>
+              variant: "outline"
+            }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2 border-2 bg-primary text-primary-foreground hover:bg-primary/90")}>
                     {plan.buttonText}
                   </Link>
                   
-                  {showTrialButton && onTrialSelect && (
-                    <button
-                      onClick={async () => {
-                        try {
-                          await onTrialSelect(plan.name);
-                        } catch (error) {
-                          console.error('Error starting trial:', error);
-                        }
-                      }}
-                      disabled={loading}
-                      className={cn(buttonVariants({
-                        variant: "outline"
-                      }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}
-                    >
+                  {showTrialButton && onTrialSelect && <button onClick={async () => {
+              try {
+                await onTrialSelect(plan.name);
+              } catch (error) {
+                console.error('Error starting trial:', error);
+              }
+            }} disabled={loading} className={cn(buttonVariants({
+              variant: "outline"
+            }), "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-accent hover:ring-offset-2 border-2 mt-2 disabled:opacity-50 disabled:cursor-not-allowed")}>
                       Teste Grátis (7 dias)
-                    </button>
-                  )}
-                </>
-              )}
+                    </button>}
+                </>}
               <p className="mt-6 text-xs leading-5 text-muted-foreground">
                 {plan.description}
               </p>
