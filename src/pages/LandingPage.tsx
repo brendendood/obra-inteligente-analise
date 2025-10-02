@@ -533,12 +533,9 @@ const LandingPage = () => {
                Faça upload do seu próximo projeto agora e veja resultados em minutos. Teste grátis, sem cartão, sem compromisso.
              </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+            <div className="flex justify-center items-center">
               <AppleButton as={Link} to="/cadastro" variant="primary" size="lg" className="w-full sm:w-auto">
                 Teste Grátis Agora
-              </AppleButton>
-              <AppleButton as={Link} to="/contato" variant="secondary" size="lg" className="w-full sm:w-auto">
-                Agendar Demo 15min
               </AppleButton>
             </div>
 
