@@ -1,14 +1,14 @@
 import { AlertCircle, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { useAccount } from '@/hooks/useAccount';
+import { useUserData } from '@/hooks/useUserData';
 import { useNavigate } from 'react-router-dom';
 
 export const TrialBanner = () => {
-  const { account, isTrialActive, getTrialDaysRemaining } = useAccount();
+  const { userData, isTrialActive, getTrialDaysRemaining } = useUserData();
   const navigate = useNavigate();
 
-  if (!account || !isTrialActive()) return null;
+  if (!userData || !isTrialActive()) return null;
 
   const daysRemaining = getTrialDaysRemaining();
 

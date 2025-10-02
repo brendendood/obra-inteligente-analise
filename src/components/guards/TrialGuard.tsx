@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAccount } from '@/hooks/useAccount';
+import { useUserData } from '@/hooks/useUserData';
 import { supabase } from '@/integrations/supabase/client';
 import { PageConstructionLoading } from '@/components/ui/construction-loading';
 
@@ -9,7 +9,7 @@ interface TrialGuardProps {
 }
 
 export const TrialGuard: React.FC<TrialGuardProps> = ({ children }) => {
-  const { account, loading, isDeactivated } = useAccount();
+  const { userData, loading, isDeactivated, getTrialDaysRemaining } = useUserData();
   const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
 
@@ -27,12 +27,11 @@ export const TrialGuard: React.FC<TrialGuardProps> = ({ children }) => {
         return;
       }
 
-      // Check if trial expired manually (in case cron hasn't run yet)
-      if (account?.account_type === 'trial' && account?.account_status === 'active') {
-        const createdAt = new Date(account.created_at);
-        const trialExpiresAt = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+      // Check if trial expired manually
+      if (userData?.account_type === 'trial' && userData?.account_status === 'active') {
+        const daysRemaining = getTrialDaysRemaining();
         
-        if (trialExpiresAt <= new Date()) {
+        if (daysRemaining <= 0) {
           await supabase.auth.signOut();
           navigate('/pricing-blocked', { 
             replace: true,
@@ -46,7 +45,7 @@ export const TrialGuard: React.FC<TrialGuardProps> = ({ children }) => {
     };
 
     checkAccount();
-  }, [loading, account, isDeactivated, navigate]);
+  }, [loading, userData, isDeactivated, getTrialDaysRemaining, navigate]);
 
   if (loading || checking) {
     return (
