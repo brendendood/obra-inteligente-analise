@@ -129,7 +129,7 @@ const LandingPage = () => {
               handle: "Orçamentista",
               avatar: testimonial1
             },
-            text: "Antes eu levava 3 dias montando quantitativos de um edifício comercial. Com os Quantitativos da MadeAI, exporto tudo completo em 40 minutos – incluindo itens que sempre esquecia, como impermeabilização de platibandas. Ganho de 25% na velocidade e zero revisão por omissão."
+            text: "A inteligência é algo que realmente ajuda na criação de cotação e cronogramas, não dá nem pra mensurar a economia de tempo que gera é surreal!!"
           },
           {
             author: {
@@ -137,7 +137,7 @@ const LandingPage = () => {
               handle: "Coordenador de Projetos",
               avatar: testimonial2
             },
-            text: "Rodei a Compatibilização em um projeto de 6.000 m² e o sistema apontou interferência entre a viga V5 e tubulação de 100 mm no eixo B-3. Corrigimos antes da obra e evitamos pelo menos 18% de retrabalho. Relatório objetivo que mudou a conversa com as equipes."
+            text: "A análise de conflito entre disciplinas é fundamental, tanto pra quem já tem os projetos feitos em softwares BIM como também pra projetos feitos no CAD. A análise só precisa ler o PDF e te mostra se vai ter conflito ou não."
           },
           {
             author: {
@@ -145,7 +145,7 @@ const LandingPage = () => {
               handle: "Arquiteta",
               avatar: testimonial3
             },
-            text: "As Sugestões Técnicas da plataforma me alertaram sobre layout inadequado em área molhada – algo que passaria batido. Ajustei conforme NBR 15575 e melhorei o desempenho térmico. Cliente adorou e o projeto ficou 15% mais eficiente."
+            text: "O assistente de IA é mão na roda, qualquer dúvida que tenho sobre um projeto ou sobre a obra, eu pergunto e ele já responde. Passa a cotação super rápido de qualquer material, me mostra qualquer quantidade, enfim é meu braço direito pra tudo."
           },
           {
             author: {
@@ -153,7 +153,7 @@ const LandingPage = () => {
               handle: "Engenheiro de Obra",
               avatar: testimonial4
             },
-            text: "No canteiro, uso o Oráculo para confirmar bitolas e especificações na hora. Perguntei sobre a armadura da laje L3 e tive resposta em segundos, com referência à prancha. Cortei 20% do tempo perdido com consultas a desenho e equipe não trava mais por dúvida."
+            text: "A cotação de materiais está ajudando muito, literalmente em poucos cliques eu já consigo ter uma cotação e orçamento completo com valores reais"
           },
           {
             author: {
@@ -161,7 +161,7 @@ const LandingPage = () => {
               handle: "Planejador",
               avatar: testimonial5
             },
-            text: "O Cronograma automático já vem com as fases sequenciadas (fundação → estrutura → vedações) e dependências prontas. Montei a linha de base em 1 hora – antes gastava 2 dias. Obra começou no prazo e sem choque de frentes. Confiança total."
+            text: "A cada dia que eu poderia perder organizando planejamento de obra, orçamento, cotação etc, foi transformado em um trabalho de poucos minutos, é indescritível a ajuda que essa plataforma proporciona!!!"
           }
         ]}
       />
