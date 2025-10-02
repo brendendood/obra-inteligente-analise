@@ -20,6 +20,12 @@ import { cn } from "@/lib/utils";
 import { Pricing } from "@/components/ui/pricing";
 import { TestPhaseHeading } from "@/components/sections/test-phase-heading";
 import CardFlip from "@/components/ui/flip-card";
+import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
+import testimonial1 from '@/assets/testimonial-1.jpeg';
+import testimonial2 from '@/assets/testimonial-2.jpeg';
+import testimonial3 from '@/assets/testimonial-3.png';
+import testimonial4 from '@/assets/testimonial-4.png';
+import testimonial5 from '@/assets/testimonial-5.png';
 
 // GridItem component for Features section
 interface GridItemProps {
@@ -111,6 +117,54 @@ const LandingPage = () => {
           </motion.div>
         </div>
       </ArchitectureSaaSBackground>
+
+      {/* Testimonials Section */}
+      <TestimonialsSection
+        title="Profissionais que já transformaram sua rotina"
+        description="Descubra como arquitetos e engenheiros estão economizando tempo e aumentando a precisão em seus projetos"
+        testimonials={[
+          {
+            author: {
+              name: "Larissa Medeiros",
+              handle: "Arquiteta",
+              avatar: testimonial1
+            },
+            text: "Antes levava 4 dias para fechar um orçamento. Com a MadeAI, faço em minutos e ainda ganho insights sobre possíveis problemas no projeto. Ferramenta indispensável!"
+          },
+          {
+            author: {
+              name: "Vinícius Borges",
+              handle: "Engenheiro Civil",
+              avatar: testimonial2
+            },
+            text: "A integração com dados SINAPI me dá total confiabilidade. Consegui detectar uma falha estrutural que custaria mais de R$ 40 mil na obra. Já se pagou várias vezes."
+          },
+          {
+            author: {
+              name: "Beatriz Nogueira",
+              handle: "Arquiteta e Urbanista",
+              avatar: testimonial3
+            },
+            text: "Impressionante como a IA entende contexto. Analisa o projeto como um profissional experiente e sugere melhorias que eu nem tinha pensado. Aumentou muito minha produtividade."
+          },
+          {
+            author: {
+              name: "Rafael Campos",
+              handle: "Engenheiro de Obras",
+              avatar: testimonial4
+            },
+            text: "Os cronogramas gerados são muito realistas, baseados em projetos similares. Não preciso mais refazer todo o planejamento no meio da obra. Confiança total!"
+          },
+          {
+            author: {
+              name: "Eduardo Pereira",
+              handle: "Arquiteto",
+              avatar: testimonial5
+            },
+            text: "Fechei 3x mais propostas desde que comecei a usar. A agilidade para responder clientes fez toda diferença. E os relatórios ficam super profissionais."
+          }
+        ]}
+      />
 
       {/* Social Proof Section - Seção 2 com fundo preto no dark mode */}
       <section className="sm:py-16 bg-[#fdfdfd]/30 dark:bg-black dark:shadow-none py-0">
