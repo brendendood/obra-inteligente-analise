@@ -126,42 +126,42 @@ const LandingPage = () => {
           {
             author: {
               name: "Larissa Medeiros",
-              handle: "Arquiteta",
+              handle: "Orçamentista",
               avatar: testimonial1
             },
-            text: "Antes levava 4 dias para fechar um orçamento. Com a MadeAI, faço em minutos e ainda ganho insights sobre possíveis problemas no projeto. Ferramenta indispensável!"
+            text: "Antes eu levava 3 dias montando quantitativos de um edifício comercial. Com os Quantitativos da MadeAI, exporto tudo completo em 40 minutos – incluindo itens que sempre esquecia, como impermeabilização de platibandas. Ganho de 25% na velocidade e zero revisão por omissão."
           },
           {
             author: {
               name: "Vinícius Borges",
-              handle: "Engenheiro Civil",
+              handle: "Coordenador de Projetos",
               avatar: testimonial2
             },
-            text: "A integração com dados SINAPI me dá total confiabilidade. Consegui detectar uma falha estrutural que custaria mais de R$ 40 mil na obra. Já se pagou várias vezes."
+            text: "Rodei a Compatibilização em um projeto de 6.000 m² e o sistema apontou interferência entre a viga V5 e tubulação de 100 mm no eixo B-3. Corrigimos antes da obra e evitamos pelo menos 18% de retrabalho. Relatório objetivo que mudou a conversa com as equipes."
           },
           {
             author: {
               name: "Beatriz Nogueira",
-              handle: "Arquiteta e Urbanista",
+              handle: "Arquiteta",
               avatar: testimonial3
             },
-            text: "Impressionante como a IA entende contexto. Analisa o projeto como um profissional experiente e sugere melhorias que eu nem tinha pensado. Aumentou muito minha produtividade."
+            text: "As Sugestões Técnicas da plataforma me alertaram sobre layout inadequado em área molhada – algo que passaria batido. Ajustei conforme NBR 15575 e melhorei o desempenho térmico. Cliente adorou e o projeto ficou 15% mais eficiente."
           },
           {
             author: {
               name: "Rafael Campos",
-              handle: "Engenheiro de Obras",
+              handle: "Engenheiro de Obra",
               avatar: testimonial4
             },
-            text: "Os cronogramas gerados são muito realistas, baseados em projetos similares. Não preciso mais refazer todo o planejamento no meio da obra. Confiança total!"
+            text: "No canteiro, uso o Oráculo para confirmar bitolas e especificações na hora. Perguntei sobre a armadura da laje L3 e tive resposta em segundos, com referência à prancha. Cortei 20% do tempo perdido com consultas a desenho e equipe não trava mais por dúvida."
           },
           {
             author: {
               name: "Eduardo Pereira",
-              handle: "Arquiteto",
+              handle: "Planejador",
               avatar: testimonial5
             },
-            text: "Fechei 3x mais propostas desde que comecei a usar. A agilidade para responder clientes fez toda diferença. E os relatórios ficam super profissionais."
+            text: "O Cronograma automático já vem com as fases sequenciadas (fundação → estrutura → vedações) e dependências prontas. Montei a linha de base em 1 hora – antes gastava 2 dias. Obra começou no prazo e sem choque de frentes. Confiança total."
           }
         ]}
       />
