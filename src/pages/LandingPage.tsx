@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { AppleButton } from '@/components/ui/apple-button';
 import { CtaGlow } from '@/components/ui/cta-glow';
-import { FlowButton } from '@/components/ui/flow-button';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
 import { HeroPill } from '@/components/ui/hero-pill';
 import { Typewriter } from '@/components/ui/typewriter';
@@ -99,7 +98,9 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
-              <FlowButton text="Teste Grátis Agora" href="/cadastro" size="lg" className="w-full sm:w-auto" />
+              <AppleButton as={Link} to="/cadastro" variant="primary" size="lg" className="w-full sm:w-auto">
+                Teste Grátis Agora
+              </AppleButton>
               <AppleButton as={Link} to="/demo" variant="ghost" size="lg" className="w-full sm:w-auto">
                 Ver Como Funciona
               </AppleButton>
@@ -294,7 +295,9 @@ const LandingPage = () => {
 
           {/* CTA Button */}
           <div className="text-center">
-            <FlowButton text="Começar agora" href="/cadastro" size="lg" />
+            <AppleButton as={Link} to="/cadastro" variant="primary" size="lg">
+              Começar agora
+            </AppleButton>
           </div>
         </div>
       </section>
@@ -531,7 +534,9 @@ const LandingPage = () => {
              </p>
             
             <div className="flex justify-center items-center">
-              <FlowButton text="Teste Grátis Agora" href="/cadastro" size="lg" className="w-full sm:w-auto" />
+              <AppleButton as={Link} to="/cadastro" variant="primary" size="lg" className="w-full sm:w-auto">
+                Teste Grátis Agora
+              </AppleButton>
             </div>
 
             <p className="text-xs sm:text-sm text-muted-foreground mt-3 sm:mt-4">
