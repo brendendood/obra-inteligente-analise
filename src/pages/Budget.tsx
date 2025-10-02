@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { FileText, ArrowLeft, Calculator, Plus, Trash2, Download, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/contexts/ProjectContext';
-import { BudgetBlock } from '@/components/blocks/FeatureBlocks';
+import { BudgetBlock, ExportBudgetBlock } from '@/components/blocks/FeatureBlocks';
 
 interface BudgetItem {
   id: string;
@@ -278,10 +278,12 @@ const Budget = () => {
               <Button onClick={generateProjectBudget} variant="outline">
                 Atualizar Orçamento
               </Button>
-              <Button onClick={generateBudgetSheet} className="bg-green-600 hover:bg-green-700">
-                <Download className="h-4 w-4 mr-2" />
-                Gerar Planilha
-              </Button>
+              <ExportBudgetBlock>
+                <Button onClick={generateBudgetSheet} className="bg-green-600 hover:bg-green-700">
+                  <Download className="h-4 w-4 mr-2" />
+                  Gerar Planilha
+                </Button>
+              </ExportBudgetBlock>
             </div>
           </div>
         </div>

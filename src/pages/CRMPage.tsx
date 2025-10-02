@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useFeatureAccess } from "@/hooks/use-feature-access";
+import { useToast } from "@/hooks/use-toast";
 import {
   Users, DollarSign, TrendingUp, Plus, Search, Edit, Trash2,
   Building2, Mail, Phone, Calendar, ArrowLeft
@@ -181,6 +183,8 @@ function ProjectForm({ project, clients, onSave, onCancel }: {
 
 export default function CRMDashboardPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { hasAccess, plan, loading: planLoading } = useFeatureAccess();
   const { loading, error, clients, projects,
     createClient, updateClient, deleteClient,
     createProject, updateProject, deleteProject } = useCRM();
@@ -191,6 +195,18 @@ export default function CRMDashboardPage() {
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<CRMClient | undefined>();
   const [editingProject, setEditingProject] = useState<CRMProject | undefined>();
+
+  // Verificar acesso ao CRM (ENTERPRISE)
+  useEffect(() => {
+    if (!planLoading && !hasAccess("crm")) {
+      toast({
+        title: "Acesso Restrito",
+        description: "O CRM está disponível apenas para o plano ENTERPRISE.",
+        variant: "destructive",
+      });
+      navigate("/plano");
+    }
+  }, [planLoading, hasAccess, navigate, toast]);
 
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {

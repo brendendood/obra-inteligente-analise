@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { FileText, ArrowLeft, Calendar, Download, CheckCircle, Clock, AlertCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useProject } from '@/contexts/ProjectContext';
-import { ScheduleBlock } from '@/components/blocks/FeatureBlocks';
+import { ScheduleBlock, ExportScheduleBlock } from '@/components/blocks/FeatureBlocks';
 
 interface ScheduleItem {
   id: string;
@@ -312,10 +312,12 @@ const Schedule = () => {
               <Button onClick={generateProjectSchedule} variant="outline">
                 Atualizar Cronograma
               </Button>
-              <Button onClick={exportToPDF} className="bg-green-600 hover:bg-green-700">
-                <Download className="h-4 w-4 mr-2" />
-                Exportar PDF
-              </Button>
+              <ExportScheduleBlock>
+                <Button onClick={exportToPDF} className="bg-green-600 hover:bg-green-700">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar PDF
+                </Button>
+              </ExportScheduleBlock>
             </div>
           </div>
         </div>

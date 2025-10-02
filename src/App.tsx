@@ -13,6 +13,7 @@ import { EmergencyFallback } from "@/components/error/EmergencyFallback";
 import { LazyWrapper } from "@/components/ui/lazy-wrapper";
 import { UnifiedLoading } from "@/components/ui/unified-loading";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { CRMBlock, AIGeneralBlock, ProjectAIAssistantBlock } from "@/components/blocks/FeatureBlocks";
 
 // Critical pages (preloaded)
 import LandingPage from "./pages/LandingPage";
@@ -232,10 +233,15 @@ const App = () => {
                   </ProtectedRoute>
                 } />
                 
+                {/* AI Assistant - BASIC+ */}
                 <Route path="/ia" element={
                   <ProtectedRoute>
                     <PaywallGuard>
-                      <LazyWrapper><Assistant /></LazyWrapper>
+                      <LazyWrapper>
+                        <AIGeneralBlock>
+                          <Assistant />
+                        </AIGeneralBlock>
+                      </LazyWrapper>
                     </PaywallGuard>
                   </ProtectedRoute>
                 } />
@@ -278,10 +284,15 @@ const App = () => {
                   </ProtectedRoute>
                 } />
                 
+                {/* CRM Page - ENTERPRISE only */}
                 <Route path="/crm" element={
                   <ProtectedRoute>
                     <PaywallGuard>
-                      <LazyWrapper><CRMPage /></LazyWrapper>
+                      <LazyWrapper>
+                        <CRMBlock>
+                          <CRMPage />
+                        </CRMBlock>
+                      </LazyWrapper>
                     </PaywallGuard>
                   </ProtectedRoute>
                 } />
@@ -316,7 +327,13 @@ const App = () => {
                   <Route index element={<LazyWrapper><ProjectSpecificOverview /></LazyWrapper>} />
                   <Route path="orcamento" element={<LazyWrapper><ProjectSpecificBudget /></LazyWrapper>} />
                   <Route path="cronograma" element={<LazyWrapper><ProjectSpecificSchedule /></LazyWrapper>} />
-                  <Route path="assistente" element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                  <Route path="assistente" element={
+                    <LazyWrapper>
+                      <ProjectAIAssistantBlock>
+                        <ProjectSpecificAssistant />
+                      </ProjectAIAssistantBlock>
+                    </LazyWrapper>
+                  } />
                   <Route path="documentos" element={<LazyWrapper><ProjectSpecificDocumentsPage /></LazyWrapper>} />
                 </Route>
                 
@@ -327,7 +344,13 @@ const App = () => {
                     </PaywallGuard>
                   </ProtectedRoute>
                 }>
-                  <Route index element={<LazyWrapper><ProjectSpecificAssistant /></LazyWrapper>} />
+                  <Route index element={
+                    <LazyWrapper>
+                      <ProjectAIAssistantBlock>
+                        <ProjectSpecificAssistant />
+                      </ProjectAIAssistantBlock>
+                    </LazyWrapper>
+                  } />
                 </Route>
 
                 <Route path="*" element={<LazyWrapper><NotFound /></LazyWrapper>} />
