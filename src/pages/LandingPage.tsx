@@ -133,7 +133,7 @@ const LandingPage = () => {
           },
           {
             author: {
-              name: "Vinícius Borges",
+              name: "Mateus Rossi",
               handle: "Coordenador de Projetos",
               avatar: testimonial2
             },
@@ -149,7 +149,7 @@ const LandingPage = () => {
           },
           {
             author: {
-              name: "Rafael Campos",
+              name: "João Zaguini",
               handle: "Engenheiro de Obra",
               avatar: testimonial4
             },
