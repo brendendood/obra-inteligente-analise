@@ -1,12 +1,13 @@
 "use client";
 
-import { planLabel, type PlanTier, getPlanBadgeStyle } from "@/lib/domain/plans";
+import { planLabel, type PlanTier, getPlanBadgeStyle, normalizePlanTier } from "@/lib/domain/plans";
 import { motion } from "framer-motion";
 import React from "react";
 
-export function PlanBadge({ plan }: { plan: PlanTier }) {
-  const label = planLabel(plan);
-  const badgeStyle = getPlanBadgeStyle(plan);
+export function PlanBadge({ plan }: { plan: PlanTier | string }) {
+  const normalizedPlan = normalizePlanTier(plan);
+  const label = planLabel(normalizedPlan);
+  const badgeStyle = getPlanBadgeStyle(normalizedPlan);
 
   return (
     <motion.span

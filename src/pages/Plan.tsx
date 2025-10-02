@@ -11,7 +11,7 @@ import { useUserData } from '@/hooks/useUserData';
 import { useToast } from '@/hooks/use-toast';
 import { useStripeSubscription } from '@/hooks/useStripeSubscription';
 import { getPlanDisplayName, getPlanLimit, getPlanPrice, getPlanFeatures, getPlanUsagePercentage, shouldShowUpgradeWarning, canUpgrade, formatPlanPrice, isMaxPlan } from '@/lib/domain/plans';
-import { PlanBadge } from '@/components/ui/PlanBadge';
+import { PlanBadge } from '@/components/admin/PlanBadge';
 import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
 const Plan = () => {
   const {
@@ -147,7 +147,7 @@ const Plan = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-slate-600">Plano Atual</span>
-                  <PlanBadge planCode={currentPlan || userData.plan} />
+                  <PlanBadge plan={currentPlan || userData.plan} />
                 </div>
                 <p className="text-2xl font-bold text-slate-900">
                   {formatPlanPrice(currentPlan || userData.plan)}

@@ -13,7 +13,7 @@ import { useUserData } from "@/hooks/useUserData";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { canUpgrade, getUpgradeMessage } from "@/lib/domain/plans";
-import { PlanBadge } from "@/components/ui/PlanBadge";
+import { PlanBadge } from "@/components/admin/PlanBadge";
 import { canShowUpgradeButton, renderProjectQuota } from "@/utils/planQuota";
 import { ReferralModal } from "@/components/modals/ReferralModal";
 
@@ -248,7 +248,7 @@ export function SessionNavBar({ onCollapseChange, isCollapsed: externalCollapsed
                   <div className="text-xs text-muted-foreground">
                     Projetos: {renderProjectQuota(userData.plan, userData.projectCount)}
                   </div>
-                  <PlanBadge planCode={userData.plan} />
+                  <PlanBadge plan={userData.plan} />
                 </div>
               </div>
             </div>

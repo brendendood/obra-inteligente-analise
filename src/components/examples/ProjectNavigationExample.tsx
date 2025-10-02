@@ -2,7 +2,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useOptimizedProjectNavigation } from '@/hooks/useOptimizedProjectNavigation';
-import { useProjectStateManager } from '@/hooks/useProjectStateManager';
+import { useProjectSync } from '@/hooks/useProjectSync';
+import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
 import { Calculator, Clock, Bot, ExternalLink } from 'lucide-react';
 
 interface ProjectNavigationExampleProps {
@@ -12,7 +13,14 @@ interface ProjectNavigationExampleProps {
 
 export const ProjectNavigationExample = ({ projectId, projectName }: ProjectNavigationExampleProps) => {
   const { navigateToProject, quickNavigateToSection } = useOptimizedProjectNavigation();
-  const { currentProject, isProjectValid, refreshCurrentProject } = useProjectStateManager();
+  const { currentProject, isProjectLoaded, validateCurrentProject } = useProjectSync();
+  const { getProjectById } = useUnifiedProjectStore();
+
+  const refreshCurrentProject = () => {
+    validateCurrentProject();
+  };
+
+  const isProjectValid = currentProject ? !!getProjectById(currentProject.id) : false;
 
   return (
     <Card className="w-full max-w-md">

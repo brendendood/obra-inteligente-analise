@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { Crown } from 'lucide-react';
 import { useUserData } from '@/hooks/useUserData';
-import { PlanBadge } from '@/components/ui/PlanBadge';
+import { PlanBadge } from '@/components/admin/PlanBadge';
 import { renderProjectQuota, canShowUpgradeButton } from '@/utils/planQuota';
 
 export const PlanTab = () => {
@@ -43,7 +43,7 @@ export const PlanTab = () => {
         </div>
         <div>
           <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
-            Plano Atual: <PlanBadge planCode={userData.plan} />
+            Plano Atual: <PlanBadge plan={userData.plan} />
           </h3>
           <p className="text-gray-600">
             {getPlanDescription(userData.plan)}

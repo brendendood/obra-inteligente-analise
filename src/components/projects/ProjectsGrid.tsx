@@ -2,8 +2,11 @@
 import ProjectCard from './ProjectCard';
 import ProjectsEmptyState from './ProjectsEmptyState';
 import { DropIndicator } from '@/components/ui/DropIndicator';
-import { useProjectsLogic } from '@/hooks/useProjectsLogic';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
+import { useProjectActions } from '@/hooks/useProjectActions';
 import { Project } from '@/types/project';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 interface ProjectsGridProps {
   projects: Project[];
@@ -11,14 +14,30 @@ interface ProjectsGridProps {
 }
 
 export const ProjectsGrid = ({ projects, onDeleteProject }: ProjectsGridProps) => {
+  const { updateProject } = useProjectActions();
+  const { toast } = useToast();
+  const [orderedProjects, setOrderedProjects] = useState(projects);
+
+  // Drag & Drop
   const {
-    updateProject,
-    // Drag & Drop
     isDragging,
     getDragItemProps,
     getDropZoneProps,
     getDropIndicatorProps,
-  } = useProjectsLogic();
+  } = useDragAndDrop({
+    items: orderedProjects,
+    onReorder: (reordered) => {
+      setOrderedProjects(reordered);
+      const projectOrder = reordered.map(p => p.id);
+      localStorage.setItem('projectOrder', JSON.stringify(projectOrder));
+      
+      toast({
+        title: "✅ Ordem atualizada",
+        description: "A nova ordem dos projetos foi salva.",
+      });
+    },
+    keyExtractor: (project) => project.id,
+  });
 
   if (projects.length === 0) {
     return <ProjectsEmptyState />;
@@ -30,7 +49,7 @@ export const ProjectsGrid = ({ projects, onDeleteProject }: ProjectsGridProps) =
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {projects.map((project, index) => (
+      {orderedProjects.map((project, index) => (
         <div key={project.id} className="relative group">
           {/* Drop Indicator */}
           <DropIndicator {...getDropIndicatorProps(index)} className="mb-4" />
@@ -55,8 +74,8 @@ export const ProjectsGrid = ({ projects, onDeleteProject }: ProjectsGridProps) =
           </div>
           
           {/* Drop Indicator no final */}
-          {index === projects.length - 1 && (
-            <DropIndicator {...getDropIndicatorProps(projects.length)} className="mt-4" />
+          {index === orderedProjects.length - 1 && (
+            <DropIndicator {...getDropIndicatorProps(orderedProjects.length)} className="mt-4" />
           )}
         </div>
       ))}

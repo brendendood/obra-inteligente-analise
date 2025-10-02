@@ -17,6 +17,9 @@ export { useUserPlan } from '@/hooks/use-user-plan';
 // ============= Project Hooks =============
 export { useProjects, useProjectById, useProjectCount, useProjectsLoading } from '@/hooks/useProjects';
 export { useProjectNavigation } from '@/hooks/useProjectNavigation';
+export { useProjectSync } from '@/hooks/useProjectSync';
+export { useProjectFilters } from '@/hooks/useProjectFilters';
+export { useProjectActions } from '@/hooks/useProjectActions';
 
 // ============= Admin Hooks =============
 // export { useAdminAnalytics } from '@/hooks/useAdminAnalytics';

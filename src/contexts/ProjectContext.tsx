@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback, useRef, useContext, createContext } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Project, ProjectContextType } from '@/types/project';
-import { useProjectStorage } from '@/hooks/useProjectStorage';
 import { useProjectUpload } from '@/hooks/useProjectUpload';
 import { useProjectValidation } from '@/hooks/useProjectValidation';
 import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
@@ -49,9 +48,36 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   }
   const { user, isAuthenticated, loading } = useAuth();
   
-  const { saveProjectToStorage, getProjectFromStorage, clearProjectFromStorage } = useProjectStorage();
   const { validateProject } = useProjectValidation();
   const { projects: allProjects } = useUnifiedProjectStore();
+
+  // Storage helpers (inline implementation)
+  const saveProjectToStorage = useCallback((project: Project | null) => {
+    if (project && isAuthenticated) {
+      localStorage.setItem('currentProject', JSON.stringify(project));
+    } else {
+      localStorage.removeItem('currentProject');
+    }
+  }, [isAuthenticated]);
+
+  const getProjectFromStorage = useCallback((): Project | null => {
+    if (!isAuthenticated) return null;
+    
+    const savedProject = localStorage.getItem('currentProject');
+    if (savedProject) {
+      try {
+        return JSON.parse(savedProject);
+      } catch (error) {
+        console.error('Erro ao parse do projeto do localStorage:', error);
+        localStorage.removeItem('currentProject');
+      }
+    }
+    return null;
+  }, [isAuthenticated]);
+
+  const clearProjectFromStorage = useCallback(() => {
+    localStorage.removeItem('currentProject');
+  }, []);
 
   const clearAllProjects = useCallback(() => {
     console.log('🧹 PROJECT CONTEXT: Limpando todos os projetos');
