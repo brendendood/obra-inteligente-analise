@@ -61,12 +61,12 @@ function Footerdemo() {
           {/* Redes + toggle */}
           <div className="relative">
             <h3 className="mb-3 sm:mb-4 text-base sm:text-lg font-semibold">Siga a MadeAI nas Redes Sociais:</h3>
-            <div className="mb-4 sm:mb-6 flex space-x-3 px-0">
+            <div className="mb-4 sm:mb-6 flex space-x-3">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="outline" size="icon" className="rounded-full" asChild>
-                      <a href="https://instagram.com/madeai.br" aria-label="Instagram da MadeAI" target="_blank" className="px-0">
+                      <a href="https://instagram.com/madeai.br" aria-label="Instagram da MadeAI" target="_blank" className="px-[33px]">
                         <Instagram className="h-4 w-4" />
                       </a>
                     </Button>
@@ -81,7 +81,7 @@ function Footerdemo() {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="outline" size="icon" className="rounded-full" asChild>
-                      <a href="https://linkedin.com/company/maden-ai" aria-label="LinkedIn da MadeAI" target="_blank" className="px-0">
+                      <a href="https://linkedin.com/company/maden-ai" aria-label="LinkedIn da MadeAI" target="_blank" className="px-[33px]">
                         <Linkedin className="h-4 w-4" />
                       </a>
                     </Button>
