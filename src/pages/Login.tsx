@@ -21,7 +21,7 @@ const testimonials: Testimonial[] = [
     avatarSrc: testimonialMateus,
     name: "Mateus Rossi",
     handle: "@matrssx",
-    text: "A MadenAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
+    text: "A MadeAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
   },
   {
     avatarSrc: testimonialAna,

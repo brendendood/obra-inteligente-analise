@@ -247,7 +247,7 @@ function Signup() {
     avatarSrc: testimonialMateus,
     name: "Mateus Rossi",
     handle: "@matrssx",
-    text: "A MadenAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
+    text: "A MadeAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
   }, {
     avatarSrc: testimonialAna,
     name: "Ana Viletti",
@@ -259,7 +259,7 @@ function Signup() {
         <ArrowLeft size={16} />
         Voltar
       </Button>
-      <SignUpPage title={<span className="font-light tracking-tighter">Crie sua conta MadeAI</span>} description="Comece agora sua jornada com a MadenAI em apenas 3 passos." heroImageSrc={loginBackground} testimonials={testimonials} onSubmitStep={handleStepSubmit} onGoogleSignUp={signInWithGoogle} currentStep={currentStep} onStepChange={step => setCurrentStep(step as SignupStep)} formData={formData} onFormDataChange={setFormData} showPassword={showPassword} onShowPasswordChange={setShowPassword} loading={loading} onBack={handleBack} />
+      <SignUpPage title={<span className="font-light tracking-tighter">Crie sua conta MadeAI</span>} description="Comece agora sua jornada com a MadeAI em apenas 3 passos." heroImageSrc={loginBackground} testimonials={testimonials} onSubmitStep={handleStepSubmit} onGoogleSignUp={signInWithGoogle} currentStep={currentStep} onStepChange={step => setCurrentStep(step as SignupStep)} formData={formData} onFormDataChange={setFormData} showPassword={showPassword} onShowPasswordChange={setShowPassword} loading={loading} onBack={handleBack} />
     </div>;
 }
 export default Signup;
