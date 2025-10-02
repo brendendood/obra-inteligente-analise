@@ -310,11 +310,11 @@ export default function Login() {
   return (
     <div className="bg-background text-foreground relative">
       <AppleButton
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/')}
         variant="ghost"
         size="sm"
         className="absolute top-4 left-4 z-10 flex items-center gap-2"
-        aria-label="Voltar à página anterior"
+        aria-label="Voltar à página inicial"
       >
         <ArrowLeft size={16} />
         Voltar
