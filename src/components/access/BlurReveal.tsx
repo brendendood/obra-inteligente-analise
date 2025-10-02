@@ -1,16 +1,16 @@
 import React, { PropsWithChildren, useMemo, useState } from "react";
-import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { cn } from "@/lib/utils";
 import { useIsTouchDevice } from "./useIsTouchDevice";
 
 type Props = PropsWithChildren<{
-  feature: Parameters<ReturnType<typeof useFeatureAccess>["hasAccess"]>[0];
+  feature: string;
   className?: string;
-  ctaHref?: string;           // padrão: /selecionar-plano
-  ctaText?: string;           // padrão: "Fazer upgrade"
-  reasonText?: string;        // texto acima do botão
+  ctaHref?: string;
+  ctaText?: string;
+  reasonText?: string;
   blurIntensity?: "sm" | "md" | "lg";
-  lockPointerEvents?: boolean; // se true, conteúdo não clicável enquanto blur
+  lockPointerEvents?: boolean;
 }>;
 
 /**
@@ -30,11 +30,14 @@ export default function BlurReveal({
   lockPointerEvents = true,
   children,
 }: Props) {
-  const { hasAccess, nextRequiredPlan, currentPlan } = useFeatureAccess();
+  const { hasAccess, plan, loading } = useFeatureAccess();
   const allowed = hasAccess(feature);
-  const needPlan = nextRequiredPlan(feature);
   const isTouch = useIsTouchDevice();
   const [showOverlay, setShowOverlay] = useState<boolean>(isTouch && !allowed);
+
+  if (loading) {
+    return <div className={className}>{children}</div>;
+  }
 
   const blurClass = useMemo(() => {
     if (allowed) return "";
@@ -97,9 +100,7 @@ export default function BlurReveal({
         >
           <p className="text-sm md:text-base font-medium">
             {reasonText ??
-              `Este recurso exige o plano ${labelPlan(needPlan)} (o seu é ${labelPlan(
-                currentPlan
-              )}).`}
+              `Este recurso não está disponível no seu plano atual (${labelPlan(plan?.plan_tier)}).`}
           </p>
           <a
             href={ctaHref}
@@ -124,15 +125,15 @@ export default function BlurReveal({
 
 function labelPlan(plan?: string) {
   switch (plan) {
-    case "trial":
+    case "FREE":
       return "Teste Grátis";
-    case "basic":
+    case "BASIC":
       return "Basic";
-    case "pro":
+    case "PRO":
       return "Pro";
-    case "enterprise":
+    case "ENTERPRISE":
       return "Enterprise";
     default:
-      return plan ?? "-";
+      return plan ?? "Grátis";
   }
 }

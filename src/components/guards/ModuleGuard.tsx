@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { useFeatureAccess } from '@/hooks/use-feature-access';
 import { ModuleBlockedModal } from '@/components/trial/ModuleBlockedModal';
 import { PageConstructionLoading } from '@/components/ui/construction-loading';
 

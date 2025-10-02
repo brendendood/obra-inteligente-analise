@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useFeatureAccess } from '@/hooks/useFeatureAccess';
+import { useFeatureAccess } from '@/hooks/use-feature-access';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
