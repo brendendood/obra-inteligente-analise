@@ -1,49 +1,13 @@
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useProject } from '@/contexts/ProjectContext';
-import { useUnifiedProjectStore } from '@/stores/unifiedProjectStore';
+import { useProjectSync } from '@/hooks/useProjectSync';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 
+/**
+ * Hook para carregar projeto no workspace
+ * Usa useProjectSync para sincronizar com URL
+ */
 export const useProjectLoader = () => {
-  const { projectId } = useParams<{ projectId: string }>();
-  const { currentProject, setCurrentProject } = useProject();
-  const { getProjectById } = useUnifiedProjectStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadProject = async () => {
-      if (!projectId) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const project = getProjectById(projectId);
-        if (project) {
-          setCurrentProject(project);
-          setError(null);
-        } else {
-          // Aguardar um pouco para os projetos carregarem
-          setTimeout(() => {
-            const retryProject = getProjectById(projectId);
-            if (retryProject) {
-              setCurrentProject(retryProject);
-              setError(null);
-            }
-          }, 1000);
-        }
-      } catch (err) {
-        console.error('Erro ao carregar projeto:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProject();
-  }, [projectId, getProjectById, setCurrentProject]);
+  const { currentProject, isProjectLoaded } = useProjectSync();
 
   // Unified Loading Component
   const LoadingComponent = () => (
@@ -53,8 +17,8 @@ export const useProjectLoader = () => {
   );
 
   return {
-    loading,
-    error,
+    loading: !isProjectLoaded,
+    error: null,
     currentProject,
     LoadingComponent
   };
