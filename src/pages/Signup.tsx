@@ -11,9 +11,7 @@ import { passo1Schema, passo2Schema, passo3Schema } from '@/schemas/cadastro';
 import loginBackground from '@/assets/login-background.jpeg';
 import testimonialMateus from '@/assets/testimonial-mateus.jpeg';
 import testimonialAna from '@/assets/testimonial-ana.jpeg';
-
 type SignupStep = 1 | 2 | 3;
-
 interface FormData {
   name: string;
   email: string;
@@ -23,7 +21,6 @@ interface FormData {
   position: string;
   acceptTerms: boolean;
 }
-
 interface ReferralValidationResponse {
   valid: boolean;
   message: string;
@@ -33,16 +30,13 @@ interface ReferralValidationResponse {
     email: string;
   };
 }
-
 function Signup() {
   const [currentStep, setCurrentStep] = useState<SignupStep>(1);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
   const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [referralInfo, setReferralInfo] = useState<any>(null);
-  
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -52,24 +46,27 @@ function Signup() {
     position: '',
     acceptTerms: false
   });
-
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
-  const { signUp } = useAuth();
-  const { signInWithGoogle } = useSocialAuth();
+  const {
+    signUp
+  } = useAuth();
+  const {
+    signInWithGoogle
+  } = useSocialAuth();
 
   // Check for success/error params
   useEffect(() => {
     const error = searchParams.get('error');
     const success = searchParams.get('success');
-
     if (error) {
       const errorMessages = {
         'token-ausente': 'Link de verificação inválido.',
         'token-invalido': 'Link de verificação expirado ou inválido.',
         'erro-interno': 'Ocorreu um erro interno. Tente novamente.'
       };
-      
       toast({
         title: "❌ Erro na verificação",
         description: errorMessages[error as keyof typeof errorMessages] || 'Erro desconhecido.',
@@ -77,14 +74,12 @@ function Signup() {
         duration: 8000
       });
     }
-
     if (success === 'verificado') {
       toast({
         title: "✅ Email verificado!",
         description: "Sua conta foi ativada com sucesso. Você pode fazer login agora.",
         duration: 8000
       });
-      
       setTimeout(() => {
         navigate('/login');
       }, 3000);
@@ -97,30 +92,29 @@ function Signup() {
       validateReferralCode(refParam);
     }
   }, [searchParams]);
-
   const validateReferralCode = async (code: string) => {
     try {
-      const { data, error } = await supabase.rpc('validate_referral_code', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('validate_referral_code', {
         p_ref_code: code
       });
-
       if (error) throw error;
-
       const response = data as unknown as ReferralValidationResponse;
-
       if (response.valid) {
         setReferralInfo(response.referrer);
         toast({
           title: "🎉 Indicação válida!",
           description: `Você foi indicado por ${response.referrer?.name}. Receberá 5 créditos gratuitos!`,
-          duration: 5000,
+          duration: 5000
         });
       } else {
         toast({
           title: "❌ Código inválido",
           description: response.message,
           variant: "destructive",
-          duration: 5000,
+          duration: 5000
         });
         setReferralCode(null);
       }
@@ -129,12 +123,11 @@ function Signup() {
       toast({
         title: "❌ Erro na validação",
         description: "Não foi possível validar o código de indicação.",
-        variant: "destructive",
+        variant: "destructive"
       });
       setReferralCode(null);
     }
   };
-
   const validateStep = (step: number, data: FormData) => {
     try {
       if (step === 1) {
@@ -160,35 +153,32 @@ function Signup() {
       return false;
     }
   };
-
   const handleStepSubmit = async (step: number, data: Record<string, any>) => {
-    const updatedData = { ...formData, ...data } as FormData;
+    const updatedData = {
+      ...formData,
+      ...data
+    } as FormData;
     setFormData(updatedData);
 
     // Validate current step
     if (!validateStep(step, updatedData)) {
       return;
     }
-
     if (step === 3) {
       await handleSubmit(updatedData);
       return;
     }
-    
     if (step < 3) {
-      setCurrentStep((prev) => (prev + 1) as SignupStep);
+      setCurrentStep(prev => prev + 1 as SignupStep);
     }
   };
-
   const handleBack = () => {
     if (currentStep > 1) {
-      setCurrentStep((prev) => (prev - 1) as SignupStep);
+      setCurrentStep(prev => prev - 1 as SignupStep);
     }
   };
-
   const handleSubmit = async (finalData: FormData = formData) => {
     setLoading(true);
-
     try {
       const userData: any = {
         full_name: finalData.name,
@@ -204,11 +194,11 @@ function Signup() {
       }
 
       // Enhanced signup with integrated email verification
-      const { error } = await signUp(finalData.email, finalData.password, userData);
-
+      const {
+        error
+      } = await signUp(finalData.email, finalData.password, userData);
       if (error) {
         console.error('Erro no cadastro:', error);
-        
         if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
           toast({
             title: "❌ E-mail já em uso",
@@ -253,52 +243,23 @@ function Signup() {
       setLoading(false);
     }
   };
-
-  const testimonials: Testimonial[] = [
-    {
-      avatarSrc: testimonialMateus,
-      name: "Mateus Rossi",
-      handle: "@matrssx",
-      text: "A MadenAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
-    },
-    {
-      avatarSrc: testimonialAna,
-      name: "Ana Viletti",
-      handle: "@ana.vilt",
-      text: "Incrível como a plataforma organiza cronogramas e documentos. A IA sugere otimizações que eu nunca pensaria sozinha. Indispensável para arquitetos!"
-    },
-  ];
-
-  return (
-    <div className="bg-background text-foreground relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(-1)}
-        className="absolute top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground"
-        aria-label="Voltar à página anterior"
-      >
+  const testimonials: Testimonial[] = [{
+    avatarSrc: testimonialMateus,
+    name: "Mateus Rossi",
+    handle: "@matrssx",
+    text: "A MadenAI revolucionou a gestão dos meus projetos. Consegui reduzir em 40% o tempo de orçamento e o assistente IA me ajuda muito nas decisões técnicas."
+  }, {
+    avatarSrc: testimonialAna,
+    name: "Ana Viletti",
+    handle: "@ana.vilt",
+    text: "Incrível como a plataforma organiza cronogramas e documentos. A IA sugere otimizações que eu nunca pensaria sozinha. Indispensável para arquitetos!"
+  }];
+  return <div className="bg-background text-foreground relative">
+      <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="absolute top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground" aria-label="Voltar à página anterior">
         <ArrowLeft size={16} />
         Voltar
       </Button>
-      <SignUpPage
-        title={<span className="font-light tracking-tighter">Crie sua conta MadenAI</span>}
-        description="Comece agora sua jornada com a MadenAI em apenas 3 passos."
-        heroImageSrc={loginBackground}
-        testimonials={testimonials}
-        onSubmitStep={handleStepSubmit}
-        onGoogleSignUp={signInWithGoogle}
-        currentStep={currentStep}
-        onStepChange={(step) => setCurrentStep(step as SignupStep)}
-        formData={formData}
-        onFormDataChange={setFormData}
-        showPassword={showPassword}
-        onShowPasswordChange={setShowPassword}
-        loading={loading}
-        onBack={handleBack}
-      />
-    </div>
-  );
+      <SignUpPage title={<span className="font-light tracking-tighter">Crie sua conta MadeAI</span>} description="Comece agora sua jornada com a MadenAI em apenas 3 passos." heroImageSrc={loginBackground} testimonials={testimonials} onSubmitStep={handleStepSubmit} onGoogleSignUp={signInWithGoogle} currentStep={currentStep} onStepChange={step => setCurrentStep(step as SignupStep)} formData={formData} onFormDataChange={setFormData} showPassword={showPassword} onShowPasswordChange={setShowPassword} loading={loading} onBack={handleBack} />
+    </div>;
 }
-
 export default Signup;
