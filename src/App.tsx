@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useMemo } from 'react';
 import SafeToasters from "@/components/ui/SafeToasters";
+import { ThemeProvider } from "@/components/theme-provider";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -155,17 +156,19 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const queryClient = useMemo(() => createQueryClient(), []);
   
   return (
-    <AuthProvider>
-      <ImpersonationProvider>
-        <QueryClientProvider client={queryClient}>
-          <ProjectProvider>
-            <TooltipProvider delayDuration={200}>
-              {children}
-            </TooltipProvider>
-          </ProjectProvider>
-        </QueryClientProvider>
-      </ImpersonationProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ImpersonationProvider>
+          <QueryClientProvider client={queryClient}>
+            <ProjectProvider>
+              <TooltipProvider delayDuration={200}>
+                {children}
+              </TooltipProvider>
+            </ProjectProvider>
+          </QueryClientProvider>
+        </ImpersonationProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
