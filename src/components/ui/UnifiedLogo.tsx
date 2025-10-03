@@ -1,7 +1,10 @@
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { useState, useMemo, useCallback } from 'react';
+import logoDark from '@/assets/logo-dark.svg';
+import logoLight from '@/assets/logo-light.svg';
 
 interface UnifiedLogoProps {
   variant?: 'full' | 'icon' | 'favicon';
@@ -26,6 +29,7 @@ export const UnifiedLogo = ({
 }: UnifiedLogoProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme: currentTheme } = useTheme();
   // Only use auth hook if clickable (performance optimization)
   const { isAuthenticated } = clickable ? useAuth() : { isAuthenticated: false };
   const [imageError, setImageError] = useState(false);
@@ -68,14 +72,8 @@ export const UnifiedLogo = ({
     setImageError(false);
   }, []);
 
-  // Logo da MadeAI - conditional para light/dark mode
-  const isDarkMode = document.documentElement.classList.contains('dark-mode') || 
-                     (document.documentElement.classList.contains('system-mode') && 
-                      window.matchMedia('(prefers-color-scheme: dark)').matches);
-  
-  const logoSrc = isDarkMode ? 
-    `/public/assets/madeai-logo-dark.png` : 
-    `/lovable-uploads/71b28b41-8880-485d-97bc-36bda534c54e.png`;
+  // Logo da MadeAI - responsive ao tema atual
+  const logoSrc = currentTheme === 'dark' ? logoDark : logoLight;
 
   // Loading state
   if (loading) {
@@ -133,7 +131,7 @@ export const UnifiedLogo = ({
       onLoad={handleImageLoad}
       className={cn(
         sizeClasses[size],
-        'object-contain transition-all duration-200',
+        'object-contain transition-opacity duration-300',
         clickable && 'cursor-pointer hover:scale-105',
         className
       )}

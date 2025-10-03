@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/useTheme";
+import logoDark from '@/assets/logo-dark.svg';
+import logoLight from '@/assets/logo-light.svg';
+
 interface LogoProps {
   className?: string;
   width?: number;
   height?: number;
 }
+
 export function Logo({
   className,
   width = 120,
@@ -16,12 +20,7 @@ export function Logo({
   
   useEffect(() => {
     setMounted(true);
-    console.log('🎨 Logo mounted with theme:', theme);
   }, []);
-
-  useEffect(() => {
-    console.log('🎨 Logo theme changed to:', theme);
-  }, [theme]);
   
   if (!mounted) {
     return <div className={cn("animate-pulse bg-muted rounded", className)} style={{
@@ -29,6 +28,15 @@ export function Logo({
       height
     }} />;
   }
+
+  const logoSrc = theme === 'dark' ? logoDark : logoLight;
   
-  return null;
+  return (
+    <img
+      src={logoSrc}
+      alt="MadeAI Logo"
+      className={cn("transition-opacity duration-300 object-contain", className)}
+      style={{ width, height }}
+    />
+  );
 }
