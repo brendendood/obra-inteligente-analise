@@ -25,7 +25,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Logo width={140} height={48} className="transition-all duration-300 hover:scale-105" />
+            <Logo width={120} height={40} className="transition-all duration-300 hover:scale-105" />
           </div>
 
           {/* Desktop Actions */}

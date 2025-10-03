@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { useState, useMemo, useCallback } from 'react';
 import logoDark from '@/assets/logo-dark.svg';
-import logoLight from '@/assets/logo-light.svg';
+import logoLight from '@/assets/logo-light.png';
 
 interface UnifiedLogoProps {
   variant?: 'full' | 'icon' | 'favicon';

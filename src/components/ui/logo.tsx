@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/useTheme";
 import logoDark from '@/assets/logo-dark.svg';
-import logoLight from '@/assets/logo-light.svg';
+import logoLight from '@/assets/logo-light.png';
 
 interface LogoProps {
   className?: string;
