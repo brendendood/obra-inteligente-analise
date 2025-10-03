@@ -72,8 +72,8 @@ export const UnifiedLogo = ({
     setImageError(false);
   }, []);
 
-  // Logo da MadeAI - responsive ao tema atual
-  const logoSrc = currentTheme === 'dark' ? logoDark : logoLight;
+  // Logo da MadeAI - em dark mode usar logo branca (light), em light mode usar logo escura (dark)
+  const logoSrc = currentTheme === 'dark' ? logoLight : logoDark;
 
   // Loading state
   if (loading) {

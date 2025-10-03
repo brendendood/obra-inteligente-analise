@@ -29,7 +29,8 @@ export function Logo({
     }} />;
   }
 
-  const logoSrc = theme === 'dark' ? logoDark : logoLight;
+  // Em dark mode, usar logo branca (light). Em light mode, usar logo escura (dark)
+  const logoSrc = theme === 'dark' ? logoLight : logoDark;
   
   return (
     <img
