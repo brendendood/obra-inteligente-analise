@@ -80,12 +80,12 @@ const PasswordStrengthIndicator = ({ password }: { password: string }) => {
   ];
 
   return (
-    <div className="mt-2 space-y-1">
+    <div className="mt-1 space-y-0.5">
       {requirements.map((req, index) => {
         const isValid = req.test(password);
         return (
-          <div key={index} className={`flex items-center gap-2 text-xs ${isValid ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
-            {isValid ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+          <div key={index} className={`flex items-center gap-1.5 text-[10px] ${isValid ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+            {isValid ? <CheckCircle className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />}
             <span>{req.text}</span>
           </div>
         );
@@ -118,10 +118,10 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
 
   // Step progress indicator
   const StepIndicator = () => (
-    <div className="flex items-center justify-center gap-2 mb-6">
+    <div className="flex items-center justify-center gap-2 mb-3">
       {[1, 2, 3].map((step) => (
         <div key={step} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
             step <= currentStep 
               ? 'bg-primary text-primary-foreground' 
               : 'bg-muted text-muted-foreground'
@@ -129,7 +129,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
             {step}
           </div>
           {step < 3 && (
-            <div className={`w-8 h-0.5 transition-colors ${
+            <div className={`w-6 h-0.5 transition-colors ${
               step < currentStep ? 'bg-primary' : 'bg-muted'
             }`} />
           )}
@@ -282,27 +282,27 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col lg:flex-row font-geist w-full bg-background">
+    <div className="h-[100dvh] flex flex-col lg:flex-row font-geist w-full bg-background overflow-hidden">
       {/* Left column: multi-step form */}
-      <section className="flex-1 flex items-center justify-center p-4 px-6 md:p-10">
+      <section className="flex-1 flex items-center justify-center p-4 px-6 md:p-6 overflow-y-auto">
         <div className="w-full max-w-md mx-auto">
-          <div className="flex flex-col gap-6">
-            <h1 className="animate-element animate-delay-100 text-3xl md:text-5xl font-bold leading-tight text-balance text-center lg:text-left">
+          <div className="flex flex-col gap-3">
+            <h1 className="animate-element animate-delay-100 text-2xl md:text-4xl font-bold leading-tight text-balance text-center lg:text-left">
               {title}
             </h1>
-            <p className="animate-element animate-delay-200 text-muted-foreground text-sm md:text-base mb-4 md:mb-6 text-center lg:text-left">{description}</p>
+            <p className="animate-element animate-delay-200 text-muted-foreground text-xs md:text-sm mb-2 md:mb-3 text-center lg:text-left">{description}</p>
 
             <StepIndicator />
             
             <div className="text-center">
-              <h2 className="text-xl font-medium text-foreground">{getStepTitle()}</h2>
+              <h2 className="text-lg font-medium text-foreground">{getStepTitle()}</h2>
             </div>
 
-            <form className="space-y-5" onSubmit={handleNext}>
+            <form className="space-y-3" onSubmit={handleNext}>
               {currentStep === 1 && (
                 <>
                   <div className="animate-element animate-delay-300">
-                    <label className="text-sm font-medium text-muted-foreground">E-mail *</label>
+                    <label className="text-xs font-medium text-muted-foreground">E-mail *</label>
                     <GlassInputWrapper error={!!validationErrors.email}>
                       <input
                         name="email"
@@ -311,7 +311,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         onChange={handleChange}
                         onBlur={handleEmailBlur}
                         placeholder="seu@email.com"
-                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                        className="w-full bg-transparent text-sm p-3 rounded-2xl focus:outline-none"
                         required
                       />
                     </GlassInputWrapper>
@@ -320,7 +320,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   </div>
 
                   <div className="animate-element animate-delay-400">
-                    <label className="text-sm font-medium text-muted-foreground">Senha *</label>
+                    <label className="text-xs font-medium text-muted-foreground">Senha *</label>
                     <GlassInputWrapper error={!!validationErrors.password}>
                       <div className="relative">
                         <input
@@ -329,18 +329,18 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                           value={localFormData.password || ''}
                           onChange={handleChange}
                           placeholder="Crie sua senha"
-                          className="w-full bg-transparent text-sm p-4 pr-12 rounded-2xl focus:outline-none"
+                          className="w-full bg-transparent text-sm p-3 pr-10 rounded-2xl focus:outline-none"
                           required
                         />
                         <button
                           type="button"
                           onClick={() => onShowPasswordChange?.(!showPassword)}
-                          className="absolute inset-y-0 right-3 flex items-center"
+                          className="absolute inset-y-0 right-2 flex items-center"
                         >
                           {showPassword ? (
-                            <EyeOff className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+                            <EyeOff className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
                           ) : (
-                            <Eye className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+                            <Eye className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
                           )}
                         </button>
                       </div>
@@ -352,7 +352,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   </div>
 
                   <div className="animate-element animate-delay-500">
-                    <label className="text-sm font-medium text-muted-foreground">Confirmar Senha *</label>
+                    <label className="text-xs font-medium text-muted-foreground">Confirmar Senha *</label>
                     <GlassInputWrapper error={!!validationErrors.confirmPassword}>
                       <input
                         name="confirmPassword"
@@ -360,7 +360,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         value={localFormData.confirmPassword || ''}
                         onChange={handleChange}
                         placeholder="Repita sua senha"
-                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                        className="w-full bg-transparent text-sm p-3 rounded-2xl focus:outline-none"
                         required
                       />
                     </GlassInputWrapper>
@@ -372,7 +372,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
               {currentStep === 2 && (
                 <>
                   <div className="animate-element animate-delay-300">
-                    <label className="text-sm font-medium text-muted-foreground">Nome Completo *</label>
+                    <label className="text-xs font-medium text-muted-foreground">Nome Completo *</label>
                     <GlassInputWrapper error={!!validationErrors.name}>
                       <input
                         name="name"
@@ -380,7 +380,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         value={localFormData.name || ''}
                         onChange={handleChange}
                         placeholder="Digite seu nome completo"
-                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                        className="w-full bg-transparent text-sm p-3 rounded-2xl focus:outline-none"
                         required
                       />
                     </GlassInputWrapper>
@@ -388,7 +388,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                   </div>
 
                   <div className="animate-element animate-delay-400">
-                    <label className="text-sm font-medium text-muted-foreground">Empresa</label>
+                    <label className="text-xs font-medium text-muted-foreground">Empresa</label>
                     <GlassInputWrapper>
                       <input
                         name="company"
@@ -396,13 +396,13 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         value={localFormData.company || ''}
                         onChange={handleChange}
                         placeholder="Nome da sua empresa (opcional)"
-                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                        className="w-full bg-transparent text-sm p-3 rounded-2xl focus:outline-none"
                       />
                     </GlassInputWrapper>
                   </div>
 
                   <div className="animate-element animate-delay-500">
-                    <label className="text-sm font-medium text-muted-foreground">Cargo</label>
+                    <label className="text-xs font-medium text-muted-foreground">Cargo</label>
                     <GlassInputWrapper>
                       <input
                         name="position"
@@ -410,7 +410,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                         value={localFormData.position || ''}
                         onChange={handleChange}
                         placeholder="Seu cargo/função (opcional)"
-                        className="w-full bg-transparent text-sm p-4 rounded-2xl focus:outline-none"
+                        className="w-full bg-transparent text-sm p-3 rounded-2xl focus:outline-none"
                       />
                     </GlassInputWrapper>
                   </div>
@@ -420,10 +420,10 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
               {currentStep === 3 && (
                 <>
                   <div className="animate-element animate-delay-300">
-                    <div className="bg-muted/30 rounded-2xl p-6 space-y-4">
-                      <h3 className="font-medium text-foreground mb-4">Revise seus dados:</h3>
+                    <div className="bg-muted/30 rounded-2xl p-4 space-y-3">
+                      <h3 className="font-medium text-sm text-foreground mb-2">Revise seus dados:</h3>
                       
-                      <div className="space-y-3 text-sm">
+                      <div className="space-y-2 text-xs">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">E-mail:</span>
                           <span className="font-medium">{localFormData.email}</span>
@@ -511,12 +511,12 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                 </>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 {currentStep > 1 && (
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="animate-element animate-delay-600 flex-1 rounded-2xl border border-border py-3 md:py-4 text-base font-medium text-muted-foreground hover:bg-muted transition-colors"
+                    className="animate-element animate-delay-600 flex-1 rounded-2xl border border-border py-2.5 md:py-3 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
                   >
                     Voltar
                   </button>
@@ -524,7 +524,7 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
                 <button
                   type="submit"
                   disabled={loading || emailChecking || Object.keys(validationErrors).length > 0}
-                  className="animate-element animate-delay-600 flex-1 rounded-2xl bg-primary py-3 md:py-4 text-base font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="animate-element animate-delay-600 flex-1 rounded-2xl bg-primary py-2.5 md:py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <div className="flex items-center justify-center gap-2">
@@ -542,11 +542,11 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
               <>
                 <div className="animate-element animate-delay-700 relative flex items-center justify-center">
                   <span className="w-full border-t border-border"></span>
-                  <span className="px-4 text-sm text-muted-foreground bg-background absolute">Ou continue com</span>
+                  <span className="px-3 text-xs text-muted-foreground bg-background absolute">Ou continue com</span>
                 </div>
                 <button
                   onClick={onGoogleSignUp}
-                  className="animate-element animate-delay-800 w-full flex items-center justify-center gap-3 border border-border rounded-2xl py-3 md:py-4 text-base font-medium hover:bg-secondary transition-colors"
+                  className="animate-element animate-delay-800 w-full flex items-center justify-center gap-2 border border-border rounded-2xl py-2.5 md:py-3 text-sm font-medium hover:bg-secondary transition-colors"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 48 48">
                     <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s12-5.373 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z" />
@@ -564,15 +564,15 @@ export const SignUpPage: React.FC<SignUpPageProps> = ({
 
       {/* Right column: hero image + testimonials */}
       {heroImageSrc && (
-        <section className="hidden md:block flex-1 relative p-4">
+        <section className="hidden md:block flex-1 relative p-3">
           <div
-            className="animate-slide-right animate-delay-300 absolute inset-4 rounded-3xl bg-cover bg-center"
+            className="animate-slide-right animate-delay-300 absolute inset-3 rounded-3xl bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImageSrc})` }}
             role="img"
             aria-label="Ilustração da MadeAI"
           />
           {testimonials.length > 0 && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 px-8 w-full justify-center">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 px-6 w-full justify-center">
               <TestimonialCard testimonial={testimonials[0]} delay="animate-delay-1000" />
               {testimonials[1] && <div className="hidden xl:flex"><TestimonialCard testimonial={testimonials[1]} delay="animate-delay-1200" /></div>}
               {testimonials[2] && <div className="hidden 2xl:flex"><TestimonialCard testimonial={testimonials[2]} delay="animate-delay-1400" /></div>}

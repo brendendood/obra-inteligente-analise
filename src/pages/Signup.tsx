@@ -255,8 +255,8 @@ function Signup() {
     text: "Incrível como a plataforma organiza cronogramas e documentos. A IA sugere otimizações que eu nunca pensaria sozinha. Indispensável para arquitetos!"
   }];
   return <div className="bg-background text-foreground relative">
-      <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="absolute top-4 left-4 z-10 flex items-center gap-2 text-muted-foreground hover:text-foreground" aria-label="Voltar à página anterior">
-        <ArrowLeft size={16} />
+      <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="absolute top-2 left-2 z-10 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" aria-label="Voltar à página anterior">
+        <ArrowLeft size={14} />
         Voltar
       </Button>
       <SignUpPage title={<span className="font-light tracking-tighter">Crie sua conta MadeAI</span>} description="Comece agora sua jornada com a MadeAI em apenas 3 passos." heroImageSrc={loginBackground} testimonials={testimonials} onSubmitStep={handleStepSubmit} onGoogleSignUp={signInWithGoogle} currentStep={currentStep} onStepChange={step => setCurrentStep(step as SignupStep)} formData={formData} onFormDataChange={setFormData} showPassword={showPassword} onShowPasswordChange={setShowPassword} loading={loading} onBack={handleBack} />
