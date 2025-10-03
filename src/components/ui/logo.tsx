@@ -12,8 +12,8 @@ interface LogoProps {
 
 export function Logo({
   className,
-  width = 120,
-  height = 40
+  width = 100,
+  height = 32
 }: LogoProps) {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);

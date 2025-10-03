@@ -15,7 +15,7 @@ export const DashboardMobileHeader = ({ isMenuOpen, onToggleMenu }: DashboardMob
       {/* Header fixo no topo para mobile */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border h-14 flex items-center justify-between px-4 md:hidden">
         <div className="flex items-center gap-3">
-          <Logo width={100} height={32} />
+          <Logo width={90} height={30} />
         </div>
         
         {/* Botão de menu */}
