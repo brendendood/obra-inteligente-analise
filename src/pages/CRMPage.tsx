@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -196,17 +196,19 @@ export default function CRMDashboardPage() {
   const [editingClient, setEditingClient] = useState<CRMClient | undefined>();
   const [editingProject, setEditingProject] = useState<CRMProject | undefined>();
 
-  // Verificar acesso ao CRM (ENTERPRISE)
-  useEffect(() => {
-    if (!planLoading && !hasAccess("crm")) {
-      toast({
-        title: "Acesso Restrito",
-        description: "O CRM está disponível apenas para o plano ENTERPRISE.",
-        variant: "destructive",
-      });
-      navigate("/plano");
-    }
-  }, [planLoading, hasAccess, navigate, toast]);
+  // BLOQUEIO SÍNCRONO: verificar IMEDIATAMENTE antes de renderizar qualquer coisa
+  if (planLoading) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="text-muted-foreground">Verificando permissões...</div>
+      </div>
+    );
+  }
+
+  if (!hasAccess("crm")) {
+    // Redirect síncrono - NUNCA renderizar a página
+    return <Navigate to="/plano" replace />;
+  }
 
   const filteredClients = useMemo(() => {
     return clients.filter((client) => {

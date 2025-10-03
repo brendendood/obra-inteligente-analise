@@ -32,7 +32,6 @@ const PremiumBlocker: React.FC<PremiumBlockerProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 bg-black/20 backdrop-blur-md"
-            onClick={onClose}
           />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
@@ -58,14 +57,7 @@ const PremiumBlocker: React.FC<PremiumBlockerProps> = ({
                       onClick={onUpgrade}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium"
                     >
-                      Atualizar Plano
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={onClose}
-                      className="w-full text-gray-500 dark:text-gray-400"
-                    >
-                      Cancelar
+                      Ver Planos
                     </Button>
                   </div>
                 </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import PremiumBlocker from "@/components/modals/premium-blocker";
+import { useNavigate } from "react-router-dom";
 
 type RequiredPlan = "BASIC" | "PRO" | "ENTERPRISE";
 
@@ -16,7 +17,7 @@ export function PlanGuard({
   children: React.ReactNode;
 }) {
   const { plan, loading, hasAccess } = useFeatureAccess();
-  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const allowed = useMemo(() => {
     if (loading) return false;
@@ -25,19 +26,16 @@ export function PlanGuard({
 
   if (loading) return null;
 
+  // CRÍTICO: Se não tem acesso, NUNCA renderizar children
   if (!allowed) {
     return (
-      <>
-        <PremiumBlocker
-          isOpen={!open ? true : open} // aberto por padrão quando não permitido
-          onClose={() => setOpen(false)}
-          featureName={`Este recurso (${feature}) exige plano ${requiredPlan}`}
-          hasPermission={false}
-          onUpgrade={() => {
-            alert("Faça upgrade de plano para acessar este recurso");
-          }}
-        />
-      </>
+      <PremiumBlocker
+        isOpen={true}
+        onClose={() => {}} // Não permitir fechar
+        featureName={`Este recurso (${feature}) exige plano ${requiredPlan}`}
+        hasPermission={false}
+        onUpgrade={() => navigate("/plano")}
+      />
     );
   }
 
