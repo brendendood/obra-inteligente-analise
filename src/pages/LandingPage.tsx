@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { AppleButton } from '@/components/ui/apple-button';
 import { CtaGlow } from '@/components/ui/cta-glow';
 import { ArrowRight, Star, Brain, Calculator, Calendar, FileText, TrendingUp, Shield, Check, Upload, Users, BarChart3, Download, PlayCircle, Menu, X } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { HeroPill } from '@/components/ui/hero-pill';
 import { Typewriter } from '@/components/ui/typewriter';
 import { SectionDivider } from '@/components/ui/section-divider';
@@ -62,6 +63,8 @@ const GridItem = ({
     </li>;
 };
 const LandingPage = () => {
+  const { theme } = useTheme();
+  
   return <div className="min-h-screen bg-background">
       <Header />
       
@@ -184,9 +187,15 @@ const LandingPage = () => {
             <p className="text-muted-foreground mb-6 sm:mb-8 text-base sm:text-lg">Orçamentos baseados em SINAPI, Sienge e normas ABNT atualizadas. Sem estimativas, apenas dados reais do mercado brasileiro.</p>
             <div className="flex justify-center items-center mb-6 sm:mb-8">
               <div className="relative w-full max-w-[600px] aspect-[3/2]">
-                <iframe src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" className="w-full h-full rounded-lg" style={{
-                background: 'transparent'
-              }} frameBorder="0" allowFullScreen />
+                <iframe 
+                  src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" 
+                  className="w-full h-full rounded-lg" 
+                  style={{
+                    background: theme === 'dark' ? '#000000' : '#ffffff'
+                  }} 
+                  frameBorder="0" 
+                  allowFullScreen 
+                />
               </div>
             </div>
             

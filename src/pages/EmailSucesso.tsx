@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
+import { useTheme } from 'next-themes';
 
 export default function EmailSucesso() {
   const navigate = useNavigate();
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     // Foco inicial no heading para acessibilidade
@@ -46,7 +48,7 @@ export default function EmailSucesso() {
                   width: '128px',
                   height: '128px',
                   border: 'none',
-                  background: 'transparent'
+                  background: theme === 'dark' ? '#000000' : '#ffffff'
                 }}
                 allow="autoplay"
               />
