@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useTheme } from '@/hooks/useTheme';
-import { useState, useMemo, useCallback } from 'react';
+import { useTheme } from 'next-themes';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import logoDark from '@/assets/logo-dark.svg';
 import logoLight from '@/assets/logo-light.png';
 
@@ -33,6 +33,11 @@ export const UnifiedLogo = ({
   // Only use auth hook if clickable (performance optimization)
   const { isAuthenticated } = clickable ? useAuth() : { isAuthenticated: false };
   const [imageError, setImageError] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Memoize size classes for better performance
   const sizeClasses = useMemo(() => ({
@@ -75,8 +80,8 @@ export const UnifiedLogo = ({
   // Logo da MadeAI - em dark mode usar logo branca (light), em light mode usar logo escura (dark)
   const logoSrc = currentTheme === 'dark' ? logoLight : logoDark;
 
-  // Loading state
-  if (loading) {
+  // Loading or not mounted state
+  if (loading || !mounted) {
     return (
       <div 
         className={cn(

@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { UnifiedLoading } from '@/components/ui/unified-loading';
 import { useLocation } from 'react-router-dom';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from 'next-themes';
 import '@/styles/sidebar-adjust.css';
 import '@/styles/page-container.css';
 

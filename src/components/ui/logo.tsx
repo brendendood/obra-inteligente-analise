@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "next-themes";
 import logoDark from '@/assets/logo-dark.svg';
 import logoLight from '@/assets/logo-light.png';
 
@@ -21,10 +21,6 @@ export function Logo({
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  useEffect(() => {
-    console.log('🎨 Logo theme changed to:', theme);
-  }, [theme]);
   
   if (!mounted) {
     return <div className={cn("animate-pulse bg-muted rounded", className)} style={{
@@ -36,11 +32,9 @@ export function Logo({
   // Em dark mode, usar logo branca (light). Em light mode, usar logo escura (dark)
   const logoSrc = theme === 'dark' ? logoLight : logoDark;
   
-  console.log('🔍 Logo rendering with:', { theme, logoSrc, mounted });
-  
   return (
     <img
-      key={theme} // Force re-render quando tema muda
+      key={theme}
       src={logoSrc}
       alt="MadeAI Logo"
       className={cn("transition-opacity duration-300 object-contain", className)}

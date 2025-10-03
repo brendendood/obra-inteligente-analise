@@ -9,13 +9,14 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Instagram, Linkedin, Moon, Send, Sun } from "lucide-react";
-import { useTheme } from "@/hooks/useTheme";
+import { useTheme } from "next-themes";
 function Footerdemo() {
-  const {
-    theme,
-    toggleTheme
-  } = useTheme();
+  const { theme, setTheme } = useTheme();
   const currentYear = new Date().getFullYear();
+  
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
   return <footer className="relative border-t bg-background text-foreground transition-colors duration-300">
       <div className="container mx-auto sm:px-6 py-8 sm:py-12 md:px-6 lg:px-8 px-[41px]">
         <div className="grid gap-8 sm:gap-10 md:gap-12 md:grid-cols-2 lg:grid-cols-4 py-0 px-[34px]">

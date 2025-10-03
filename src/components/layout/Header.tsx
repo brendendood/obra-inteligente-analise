@@ -6,12 +6,10 @@ import { Logo } from '@/components/ui/logo';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@/hooks/useTheme';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  const { theme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
