@@ -110,6 +110,7 @@ export class BasePDFGenerator {
   }
 
   protected outputPDF(): Uint8Array {
-    return this.doc.output('arraybuffer') as Uint8Array;
+    const buffer = this.doc.output('arraybuffer');
+    return new Uint8Array(buffer as ArrayBuffer);
   }
 }

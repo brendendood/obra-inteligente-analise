@@ -49,7 +49,7 @@ export const generateProjectPDF = async (
     console.log('📂 Iniciando download do PDF...', { bufferSize: pdfBuffer.length });
     
     // Download do arquivo
-    const blob = new Blob([pdfBuffer], { type: 'application/pdf' });
+    const blob = new Blob([pdfBuffer.buffer as ArrayBuffer], { type: 'application/pdf' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
