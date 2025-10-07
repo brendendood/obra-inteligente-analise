@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { useUserData } from '@/hooks/useUserData';
 import { useStripeSubscription } from '@/hooks/useStripeSubscription';
 import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const SelectPlan = () => {
   const { user } = useAuth();
@@ -151,7 +153,7 @@ const SelectPlan = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-center mt-8 space-y-2"
+          className="text-center mt-8 space-y-4"
         >
           <p className="text-sm text-muted-foreground">
             💳 Pagamento 100% seguro via Stripe
@@ -159,6 +161,14 @@ const SelectPlan = () => {
           <p className="text-sm text-muted-foreground">
             ✅ Cancele quando quiser, sem taxas ou burocracia
           </p>
+          
+          <div className="pt-4">
+            <Link to="/login">
+              <Button variant="outline" size="lg">
+                Já assinei meu plano!
+              </Button>
+            </Link>
+          </div>
         </motion.div>
       </div>
     </div>
