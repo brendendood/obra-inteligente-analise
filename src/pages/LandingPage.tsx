@@ -216,7 +216,7 @@ const LandingPage = () => {
                   src="https://lottie.host/embed/765bd57d-872c-4837-acb7-118aca836ff6/REpljcsv0j.lottie" 
                   className="w-full h-full rounded-lg" 
                   style={{
-                    background: theme === 'dark' ? '#000000' : '#ffffff'
+                    background: 'transparent'
                   }} 
                   frameBorder="0" 
                   allowFullScreen 
