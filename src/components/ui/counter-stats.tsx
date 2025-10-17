@@ -55,8 +55,10 @@ export function CounterStats({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
+        if (entry.isIntersecting) {
           setIsVisible(true)
+        } else {
+          setIsVisible(false)
         }
       },
       { threshold: 0.3 }
@@ -71,7 +73,7 @@ export function CounterStats({
         observer.unobserve(sectionRef.current)
       }
     }
-  }, [isVisible])
+  }, [])
 
   const item = (label: string, val: number | string, index: number) => (
     <div 
