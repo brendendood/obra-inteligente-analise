@@ -27,6 +27,10 @@ import testimonial2 from '@/assets/testimonial-2.jpeg';
 import testimonial3 from '@/assets/testimonial-3.png';
 import testimonial4 from '@/assets/testimonial-4.png';
 import testimonial5 from '@/assets/testimonial-5.png';
+import { WhatsAppFloat } from '@/components/ui/whatsapp-float';
+import { VideoDemo } from '@/components/sections/video-demo';
+import { BuildInPublic } from '@/components/sections/build-in-public';
+import { ContactCTA } from '@/components/sections/contact-cta';
 
 // GridItem component for Features section
 interface GridItemProps {
@@ -102,7 +106,7 @@ const LandingPage = () => {
             </h1>
 
             <p className="sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed text-base">
-              Pare de perder dias criando orçamentos manualmente. Nossa IA analisa seus projetos (PDF, DWG) e entrega orçamentos precisos, cronogramas realistas e detecta falhas construtivas em minutos. Baseado em normas ABNT e dados SINAPI.
+              <strong>Reduza 70% do tempo em orçamentos.</strong> Nossa IA analisa seus projetos (PDF, DWG, BIM) e entrega orçamentos precisos, cronogramas realistas e detecta falhas construtivas em minutos. Baseado em normas ABNT e dados SINAPI reais.
             </p>
 
             {/* CTA Buttons */}
@@ -117,9 +121,30 @@ const LandingPage = () => {
 
             {/* Trust Indicators */}
             <TestPhaseHeading />
+            
+            {/* Additional Trust Elements */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-primary" />
+                <span>+450 profissionais ativos</span>
+              </div>
+              <div className="hidden sm:block w-1 h-1 bg-muted-foreground rounded-full"></div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-primary" />
+                <span>+1.200 projetos analisados</span>
+              </div>
+              <div className="hidden sm:block w-1 h-1 bg-muted-foreground rounded-full"></div>
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-primary" />
+                <span>Presente em 10 estados</span>
+              </div>
+            </div>
           </motion.div>
         </div>
       </ArchitectureSaaSBackground>
+
+      {/* Video Demo Section */}
+      <VideoDemo />
 
       {/* Testimonials Section */}
       <TestimonialsSection
@@ -206,7 +231,8 @@ const LandingPage = () => {
       {/* Counter Stats */}
       <CounterStats />
 
-      
+      {/* Build in Public Section */}
+      <BuildInPublic />
 
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
@@ -305,10 +331,10 @@ const LandingPage = () => {
           once: true
         }} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Por que mais de 450 profissionais escolheram a MadeAI?
+              Por que <strong className="text-primary">+450 engenheiros e arquitetos</strong> escolheram a MadeAI?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Economize 90% do tempo em orçamentos e elimine erros custosos antes que aconteçam
+              Profissionais qualificados da construção civil já estão economizando tempo e evitando erros custosos
             </p>
           </motion.div>
 
@@ -321,12 +347,12 @@ const LandingPage = () => {
             <CardFlip
               title="De 5 dias para 5 minutos"
               subtitle="Economia de tempo radical"
-              description="Economize 90% do tempo em orçamentos. Analise projetos completos instantaneamente e responda clientes no mesmo dia."
+              description="Reduza drasticamente o tempo de análise: o que levava dias agora leva minutos. Responda seus clientes com agilidade e profissionalismo."
               features={[
-                "Análise instantânea de projetos",
-                "Resposta no mesmo dia",
-                "90% menos tempo gasto",
-                "Processamento automático"
+                "Análise de projetos em minutos",
+                "Responda clientes no mesmo dia",
+                "Reduza 70% do tempo gasto",
+                "Relatórios prontos para apresentar"
               ]}
               color="#2563eb"
             />
@@ -573,6 +599,9 @@ const LandingPage = () => {
       }]
     }} className="sm:py-16 lg:py-20 py-[26px] px-[34px]" />
 
+      {/* Contact CTA Section */}
+      <ContactCTA />
+
       <SectionDivider from="#fafafa" to="#ffffff" height={32} />
 
       {/* Final CTA Section */}
@@ -590,10 +619,10 @@ const LandingPage = () => {
           once: true
         }}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4 sm:mb-6">
-              Pronto para economizar 90% do tempo nos seus orçamentos?
+              Pronto para transformar sua rotina de orçamentos?
             </h2>
              <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 max-w-2xl mx-auto">
-               Faça upload do seu próximo projeto agora e veja resultados em minutos. Teste grátis, sem cartão, sem compromisso.
+                Junte-se a centenas de engenheiros e arquitetos que já automatizaram seus processos. Comece grátis agora, sem cartão e sem compromisso.
              </p>
             
             <div className="flex justify-center items-center">
@@ -610,6 +639,9 @@ const LandingPage = () => {
       </section>
 
       <Footerdemo />
+      
+      {/* WhatsApp Float Button */}
+      <WhatsAppFloat />
     </div>;
 };
 export default LandingPage;
