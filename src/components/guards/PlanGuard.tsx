@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { useFeatureAccess } from "@/hooks/use-feature-access";
 import PremiumBlocker from "@/components/modals/premium-blocker";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 type RequiredPlan = "BASIC" | "PRO" | "ENTERPRISE";
 
@@ -18,6 +19,12 @@ export function PlanGuard({
 }) {
   const { plan, loading, hasAccess } = useFeatureAccess();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Usuário supremo sempre tem acesso total
+  if (user?.email === 'brendendood2014@gmail.com') {
+    return <>{children}</>;
+  }
 
   const allowed = useMemo(() => {
     if (loading) return false;

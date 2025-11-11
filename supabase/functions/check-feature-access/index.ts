@@ -59,6 +59,19 @@ serve(async (req) => {
       );
     }
 
+    // Usuário supremo sempre tem acesso total
+    if (user.email === 'brendendood2014@gmail.com') {
+      return new Response(
+        JSON.stringify({ 
+          allowed: true, 
+          tier: "ENTERPRISE",
+          feature,
+          supreme_user: true
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Buscar plano do usuário
     const { data: plan } = await supabaseClient
       .from("user_plans")
