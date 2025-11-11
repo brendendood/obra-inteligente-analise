@@ -255,7 +255,7 @@ function Signup() {
     text: "Incrível como a plataforma organiza cronogramas e documentos. A IA sugere otimizações que eu nunca pensaria sozinha. Indispensável para arquitetos!"
   }];
   return <div className="bg-background text-foreground relative">
-      <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="absolute top-2 left-2 z-10 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" aria-label="Voltar à página anterior">
+      <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="absolute top-2 left-2 z-10 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground" aria-label="Voltar à página inicial">
         <ArrowLeft size={14} />
         Voltar
       </Button>
